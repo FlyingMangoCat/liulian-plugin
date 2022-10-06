@@ -6,7 +6,7 @@ v2v3通用的云崽插件包
 #### 食用方法
 在云崽目录中输入
 ```
-git clone https://gitee.com/huifeidemangguomao/liulian/
+git clone https://gitee.com/huifeidemangguomao/liulian-plugin.git ./plugins/liulian-plugin/
 ```
 #### 免责声明
 
