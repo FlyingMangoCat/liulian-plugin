@@ -16,6 +16,6 @@ git clone https://gitee.com/huifeidemangguomao/liulian.git ./plugins/liulian-plu
 
 往生堂 790621765
 liulian-plugin榴莲插件？ 806760403
-欢迎进群打赏（别问我为啥没有爱发电，问就是懒得弄Github）
+欢迎进群打赏（别问为啥没有爱发电，问就是懒得弄Github）
 
 #### 打赏列表
