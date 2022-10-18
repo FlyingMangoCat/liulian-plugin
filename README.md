@@ -1,5 +1,7 @@
 # 榴莲插件(  **看这里！目前还有部分功能未上传，有时间了会继续上传！**  )
 
+[![访问量](https://profile-counter.glitch.me/liulian-plugin/count.svg)](https://gitee.com/xianxincoder/liulian-plugin)
+
 #### 说明
 v2v3通用的云崽插件包
 
