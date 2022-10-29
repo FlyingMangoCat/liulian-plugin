@@ -1,7 +1,7 @@
-# 榴莲插件
+# 榴莲插件（还没传完，不能用！我是懒狗，不要催我，想用可以去群里用群文件里的）
 
 #### 访问数量：
-[![访问量](https://profile-counter.glitch.me/liulian-plugin/count.svg)](https://gitee.com/xianxincoder/liulian-plugin)
+[![访问量](https://profile-counter.glitch.me/liulian-plugin/count.svg)](https://gitee.com/huifeidemangguomaocoder/liulian-plugin)
 
 #### 说明
 v2v3通用的云崽插件包
