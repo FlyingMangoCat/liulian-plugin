@@ -32,3 +32,6 @@ git clone https://github.com/flyingmangocat/liulian.git ./plugins/liulian-plugin
 * 欢迎进群打赏（别问为啥没有爱发电，问就是懒得弄）
 
 #### 打赏列表
+| Nickname                                                     | 打赏金额                       |
+| :----------------------------------------------------------: | ----------------------------------- |
+|[まため！](http://user.qzone.qq.com/314229521) | 10 |
