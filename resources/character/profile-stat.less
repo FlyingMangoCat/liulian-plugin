@@ -1,0 +1,358 @@
+.container {
+  background-size: cover;
+}
+
+.head-box {
+  margin-top: 0;
+}
+
+#profile-stat {
+  display: table;
+  border-collapse: collapse;
+  width: calc(100% + 30px);
+  margin: 0 -15px -5px;
+  overflow: hidden;
+
+  .item-banner {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    height: 36px;
+
+    & > * {
+      display: block;
+    }
+
+    .item-icon {
+      z-index: 10;
+    }
+  }
+
+  .cons, .level {
+    height: 22px;
+    line-height: 22px;
+    display: inline-block;
+    width: 19px;
+    padding: 0;
+    margin: 0;
+    text-align: center;
+    vertical-align: middle;
+    font-size: 13px;
+    position: relative;
+  }
+
+  .cons {
+    border-radius: 0 3px 3px 0;
+    width: 22px;
+    margin-right: 5px;
+    text-shadow: 0 0 2px #000;
+  }
+
+  .level {
+    border-radius: 3px 0 0 3px;
+    width: 32px;
+    text-shadow: 0 0 2px #000;
+    color: #fff;
+
+    &:before {
+      content: "Lv";
+
+    }
+  }
+
+  .level:before {
+    display: inline-block;
+    font-size: 12px;
+    transform: scale(.7);
+    transform-origin: right 55%;
+    margin-left: -3px;
+  }
+
+  .level:before {
+    content: "Lv";
+  }
+
+
+  .star(@s, @color) {
+    .star@{s} {
+      .item-icon {
+        box-shadow: 0 0 0 1px @color;
+      }
+
+      .cons {
+        box-shadow: 0 0 0 1px @color;
+      }
+
+      .level {
+        box-shadow: 0 0 0 1px @color;
+        background: fadeout(darken(@color, 30%), 50%);
+      }
+    }
+  }
+  .star(1, rgb(171, 171, 171));
+  .star(2, rgb(208, 255, 190));
+  .star(3, rgb(190, 208, 255));
+  .star(4, rgb(223, 190, 255));
+  .star(5, rgb(255, 228, 180));
+}
+
+.cont {
+  font-size: 14px;
+  background: none;
+
+  .item-name {
+    text-shadow: 0 0 1px #000, 1px 1px 2px rgba(0, 0, 0, .8);
+    text-align: center;
+
+    &.star4 {
+      color: #dfbeff;
+    }
+
+    &.star5 {
+      color: #ffe4b4;
+    }
+  }
+
+  .tr.thead {
+    background: rgba(0, 0, 0, .5);
+    font-weight: bold;
+
+    & > div {
+      box-shadow: 0 0 1px 0 rgba(255, 255, 255, .7);
+      text-align: center;
+    }
+
+    .td-talent {
+
+      color: #d3bc8e;
+    }
+  }
+
+  .tr {
+
+    & > div {
+      text-align: center;
+      height: 36px;
+      vertical-align: middle;
+      line-height: 36px;
+      box-shadow: 0 0 1px 0 rgba(255, 255, 255, .7);
+
+      * {
+        vertical-align: middle;
+      }
+    }
+
+    .index {
+      color: #333;
+      width: 30px;
+      padding-left: 5px;
+
+    }
+
+    .td-name {
+      text-align: left;
+      width: 150px;
+      padding-left: 8px;
+
+      .item-name {
+        width: 50px;
+      }
+
+
+      .char-icon {
+        width: 30px;
+        height: 30px;
+        border-radius: 5px;
+        display: inline-block;
+        overflow: visible;
+
+
+        .img {
+          width: 33px;
+          height: 33px;
+          position: relative;
+          top: -3px;
+          left: -1px;
+          border-radius: 0 0 6px 6px;
+        }
+      }
+    }
+
+    .td-fetter {
+      width: 40px;
+      text-align: center;
+      padding-right: 5px;
+
+      .fetter {
+        width: 32px;
+        height: 32px;
+      }
+    }
+
+    .td-talent {
+      width: 35px;
+      box-shadow: 0 0 1px 0 rgba(150, 150, 150, .5);
+    }
+
+    .td-weapon {
+      text-align: left;
+      padding-left: 10px;
+
+      .lv {
+        width: 38px;
+        text-align: right;
+        padding-right: 2px;
+        display: inline-block;
+        white-space: nowrap;
+      }
+
+      .weapon-icon {
+        border-radius: 0px;
+      }
+
+      .cons {
+        border-radius: 0 3px 3px 0;
+      }
+
+      .item-name {
+        width: 70px;
+      }
+    }
+
+    .weapon-icon {
+      width: 25px;
+      height: 22px;
+      display: inline-block;
+      overflow: visible;
+
+      .img {
+        width: 30px;
+        height: 30px;
+        margin: -8px 0 0 -3px;
+      }
+    }
+
+    .td-talent {
+      text-shadow: 0 0 1px #000, 0 0 2px rgba(0, 0, 0, .8);
+      color: rgba(255, 255, 255, .85);
+    }
+
+    .talent-plus {
+      font-weight: bold;
+      color: #48cdda;
+      font-size: 15px;
+      text-shadow: 0 0 1px #000, 0 0 3px #000;
+    }
+
+    .lv(@lv, @c1, @c2:#fff) {
+      .lv@{lv} {
+        background: @c1;
+
+        &.talent-plus {
+          color: @c2;
+        }
+      }
+    }
+    .lv(1, rgba(50, 50, 50, .6));
+    .lv(2, rgba(23, 184, 58, .5));
+    .lv(3, rgba(27, 128, 212, .5));
+    .lv(4, rgba(146, 90, 255, .5));
+
+    .lv5 {
+      background: url("../common/item/crown-o.png") center center no-repeat rgba(255, 36, 26, .35);
+      background-size: contain;
+      color: #fff;
+    }
+
+
+  }
+
+  .td-artis {
+    width: 115px;
+
+    text-align: left;
+  }
+
+  .avatar-artis {
+    margin-left: 5px;
+    text-align: left;
+    position: relative;
+    z-index: 10;
+
+    .artis {
+      position: relative;
+      width: 30px;
+      height: 30px;
+      background: rgba(51, 51, 51, 0.68);
+      box-shadow: 0 0 1px 0 #ffe4b4;
+      display: inline-block;
+    }
+
+    &.artis2 {
+      .img {
+        position: absolute;
+        width: 24px;
+        height: 24px;
+
+        &:first-child {
+          left: -2px;
+          top: -2px;
+        }
+
+        &:last-child {
+          right: -2px;
+          bottom: -2px;
+        }
+      }
+    }
+  }
+
+  .arti-mark-class {
+    width: 30px;
+    font-size: 12px;
+    border-radius: 0 4px 4px 0;
+    display: inline-block;
+    text-align: center;
+    background: rgba(51, 51, 51, 0.68);
+    height: 18px;
+    line-height: 18px;
+    box-shadow: 0 0 1px 0 #ffe4b4;
+    position: relative;
+    z-index: 9;
+    margin-right: 5px;
+
+    &.class- {
+      &ACE,
+      &ACE² {
+        background: #ff5722;
+      }
+
+      &SSS,
+      &SS {
+        background: #ab7e31;
+      }
+
+      &S,
+      &A {
+        background: #8a2cc9;
+      }
+    }
+  }
+
+  .arti-na {
+    padding-left: 13px;
+    white-space: nowrap;
+    transform: scale(.8);
+    transform-origin: left center;
+    color: rgba(255, 255, 255, .5);
+    font-size: 12px;
+    margin-right: -60px;
+  }
+}
+
+.cont-notice {
+  color: #666;
+  background: rgba(0, 0, 0, .7);
+  text-align: right;
+  padding: 8px;
+}
