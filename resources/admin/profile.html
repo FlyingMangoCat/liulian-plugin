@@ -1,0 +1,27 @@
+{{extend defaultLayout}}
+
+{{block 'css'}}
+<link rel="stylesheet" type="text/css" href="{{_res_path}}/admin/index.css"/>
+<link rel="stylesheet" type="text/css" href="{{_res_path}}/admin/index.css"/>
+<link rel="stylesheet" type="text/css" href="{{_res_path}}/admin/profile.css"/>
+{{/block}}
+
+{{block 'main'}}
+
+<div class="info_box">
+  <div class="head-box type{{bgType}}">
+  <div class="cfg-group">指定群设置</div>
+  <div class="cfg-desc">#榴莲面板设置群123456 + 开启/关闭/删除。对应群号会优先使用</div>
+  <ul class="cfg-ul">
+    {{each groups group}}
+    <li class="cfg-li">
+      <div class="cfg-line">
+        {{group.group}}
+        {{@group.status}}
+      </div>
+    </li>
+    {{/each}}
+
+  </ul>
+</div>
+{{/block}}
