@@ -6,10 +6,5 @@ git地址：https://gitee.com/huifeidemangguomao/liulian-plugin.git
 
 【使用说明】
 Liulian-Plugin需要最新版本的Yunzai-Bot
-将整个liulian-plugin文件夹放置在Yunzai-Bot/plugins/目录下，重启Yunzai-Bot即可使用。
+v2版本将整个liulian-plugin文件夹放置在Yunzai-Bot/plugins/目录下，v3版本放在Yunzai-Bot/plugins/目录下，重启Yunzai-Bot即可使用。
 
-【# 命令说明】
-自己看
-
-【# 命令说明】
-懒得写
