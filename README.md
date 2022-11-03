@@ -43,9 +43,8 @@ git clone https://github.com/flyingmangocat/liulian.git ./plugins/liulian-plugin
 ##### 更新计划
 
 目前打赏更新剩余 1345 次
-<p align="center">
-  <a href="https://gitee.com/huifeidemangguomaocoder/liulian-plugin">
-<img src="https://cdn.jsdelivr.net/gh/huifeidemangguomaocoder/huifeidemangguomaocoder/assets/github-contribution-grid-snake.svg">
+(https://gitee.com/huifeidemangguomao/liulian-plugin)
+<img src="https://cdn.jsdelivr.net/gh/huifeidemangguomao/huifeidemangguomao/assets/gitee-contribution-grid-snake.svg">
 
 </div>
 <br />
