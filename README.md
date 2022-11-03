@@ -1,4 +1,4 @@
-# 榴莲插件（还没传完，不能用！我是懒狗，不要催我，想用可以去群里用群文件里的）
+# 榴莲插件（建议胆子大的可以试试了，应该差不多了）
 
 #### 访问数量：
 [![访问量](https://profile-counter.glitch.me/liulian-plugin/count.svg)](https://gitee.com/huifeidemangguomaocoder/liulian-plugin)
@@ -42,4 +42,4 @@ git clone https://github.com/flyingmangocat/liulian.git ./plugins/liulian-plugin
 
 ##### 更新计划
 
-目前打赏更新剩余 1345 次
+目前打赏更新剩余 1189 次
