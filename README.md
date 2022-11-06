@@ -39,10 +39,11 @@ git clone https://github.com/flyingmangocat/liulian-plugin.git ./plugins/liulian
 |まため！| 10 |
 |缘份使然 | 5 |
 |晓龙 | 0.01 |
-|千空 |100w (5) |
+|刻晴(千空) |100w (5) |
 |乐 |5 |
 |云 |5 |
+|奶牛的梦 |10 |
 
 ##### 更新计划
 
-目前打赏更新剩余 2667 次
+目前打赏更新剩余 4166 次
