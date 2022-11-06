@@ -1,4 +1,4 @@
-# 榴莲插件（建议胆子大的可以试试了，应该差不多了）
+# 榴莲插件
 
 #### 访问数量：
 [![访问量](https://profile-counter.glitch.me/liulian-plugin/count.svg)](https://gitee.com/huifeidemangguomaocoder/liulian-plugin)
@@ -12,9 +12,9 @@ v2v3通用的云崽插件包
 ```
 git clone https://gitee.com/huifeidemangguomao/liulian-plugin.git ./plugins/liulian-plugin/
 ```
-##### github安装（建议先别用）
+##### github安装
 ```
-git clone https://github.com/flyingmangocat/liulian.git ./plugins/liulian-plugin/
+git clone https://github.com/flyingmangocat/liulian-plugin.git ./plugins/liulian-plugin/
 ```
 #### 免责声明
 
@@ -42,4 +42,4 @@ git clone https://github.com/flyingmangocat/liulian.git ./plugins/liulian-plugin
 
 ##### 更新计划
 
-目前打赏更新剩余 1175 次
+目前打赏更新剩余 1169 次
