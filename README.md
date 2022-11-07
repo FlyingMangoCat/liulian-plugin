@@ -43,6 +43,7 @@ git clone https://github.com/flyingmangocat/liulian-plugin.git ./plugins/liulian
 |乐 |5 |
 |云 |5 |
 |奶牛的梦 |10 |
+|  |5 |
 
 ##### 更新计划
 
