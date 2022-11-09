@@ -6,6 +6,8 @@
 #### 说明
 v2v3通用的云崽插件包
 
+如果更新失败了把本地删掉重新拉取即可
+
 #### 食用方法
 在云崽目录中输入
 ##### gitee安装
@@ -47,4 +49,4 @@ git clone https://github.com/flyingmangocat/liulian-plugin.git ./plugins/liulian
 
 ##### 更新计划
 
-目前打赏更新剩余 4165 次
+目前打赏更新剩余 4135 次
