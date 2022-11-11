@@ -2,7 +2,7 @@ import template from "art-template";
 import fs from "fs";
 import puppeteer from "puppeteer";
 import lodash from "lodash";
-import common from "../components/common.js";
+import common from "./common.js";
 
 import { Data } from "../components/index.js";
 
