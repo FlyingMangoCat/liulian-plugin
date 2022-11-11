@@ -18,9 +18,6 @@ git clone https://gitee.com/huifeidemangguomao/liulian-plugin.git ./plugins/liul
 ```
 git clone https://github.com/flyingmangocat/liulian-plugin.git ./plugins/liulian-plugin/
 ```
-#### 免责声明
-
-本插件禁止任何形式的商用，仅供小范围使用和学习
 
 #### 参与贡献
 | Nickname                                                     | Contribution                        |
@@ -32,6 +29,10 @@ git clone https://github.com/flyingmangocat/liulian-plugin.git ./plugins/liulian
 * 往生堂业务群               790621765
 * liulian-plugin榴莲插件？   806760403
 * 欢迎进群打赏或[爱发电](https://afdian.net/a/huifeidemangguomao)打赏
+
+#### 免责声明
+
+本插件禁止任何形式的商用，仅供小范围使用和学习
 
 #### 打赏
 
@@ -49,4 +50,4 @@ git clone https://github.com/flyingmangocat/liulian-plugin.git ./plugins/liulian
 
 ##### 更新计划
 
-目前打赏更新剩余 4134 次
+目前打赏更新剩余 4133 次
