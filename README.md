@@ -50,4 +50,4 @@ git clone https://github.com/flyingmangocat/liulian-plugin.git ./plugins/liulian
 
 ##### 更新计划
 
-目前打赏更新剩余 4133 次
+目前打赏更新剩余 4119 次
