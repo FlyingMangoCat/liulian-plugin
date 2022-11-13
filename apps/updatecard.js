@@ -1,7 +1,7 @@
 import os from 'os';
 import schedule from "node-schedule";
 
-let botname = ''//这里改成bot的名字
+let botname = ''//这里改成bot的名字，空则为bot昵称
 
 
 schedule.scheduleJob("0 0/10 * * * ?", async () =>{
