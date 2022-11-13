@@ -10,7 +10,7 @@
 // 帮助配置
 export const helpCfg = {
   title: "榴莲帮助",  // 帮助标题
-  subTitle: "Yunzai-Bot & Liulian-Plugin & 会飞的芒果猫" // 帮助副标题
+  subTitle: "Yunzai-Bot & Liulian-Plugin" // 帮助副标题
 };
 
 // 帮助菜单内容
