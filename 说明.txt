@@ -1,5 +1,5 @@
 【Liulian-Plugin说明】
-Liulian-Plugin是一个Yunzai-Bot的插件
+Liulian-Plugin是一个Yunzai-Bot的插件，提供了原神地下地图，插件管理，及一些群聊功能
 
 git地址：https://gitee.com/huifeidemangguomao/liulian-plugin.git 
 
