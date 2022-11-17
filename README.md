@@ -47,7 +47,7 @@ git clone https://github.com/flyingmangocat/liulian-plugin.git ./plugins/liulian
 |云 |5 |
 |奶牛的梦 |10 |
 |  |5 |
+|泪 |5 |
+|嗨 |5 |
+|夜魈 |64 |
 
-##### 更新计划
-
-目前打赏更新剩余 4119 次
