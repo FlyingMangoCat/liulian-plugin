@@ -63,6 +63,6 @@ export const helpList = [{
   list: [{
     icon: 59,
     title: "直接将js格式的插件私聊发给bot即可",
-    desc: " "
+    desc: "食用方法"
   }]
 }];
