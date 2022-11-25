@@ -1,5 +1,7 @@
 # 榴莲插件
 
+## 如果榴莲帮助报错请尝试删除本地榴莲重装！
+
 ### 访问数量：
 [![访问量](https://profile-counter.glitch.me/liulian-plugin/count.svg)](https://gitee.com/huifeidemangguomaocoder/liulian-plugin)
 
@@ -52,6 +54,7 @@ git clone https://github.com/flyingmangocat/liulian-plugin.git ./plugins/liulian
 |嗨 |5 |
 |夜魈 |64 |
 |吾想要困告了 |3 |
+|你？ |30 |
 
 ##### 更新计划
 
