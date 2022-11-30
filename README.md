@@ -58,6 +58,5 @@ git clone https://github.com/flyingmangocat/liulian-plugin.git ./plugins/liulian
 
 ##### 更新计划
 
-* 功能开关（大佬们指点下怎么搞）
 * b站推送，有建议可以去Issues里提
 
