@@ -30,7 +30,7 @@ git clone https://github.com/flyingmangocat/liulian-plugin.git ./plugins/liulian
 #### QQ群🌾
 
 * 往生堂业务群               790621765
-* liulian-plugin榴莲插件？   806760403
+* liulian-plugin榴莲插件？  [806760403](https://jq.qq.com/?_wv=1027&k=f3MfR89I)
 * 欢迎进群打赏或[爱发电](https://afdian.net/a/huifeidemangguomao)打赏
 
 #### 免责声明
@@ -39,7 +39,7 @@ git clone https://github.com/flyingmangocat/liulian-plugin.git ./plugins/liulian
 
 #### 打赏
 
-##### 打赏列表
+##### 打赏列表(排名不分先后)
 | 昵称                                                     | 打赏金额                        |
 | :----------------------------------------------------------: | ----------------------------------- |
 |まため！| 10 |
@@ -52,7 +52,7 @@ git clone https://github.com/flyingmangocat/liulian-plugin.git ./plugins/liulian
 |  |5 |
 |泪 |5 |
 |嗨 |5 |
-|夜魈 |64 |
+|夜魈 |264 |
 |吾想要困告了 |3 |
 |你？ |30 |
 
