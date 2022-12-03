@@ -57,6 +57,7 @@ git clone https://github.com/flyingmangocat/liulian-plugin.git ./plugins/liulian
 |你？ |30 |
 |妹儿 |5 |
 |akg |5 |
+|window(珊瑚宫) |5 |
 
 ##### 更新计划
 
