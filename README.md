@@ -55,6 +55,8 @@ git clone https://github.com/flyingmangocat/liulian-plugin.git ./plugins/liulian
 |夜魈 |264 |
 |吾想要困告了 |3 |
 |你？ |30 |
+|妹儿 |5 |
+|akg |5 |
 
 ##### 更新计划
 
