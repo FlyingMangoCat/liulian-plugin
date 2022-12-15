@@ -58,8 +58,10 @@ git clone https://github.com/flyingmangocat/liulian-plugin.git ./plugins/liulian
 |妹儿 |5 |
 |akg |5 |
 |window(珊瑚宫) |5 |
+|林(亦) |30 |
+|和泉皓皓 |15 |
 
 ##### 更新计划
 
-* b站推送，有建议可以去Issues里提
+* b站推送(已完成)，有建议可以去Issues里提
 
