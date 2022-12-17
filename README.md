@@ -60,6 +60,7 @@ git clone https://github.com/flyingmangocat/liulian-plugin.git ./plugins/liulian
 |window(珊瑚宫) |5 |
 |林(亦) |30 |
 |和泉皓皓 |15 |
+|心海 |5 |
 
 ##### 更新计划
 
