@@ -61,8 +61,10 @@ git clone https://github.com/flyingmangocat/liulian-plugin.git ./plugins/liulian
 |林(亦) |30 |
 |和泉皓皓 |15 |
 |心海 |5 |
+|lhz |30 |
+|夜夜 |5 |
 
 ##### 更新计划
 
-* b站推送(已完成)，有建议可以去Issues里提
+* 暂时没有，有建议可以去Issues里提
 
