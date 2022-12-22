@@ -63,7 +63,7 @@ git clone https://github.com/flyingmangocat/liulian-plugin.git ./plugins/liulian
 |心海 |5 |
 |lhz |30 |
 |夜夜 |5 |
-|长楠(https://gitee.com/fw-cn) |10 |
+|[长楠](https://gitee.com/fw-cn) |10 |
 
 ##### 更新计划
 
