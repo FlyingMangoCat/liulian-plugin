@@ -71,5 +71,5 @@ git clone https://github.com/flyingmangocat/liulian-plugin.git ./plugins/liulian
 
 ##### 更新计划
 
-* 暂时没有，有建议可以去Issues里提
-
+* 准备0.2.0版本
+* 有建议可以去Issues里提
