@@ -67,6 +67,7 @@ git clone https://github.com/flyingmangocat/liulian-plugin.git ./plugins/liulian
 |萧枘 |0.01 |
 |萝一生 |30 |
 |流蝉畅舞 |5 |
+|放烟花的千沐 |30 |
 
 ##### 更新计划
 
