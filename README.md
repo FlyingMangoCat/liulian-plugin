@@ -9,15 +9,13 @@
 #### 说明
 v2v3通用的云崽插件包
 
-如果更新失败了把本地删掉重新拉取即可
-
 #### 食用方法
 在云崽目录中输入
 ##### gitee安装
 ```
 git clone https://gitee.com/huifeidemangguomao/liulian-plugin.git ./plugins/liulian-plugin/
 ```
-##### github安装(建议使用[gitee](https://gitee.com/huifeidemangguomao/liulian-plugin)安装，github更新不及时)
+##### github安装(建议使用[gitee](https://gitee.com/huifeidemangguomao/liulian-plugin)安装，github更新不及时，目前github版本为0.0.9)
 ```
 git clone https://github.com/flyingmangocat/liulian-plugin.git ./plugins/liulian-plugin/
 ```
@@ -26,6 +24,8 @@ git clone https://github.com/flyingmangocat/liulian-plugin.git ./plugins/liulian
 | Nickname                                                     | Contribution                        |
 | :----------------------------------------------------------: | ----------------------------------- |
 |[提瓦特图研所](https://m.bilibili.com/space/1872522256?share_from=space&share_medium=android&share_plat=android&share_session_id=246f71fc-347b-4371-b8cf-2e51df9d0572&share_source=COPY&share_tag=s_i&timestamp=1665512676&unique_k=nXaICOt) | 提供了须弥地下地图 |
+|[会飞的芒果猫](https://gitee.com/huifeidemangguomao) |   |
+|[芒果猫的上传小助手](https://gitee.com/mango-cats-upload-assistant) |   |
 
 #### QQ群🌾
 
