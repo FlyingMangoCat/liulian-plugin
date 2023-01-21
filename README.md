@@ -73,6 +73,7 @@ git clone https://github.com/flyingmangocat/liulian-plugin.git ./plugins/liulian
 |朦胧夜色成恶魔 |2 |
 |枫 |15.36 |
 |我不是撅皇 |0.02 |
+|黑黑子 |两根肉棒 |
 
 ##### 更新计划
 
