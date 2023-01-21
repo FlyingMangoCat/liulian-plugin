@@ -71,7 +71,7 @@ git clone https://github.com/flyingmangocat/liulian-plugin.git ./plugins/liulian
 |会飞的橘子猫 |0.01 |
 |随性 |0.2 |
 |朦胧夜色成恶魔 |2 |
-|枫 |13.32 |
+|枫 |14.32 |
 
 ##### 更新计划
 
