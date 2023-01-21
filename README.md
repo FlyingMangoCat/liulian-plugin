@@ -72,7 +72,7 @@ git clone https://github.com/flyingmangocat/liulian-plugin.git ./plugins/liulian
 |随性 |0.2 |
 |朦胧夜色成恶魔 |2 |
 |枫 |14.32 |
-
+|我不是撅皇 |0.02 |
 ##### 更新计划
 
 * 更新计划就是没有计划，诶嘿
