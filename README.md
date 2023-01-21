@@ -74,7 +74,7 @@ git clone https://github.com/flyingmangocat/liulian-plugin.git ./plugins/liulian
 |枫 |15.36 |
 |我不是撅皇 |0.02 |
 |黑黑子 |两根肉棒 |
-|我落泪情绪零碎 |0.2 |
+|我落泪情绪零碎 |1.2 |
 
 ##### 更新计划
 
