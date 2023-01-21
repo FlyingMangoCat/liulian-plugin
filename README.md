@@ -68,6 +68,10 @@ git clone https://github.com/flyingmangocat/liulian-plugin.git ./plugins/liulian
 |寄 |10 |
 |熊熊 |5 |
 |会飞的芒果猫 |62 |
+|会飞的橘子猫 |0.01 |
+|随性 |0.2 |
+|朦胧夜色成恶魔 |2 |
+|枫 |13.32 |
 
 ##### 更新计划
 
