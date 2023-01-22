@@ -11,11 +11,11 @@ v2v3通用的云崽插件包
 
 #### 食用方法
 在云崽目录中输入
-##### gitee安装
+##### 使用gitee安装
 ```
 git clone https://gitee.com/huifeidemangguomao/liulian-plugin.git ./plugins/liulian-plugin/
 ```
-##### github安装(建议使用[gitee](https://gitee.com/huifeidemangguomao/liulian-plugin)安装，github更新不及时，目前github版本为0.0.9)
+##### 使用github安装(建议使用[gitee](https://gitee.com/huifeidemangguomao/liulian-plugin)安装，github更新不及时，目前github版本为0.0.9)
 ```
 git clone https://github.com/flyingmangocat/liulian-plugin.git ./plugins/liulian-plugin/
 ```
@@ -78,5 +78,4 @@ git clone https://github.com/flyingmangocat/liulian-plugin.git ./plugins/liulian
 
 ##### 更新计划
 
-* 更新计划就是没有计划，诶嘿
 * 有建议可以去Issues里提
