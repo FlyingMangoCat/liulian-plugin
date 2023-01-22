@@ -27,7 +27,6 @@ logger.info(`~\t${chalk.green('版本')}\t${chalk.blue(currentplugininfo.version
 logger.info(`~\t${chalk.green('作者')}\t${chalk.greenBright(currentplugininfo.author)}`)
 logger.info(`~~~~~~~~~~~~~~~~~~~~~~~~~~~~~`)
 
-console.log(`Hello World`);
 console.log(`~\t${chalk.green('欢迎使用榴莲插件~')}`);
 console.log(`芒果猫提示您`);
 console.log(`~\t${chalk.red('时刻绷紧防范之弦，谨防新型网络诈骗。')}`);
