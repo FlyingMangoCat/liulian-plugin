@@ -128,10 +128,6 @@ export const helpList = [{
     title: "汤圆帮助",
     desc: "查看汤圆帮助"
   }, {
-    icon: 54,
-    title: "修仙使用帮助(芒果猫专享，不开放公开使用)",
-    desc: "修仙插件部分使用帮助+活动"
-  }, {
     icon: 79,
     title: "插件管理帮助/help",
     desc: "查看插件管理帮助"
@@ -141,7 +137,7 @@ export const helpList = [{
   auth: "master",
   list: [{
     icon: 29,
-    title: "#更新插件",
+    title: "更新插件",
     desc: "自动更新部分插件 （暂不可用）"
   },{   
     icon: 97,
