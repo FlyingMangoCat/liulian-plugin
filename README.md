@@ -33,7 +33,7 @@ git clone https://github.com/flyingmangocat/liulian-plugin.git ./plugins/liulian
 
 #### 免责声明
 
-本插件禁止任何形式的商用，仅供小范围使用和学习
+云崽及本插件禁止任何形式的商用和违法用途，仅供小范围使用和学习
 
 #### 打赏
 
