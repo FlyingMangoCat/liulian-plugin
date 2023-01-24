@@ -1,5 +1,4 @@
 // 感谢喵喵插件贡献 
-
 import { isV3 } from './components/Changelog.js'
 import Data from './components/Data.js'
 import config from './model/config/config.js'
