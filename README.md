@@ -1,13 +1,11 @@
 # 榴莲插件
 
-## 如果榴莲帮助报错请尝试删除本地榴莲重装！ **注意！！！** 部分功能需要安装加量图包才能正常使用(不安装也可以使用，出现报错不负责修复/解答)
-
 ### 访问数量：
 [![访问量](https://profile-counter.glitch.me/liulian-plugin/count.svg)](https://gitee.com/huifeidemangguomaocoder/liulian-plugin)
 
 [榴莲插件(liulian-plugin)B站问题反馈专栏](https://b23.tv/GecaEsK)
 #### 说明
-v2v3通用的云崽插件包 
+v2？v3通用的云崽插件包 
 
 #### 食用方法
 在云崽目录中输入
