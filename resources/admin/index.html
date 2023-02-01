@@ -1,0 +1,61 @@
+{{extend defaultLayout}}
+{{block 'css'}}
+<link rel="stylesheet" type="text/css" href="{{_res_path}}/admin/index.css"/>
+{{/block}}
+{{block 'main'}}
+
+<div class="info_box">
+  <div class="head-box type{{bgType}}">
+    <div class="label">榴莲管理面板</div>
+    <div class="title">#榴莲设置</div>
+  </div>
+</div>
+<div class="cfg-box">
+  <div class="cfg-group">系统设置</div>
+  <ul class="cfg-ul">
+    <li class="cfg-li">
+      <div class="cfg-line">
+        渲染精度（现在暂时没用）
+        <span class="cfg-hint">#榴莲设置渲染100 </span>
+        <div class="cfg-status">{{scale}}</div>
+      </div>
+      <div class="cfg-desc">可选值50~200，建议100。设置高精度会提高图片的精细度，但因图片较大可能会影响渲染与发送速度</div>
+    </li>
+
+    <li class="cfg-li">
+      <div class="cfg-line">
+        榴莲作为默认帮助
+        <span class="cfg-hint">#榴莲设置帮助 + 开启/关闭 </span>
+        {{@help}}
+      </div>
+      <div class="cfg-desc">开启后将使用榴莲版帮助作为Yunzai的默认帮助</div>
+    </li>
+
+    <li class="cfg-li">
+      <div class="cfg-line">
+        随机表情
+        <span class="cfg-hint">#榴莲设置随机表情 + 开启/关闭 </span>
+        {{@bq}}
+      </div>
+      <div class="cfg-desc">开启后将会随机发送随机表情（默认关闭）</div>
+    </li>
+  </ul>
+</div>
+<div class="cfg-box">
+  <div class="cfg-group">其他设置</div>
+  <ul class="cfg-ul">
+    <li class="cfg-li">
+      <div class="cfg-line">
+        小黑子图片扩展包
+        <span class="cfg-hint"> #榴莲更新图像</span>
+        {{if imgPlus}}
+        <div class="cfg-status">已安装</div>
+        {{else}}
+        <div class="cfg-status status-off">未安装</div>
+        {{/if}}
+      </div>
+      <div class="cfg-desc">安装小黑子扩展图包，可能需要一定时间，在返回提示前请勿重复执行</div>
+    </li>
+  </ul>
+</div>
+{{/block}}
