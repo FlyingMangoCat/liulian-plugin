@@ -1,0 +1,9 @@
+{
+	"sys": {
+		"bq": true,
+		"dk": true,
+		"qmp": false,
+		"help": false,
+		"dw": true
+	}
+}
