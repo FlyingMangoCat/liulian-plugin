@@ -6,6 +6,9 @@ let botname = ''//这里改成bot的名字
 
 
 schedule.scheduleJob("0 0/10 * * * ?", async () =>{
+    if (!Cfg.get('sys.qmp', false)) {
+        return false
+    }
     const totalMem = os.totalmem();
     const freeMen =os.freemem();
     let persent = (totalMem-freeMen)/totalMem*100;
