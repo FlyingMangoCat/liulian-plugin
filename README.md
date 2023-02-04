@@ -47,7 +47,7 @@ git clone https://github.com/flyingmangocat/liulian-plugin.git ./plugins/liulian
 |奶牛的梦 |10 |黑黑子 |两根肉棒 |
 |  |5 |我落泪情绪零碎 |1.2 |
 |泪 |5 |枫叶 |15.03 |
-|嗨 |5 |
+|嗨 |5 |莹儿车 |5 |
 |夜魈 |264 |
 |吾想要困告了 |3 |
 |你？ |30 |
