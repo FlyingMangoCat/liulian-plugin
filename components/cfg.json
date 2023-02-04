@@ -1,6 +1,6 @@
 {
 	"sys": {
-		"bq": true,
+		"bq": false,
 		"dk": true,
 		"qmp": false,
 		"help": false,
