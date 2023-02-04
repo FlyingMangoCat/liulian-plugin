@@ -68,4 +68,5 @@ git clone https://github.com/flyingmangocat/liulian-plugin.git ./plugins/liulian
 
 ##### 更新计划
 
+* [liulian-plugin问题反馈](https://pd.qq.com/s/ewii86r08)
 * 有建议可以去Issues里提
