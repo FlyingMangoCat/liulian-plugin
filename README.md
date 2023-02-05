@@ -48,7 +48,7 @@ git clone https://github.com/flyingmangocat/liulian-plugin.git ./plugins/liulian
 |  |5 |我落泪情绪零碎 |1.2 |
 |泪 |5 |枫叶 |15.03 |
 |嗨 |5 |莹儿车 |5 |
-|夜魈 |264 |
+|夜魈 |264 |404NotFound |5 |
 |吾想要困告了 |3 |
 |你？ |30 |
 |妹儿 |5 |
