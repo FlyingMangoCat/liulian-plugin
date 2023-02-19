@@ -22,6 +22,7 @@ git clone https://github.com/flyingmangocat/liulian-plugin.git ./plugins/liulian
 | Nickname                                                     | Contribution                        |
 | :----------------------------------------------------------: | ----------------------------------- |
 |[提瓦特图研所](https://m.bilibili.com/space/1872522256?share_from=space&share_medium=android&share_plat=android&share_session_id=246f71fc-347b-4371-b8cf-2e51df9d0572&share_source=COPY&share_tag=s_i&timestamp=1665512676&unique_k=nXaICOt) | 提供了须弥地下地图 |
+|[雷肾老司机](https://www.miyoushe.com/ys/accountCenter/postList?id=81879993) | 提供了荧四格 |
 
 #### QQ群🌾
 
