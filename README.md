@@ -39,7 +39,7 @@ git clone https://github.com/flyingmangocat/liulian-plugin.git ./plugins/liulian
 ##### 打赏列表(排名不分先后)
 | 昵称          | 打赏金额         | 昵称          | 打赏金额          |
 | :------------: | --------- | :------------: | --------- | 
-|まため！| 10 |会飞的芒果猫 |62 |
+|まため！| 10 | | |
 |缘份使然 | 5 |会飞的橘子猫 |0.01 |
 |晓龙 |0.01 |随性 |0.2 |
 |刻晴(千空) |100w |朦胧夜色成恶魔 |2 |
@@ -60,7 +60,7 @@ git clone https://github.com/flyingmangocat/liulian-plugin.git ./plugins/liulian
 |心海 |5 |
 |lhz |30 |
 |夜夜 |5 |
-|长楠 |10 |
+|长楠 |25 |
 |萝一生 |30 |
 |流蝉畅舞 |5 |
 |放烟花的千沐 |30 |
