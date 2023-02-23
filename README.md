@@ -21,8 +21,8 @@ git clone https://github.com/flyingmangocat/liulian-plugin.git ./plugins/liulian
 #### 参与贡献
 | Nickname                                                     | Contribution                        |
 | :----------------------------------------------------------: | ----------------------------------- |
-|[提瓦特图研所](https://m.bilibili.com/space/1872522256?share_from=space&share_medium=android&share_plat=android&share_session_id=246f71fc-347b-4371-b8cf-2e51df9d0572&share_source=COPY&share_tag=s_i&timestamp=1665512676&unique_k=nXaICOt) | 提供了须弥地下地图 |
-|[雷肾老司机](https://www.miyoushe.com/ys/accountCenter/postList?id=81879993) | 提供了荧四格 |
+|[提瓦特图研所](https://m.bilibili.com/space/1872522256?share_from=space&share_medium=android&share_plat=android&share_session_id=246f71fc-347b-4371-b8cf-2e51df9d0572&share_source=COPY&share_tag=s_i&timestamp=1665512676&unique_k=nXaICOt) | 原神地下地图来源 |
+|[雷肾老司机](https://www.miyoushe.com/ys/accountCenter/postList?id=81879993) | 荧四格来源 |
 
 #### QQ群🌾
 
@@ -32,7 +32,9 @@ git clone https://github.com/flyingmangocat/liulian-plugin.git ./plugins/liulian
 
 #### 免责声明
 
-云崽及本插件禁止任何形式的商用和违法用途，仅供小范围使用和学习
+* 本插件及云崽禁止任何形式的商用和违法用途，仅供小范围使用和学习
+* 插件内部分内容已获取相关作者授权，禁止在未授权的情况下使用，本插件内所有内容禁止以任何形式用以冒充、反串、水军、侵犯他人权益、无底线粉丝行为、诈骗等不正当用途，如违反相关规定插件作者有权追究
+* 已授权内容需要表明作者或（及）出处，并禁止任何形式的商业或违法用途，如违反授权相关要求，本插件作者及内容相关作者有权追究责任
 
 #### 打赏
 
