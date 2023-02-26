@@ -8,7 +8,7 @@
 v2v3通用的云崽插件包 
 
 #### 食用方法
-在云崽目录中输入
+在云崽根目录中输入
 ##### 使用gitee安装
 ```
 git clone https://gitee.com/huifeidemangguomao/liulian-plugin.git ./plugins/liulian-plugin/
@@ -72,4 +72,4 @@ git clone https://github.com/flyingmangocat/liulian-plugin.git ./plugins/liulian
 ##### 更新计划
 
 * [liulian-plugin问题反馈](https://pd.qq.com/s/ewii86r08)
-* 有建议可以去Issues里提
+* 有建议可以去[Issues](https://gitee.com/huifeidemangguomao/liulian-plugin/issues)里提
