@@ -17,7 +17,6 @@ const plugininfo_default = config.getdefault_config('liulian', 'plugininfo')
 await redis.set('Yz:liulian:config:pluginname', plugininfo_default.pluginname)
 await redis.set('Yz:liulian:config:version', plugininfo_default.version)
 await redis.set('Yz:liulian:config:author', plugininfo_default.author)
-await redis.set('Yz:liulian:config:id', plugininfo_default.id)
 let currentplugininfo = await config.getcurrentplugininfo()
 
 logger.info(`~~~~~~~~~~~ ^_^ ~~~~~~~~~~~`)
