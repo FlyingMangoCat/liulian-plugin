@@ -1,12 +1,13 @@
 {
 	"sys": {
-		"bq": true,
-		"dk": true,
-		"qmp": true,
+		"bq": false,
+		"dk": false,
+		"qmp": false,
 		"help": false,
-		"xx": true,
-		"dw": true,
-    "forge": true,
-    "wife": 1  
+		"xx": false,
+		"dw": false,
+        "forge": false,
+        "jtm" : false,
+        "wife": 1  
 	}
 }
