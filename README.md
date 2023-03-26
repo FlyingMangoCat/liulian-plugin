@@ -24,11 +24,18 @@ git clone https://github.com/flyingmangocat/liulian-plugin.git ./plugins/liulian
 |[提瓦特图研所](https://m.bilibili.com/space/1872522256?share_from=space&share_medium=android&share_plat=android&share_session_id=246f71fc-347b-4371-b8cf-2e51df9d0572&share_source=COPY&share_tag=s_i&timestamp=1665512676&unique_k=nXaICOt) | 原神地下地图来源 |
 |[雷肾老司机](https://www.miyoushe.com/ys/accountCenter/postList?id=81879993) | 荧四格来源 |
 
-#### QQ群🌾
+#### 其他
+
+##### QQ群🌾
 
 * 往生堂业务群               790621765
 * liulian-plugin榴莲插件？   806760403
 * 欢迎进群打赏或[爱发电](https://afdian.net/a/huifeidemangguomao)打赏
+
+##### 反馈
+
+* [liulian-plugin问题反馈](https://pd.qq.com/s/ewii86r08)
+* 有建议可以去[Issues](https://gitee.com/huifeidemangguomao/liulian-plugin/issues)里提
 
 #### 免责声明
 
@@ -54,7 +61,7 @@ git clone https://github.com/flyingmangocat/liulian-plugin.git ./plugins/liulian
 |泪 |5 |枫叶 |15.03 |
 |嗨 |5 |莹儿车 |5 |
 |夜魈 |264 |404NotFound |5 |
-|吾想要困告了 |3 |
+|吾想要困告了 |3 丨爱发电用户_dCxv 丨5 丨
 |你？ |30 |
 |妹儿 |5 |
 |akg |5 |
@@ -70,8 +77,3 @@ git clone https://github.com/flyingmangocat/liulian-plugin.git ./plugins/liulian
 |放烟花的千沐 |30 |
 |寄 |10 |
 |熊熊 |5 |
-
-##### 更新计划
-
-* [liulian-plugin问题反馈](https://pd.qq.com/s/ewii86r08)
-* 有建议可以去[Issues](https://gitee.com/huifeidemangguomao/liulian-plugin/issues)里提
