@@ -61,7 +61,7 @@ git clone https://github.com/flyingmangocat/liulian-plugin.git ./plugins/liulian
 |泪 |5 |枫叶 |15.03 |
 |嗨 |5 |莹儿车 |5 |
 |夜魈 |264 |404NotFound |5 |
-|吾想要困告了 丨3 丨爱发电用户_dCxv 丨5 丨
+|吾想要困告了 |3 |爱发电用户_dCxv |5 |
 |你？ |30 |
 |妹儿 |5 |
 |akg |5 |
