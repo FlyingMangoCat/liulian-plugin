@@ -62,7 +62,6 @@ function mkdirs (dirname) {
 
 /**
  * 制作转发消息
- * @param e oicq消息e
  * @param msg 消息数组
  * @param dec 转发描述
  */

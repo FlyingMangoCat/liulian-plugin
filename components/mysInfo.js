@@ -1,5 +1,4 @@
 import fetch from "node-fetch";
-import { segment } from "oicq";
 import { render } from "./crender.js";
 import lodash from "lodash";
 import fs from "fs";

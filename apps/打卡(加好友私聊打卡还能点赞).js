@@ -1,4 +1,3 @@
-import { segment } from "oicq";
 import fetch from "node-fetch";
 import Cfg from '../components/Cfg.js'
 //项目路径

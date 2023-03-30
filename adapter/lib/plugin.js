@@ -24,7 +24,6 @@ export default class plugin {
     this.name = data.name
     /** 插件描述 */
     this.dsc = data.dsc
-    /** 监听事件，默认message https://oicqjs.github.io/oicq/#events */
     this.event = data.event || 'message'
     /** 优先级 */
     this.priority = data.priority || 5000

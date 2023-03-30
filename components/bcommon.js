@@ -147,7 +147,6 @@ function getDayEnd() {
 
 /**
  * 是不是狗管理或者狗群主
- * @param {*} e oicq的消息对象
  */
 function isGroupAdmin(e = {}) {
   let isAdmin = e?.sender?.role === "admin";

@@ -1,4 +1,3 @@
-import { segment } from "oicq";
 import lodash from "lodash";
 const _path = process.cwd();
 let PokeCD = {};

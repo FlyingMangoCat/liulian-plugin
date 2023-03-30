@@ -1,7 +1,6 @@
 import fs from "fs";
 import lodash from 'lodash';
 import { Cfg, Common } from '../components/index.js';
-import { segment } from "oicq";
 
 const _path = process.cwd();
 const helpPath = `${_path}/plugins/liulian-plugin/resources/pluginhelp`;

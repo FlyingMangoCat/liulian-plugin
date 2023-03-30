@@ -5,7 +5,6 @@ import {
 	currentVersion,
 	changelogs
 } from "../components/Changelog.js";
-import { segment } from "oicq";
 
 const _path = process.cwd();
 const path_ = `/plugins/liulian-plugin/resources/common/layout/`;

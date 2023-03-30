@@ -1,4 +1,3 @@
-import { segment } from "oicq";
 import lodash from "lodash";
 import { Cfg } from '../components/index.js';
 import fetch from "node-fetch";

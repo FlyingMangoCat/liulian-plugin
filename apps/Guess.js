@@ -1,6 +1,5 @@
 import fs from 'fs';
 import path from 'path';
-import { segment } from 'oicq';
 import lodash from 'lodash';
 import fetch from "node-fetch";
 import sizeOf from 'image-size';

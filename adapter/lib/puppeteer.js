@@ -4,7 +4,6 @@
 import template from 'art-template'
 import fs from 'fs'
 import lodash from 'lodash'
-import { segment } from 'oicq'
 
 const _path = process.cwd()
 
@@ -30,8 +29,7 @@ class Puppeteer {
         '--disable-setuid-sandbox',
         '--no-first-run',
         '--no-sandbox',
-        '--no-zygote',
-        '--single-process'
+        '--no-zygote'
       ]
     }
 
@@ -98,7 +96,6 @@ class Puppeteer {
    * @param data.quality  screenshot参数，图片质量 0-100，jpeg是可传，默认90
    * @param data.omitBackground  screenshot参数，隐藏默认的白色背景，背景透明。默认不透明
    * @param data.path   screenshot参数，截图保存路径。截图图片类型将从文件扩展名推断出来。如果是相对路径，则从当前路径解析。如果没有指定路径，图片将不会保存到硬盘。
-   * @return oicq img
    */
   async screenshot (name, data = {}) {
     if (!await this.browserInit()) {

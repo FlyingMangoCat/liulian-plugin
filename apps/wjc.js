@@ -1,4 +1,3 @@
-import { segment } from "oicq";
 
 //项目路径
 const _path = process.cwd();

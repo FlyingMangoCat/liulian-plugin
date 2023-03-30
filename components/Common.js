@@ -1,6 +1,5 @@
 import Cfg from './Cfg.js'
 import { currentVersion, yunzaiVersion, isV3 } from './Changelog.js'
-import { segment } from 'oicq'
 
 export const render = async function (path, params, cfg) {
   let paths = path.split('/')

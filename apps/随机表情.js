@@ -1,4 +1,3 @@
-import { segment } from "oicq";
 import fs from "fs"
 import path from "path"
 import Cfg from '../components/Cfg.js'

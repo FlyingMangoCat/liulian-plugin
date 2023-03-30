@@ -1,4 +1,3 @@
-import { segment } from "oicq";
 import Cfg from '../components/Cfg.js'
 
 const _path = process.cwd();

@@ -1,4 +1,3 @@
-﻿import { segment } from "oicq";                   
 import fetch from "node-fetch";                  
 import { createRequire } from "module";
 const require = createRequire(import.meta.url);
