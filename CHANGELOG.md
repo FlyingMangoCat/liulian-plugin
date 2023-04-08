@@ -2,6 +2,7 @@
 
 * 修改 segment 导入，以支持完全移除 OICQ 的 go-cqhttp 版 Yunzai
     * 感谢时雨佬的pr
+* 修复插件管理会把json文件当做js插件安装
 
 # 0.4.5
 
