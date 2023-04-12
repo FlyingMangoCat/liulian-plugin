@@ -1,7 +1,7 @@
 {
   "name": "liulian-plugin",
   "version": "0.4.6",
-  "author": "flyingmangocat",
+  "author": "FlyingMangoCat",
   "description": "云崽插件",
   "type": "module",
   "scripts": {
