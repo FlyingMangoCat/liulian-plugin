@@ -8,7 +8,8 @@
 v2v3通用的云崽插件包 
 
 #### 食用方法
-在云崽根目录中输入
+在云崽根目录中执行
+```
 ##### 使用gitee安装
 ```
 git clone https://gitee.com/huifeidemangguomao/liulian-plugin.git ./plugins/liulian-plugin/
@@ -16,6 +17,7 @@ git clone https://gitee.com/huifeidemangguomao/liulian-plugin.git ./plugins/liul
 ##### 使用github安装(建议使用[gitee](https://gitee.com/huifeidemangguomao/liulian-plugin)安装，github更新不及时)
 ```
 git clone https://github.com/flyingmangocat/liulian-plugin.git ./plugins/liulian-plugin/
+```
 ```
 
 #### 参与贡献
