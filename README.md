@@ -4,7 +4,7 @@
 [![访问量](https://profile-counter.glitch.me/liulian-plugin/count.svg)](https://gitee.com/huifeidemangguomaocoder/liulian-plugin)
 
 #### 说明
-v2v3通用的云崽插件包 
+云崽插件包 
 
 #### 食用方法
 在云崽根目录中执行
