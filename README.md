@@ -3,7 +3,6 @@
 ### 访问数量：
 [![访问量](https://profile-counter.glitch.me/liulian-plugin/count.svg)](https://gitee.com/huifeidemangguomaocoder/liulian-plugin)
 
-[榴莲插件(liulian-plugin)B站问题反馈专栏](https://b23.tv/GecaEsK)
 #### 说明
 v2v3通用的云崽插件包 
 
@@ -36,6 +35,7 @@ git clone https://github.com/flyingmangocat/liulian-plugin.git ./plugins/liulian
 
 * [liulian-plugin问题反馈](https://pd.qq.com/s/ewii86r08)
 * 有建议可以去[Issues](https://gitee.com/huifeidemangguomao/liulian-plugin/issues)里提
+* [榴莲插件(liulian-plugin)B站问题反馈专栏](https://b23.tv/GecaEsK)
 
 #### 免责声明
 
