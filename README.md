@@ -47,7 +47,7 @@ git clone https://github.com/flyingmangocat/liulian-plugin.git ./plugins/liulian
 * 已授权内容需要标明作者或（及）出处，并禁止任何形式的商业或违法用途，如违反授权相关要求，本插件作者及内容相关作者有权追究责任
 * 如在未授权的情况下倒卖、搬运等后果自负
 * **适度玩梗，注意底线**
-
+ 
 #### 打赏
 
 ##### 打赏列表(排名不分先后)
