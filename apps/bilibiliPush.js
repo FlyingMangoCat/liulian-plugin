@@ -2,6 +2,7 @@ import fs from "fs";
 import fetch from "node-fetch";
 import common from "../components/bcommon.js";
 import { botConfig } from "../components/bcommon.js"
+import config from "../model/config/config.js"
 
 const _path = process.cwd();
 
@@ -798,6 +799,7 @@ function buildSendDynamic(biliUser, dynamic, info) {
     case "DYNAMIC_TYPE_WORD":
       desc = dynamic?.modules?.module_dynamic?.desc;
       if (!desc) return;
+      if (!contentFilter(desc.text)) return;
 
       title = `${biliUser.name}动态推送：\n`;
       if (getSendType(info) != "default") {
@@ -811,6 +813,7 @@ function buildSendDynamic(biliUser, dynamic, info) {
       desc = dynamic?.modules?.module_dynamic?.desc;
       pics = dynamic?.modules?.module_dynamic?.major?.draw?.items;
       if (!desc && !pics) return;
+      if (!contentFilter(desc.text)) return;
 
       pics = pics.map((item) => {
         return segment.image(item.src);
@@ -850,6 +853,7 @@ function buildSendDynamic(biliUser, dynamic, info) {
       desc = dynamic?.modules?.module_dynamic?.desc;
       if (!desc) return;
       if (!dynamic.orig) return;
+      if (!contentFilter(desc)) return;
 
       let orig = buildSendDynamic(biliUser, dynamic.orig, info);
       if (orig && orig.length) {
@@ -969,6 +973,21 @@ function getSendType(info) {
   if (BilibiliPushConfig.sendType && BilibiliPushConfig.sendType != "default") return BilibiliPushConfig.sendType;
   if (info.sendType) return info.sendType;
   return "default";
+}
+
+/**
+ * filter keyword
+ * @param {string} inContent 
+ */
+function contentFilter(inContent) {
+  const cfg = config.getYaml('bilibiliPush', 'bilibiliPushFilter', 'config');
+  for (const keyword of cfg.FilterKeyword) {
+    if (RegExp(keyword).exec(inContent)) {
+      Bot.logger.mark(`B站动态推送拦截关键词: ${keyword}`);
+      return false;
+    }
+  }
+  return true;
 }
 
 // 存储B站推送信息
