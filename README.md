@@ -7,14 +7,17 @@
 云崽插件包 
 
 #### 食用方法
+
 使用Git安装（推荐）
 请将 liulian-plugin 放置在 Yunzai-Bot 的 plugins 目录下，重启 Yunzai-Bot 后即可使用。
 
 请使用 git 进行安装，以方便后续升级。在 Yunzai-Bot 根目录夹打开终端，运行下述指令之一
+
 ##### 使用gitee安装
 ```
 git clone https://gitee.com/huifeidemangguomao/liulian-plugin.git ./plugins/liulian-plugin/
 ```
+
 ##### 使用github安装 
 ```
 git clone https://github.com/flyingmangocat/liulian-plugin.git ./plugins/liulian-plugin/
@@ -30,14 +33,16 @@ git clone https://github.com/flyingmangocat/liulian-plugin.git ./plugins/liulian
 
 ##### QQ群🌾
 
-* 往生堂业务群               790621765
-* liulian-plugin榴莲插件？   806760403
+* liulian-plugin榴莲插件   806760403
+
 * 欢迎进群打赏或[爱发电](https://afdian.net/a/huifeidemangguomao)打赏
 
 ##### 反馈
 
 * [liulian-plugin问题反馈](https://pd.qq.com/s/ewii86r08)
+
 * 有建议可以去[Issues](https://gitee.com/huifeidemangguomao/liulian-plugin/issues)里提
+
 * [榴莲插件(liulian-plugin)B站问题反馈专栏](https://b23.tv/GecaEsK)
 
 #### 免责声明
