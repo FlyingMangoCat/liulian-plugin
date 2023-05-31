@@ -35,7 +35,7 @@ git clone https://github.com/flyingmangocat/liulian-plugin.git ./plugins/liulian
 
 * liulian-plugin榴莲插件   806760403
 
-* 欢迎进群打赏或[爱发电](https://afdian.net/a/huifeidemangguomao)打赏
+* 欢迎投喂[爱发电](https://afdian.net/a/huifeidemangguomao)
 
 ##### 反馈
 
@@ -48,9 +48,13 @@ git clone https://github.com/flyingmangocat/liulian-plugin.git ./plugins/liulian
 #### 免责声明
 
 * 本插件及云崽禁止任何形式的商用和违法用途，仅供小范围使用和学习，如违反相关规定，后果自负，与本插件及作者无关
+
 * 插件内部分内容已获取相关作者授权，禁止在未授权的情况下使用，本插件内所有内容禁止以任何形式用以冒充、反串、水军、侵犯他人权益、无底线粉丝行为、诈骗等不正当用途，如违反相关规定插件作者有权追究
-* 已授权内容需要标明作者或（及）出处，并禁止任何形式的商业或违法用途，如违反授权相关要求，本插件作者及内容相关作者有权追究责任
+
+* 已授权内容需要按照要求标明作者出处等，并禁止任何形式的商业或违法用途，如违反授权相关要求，本插件作者及内容相关作者有权追究责任
+
 * 如在未授权的情况下倒卖、搬运等后果自负
+
 * **适度玩梗，注意底线**
  
 #### 打赏
