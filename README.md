@@ -35,7 +35,7 @@ git clone https://github.com/flyingmangocat/liulian-plugin.git ./plugins/liulian
 
 * liulian-plugin榴莲插件   806760403
 
-* 欢迎投喂[爱发电](https://afdian.net/a/huifeidemangguomao)
+* 欢迎投[爱发电](https://afdian.net/a/huifeidemangguomao)投喂
 
 ##### 反馈
 
