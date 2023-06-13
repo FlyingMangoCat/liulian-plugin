@@ -55,7 +55,6 @@ git clone https://github.com/flyingmangocat/liulian-plugin.git ./plugins/liulian
 
 * 如在未授权的情况下倒卖、搬运等后果自负
 
-<details>
  
 #### 打赏
 
