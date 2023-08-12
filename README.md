@@ -44,7 +44,7 @@ git clone https://github.com/flyingmangocat/liulian-plugin.git ./plugins/liulian
 * 有建议可以去[Issues](https://gitee.com/huifeidemangguomao/liulian-plugin/issues)里提
 
 * [榴莲插件(liulian-plugin)B站问题反馈专栏](https://b23.tv/GecaEsK)
-
+ 
 <details><summary>免责声明</summary>
 
 * 本插件及云崽禁止任何形式的商用和违法用途，仅供小范围使用和学习，如违反相关规定，后果自负，与本插件及作者无关
