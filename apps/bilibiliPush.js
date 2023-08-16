@@ -16,6 +16,7 @@ let dynamicPushHistory = []; // 历史推送，仅记录推送的消息ID，不�
 let nowDynamicPushList = new Map(); // 本次新增的需要推送的列表信息
 let BilibiliPushConfig = {}; // 推送配置
 let PushBilibiliDynamic = {}; // 推送对象列表
+let botname = config.getdefault_config('liulian', 'name', 'name');
 
 // B站动态类型
 // const DynamicTypeList = {
