@@ -70,7 +70,7 @@ git clone https://github.com/flyingmangocat/liulian-plugin.git ./plugins/liulian
 |云 |5 |黑黑子 |30根肉棒 |
 |奶牛的梦 |10 |我落泪情绪零碎 |1.2 |
 |  |5 |枫叶 |15.03 |
-|泪 |5 |莹儿车 |5 |
+|泪 |5 |莹儿车 |10 |
 |嗨 |5 |404NotFound |5 |
 |夜魈 |433.2 |爱发电用户_dCxv |5 | 
 |吾想要困告了 |3 |诶！？ |5 |
