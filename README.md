@@ -27,7 +27,6 @@ git clone https://github.com/flyingmangocat/liulian-plugin.git ./plugins/liulian
 | Nickname                                                     | Contribution                        |
 | :----------------------------------------------------------: | ----------------------------------- |
 |[提瓦特图研所](https://m.bilibili.com/space/1872522256?share_from=space&share_medium=android&share_plat=android&share_session_id=246f71fc-347b-4371-b8cf-2e51df9d0572&share_source=COPY&share_tag=s_i&timestamp=1665512676&unique_k=nXaICOt) | 原神地下地图来源 |
-|[雷肾老司机](https://www.miyoushe.com/ys/accountCenter/postList?id=81879993) | 荧四格来源 |
 
 #### 其他
 
@@ -53,7 +52,7 @@ git clone https://github.com/flyingmangocat/liulian-plugin.git ./plugins/liulian
 
 * 已授权内容需要按照要求标明作者出处等，并禁止任何形式的商业或违法用途，如违反授权相关要求，本插件作者及内容相关作者有权追究责任
 
-* 如在未授权的情况下倒卖、搬运等后果自负
+* 如在未授权的情况下进行倒卖、搬运等违规操作，本插件作者有权追究责任
 
 </details> 
  
