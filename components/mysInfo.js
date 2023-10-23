@@ -24,7 +24,7 @@ await init();
 export async function init (isUpdate = false) {
   let version = isUpdate ? new Date().getTime() : 0;
   genshin = await import(`../config/roleId.js?version=${version}`);
-  nameID = "";
+  nameID = new Map();
 }
 
 export function roleIdToName (keyword, search_val = false) {
@@ -39,8 +39,7 @@ export function roleIdToName (keyword, search_val = false) {
     }
   }
 
-  if (!nameID) {
-    nameID = new Map();
+  if (!nameID.get(keyword)) {
     for (let i in genshin.roleId) {
       for (let val of genshin.roleId[i]) {
         nameID.set(val, i);
@@ -62,8 +61,7 @@ export function starroleIdToName (keyword, search_val = false) {
     }
   }
 
-  if (!nameID) {
-    nameID = new Map();
+  if (!nameID.get(keyword)) {
     for (let i in genshin.starroleId) {
       for (let val of genshin.starroleId[i]) {
         nameID.set(val, i);
