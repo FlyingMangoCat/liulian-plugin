@@ -94,4 +94,3 @@ git clone https://github.com/flyingmangocat/liulian-plugin.git ./plugins/liulian
 |放烟花的千沐 |30 |
 |寄 |10 |
 |熊熊 |5 |
-粗体
