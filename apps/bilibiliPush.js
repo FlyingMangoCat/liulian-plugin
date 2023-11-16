@@ -14,7 +14,7 @@ if (!fs.existsSync(`${_path}/data/PushNews/`)) {
   fs.mkdirSync(`${_path}/data/PushNews/`);
 }
 
-let dynamicPushHistory = []; // 历史推送，仅记录推送的消息ID，不记录本体对象，用来防止重复推送的
+let dynamicPushHistory = []; // 历史推送，仅记录推送的消息ID，不记录本体对象，用来防止重复推送
 let nowDynamicPushList = new Map(); // 本次新增的需要推送的列表信息
 let BilibiliPushConfig = {}; // 推送配置
 let PushBilibiliDynamic = {}; // 推送对象列表
