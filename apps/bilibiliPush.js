@@ -36,7 +36,7 @@ const BiliDrawDynamicLinkUrl = "https://m.bilibili.com/dynamic/"; // 图文动�
 // const CK_LIST = ['buvid3', 'b_nut', 'b_lsid', '_uuid', 'buvid_fp', 'buvid4']
 // document.cookie.split(';').filter(a => { var b = ['buvid3', 'b_nut', 'b_lsid', '_uuid', 'buvid_fp', 'buvid4']; for (let i = 0; i < b.length; i++) if (a.includes(b[i])) return true; return false; }).join(';');
 
-const BiliReqHeaders = {
+const BiliReqHeaders_1 = {
   'cookie': '',
   'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
   'accept-encoding': 'gzip, deflate, br',
@@ -53,7 +53,20 @@ const BiliReqHeaders = {
   'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/113.0.0.0 Safari/537.36 Edg/113.0.1774.50',
 }
 
-
+const BiliReqHeaders = {
+            'authority': 'api.bilibili.com',
+            'accept': 'application/json, text/plain, */*',
+            'accept-language': 'zh-CN,zh;q=0.9',
+            'cookie': '',
+            'origin': 'https://space.bilibili.com',
+            'sec-ch-ua': '"Chromium";v="118", "Google Chrome";v="118", "Not=A?Brand";v="99"',
+            'sec-ch-ua-mobile': '?0',
+            'sec-ch-ua-platform': '"Windows"',
+            'sec-fetch-dest': 'empty',
+            'sec-fetch-mode': 'cors',
+            'sec-fetch-site': 'same-site',
+            'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Safari/537.36'
+        }
 
 // 初始化获取B站推送信息
 const BotHaveARest = 500; // 每次发送间隔时间
@@ -731,7 +744,7 @@ async function pushDynamic(pushInfo) {
       continue;
     }
     let url = `${BiliDynamicApiUrl}?host_mid=${biliUID}`;
-    BiliReqHeaders.cookie = `DedeUserID=${biliUID}`
+    //BiliReqHeaders.cookie = `DedeUserID=${biliUID}`
     const response = await fetch(url, { method: "get", headers: BiliReqHeaders });
     if (!response.ok) {
       // 请求失败，不记录，跳过，下一个
