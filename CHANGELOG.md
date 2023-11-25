@@ -1,6 +1,7 @@
 # 0.6.1
 
 * 新增`机器人昵称`功能，可在**liulian-plugin/config/default_config/liulian/botname.yaml**处填写机器人昵称，默认昵称为榴莲ⁿᵉʷ
+* 新增`群聊闭嘴`功能
 
 # 0.5.8 ~ 0.6.0
 
