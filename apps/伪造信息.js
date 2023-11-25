@@ -2,7 +2,7 @@ import fetch from "node-fetch";
 import lodash from "lodash";
 import Cfg from '../components/Cfg.js'
 
-let list = [1280951594,3598537042]; //禁止伪造的qq放到这里 例如 [123456,114514]
+let list = [1280951594,3598537042]; //禁止伪造的qq放到这里
 
 export const rule = {
   forge: {
