@@ -11,6 +11,8 @@
         "qqy": false,
         "wife": 1  ,
         "expression" : 1,
-        "gl" : 90
+        "gl" : 50,
+        "expression": 1,    	
+        "limit": 0,
 	}
 }
