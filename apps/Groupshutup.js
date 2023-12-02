@@ -10,7 +10,7 @@ export const rule = {
     describe: "群聊闭嘴", //【命令】功能说明
   },
   determineIfYouShutUp: {
-    reg: "noCheck", //匹配消息正则，命令正则
+    reg: "(.*)", //匹配消息正则，命令正则
     priority: 0, //优先级，越小优先度越高
     describe: "闭嘴判断", //【命令】功能说明
   },
