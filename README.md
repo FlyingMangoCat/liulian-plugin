@@ -62,7 +62,7 @@ git clone https://github.com/flyingmangocat/liulian-plugin.git ./plugins/liulian
  
 ### **打赏**
 
-* 欢迎[爱发电](https://afdian.net/a/huifeidemangguomao)投喂或点个免费的**Star**，您的支持是我们更新及维护的动力
+* 欢迎[爱发电](https://afdian.net/a/huifeidemangguomao)投喂或点个免费的**Star**，您的支持是我们更新及维护的动力~
 
 #### **打赏列表**(排名不分先后)
 | 昵称          | 打赏金额         | 昵称          | 打赏金额          |
