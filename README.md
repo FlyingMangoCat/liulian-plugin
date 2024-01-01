@@ -83,7 +83,7 @@ git clone https://github.com/flyingmangocat/liulian-plugin.git ./plugins/liulian
 |妹儿 |5 |6 |5 |
 |akg |5 |幽雪 |5 |
 |window(珊瑚宫) |5 |爱发电用户_q9XB |10 |
-|林(亦) |30 |
+|林(亦) |30 |相信我 |0.96 |
 |和泉皓皓 |15 |
 |心海 |5 |
 |lhz |30 |
