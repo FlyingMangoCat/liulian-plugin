@@ -14,6 +14,6 @@
         "expression" : 1,
         "gl" : 50,
         "expression": 1,    	
-        "limit": 0,
+        "limit": 2,
 	}
 }
