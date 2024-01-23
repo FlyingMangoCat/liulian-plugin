@@ -74,7 +74,7 @@ git clone https://github.com/flyingmangocat/liulian-plugin.git ./plugins/liulian
 |乐 |20 |我不是觉皇 |0.02 |
 |云 |5 |黑黑子 |30根肉棒 |
 |奶牛的梦 |10 |我落泪情绪零碎 |1.2 |
-|未知用户 |5 |枫叶 |15.03 |
+|(未知用户) |5 |枫叶 |15.03 |
 |泪 |5 |莹儿车 |10 |
 |嗨 |5 |404NotFound |5 |
 |夜华 |433.2 |爱发电用户_dCxv |5 | 
