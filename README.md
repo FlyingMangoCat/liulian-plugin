@@ -59,7 +59,7 @@ git clone https://github.com/flyingmangocat/liulian-plugin.git ./plugins/liulian
 * 本插件的图片与其他素材均来自于网络，仅供交流学习使用，如有侵权请联系，会立即删除
 
 </details> 
- 
+  
 ### **打赏**
 
 * 欢迎[爱发电](https://afdian.net/a/huifeidemangguomao)投喂或点个免费的**Star**，您的支持是我们更新及维护的动力~
