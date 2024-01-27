@@ -16,7 +16,7 @@
 #### 使用gitee安装
 ```
 git clone https://gitee.com/huifeidemangguomao/liulian-plugin.git ./plugins/liulian-plugin/
-```
+``` 
 
 #### 使用github安装 
 ```
