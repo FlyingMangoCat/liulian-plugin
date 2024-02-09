@@ -75,7 +75,7 @@ git clone https://github.com/flyingmangocat/liulian-plugin.git ./plugins/liulian
 |云 |5 |黑黑子 |30根肉棒 |
 |奶牛的梦 |10 |我落泪情绪零碎 |1.2 |
 |(未知用户) |5 |枫叶 |15.03 |
-|泪 |5 |莹儿车 |10 |
+|泪 |5 |管家 |15 |
 |嗨 |5 |404NotFound |5 |
 |夜华 |433.2 |爱发电用户_dCxv |5 | 
 |吾想要困告了 |3 |诶！？ |5 |
@@ -84,7 +84,7 @@ git clone https://github.com/flyingmangocat/liulian-plugin.git ./plugins/liulian
 |akg |5 |幽雪 |5 |
 |window(珊瑚宫) |5 |爱发电用户_q9XB |10 |
 |林(亦) |30 |相信我 |0.96 |
-|和泉皓皓 |15 |
+|和泉皓皓 |15 |20抽4金真君 |5 |
 |心海 |5 |
 |lhz |30 |
 |夜夜 |5 |
