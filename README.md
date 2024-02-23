@@ -85,9 +85,9 @@ git clone https://github.com/flyingmangocat/liulian-plugin.git ./plugins/liulian
 |window(珊瑚宫) |5 |爱发电用户_q9XB |10 |
 |林(亦) |30 |相信我 |0.96 |
 |和泉皓皓 |15 |20抽4金真君 |5 |
-|心海 |5 |
-|lhz |30 |
-|夜夜 |5 |
+|心海 |5 |未知用户 |0.5 |
+|lhz |30 |娜娜 |0.01(记往生堂账上) |
+|夜夜 |5 |娜娜 |15 |
 |长楠 |25 |
 |萝一生 |30 |
 |流蝉畅舞 |5 |
