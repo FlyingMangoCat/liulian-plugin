@@ -9,7 +9,7 @@
 
 // 帮助配置
 export const helpCfg = {
-  title: "榴莲帮助",  // 帮助标题
+  title: "留恋帮助",  // 帮助标题
   subTitle: "Yunzai-Bot & Liulian-Plugin" // 帮助副标题
 };
 
