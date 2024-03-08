@@ -2,8 +2,6 @@ import fs from "fs";
 import schedule from "node-schedule";
 import config from "../model/config/config.js"
 import { versionInfo,help } from "./help.js"
-import { 回复 } from "./自动回复.js"
-import { 完全匹配回复 } from "./自动回复 (1).js"
 import { wjc } from "./wjc.js"
 import { ai } from "./ai.js"
 import { replace } from "./replace.js"
@@ -315,8 +313,6 @@ export {
     determineIfYouShutUp,
     openYourMouth,
     replace,
-    回复,
-    完全匹配回复,
 }
 
 const cfg = config.getdefault_config('liulian', 'botname', 'config');
@@ -1141,16 +1137,6 @@ ai: {
     priority: -10,
     describe: "",
     },
-    回复: {
-    reg: "(.*)", //匹配消息正则，命令正则
-    priority: 10, //优先级，越小优先度越高，这个等级低于表情的等级！！！
-    describe: "书", //【命令】功能说明
-    },
-    完全匹配回复: {
-    reg: "(.*)", //匹配消息正则，命令正则
-    priority: 10, //优先级，越小优先度越高，这个等级低于表情的等级！！！
-    describe: "书", //【命令】功能说明
-  },
 };
 
 // lodash.forEach(rule, (r) => {
