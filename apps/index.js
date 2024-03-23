@@ -1137,7 +1137,6 @@ ai: {
     priority: -10,
     describe: "",
     },
-  },
 };
 
 // lodash.forEach(rule, (r) => {
