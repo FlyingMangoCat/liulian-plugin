@@ -22,7 +22,7 @@ let cfgMap = {
   群聊闭嘴限制:'sys.limit',
   群聊闭嘴:'sys.shutup',
 }
-let sysCfgReg = `^#留恋设置\\s*(${lodash.keys(cfgMap).join('|')})?\\s*(.*)$`
+let sysCfgReg = `^#(榴莲|留恋)设置\\s*(${lodash.keys(cfgMap).join('|')})?\\s*(.*)$`
 export const rule = {
   updateRes: {
     hashMark: true,
