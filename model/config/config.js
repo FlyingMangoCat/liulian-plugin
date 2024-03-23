@@ -73,7 +73,7 @@ class config {
 
         watcher.on('change', path => {
             delete this[type][key]
-            logger.mark(`[修改榴莲插件配置文件][${type}][${app}][${name}]`)
+            logger.mark(`[修改留恋插件配置文件][${type}][${app}][${name}]`)
             if (this[`change_${app}${name}`]) {
                 this[`change_${app}${name}`]()
             }
@@ -85,7 +85,7 @@ class config {
     /** 
      * 获取配置yaml
      * @param app 模块
-     * @param type 默认配置-default_config 榴莲插件配置-config
+     * @param type 默认配置-default_config 留恋插件配置-config
      * @param name 配置文件去后缀的名字
      */
     getYaml(app, name, type) {
