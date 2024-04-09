@@ -40,6 +40,8 @@ git clone https://github.com/flyingmangocat/liulian-plugin.git ./plugins/liulian
  
 * 电子邮箱 **flyingmaogocat@126.com**
 
+#### [本插件已收录至**云崽纯净插件**](https://gitee.com/huifeidemangguomao/yunzai-one-button/include.md)
+
 #### **反馈**
 
 * [liulian-plugin问题反馈](https://pd.qq.com/s/ewii86r08)
