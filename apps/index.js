@@ -321,7 +321,7 @@ const cfg = config.getdefault_config('liulian', 'botname', 'config');
 let rule = {
  
         help: {
-        reg: "^#?(榴莲|留恋)?(帮助|帮助|help)$",
+        reg: "^#?留恋?(帮助|帮助|help)$",
         priority: 100,
         describe: "使用帮助",
     },
@@ -356,12 +356,12 @@ let rule = {
         describe: "更新素材",
     },
         sysCfg: {
-        reg: "^#?(榴莲|留恋)设置(.*)$",
+        reg: "^#?留恋设置(.*)$",
         priority: 105,
         describe: "设置",
     },
         versionInfo: {
-        reg: '^#?(榴莲|留恋)版本$',
+        reg: '^#?留恋版本$',
         priority: 100,
         describe: "版本介绍",
     },
@@ -396,7 +396,7 @@ let rule = {
         describe: "",
     },
         updateLiulianPlugin: {
-        reg: '^#(榴莲|留恋)(强制)?更新',
+        reg: '^#留恋(强制)?更新',
         priority: 10,
         describe: '更新'
     },        
