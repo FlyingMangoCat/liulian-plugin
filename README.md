@@ -34,7 +34,7 @@ pnpm install -P
 
 #### QQ群🌾
 
-* liulian-plugin留恋插件   **[806760403](http://qm.qq.com/cgi-bin/qm/qr?_wv=1027&k=sbYoEYRgwMkO66UsD1RIjyQMys1SSFsn&authKey=LWGw08%2BP0EQepYtZ19T3gRYEbTiV0YeodQTcthEmNdIHnxID%2BT9TTYnYuSGKTjqm&noverify=0&group_code=806760403)**
+* liulian-plugin榴莲插件   **[806760403](http://qm.qq.com/cgi-bin/qm/qr?_wv=1027&k=sbYoEYRgwMkO66UsD1RIjyQMys1SSFsn&authKey=LWGw08%2BP0EQepYtZ19T3gRYEbTiV0YeodQTcthEmNdIHnxID%2BT9TTYnYuSGKTjqm&noverify=0&group_code=806760403)**
 
 #### 联系方式
  
@@ -50,7 +50,7 @@ pnpm install -P
 
 * 有建议可以去[Issues](https://gitee.com/huifeidemangguomao/liulian-plugin/issues)里提
 
-* [留恋插件(liulian-plugin)B站问题反馈专栏](https://b23.tv/GecaEsK)
+* [榴莲插件(liulian-plugin)B站问题反馈专栏](https://b23.tv/GecaEsK)
  
 <details><summary>**免责声明**</summary>
 
