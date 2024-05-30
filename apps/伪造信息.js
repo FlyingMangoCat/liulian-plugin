@@ -34,13 +34,13 @@ if (!Cfg.get('sys.forge', false))  {
       const key = idx;
       msgInfo.set(key, {
         qq: element.qq,
-        name: element.text.replace(/@/g, ""),
+        name: element.text?.replace(/@/g, ""),
         msg: "",
       });
       tempAtInfo = {
         key,
         qq: element.qq,
-        name: element.text.replace(/@/g, ""),
+        name: element.text?.replace(/@/g, ""),
         msg: "",
       };
       idx++;

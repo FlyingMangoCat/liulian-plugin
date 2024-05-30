@@ -1,2 +1,3 @@
-config/
-node_modules/
+node_modules
+apps/randomQA/.keep
+resources/liulian-res-plus
