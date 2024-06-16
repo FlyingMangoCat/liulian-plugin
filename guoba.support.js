@@ -8,7 +8,7 @@ export function supportGuoba() {
   return {
     pluginInfo: {
       name: "liulian-plugin",
-      title: "留恋插件（liulian-plugin）",
+      title: "榴莲插件（liulian-plugin）",
       author: "@会飞的芒果猫",
       authorLink: "https://gitee.com/huifeidemangguomao",
       link: "https://gitee.com/huifeidemangguomao/liulian-plugin",
