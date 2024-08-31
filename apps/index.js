@@ -1,7 +1,7 @@
 import fs from "fs";
 import schedule from "node-schedule";
 import config from "../model/config/config.js"
-import { versionInfo,help } from "./help.js"
+import { versionInfo, help } from "./help.js"
 import { wjc } from "./wjc.js"
 import { ai } from "./ai.js"
 import { replace } from "./replace.js"
