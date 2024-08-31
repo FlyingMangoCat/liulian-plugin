@@ -15,5 +15,6 @@
         "gl" : 50,
         "expression": 1,    	
         "limit": 2,
+        "PluginName": 1,
 	}
 }

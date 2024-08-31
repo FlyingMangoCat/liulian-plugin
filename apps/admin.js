@@ -21,6 +21,7 @@ let cfgMap = {
   娶群友:'sys.qqy',
   群聊闭嘴限制:'sys.limit',
   群聊闭嘴:'sys.shutup',
+  插件名称:'sys.PiuginName',
 }
 let sysCfgReg = `^#榴莲设置\\s*(${lodash.keys(cfgMap).join('|')})?\\s*(.*)$`
 export const rule = {
@@ -83,6 +84,8 @@ export async function sysCfg (e, { render }) {
 			val= Math.min(2,Math.max(val,0));
 		} else if(cfgKey === "sys.limit"){
 			val= Math.min(2,Math.max(val,0));
+		} else if(cfgKey === "sys.PluginName"){
+			val= Math.min(2,Math.max(val,0));
 		} else {
       val = !/关闭/.test(val)
     }
@@ -109,6 +112,7 @@ export async function sysCfg (e, { render }) {
     scale: Cfg.get('sys.scale', 100),
     limit: Cfg.get('sys.limit', 0),
     shutup: getStatus('sys.shutup', false),
+    PluginName: Cfg.get('sys.PluginName', 1),
   }
 
   // 渲染图像

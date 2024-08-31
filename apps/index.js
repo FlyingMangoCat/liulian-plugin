@@ -51,12 +51,12 @@ Bouncecat
 import { CeShi } from "./inoutgroup.js"
 import { 哪个群友是我老婆 } from "./whoismywife.js"
 import { chumeng } from "./打卡.js"
-import { randomQA,answerCheck } from "./Q&A.js"
+import { randomQA, answerCheck } from "./Q&A.js"
 import { HitMe } from "./hitme.js"
 import { forge } from "./伪造信息.js"
 import { fabing } from "./morbidity.js"
-import { biaoQing,biaoQingHelp } from "./makeemoticons.js"
-import { random,chuochuo,上传 } from "./Random expression.js"
+import { biaoQing, biaoQingHelp } from "./makeemoticons.js"
+import { random, chuochuo, 上传 } from "./Random expression.js"
 import { FuckingChatterbox } from "./chatterboxStat.js"
 import { EndCheck,   
 musicanswerCheck,
@@ -126,7 +126,7 @@ import {
   setBiliPushSendType,
   pushScheduleJob,
 } from "./bilibiliPush.js";
-import { bilibilihelp,YZversionInfo } from "./bilibilihelp.js"
+import { bilibilihelp, YZversionInfo } from "./bilibilihelp.js"
 import { JsPlugins,
 PluginsList,
 WarehPluginsList,
@@ -321,7 +321,7 @@ const cfg = config.getdefault_config('liulian', 'botname', 'config');
 let rule = {
  
         help: {
-        reg: "^#?(榴莲|留恋)?(帮助|帮助|help)$",
+        reg: "^#?(榴莲|留恋)(帮助|help)$",
         priority: 100,
         describe: "使用帮助",
     },

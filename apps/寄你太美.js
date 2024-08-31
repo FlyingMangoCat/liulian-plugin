@@ -121,9 +121,16 @@ export async function kt1(e) {
   return true;//返回true 阻挡消息不再往下
 }
 export async function jtm(e) {
-if (!Cfg.get('sys.jtm', false)) {
-    e.reply (`该功能已被关闭，请通过留恋设置开启`);
-    return false
+if (!Cfg.get('sys.dw', false)) {
+	let PluginName=Cfg.get('sys.expression'); 
+  if(PluginName == 1){ 
+  e.reply (`该功能已被关闭，请通过榴莲设置开启`);
+  return false
+  } 
+  if(PluginName == 2){ 
+  e.reply (`该功能已被关闭，请通过留恋设置开启`);
+  return false
+   } 
   }
  let RandomNum=lodash.random(0, 100);
     if(RandomNum <= 75){
