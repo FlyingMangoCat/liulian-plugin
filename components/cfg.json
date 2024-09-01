@@ -9,7 +9,7 @@
         "forge": false,
         "jtm" : false,
         "qqy": false,
-        "shutup": false,
+        "shutup": true,
         "wife": 1  ,
         "expression" : 1,
         "gl" : 50,
