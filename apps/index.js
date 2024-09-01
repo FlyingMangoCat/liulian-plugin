@@ -322,7 +322,7 @@ let rule = {
  
         help: {
         reg: "^#?(榴莲|留恋)(帮助|help)$",
-        priority: 100,
+        priority: 10,
         describe: "使用帮助",
     },
         maphelp: {
