@@ -35,7 +35,7 @@ let Cfg = {
     if (Cfg.get(rote, true)) {
       return false
     }
-    if (/^#*留恋/.test(e.msg || '')) {
+    if (/^#*榴莲/.test(e.msg || '')) {
       return false
     }
     return true
