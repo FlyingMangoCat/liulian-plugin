@@ -13,7 +13,7 @@ export const rule = {
     },
 };
 export async function 哪个群友是我老婆(e) {
-if (!Cfg.get('sys.dw', false)) {
+if (!Cfg.get('sys.qqy', false)) {
 	let PluginName=Cfg.get('sys.expression'); 
   if(PluginName == 1){ 
   e.reply (`该功能已被关闭，请通过榴莲设置开启`);

@@ -30,7 +30,15 @@ export const rule = {
 
 export async function qmp (e){
 if (!/榴莲/.test(e.msg) && !Cfg.get('sys.qmp', false)) {
-    return false
+  let PluginName=Cfg.get('sys.expression'); 
+  if(PluginName == 1){ 
+  e.reply (`该功能已被关闭，请通过榴莲设置开启`);
+  return false
+  } 
+  if(PluginName == 2){ 
+  e.reply (`该功能已被关闭，请通过留恋设置开启`);
+  return false
+   } 
   }
     const totalMem = os.totalmem();
     const freeMen =os.freemem();

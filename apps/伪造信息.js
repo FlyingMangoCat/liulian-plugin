@@ -13,7 +13,7 @@ export const rule = {
 };
 
 export async function forge(e) {
-if (!Cfg.get('sys.dw', false)) {
+if (!Cfg.get('sys.forge', false)) {
 	let PluginName=Cfg.get('sys.expression'); 
   if(PluginName == 1){ 
   e.reply (`该功能已被关闭，请通过榴莲设置开启`);

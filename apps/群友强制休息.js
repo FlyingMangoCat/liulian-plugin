@@ -10,7 +10,7 @@ export const rule = {
 };
 
 export async function examples(e) {
-if (!Cfg.get('sys.dw', false)) {
+if (!Cfg.get('sys.xx', false)) {
 	let PluginName=Cfg.get('sys.expression'); 
   if(PluginName == 1){ 
   e.reply (`该功能已被关闭，请通过榴莲设置开启`);

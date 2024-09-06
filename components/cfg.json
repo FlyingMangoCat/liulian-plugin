@@ -1,20 +1,20 @@
 {
-	"sys": {
-		"bq": false,
-		"dk": false,
-		"qmp": false,
-		"help": false,
-		"xx": false,
-		"dw": false,
-        "forge": false,
-        "jtm" : false,
-        "qqy": false,
-        "shutup": true,
-        "wife": 1  ,
-        "expression" : 1,
-        "gl" : 50,
-        "expression": 1,    	
-        "limit": 2,
-        "PluginName": 1,
-	}
+  "sys": {
+	"bq": false,
+	"dk": false,
+	"qmp": false,
+	"help": false,
+	"xx": false,
+	"dw": false,
+    "forge": false,
+    "jtm" : false,
+    "qqy": false,
+    "shutup": false,
+    "wife": 1  ,
+    "expression" : 1,
+    "gl" : 50,
+    "expression": 1,    	
+    "limit": 2,
+    "PluginName": 1,
+  }
 }
