@@ -10,17 +10,9 @@ export const rule = {
 };
 
 export async function examples(e) {
-if (!Cfg.get('sys.xx', false)) {
-	let PluginName=Cfg.get('sys.expression'); 
-  if(PluginName == 1){ 
+if (!Cfg.get('sys.xx', false))  {
   e.reply (`该功能已被关闭，请通过榴莲设置开启`);
   return false
-  } 
-  if(PluginName == 2){ 
-  e.reply (`该功能已被关闭，请通过留恋设置开启`);
-  return false
-   } 
-  }
     // console.log(e.msg);
     console.log(e.user_id);
     let who = e.user_id

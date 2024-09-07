@@ -4,7 +4,7 @@ import Cfg from '../components/Cfg.js'
 //项目路径
 const _path = process.cwd();
 let GayCD = { };
-let time = Cfg.get('sys.wife')*60000
+let time = Cfg.get('sys.wife')
 export const rule = {
     哪个群友是我老婆: {
         reg: "^#*(拐群友|柰子|奈子|奶子|绑架群友|娶群友|娶老婆|拐卖人口|哪个群友是我老婆|抽管理|拐卖群友|绑架人口|拐走群友)$", //匹配消息正则，命令正则
@@ -13,17 +13,10 @@ export const rule = {
     },
 };
 export async function 哪个群友是我老婆(e) {
-if (!Cfg.get('sys.qqy', false)) {
-	let PluginName=Cfg.get('sys.expression'); 
-  if(PluginName == 1){ 
+if (!Cfg.get('sys.qqy', false))  {
   e.reply (`该功能已被关闭，请通过榴莲设置开启`);
   return false
-  } 
-  if(PluginName == 2){ 
-  e.reply (`该功能已被关闭，请通过留恋设置开启`);
-  return false
-   } 
-  }
+}
 let random = Math.round(Math.random() * 100);
 if (random < 5) {
         e.reply("醒醒，你根本没有老婆！");
@@ -31,7 +24,7 @@ if (random < 5) {
   }
     console.log("用户命令：", e.msg);
     if(GayCD[e.user_id]){
-        e.reply("该命令有"+time*0.001+"秒cd");
+        e.reply("该命令有"+time+"分钟cd");
         return true;
     }
     GayCD[e.user_id] = true;
@@ -39,7 +32,7 @@ if (random < 5) {
         if (GayCD[e.user_id]) {
             delete GayCD[e.user_id];
         }
-    }, (time));
+    }, (time*60000));
     let mmap = await e.group.getMemberMap();
     let arrMember = Array.from(mmap.values());
     let randomWife = arrMember[Math.round(Math.random() * (arrMember.length-1))];

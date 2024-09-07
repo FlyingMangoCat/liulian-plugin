@@ -21,7 +21,7 @@ let cfgMap = {
   娶群友:'sys.qqy',
   群聊闭嘴限制:'sys.limit',
   群聊闭嘴:'sys.shutup',
-  插件名称:'sys.PiuginName',
+  插件名:'sys.PiuginName',
 }
 let sysCfgReg = `^#榴莲设置\\s*(${lodash.keys(cfgMap).join('|')})?\\s*(.*)$`
 export const rule = {

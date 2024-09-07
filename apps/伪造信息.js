@@ -13,17 +13,10 @@ export const rule = {
 };
 
 export async function forge(e) {
-if (!Cfg.get('sys.forge', false)) {
-	let PluginName=Cfg.get('sys.expression'); 
-  if(PluginName == 1){ 
+if (!Cfg.get('sys.forge', false))  {
   e.reply (`该功能已被关闭，请通过榴莲设置开启`);
   return false
-  } 
-  if(PluginName == 2){ 
-  e.reply (`该功能已被关闭，请通过留恋设置开启`);
-  return false
-   } 
-  }
+}
   let msgInfo = new Map(); 
   let msg = []; 
   let idx = 1;
