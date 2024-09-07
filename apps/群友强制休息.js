@@ -13,6 +13,7 @@ export async function examples(e) {
 if (!Cfg.get('sys.xx', false))  {
   e.reply (`该功能已被关闭，请通过榴莲设置开启`);
   return false
+}
     // console.log(e.msg);
     console.log(e.user_id);
     let who = e.user_id
