@@ -52,3 +52,5 @@ export const getBLsid = () => {
 
   return `b_lsid=${BLSID}`;
 };
+
+export { getBLsid, getUuid }
