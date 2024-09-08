@@ -24,7 +24,13 @@ imgurl2 = String(imgurl2);
 imgurl3 = String(imgurl3);
 
 
-export const rule = {
+let app = App.init({
+  id: '猫猫',
+  name: '猫猫',
+  desc: '猫猫'
+})
+
+app.reg({
   Robacat: {
     reg: "^#*抱走猫猫$",
     priority: 4999,
@@ -45,7 +51,9 @@ export const rule = {
     priority: 4999,
     describe: "【#设置猫猫反弹】设置今日不被猫猫袭击",
   },
-};
+})
+
+export default app
 
 schedule.scheduleJob('0 0 0 * * *', function () {//每天凌晨0点执行
   if (filename.indexOf(".json") == -1) {//如果文件名不包含.json

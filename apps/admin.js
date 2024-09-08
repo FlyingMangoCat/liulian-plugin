@@ -1,8 +1,7 @@
 import fs from 'fs'
-import Cfg from '../components/Cfg.js'
 import lodash from 'lodash'
 import { exec } from 'child_process'
-import Common from '../components/Common.js'
+import { Cfg, Common, Data, Version, App } from '#liulian'
 
 let cfgMap = {
   渲染: 'sys.scale',
@@ -23,8 +22,16 @@ let cfgMap = {
   群聊闭嘴:'sys.shutup',
   插件名:'sys.PiuginName',
 }
+
+let app = App.init({
+  id: 'admin',
+  name: '榴莲设置',
+  desc: '榴莲设置'
+})
+
 let sysCfgReg = `^#榴莲设置\\s*(${lodash.keys(cfgMap).join('|')})?\\s*(.*)$`
-export const rule = {
+
+app.reg({
   updateRes: {
     hashMark: true,
     reg: '^#榴莲(更新图像|图像更新)$',
@@ -50,7 +57,9 @@ export const rule = {
     reg: '^#(榴莲|留恋)(安装|更新)芒果插件$',
     describe: '【#管理】安装/更新插件'
   }
-}
+})
+
+export default app
 
 const _path = process.cwd()
 const resPath = `${_path}/plugins/liulian-plugin/resources/`
