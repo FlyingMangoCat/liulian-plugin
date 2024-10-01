@@ -150,6 +150,7 @@ async function initBiliPushJson() {
 initBiliPushJson(); // 初始化
 
 // (开启|关闭)B站推送
+
 export async function changeBilibiliPush(e) {
   // 是否允许使用这个功能
   if (!isAllowPushFunc(e)) {

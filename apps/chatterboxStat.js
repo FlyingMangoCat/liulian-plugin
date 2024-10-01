@@ -1,13 +1,21 @@
 import fetch from "node-fetch";
 const _path = process.cwd();
 let ing = {};
-export const rule = {
+
+let app = App.init({
+  id: 'hltj',
+  name: 'hltj',
+  desc: 'hltj'
+})
+
+app.reg({
     FuckingChatterbox: {
         reg: "^#*(话痨统计|话痨检测|水逼检测|水逼统计)$", 
         priority: 60,
         describe: "寻找大水逼",
     },
-};
+})
+
 export async function FuckingChatterbox(e) {
     if(ing[e.group_id]){
         e.reply("在找了，在找了，已经在找了，很慢，请再等等！");

@@ -11,8 +11,13 @@ let time = 1; //缓存删除规则单位分钟 不建议写0会出现未知数�
 let qq_ = []; //需要推送的qq号  不填会默认推送给主人 多个请用 ,隔开
 let qqGroup = [790621765,826193914,658720198]; //默认需要推送的群多个请用 ,隔开
 
-//定义命令规则
-export const rule = {
+let app = App.init({
+  id: 'gb',
+  name: 'gb',
+  desc: 'gb'
+})
+
+app.reg({
 	daihua: {
 		reg: "^带话(.*)$", //匹配消息正则，命令正则
 		priority: 400, //优先级，越小优先度越高
@@ -23,8 +28,8 @@ export const rule = {
 		priority: 400, //优先级，越小优先度越高
 		describe: "机器人在指定群说指定内容", //【命令】功能说明
 	}
-};
-// 
+})
+
 export async function daihua(e) {
 var msg = e.msg.replace("带话", ""); 
 	var data_msg = [];

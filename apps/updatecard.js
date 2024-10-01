@@ -19,14 +19,19 @@ schedule.scheduleJob("0 0/10 * * * ?", async () =>{
     return true;
 })
 
+let app = App.init({
+  id: 'qmp',
+  name: 'qmp',
+  desc: 'qmp'
+})
 
-export const rule = {
+app.reg({
     qmp : {
         reg : "^更新群名片",
         priority: 10,
         describe : "",
     }
-};
+})
 
 export async function qmp (e){
 if (!/榴莲/.test(e.msg) && !Cfg.get('sys.qmp', false))  {

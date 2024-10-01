@@ -5,14 +5,20 @@ const hmd_userqq = []; //对于某用户的黑名单,隔开
 const bmd_GroupQQ = [790621765]; //需要使用的群名单 ,隔开(谨慎使用！该功能会覆盖闲心神秘指令)
 let hit = ['让你瞎逼逼!','让你涩涩!', '让你骂人!', '让你色色!', '让你胡说!', '让你说话!', '让你违规!', '让你xx!', 'དཔེཔཟོ!', 'دكېبدڭ!'];
 let MuteTime = 60;
-export const rule = {
+let app = App.init({
+  id: 'wjc',
+  name: 'wjc',
+  desc: 'wjc'
+})
+
+app.reg({
     wjc: {
         reg: "(傻逼|淦|你妈|卧槽|woc|wocpro)", //可修改，用"|"隔开即可
         priority: 10, //优先级，越小优先度越高
         describe: "违禁词", //【命令】功能说明
     },
 
-};
+})
 
 export async function wjc(e) {
  if (!bmd_GroupQQ.includes(e.group_id)) {

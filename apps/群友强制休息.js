@@ -1,7 +1,13 @@
 import Cfg from '../components/Cfg.js'
 
 const _path = process.cwd();
-export const rule = {
+let app = App.init({
+  id: 'qzxx',
+  name: 'qzxx',
+  desc: 'qzxx'
+})
+
+app.reg({
     examples: {
         reg: "^#我要休息[\s\S]*", //匹配消息正则，命令正则
         priority: 750, //优先级，越小优先度越高

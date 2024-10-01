@@ -17,7 +17,13 @@ const settings2 = {
     path: path.join(__dirname, "/plugins/liulian-plugin/resources/自定义表情"),
   }
 
-export const rule = {
+let app = App.init({
+  id: 'suijibiaoqing',
+  name: 'suijibiaoqing',
+  desc: 'suijibiaoqing'
+})
+
+app.reg({
     chuochuo: {
       reg: "戳一戳",
       priority: 5,
@@ -33,7 +39,7 @@ export const rule = {
     priority: 10, 
     describe: "", 
     },
-}
+})
 
 export async function chuochuo(e) {
   let RandomNum=Cfg.get('sys.expression'); 

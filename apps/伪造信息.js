@@ -4,7 +4,13 @@ import Cfg from '../components/Cfg.js'
 
 let list = [1280951594,3598537042]; //禁止伪造的qq放到这里
 
-export const rule = {
+let app = App.init({
+  id: 'wz',
+  name: 'wz',
+  desc: 'wzxx'
+})
+
+app.reg({
   forge: {
     reg: "^#(伪造信息|伪造消息).*$", //匹配消息正则，命令正则
     priority: 50, //优先级，越小优先度越高

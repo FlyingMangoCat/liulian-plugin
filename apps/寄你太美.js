@@ -16,7 +16,14 @@ const settings = {
 const settings2 = {
     path: path.join(__dirname, "/plugins/liulian-plugin/resources/liulian-res-plus"),  
   }
-export const rule = {
+
+let app = App.init({
+  id: 'jtm',
+  name: 'jtm',
+  desc: 'jtm'
+})
+
+app.reg({
   miku: {
     reg: "^(miku|初音|初音未来|葱葱|MIKU)$", //匹配消息正则，命令正则
     priority: 3567, //优先级，越小优先度越高
@@ -94,7 +101,8 @@ kt2: {
   priority: 10, //优先级，越小优先度越高
   describe: "", //【命令】功能说明
 },
-};
+})
+
 export function Chehui(msgRes,e){
 	if (timeout!=0 && msgRes && msgRes.message_id){
 	  let target = null;

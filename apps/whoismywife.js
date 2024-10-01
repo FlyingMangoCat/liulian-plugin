@@ -5,13 +5,20 @@ import Cfg from '../components/Cfg.js'
 const _path = process.cwd();
 let GayCD = { };
 let time = Cfg.get('sys.wife')
-export const rule = {
+let app = App.init({
+  id: 'wife',
+  name: 'wife',
+  desc: 'wife'
+})
+
+app.reg({
     哪个群友是我老婆: {
         reg: "^#*(拐群友|柰子|奈子|奶子|绑架群友|娶群友|娶老婆|拐卖人口|哪个群友是我老婆|抽管理|拐卖群友|绑架人口|拐走群友)$", //匹配消息正则，命令正则
         priority: 100,
         describe: "哪个群友是我老婆",
     },
-};
+})
+
 export async function 哪个群友是我老婆(e) {
 if (!Cfg.get('sys.qqy', false))  {
   e.reply (`该功能已被关闭，请通过榴莲设置开启`);

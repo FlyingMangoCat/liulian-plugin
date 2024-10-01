@@ -3,16 +3,19 @@ import fetch from "node-fetch";
 //项目路径
 const _path = process.cwd();
 
-//简单应用示例
+let app = App.init({
+  id: '运势',
+  name: '运势',
+  desc: '运势'
+})
 
-//1.定义命令规则
-export const rule = {
+app.reg({
   xzys: {
     reg: "^#?.*运势$", //匹配消息正则，命令正则
     priority: 5, //优先级，越小优先度越高
     describe: "【水瓶运势】开发简单示例演示", //【命令】功能说明
   },
-};
+})
 
 //2.编写功能方法
 //方法名字与rule中的examples保持一致

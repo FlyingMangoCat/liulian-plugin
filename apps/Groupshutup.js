@@ -3,7 +3,13 @@ import Cfg from '../components/Cfg.js'
 const cfg = config.getdefault_config('liulian', 'botname', 'config');
   const botname = cfg.botname
 
-export const rule = {
+let app = App.init({
+  id: 'bizui',
+  name: 'bizui',
+  desc: 'bizui'
+})
+
+app.reg({
   toShutUp: {
     reg: "#*(闭嘴|自爆)$", //匹配消息正则，命令正则
     priority: 0, //优先级，越小优先度越高
@@ -19,7 +25,7 @@ export const rule = {
     priority: 0, //优先级，越小优先度越高
     describe: "群聊张嘴", //【命令】功能说明
   },
-};
+})
 
 export async function toShutUp(e) {
 if (!/榴莲/.test(e.msg) && !Cfg.get('sys.shutup', false)) {

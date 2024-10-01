@@ -8,7 +8,13 @@ import path from 'path';
 const _path = process.cwd();//项目路径
 var filesNameA = [];//存放js文件名称的数组
 
-export const rule = {
+let app = App.init({
+  id: 'wjgl',
+  name: 'wjgl',
+  desc: 'wjgl'
+})
+
+app.reg({
   v3JsPlugins:
   {
     reg: "noCheck",
@@ -57,7 +63,7 @@ export const rule = {
     priority: 450,
     describe: "帮助菜单",
   }
-}
+})
 
 //********************************************************************************************* */
 

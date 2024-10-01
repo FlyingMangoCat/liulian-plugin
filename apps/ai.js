@@ -5,13 +5,20 @@ import axios from 'axios';
 import moment from 'moment';
 import lodash from "lodash";
 const _path = process.cwd();
-export const rule = {
+
+let app = App.init({
+  id: 'ai',
+  name: 'ai',
+  desc: 'ai'
+})
+
+app.reg({
   ai: {
     reg: "#?可心(.*)$", //匹配消息正则，命令正则
     priority: 10, //优先级，越小优先度越高
     describe: "ai", //【命令】功能说明
   },
-};
+})
 
 export async function ai(e) {
 let keyword = e.msg.replace("#","");
