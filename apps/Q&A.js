@@ -17,9 +17,9 @@ scheduleCronstyle();
 
 
 let app = App.init({
-  id: 'Q&A',
-  name: 'Q&A',
-  desc: 'Q&A'
+  id: 'QA',
+  name: 'QA',
+  desc: 'QA'
 })
 
 app.reg({
