@@ -20,7 +20,7 @@ app.reg({
     describe: "",
   }
 })
-
+export default app
 export async function 运势(e){
     if(!e.isMaster){
       if(PokeCD[e.group_id])

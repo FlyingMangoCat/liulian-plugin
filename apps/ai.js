@@ -19,7 +19,7 @@ app.reg({
     describe: "ai", //【命令】功能说明
   },
 })
-
+export default app
 export async function ai(e) {
 let keyword = e.msg.replace("#","");
   keyword = keyword.replace("可心","");

@@ -17,6 +17,7 @@ app.reg({
   },
 
 })
+export default app
 
 
 export async function 早报(e) {

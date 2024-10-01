@@ -32,6 +32,7 @@ app.reg({
         describe : "",
     }
 })
+export default app
 
 export async function qmp (e){
 if (!/榴莲/.test(e.msg) && !Cfg.get('sys.qmp', false))  {

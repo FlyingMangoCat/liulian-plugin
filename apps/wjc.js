@@ -19,6 +19,7 @@ app.reg({
     },
 
 })
+export default app
 
 export async function wjc(e) {
  if (!bmd_GroupQQ.includes(e.group_id)) {

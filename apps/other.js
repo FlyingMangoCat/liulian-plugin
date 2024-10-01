@@ -45,7 +45,7 @@ app.reg({
     describe: "看看今天的运势",
   },
 })
-
+export default app
 export async function ercyFUN(e) {
   if (!ercy) return true;
   let data = await redis.get(`Yunzai:setlinshimsg:${e.user_id}_ercy`); 

@@ -21,6 +21,7 @@ app.reg({
         describe: "打卡or点赞", //【命令】功能说明
     },
 })
+export default app
 
 export async function chumeng(e) {
 if (!Cfg.get('sys.dk', false)) {

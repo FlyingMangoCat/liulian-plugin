@@ -21,8 +21,8 @@ app.reg({
 		priority: 5000, //优先级，越小优先度越高
 		describe: '检测进群退群消息', //【命令】功能说明
 	},
-};
-
+})
+export default app
 
 export async function CeShi(e) {
 	//检测是否为群 console.log()

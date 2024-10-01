@@ -3,9 +3,9 @@ import fetch from "node-fetch";
 const _path = process.cwd();//项目路径
 
 let app = App.init({
-  id: 'XMmap',
-  name: 'XMmap',
-  desc: 'XMmap'
+  id: 'map',
+  name: 'map',
+  desc: 'map'
 })
 
 app.reg({
@@ -295,7 +295,7 @@ app.reg({
     describe: "", 
   },
 })
-
+export default app
 export async function yl总(e) {
 if (!e.msg.replace("地下地图").trim()) {
     return false

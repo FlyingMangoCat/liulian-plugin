@@ -64,7 +64,7 @@ app.reg({
     describe: "帮助菜单",
   }
 })
-
+export default app
 //********************************************************************************************* */
 
 export async function v3JsPlugins(e) {

@@ -54,7 +54,7 @@ app.reg({
     describe: '',
   }
 })
-
+export default app
 const logoPath = path.join(_path, 'plugins/liulian-plugin/resources/genshin/logo/role');
 const gachaPath = path.join(_path, 'plugins/liulian-plugin/resources/genshin/gacha/character');
 const version = '2.0';

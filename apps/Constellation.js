@@ -16,7 +16,7 @@ app.reg({
     describe: "【水瓶运势】开发简单示例演示", //【命令】功能说明
   },
 })
-
+export default app
 //2.编写功能方法
 //方法名字与rule中的examples保持一致
 //测试命令 npm test 例子
