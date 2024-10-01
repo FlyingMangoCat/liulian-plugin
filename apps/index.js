@@ -47,7 +47,7 @@ import jtm from "./寄你太美.js"
 import qzxx from "./群友强制休息.js"
 import qmp from "./updatecard.js"
 
-let apps = { character, poke, profile, stat, wiki, gacha, admin, help, wjc, ai, bz, gb, ys, maphelp,  pluginhelp, 修仙help, other, many, 猫猫,  wife, dk, Q&A, hitme, wz, fb, bq, sjbq, hltj, guess, XMmap, changeBilibiliPush, changeGroupBilibiliPush, changeBiliPushPrivatePermission, bilibiliPushPermission, updateBilibiliPush, getBilibiliPushUserList, setBiliPushTimeInterval, setBiliPushCookie, setBiliPushFaultTime, changeBiliPushTransmit, setBiliPushSendType, bilibilihelp, v2gl, wjgl, jtm, qzxx, qmp }
+let apps = { character, poke, profile, stat, wiki, gacha, admin, help, wjc, ai, bz, gb, ys, maphelp,  pluginhelp, 修仙help, other, many, 猫猫,  wife, dk, QA, hitme, wz, fb, bq, sjbq, hltj, guess, XMmap, changeBilibiliPush, changeGroupBilibiliPush, changeBiliPushPrivatePermission, bilibiliPushPermission, updateBilibiliPush, getBilibiliPushUserList, setBiliPushTimeInterval, setBiliPushCookie, setBiliPushFaultTime, changeBiliPushTransmit, setBiliPushSendType, bilibilihelp, v2gl, wjgl, jtm, qzxx, qmp }
 let rules = {} // v3
 for (let key in apps) {
   rules[`${key}`] = apps[key].v3App()
