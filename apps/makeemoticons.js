@@ -1,10 +1,13 @@
 import fetch from "node-fetch";
 import axios from 'axios';
-//简单应用示例
-//帮助：表情帮助
 
-//1.定义命令规则
-export const rule = {
+let app = App.init({
+  id: 'bq',
+  name: 'bq',
+  desc: 'bq'
+})
+
+app.reg({
   biaoQing: {
     reg: "noCheck", //匹配消息正则，命令正则
     priority: 10, //优先级，越小优先度越高
@@ -15,7 +18,7 @@ export const rule = {
     priority: 10, //优先级，越小优先度越高
     describe: "表情帮助", //【命令】功能说明
   },
-};
+})
 const keywordList = [
   "表情更新",
   "摸",

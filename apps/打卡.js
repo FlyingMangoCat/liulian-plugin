@@ -7,14 +7,20 @@ const _path = process.cwd();
 const cfg = config.getdefault_config('liulian', 'botname', 'config');
   const botname = cfg.botname
 
-export const rule = {
+let app = App.init({
+  id: 'dk',
+  name: 'dk',
+  desc: 'dk'
+})
+
+app.reg({
     
     chumeng: {
         reg: "打卡$", //匹配消息正则，命令正则
         priority: 100, //优先级，越小优先度越高
         describe: "打卡or点赞", //【命令】功能说明
     },
-};
+})
 
 export async function chumeng(e) {
 if (!Cfg.get('sys.dk', false)) {

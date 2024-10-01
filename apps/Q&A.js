@@ -16,10 +16,13 @@ const scheduleCronstyle = ()=>{
 scheduleCronstyle();
 
 
-//简单应用示例
+let app = App.init({
+  id: 'Q&A',
+  name: 'Q&A',
+  desc: 'Q&A'
+})
 
-//1.定义命令规则
-export const rule = {
+app.reg({
     randomQA: {
     reg: "^#?(榴莲|留恋|芒果)问答$", //匹配消息正则，命令正则
     priority: 2202, //优先级，越小优先度越高
@@ -30,7 +33,7 @@ export const rule = {
     priority: 5,
     describe: "",
   },
-};
+})
 
 //2.编写功能方法
 //方法名字与rule中的examples保持一致

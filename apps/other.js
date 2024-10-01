@@ -16,7 +16,14 @@ let ercy_time = 1;     //二次元的我
 let chengfen_time = 1; //我的成分 
 let daan_time = 1;     //答案之书
 let qiuqian_time = 1;  //观音灵签
-export const rule = {
+
+let app = App.init({
+  id: 'other',
+  name: 'other',
+  desc: 'other'
+})
+
+app.reg({
   ercyFUN: {
     reg: "^#*二次元的我$", 
     priority: 5000, 
@@ -37,7 +44,8 @@ export const rule = {
     priority: 30,
     describe: "看看今天的运势",
   },
-};
+})
+
 export async function ercyFUN(e) {
   if (!ercy) return true;
   let data = await redis.get(`Yunzai:setlinshimsg:${e.user_id}_ercy`); 

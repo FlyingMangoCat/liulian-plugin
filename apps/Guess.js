@@ -10,7 +10,14 @@ import { Data } from "../components/index.js";
 const GAME_TIME_OUT = 30//游戏时长(秒)
 const _path = process.cwd();
 let music = [7351920257]; //这里改网易云的歌单id
-export const rule = {
+
+let app = App.init({
+  id: 'guess',
+  name: 'guess',
+  desc: 'guess'
+})
+
+app.reg({
   guessAvatar: {
     reg: '^#猜(头像|角色)(普通|困难|地狱)?(模式)?',
     priority: 99,
@@ -46,7 +53,8 @@ export const rule = {
     priority: 98,
     describe: '',
   }
-};
+})
+
 const logoPath = path.join(_path, 'plugins/liulian-plugin/resources/genshin/logo/role');
 const gachaPath = path.join(_path, 'plugins/liulian-plugin/resources/genshin/gacha/character');
 const version = '2.0';

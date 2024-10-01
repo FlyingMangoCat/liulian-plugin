@@ -2,7 +2,13 @@ import fetch from "node-fetch";
 
 const _path = process.cwd();//项目路径
 
-export const rule = {
+let app = App.init({
+  id: 'XMmap',
+  name: 'XMmap',
+  desc: 'XMmap'
+})
+
+app.reg({
   yl总: {
     reg: "100101", //匹配消息正则，命令正则
     priority: 35, //优先级，越小优先度越高
@@ -288,7 +294,7 @@ export const rule = {
     priority: 35, //优先级，越小优先度越高
     describe: "", 
   },
-};
+})
 
 export async function yl总(e) {
 if (!e.msg.replace("地下地图").trim()) {

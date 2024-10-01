@@ -6,14 +6,21 @@ const _path = process.cwd();
 
 let hit = ['一拳!','两拳!', '三拳!', '四拳!', '五拳!', '六拳!', '七拳!', '八拳!', '九拳!', '十拳!'];
 let MuteTime = 60;
-export const rule = {
+
+let app = App.init({
+  id: 'hitme',
+  name: 'hitme',
+  desc: 'hitme'
+})
+
+app.reg({
     HitMe: {
         reg: "#打我", //匹配消息正则，命令正则
         priority: 1000, //优先级，越小优先度越高
         describe: "【#禁言自己1-10次】", //【命令】功能说明
     },
 
-};
+})
 
 export async function HitMe(e) {
 if (!Cfg.get('sys.dw', false))  {

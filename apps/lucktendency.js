@@ -7,13 +7,20 @@ let PokeCD = {};
     let CD = 6000;//1s=1000ms
 
 
-export const rule = {
+let app = App.init({
+  id: 'ys',
+  name: 'ys',
+  desc: 'ys'
+})
+
+app.reg({
   运势: {
     reg: "运势$",
     priority: 100,
     describe: "",
   }
-};
+})
+
 export async function 运势(e){
     if(!e.isMaster){
       if(PokeCD[e.group_id])

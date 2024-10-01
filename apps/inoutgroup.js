@@ -9,8 +9,13 @@ Bot.on("notice.group", (e) => {
     CeShi(e);
 });
 
-//1.定义命令规则
-export const rule = {
+let app = App.init({
+  id: '猫猫',
+  name: '猫猫',
+  desc: '猫猫'
+})
+
+app.reg({
 	CeShi: {
 		reg: "noCheck", //匹配消息正则，命令正则
 		priority: 5000, //优先级，越小优先度越高

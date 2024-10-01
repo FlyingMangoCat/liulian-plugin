@@ -2,110 +2,30 @@ import fs from "fs";
 import schedule from "node-schedule";
 import config from "../model/config/config.js"
 import help from "./help.js"
-import { wjc } from "./wjc.js"
-import { ai } from "./ai.js"
-import { replace } from "./replace.js"
-import { toShutUp,
-determineIfYouShutUp,
-openYourMouth
- } from "./Groupshutup.js"
-import { daihua,
-guangbo
- } from "./transmit.js"
-import { 运势 } from "./lucktendency.js"
-import { maphelp, mapnumber } from "./maphelp.js"
+import wjc from "./wjc.js"
+import ai from "./ai.js"
+import bz from "./Groupshutup.js"
+import gb from "./transmit.js"
+import ys from "./lucktendency.js"
+import maphelp from "./maphelp.js"
 import {	currentVersion } from "../components/Changelog.js";
-import { pluginhelp } from "./pluginhelp.js"
-import { 修仙help } from "./修仙help.js"
-import { ercyFUN,
-chengfenFUN,
-daanFUN,
-qiuqianFUN } from "./other.js"
+import pluginhelp from "./pluginhelp.js"
+import 修仙help from "./修仙help.js"
+import other from "./other.js"
 import admin from "./admin.js"
-import { dutang,
-caihongpi,
-saylove,
-joke,
-weather,
-早报,
-xzys,
-godEyesFUN,
-headPortraitFUN,
-dog,
-setu,
-lp,
-dailyword,
-sentence
-} from "./manyfunctions.js"
-import { Robacat,
-Loseacat,
-Resetcat,
-Bouncecat
- } from "./Cat.js"
-import { CeShi } from "./inoutgroup.js"
-import { 哪个群友是我老婆 } from "./whoismywife.js"
-import { chumeng } from "./打卡.js"
-import { randomQA, answerCheck } from "./Q&A.js"
-import { HitMe } from "./hitme.js"
-import { forge } from "./伪造信息.js"
-import { fabing } from "./morbidity.js"
-import { biaoQing, biaoQingHelp } from "./makeemoticons.js"
-import { random, chuochuo, 上传 } from "./Random expression.js"
-import { FuckingChatterbox } from "./chatterboxStat.js"
-import { EndCheck,   
-musicanswerCheck,
-guessmusic,
-guessAvatarCheck,
-guessAvatar,
-starguessAvatar,
-starguessAvatarCheck
-} from "./Guess.js"
-import{ yl总,
-yl1,
-yl2,
-yl3,
-yl4,
-yl5,
-yl6,
-yl7,
-yl8,
-yl9,
-yl10,
-yl11,
-yl12,
-yl13,
-yl14,
-yl15,
-yl16,
-yl17,
-yl18,
-yl19,
-yl20,
-sm总, 
-sm1,
-sm2,
-sm3,
-sm4,
-sm5,
-sm6,
-sm7,
-sm8,
-sm9,
-sm10,
-sm11,
-sm12,
-sm13,
-sm14,
-sm15,
-sm16,
-sm17,
-sm18,
-sm19,
-sm20,
-sm21,
-sm22,
-sm23,
-} from "./XMmap.js"
+import many from "./manyfunctions.js"
+import 猫猫 from "./Cat.js"
+import wife from "./whoismywife.js"
+import dk from "./打卡.js"
+import Q&A from "./Q&A.js"
+import hitme from "./hitme.js"
+import wz from "./伪造信息.js"
+import fb from "./morbidity.js"
+import bq from "./makeemoticons.js"
+import sjbq from "./Random expression.js"
+import hltj from "./chatterboxStat.js"
+import guess from "./Guess.js"
+import XMmap from "./XMmap.js"
 import {
   changeBilibiliPush,
   changeGroupBilibiliPush,
@@ -120,42 +40,14 @@ import {
   setBiliPushSendType,
   pushScheduleJob,
 } from "./bilibiliPush.js";
-import { bilibilihelp, YZversionInfo } from "./bilibilihelp.js"
-import { JsPlugins,
-PluginsList,
-WarehPluginsList,
-RemovePlugins,
-LoadPlugins,
-DeletePlugins,
-HelpMenu
-} from "./pluginManager.js"
-import { v3JsPlugins,
-v3PluginsList,
-v3WarehPluginsList,
-v3RemovePlugins,
-v3LoadPlugins,
-v3DeletePlugins,
-v3HelpMenu} from "./V3pluginManager.js"
-import { miku,
- kt1,
-jtm, 
-mr,
-ys,
-bh3,
-blhx,
-wl,
-fgo,
-y7d,
-sn,
-gz,
-se,
-kt2,
-小黑子
-} from "./寄你太美.js"
-import { examples } from "./群友强制休息.js"
-import { qmp } from "./updatecard.js"
+import bilibilihelp from "./bilibilihelp.js"
+import v2gl from "./pluginManager.js"
+import wjgl from "./V3pluginManager.js"
+import jtm from "./寄你太美.js"
+import qzxx from "./群友强制休息.js"
+import qmp from "./updatecard.js"
 
-let apps = { character, poke, profile, stat, wiki, gacha, admin, help }
+let apps = { character, poke, profile, stat, wiki, gacha, admin, help, wjc, ai, bz, gb, ys, maphelp,  pluginhelp, 修仙help, other, many, 猫猫,  wife, dk, Q&A, hitme, wz, fb, bq, sjbq, hltj, guess, XMmap, changeBilibiliPush, changeGroupBilibiliPush, changeBiliPushPrivatePermission, bilibiliPushPermission, updateBilibiliPush, getBilibiliPushUserList, setBiliPushTimeInterval, setBiliPushCookie, setBiliPushFaultTime, changeBiliPushTransmit, setBiliPushSendType, bilibilihelp, v2gl, wjgl, jtm, qzxx, qmp }
 let rules = {} // v3
 for (let key in apps) {
   rules[`${key}`] = apps[key].v3App()

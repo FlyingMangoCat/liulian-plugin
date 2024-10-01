@@ -13,7 +13,14 @@ let _url = "https://iw233.cn/api.php?sort=random";
 let sum = 99999; //这里记录涩图/老婆总次数 也就是每天可查询次数接口分开算
 const _path = process.cwd();
 const __dirname = path.resolve();
-export const rule = {
+
+let app = App.init({
+  id: 'many',
+  name: 'many',
+  desc: 'many'
+})
+
+app.reg({
   dutang: {
     reg: "^[^-]*毒鸡汤$", //匹配消息正则，命令正则
     priority: 10, //优先级，越小优先度越高
@@ -84,7 +91,7 @@ export const rule = {
     priority: 1, //优先级，越小优先度越高
     describe: "每日单词", //【命令】功能说明
   },
-};
+})
 
 export async function dutang(e) {
   let url = "https://api.oick.cn/dutang/api.php";
