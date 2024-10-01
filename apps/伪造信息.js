@@ -16,7 +16,7 @@ app.reg({
     priority: 50, //优先级，越小优先度越高
     describe: "#伪造信息@群成员 信息", 
   },
-};
+})
 
 export async function forge(e) {
 if (!Cfg.get('sys.forge', false))  {
