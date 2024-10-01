@@ -13,7 +13,7 @@ app.reg({
         priority: 750, //优先级，越小优先度越高
         describe: "#我要休息XX分钟 || 天 || 小时", //【命令】功能说明
     },
-};
+})
 
 export async function examples(e) {
 if (!Cfg.get('sys.xx', false))  {
