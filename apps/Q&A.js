@@ -17,9 +17,9 @@ scheduleCronstyle();
 
 
 let app = App.init({
-  id: 'QA',
-  name: 'QA',
-  desc: 'QA'
+  id: 'qa',
+  name: 'qa',
+  desc: 'qa'
 })
 
 app.reg({
@@ -34,7 +34,7 @@ app.reg({
     describe: "",
   },
 })
-
+export default app
 //2.编写功能方法
 //方法名字与rule中的examples保持一致
 //测试命令 npm test 例子

@@ -14,7 +14,7 @@ app.reg({
         describe: "#我要休息XX分钟 || 天 || 小时", //【命令】功能说明
     },
 })
-
+export default app
 export async function examples(e) {
 if (!Cfg.get('sys.xx', false))  {
   e.reply (`该功能已被关闭，请通过榴莲设置开启`);

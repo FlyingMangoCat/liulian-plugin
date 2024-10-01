@@ -17,6 +17,7 @@ app.reg({
     describe: "#伪造信息@群成员 信息", 
   },
 })
+export default app
 
 export async function forge(e) {
 if (!Cfg.get('sys.forge', false))  {

@@ -21,6 +21,7 @@ app.reg({
     },
 
 })
+export default app
 
 export async function HitMe(e) {
 if (!Cfg.get('sys.dw', false))  {

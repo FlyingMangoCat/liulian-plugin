@@ -29,7 +29,7 @@ app.reg({
 		describe: "机器人在指定群说指定内容", //【命令】功能说明
 	}
 })
-
+export default app
 export async function daihua(e) {
 var msg = e.msg.replace("带话", ""); 
 	var data_msg = [];

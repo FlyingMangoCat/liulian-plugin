@@ -102,6 +102,7 @@ kt2: {
   describe: "", //【命令】功能说明
 },
 })
+export default app
 
 export function Chehui(msgRes,e){
 	if (timeout!=0 && msgRes && msgRes.message_id){

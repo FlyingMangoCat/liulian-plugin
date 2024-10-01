@@ -40,7 +40,7 @@ app.reg({
     describe: "", 
     },
 })
-
+export default app
 export async function chuochuo(e) {
   let RandomNum=Cfg.get('sys.expression'); 
   if(RandomNum == 1){ 

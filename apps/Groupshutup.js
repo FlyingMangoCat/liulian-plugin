@@ -27,6 +27,8 @@ app.reg({
   },
 })
 
+export default app
+
 export async function toShutUp(e) {
 if (!/榴莲/.test(e.msg) && !Cfg.get('sys.shutup', false)) {
     e.reply (`该功能已被关闭，请通过榴莲设置开启`);

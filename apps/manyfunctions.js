@@ -92,6 +92,7 @@ app.reg({
     describe: "每日单词", //【命令】功能说明
   },
 })
+export default app
 
 export async function dutang(e) {
   let url = "https://api.oick.cn/dutang/api.php";

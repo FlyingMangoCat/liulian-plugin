@@ -19,6 +19,7 @@ app.reg({
     describe: "表情帮助", //【命令】功能说明
   },
 })
+export default app
 const keywordList = [
   "表情更新",
   "摸",

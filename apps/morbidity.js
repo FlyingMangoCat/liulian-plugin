@@ -51,6 +51,7 @@ app.reg({
     describe: "", 
   },
 })
+export default app
 
 export async function fabing(e) {
     let name;

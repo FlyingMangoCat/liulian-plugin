@@ -15,7 +15,7 @@ app.reg({
         describe: "寻找大水逼",
     },
 })
-
+export default app
 export async function FuckingChatterbox(e) {
     if(ing[e.group_id]){
         e.reply("在找了，在找了，已经在找了，很慢，请再等等！");
