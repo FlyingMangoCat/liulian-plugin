@@ -10,7 +10,6 @@ import ys from "./lucktendency.js"
 import maphelp from "./maphelp.js"
 import {	currentVersion } from "../components/Changelog.js";
 import pluginhelp from "./pluginhelp.js"
-import 修仙help from "./修仙help.js"
 import other from "./other.js"
 import admin from "./admin.js"
 import many from "./manyfunctions.js"
@@ -47,7 +46,7 @@ import jtm from "./寄你太美.js"
 import qzxx from "./群友强制休息.js"
 import qmp from "./updatecard.js"
 
-let apps = { character, poke, profile, stat, wiki, gacha, admin, help, wjc, ai, bz, gb, ys, maphelp,  pluginhelp, 修仙help, other, many, 猫猫,  wife, dk, qa, hitme, wz, fb, bq, sjbq, hltj, guess, map, changeBilibiliPush, changeGroupBilibiliPush, changeBiliPushPrivatePermission, bilibiliPushPermission, updateBilibiliPush, getBilibiliPushUserList, setBiliPushTimeInterval, setBiliPushCookie, setBiliPushFaultTime, changeBiliPushTransmit, setBiliPushSendType, bilibilihelp, v2gl, wjgl, jtm, qzxx, qmp }
+let apps = { character, poke, profile, stat, wiki, gacha, admin, help, wjc, ai, bz, gb, ys, maphelp,  pluginhelp, other, many, 猫猫,  wife, dk, qa, hitme, wz, fb, bq, sjbq, hltj, guess, map, changeBilibiliPush, changeGroupBilibiliPush, changeBiliPushPrivatePermission, bilibiliPushPermission, updateBilibiliPush, getBilibiliPushUserList, setBiliPushTimeInterval, setBiliPushCookie, setBiliPushFaultTime, changeBiliPushTransmit, setBiliPushSendType, bilibilihelp, v2gl, wjgl, jtm, qzxx, qmp }
 let rules = {} // v3
 for (let key in apps) {
   rules[`${key}`] = apps[key].v3App()
