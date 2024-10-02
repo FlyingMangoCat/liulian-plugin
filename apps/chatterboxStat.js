@@ -1,4 +1,5 @@
 import fetch from "node-fetch";
+import { App } from '#liulian'
 const _path = process.cwd();
 let ing = {};
 

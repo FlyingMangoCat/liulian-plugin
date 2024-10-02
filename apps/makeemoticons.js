@@ -1,5 +1,6 @@
 import fetch from "node-fetch";
 import axios from 'axios';
+import { App } from '#liulian'
 
 let app = App.init({
   id: 'bq',
@@ -20,6 +21,7 @@ app.reg({
   },
 })
 export default app
+
 const keywordList = [
   "表情更新",
   "摸",

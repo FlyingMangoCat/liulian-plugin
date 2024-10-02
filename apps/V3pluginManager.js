@@ -1,4 +1,4 @@
-
+import { App } from '#liulian'
 import fs from 'fs';
 import fetch from "node-fetch";
 import { promisify } from "util";
@@ -65,6 +65,7 @@ app.reg({
   }
 })
 export default app
+
 //********************************************************************************************* */
 
 export async function v3JsPlugins(e) {

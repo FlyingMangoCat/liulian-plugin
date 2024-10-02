@@ -1,9 +1,9 @@
-
 import fs from 'fs';
 import fetch from "node-fetch";
 import { promisify } from "util";
 import { pipeline } from "stream";
 import path from 'path';
+import { App } from '#liulian'
 
 const _path = process.cwd();//项目路径
 var filesNameA = [];//存放js文件名称的数组

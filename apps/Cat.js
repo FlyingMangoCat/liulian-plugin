@@ -4,6 +4,7 @@ import moment from "moment";
 import fs from "fs";
 import { promisify } from "util";
 import { pipeline } from "stream";
+import { App } from '#liulian'
 
 //如果报错请删除Yunzai/data/目录中susu文件夹，并将redis中键为Yunzai:setlinshimsg:xxxxxxxx_cat的值删除（此问题一般是因为今天已经抱过猫猫所导致的，xxxxxxxx为你的QQ号），重启机器人
 

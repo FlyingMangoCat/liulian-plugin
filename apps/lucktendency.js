@@ -1,4 +1,5 @@
 import lodash from "lodash";
+import { App } from '#liulian'
 const _path = process.cwd();
 let PokeCD = {};
 

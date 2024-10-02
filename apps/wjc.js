@@ -1,4 +1,4 @@
-
+import { App } from '#liulian'
 //项目路径
 const _path = process.cwd();
 const hmd_userqq = []; //对于某用户的黑名单,隔开

@@ -3,6 +3,7 @@ import fs from "fs"
 import path from "path"
 import Cfg from '../components/Cfg.js'
 import co from '../tools/common-black.js'
+import { App } from '#liulian'
 const __dirname = path.resolve();
 const hmd_userqq = []; //对于某用户黑名单 ,隔开
 const bmd_GroupQQ = [931286774]; //不需要使用的群的黑名单 ,隔开

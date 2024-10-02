@@ -1,4 +1,5 @@
 import Cfg from '../components/Cfg.js'
+import { App } from '#liulian'
 
 const _path = process.cwd();
 let app = App.init({

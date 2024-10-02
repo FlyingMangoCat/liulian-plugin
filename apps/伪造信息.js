@@ -1,6 +1,7 @@
 import fetch from "node-fetch";
 import lodash from "lodash";
 import Cfg from '../components/Cfg.js'
+import { App } from '#liulian'
 
 let list = [1280951594,3598537042]; //禁止伪造的qq放到这里
 
