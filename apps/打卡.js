@@ -1,6 +1,7 @@
 import fetch from "node-fetch";
 import Cfg from '../components/Cfg.js'
 import config from "../model/config/config.js"
+import { App } from '#liulian'
 
 const _path = process.cwd();
 

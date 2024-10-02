@@ -7,6 +7,7 @@ import sizeOf from 'image-size';
 import { roleIdToName, starroleIdToName } from "../components/mysInfo.js";
 import { getPluginRender } from '../model/render.js';
 import { Data } from "../components/index.js";
+import { App } from '#liulian'
 const GAME_TIME_OUT = 30//游戏时长(秒)
 const _path = process.cwd();
 let music = [7351920257]; //这里改网易云的歌单id
@@ -55,6 +56,7 @@ app.reg({
   }
 })
 export default app
+
 const logoPath = path.join(_path, 'plugins/liulian-plugin/resources/genshin/logo/role');
 const gachaPath = path.join(_path, 'plugins/liulian-plugin/resources/genshin/gacha/character');
 const version = '2.0';

@@ -1,5 +1,6 @@
 import fetch from "node-fetch";                  
 import { createRequire } from "module";
+import { App } from '#liulian'
 const require = createRequire(import.meta.url);
 //项目路径
 const _path = process.cwd();

@@ -4,6 +4,7 @@ import path from 'path';
 import axios from 'axios';
 import moment from 'moment';
 import lodash from "lodash";
+import { App } from '#liulian'
 const _path = process.cwd();
 
 let app = App.init({

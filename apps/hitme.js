@@ -1,5 +1,6 @@
 import Cfg from '../components/Cfg.js'
 import config from "../model/config/config.js"
+import { App } from '#liulian'
 const cfg = config.getdefault_config('liulian', 'botname', 'config');
   const botname = cfg.botname
 const _path = process.cwd();

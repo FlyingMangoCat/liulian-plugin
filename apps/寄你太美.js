@@ -4,6 +4,7 @@ import fetch from "node-fetch";
 import path from "path"
 import fs from "fs"
 import co from '../tools/common-black.js'
+import { App } from '#liulian'
 const __dirname = path.resolve();
 const hmd_userqq = []; //对于某用户黑名单 ,隔开
 const bmd_GroupQQ = [790621765,363475402,849341971,231381173,278546012]; //需要使用的群的白名单 ,隔开

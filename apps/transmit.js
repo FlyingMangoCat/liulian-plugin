@@ -1,6 +1,7 @@
 import fetch from "node-fetch";
 import path from 'path';
 import fs from 'fs';
+import { App } from '#liulian'
 
 /**
  * 带话给主人 支持文字、图片、以及表情
@@ -30,6 +31,7 @@ app.reg({
 	}
 })
 export default app
+
 export async function daihua(e) {
 var msg = e.msg.replace("带话", ""); 
 	var data_msg = [];

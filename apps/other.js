@@ -1,5 +1,6 @@
 import fetch from "node-fetch";
 import lodash from "lodash";
+import { App } from '#liulian'
 const _path = process.cwd();
 // 改为false可关闭功能
 let ercy = true;     //二次元的我
@@ -46,6 +47,7 @@ app.reg({
   },
 })
 export default app
+
 export async function ercyFUN(e) {
   if (!ercy) return true;
   let data = await redis.get(`Yunzai:setlinshimsg:${e.user_id}_ercy`); 

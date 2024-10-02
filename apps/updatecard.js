@@ -1,6 +1,7 @@
 import os from 'os';
 import schedule from "node-schedule";
 import Cfg from '../components/Cfg.js'
+import { App } from '#liulian'
 
 let botname = ''//这里改成bot的名字
 

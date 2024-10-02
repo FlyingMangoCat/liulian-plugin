@@ -4,6 +4,7 @@ import path from 'path';
 import moment from 'moment';
 import lodash from "lodash";
 import config from "../model/config/config.js"
+import { App } from '#liulian'
 const cfg = config.getdefault_config('liulian', 'botname', 'config');
   const botname = cfg.botname
 let godeye = true;

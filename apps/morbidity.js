@@ -1,5 +1,5 @@
 import fetch from "node-fetch";
-
+import { App } from '#liulian'
 
 //项目路径
 const _path = process.cwd();
