@@ -1,6 +1,6 @@
 import {help, versionInfo } from './help/help.js'
 import {bilibilihelp, YZversionInfo } from './help/bilibilihelp.js'
-import {maphelp, mapnumber } from './help/map.js'
+import {maphelp, mapnumber } from './help/maphelp.js'
 import {pluginhelp } from './help/pluginhelp.js'
 import { App } from '#liulian'
 
