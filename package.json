@@ -21,8 +21,5 @@
   "imports": {
     "#liulian": "./components/index.js",
     "#liulian.models": "./model/index.js"
-  },
-  "pnpm": {
-    "patchedDependencies": {}
   }
 }
