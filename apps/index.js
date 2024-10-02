@@ -1,6 +1,5 @@
 import fs from "fs";
 import schedule from "node-schedule";
-import { App } from '#liulian'
 import {	currentVersion } from "../components/Changelog.js";
 import config from "../model/config/config.js"
 import help from "./help.js"
@@ -44,11 +43,13 @@ import jtm from "./寄你太美.js"
 import qzxx from "./群友强制休息.js"
 import qmp from "./updatecard.js"
 
-let apps = { character, poke, profile, stat, wiki, gacha, admin, help, wjc, ai, bz, gb, ys, other, many, 猫猫,  wife, dk, qa, hitme, wz, fb, bq, sjbq, hltj, guess, map, changeBilibiliPush, changeGroupBilibiliPush, changeBiliPushPrivatePermission, bilibiliPushPermission, updateBilibiliPush, getBilibiliPushUserList, setBiliPushTimeInterval, setBiliPushCookie, setBiliPushFaultTime, changeBiliPushTransmit, setBiliPushSendType, v2gl, wjgl, jtm, qzxx, qmp }
+let apps = { admin, help, wjc, ai, bz, gb, ys, other, many, 猫猫,  wife, dk, qa, hitme, wz, fb, bq, sjbq, hltj, guess, map, changeBilibiliPush, changeGroupBilibiliPush, changeBiliPushPrivatePermission, bilibiliPushPermission, updateBilibiliPush, getBilibiliPushUserList, setBiliPushTimeInterval, setBiliPushCookie, setBiliPushFaultTime, changeBiliPushTransmit, setBiliPushSendType, v2gl, wjgl, jtm, qzxx, qmp }
 let rules = {} // v3
 for (let key in apps) {
   rules[`${key}`] = apps[key].v3App()
 }
+
+export { rules as apps }
 
 let pushConfig = {};
 async function initPushConfig() {
@@ -78,5 +79,3 @@ async function task() {
 }
 
 task();
-
-export { rules as apps }
