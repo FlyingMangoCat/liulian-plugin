@@ -11,7 +11,7 @@ export const rule = {
     describe: "经典发言", //【命令】功能说明
   },
   zdclassic: {
-    reg: "#?(来点|整点|搞点|随机|看看|来一张)(.*)$", //匹配消息正则，命令正则
+    reg: "#?随机(.*)$", //匹配消息正则，命令正则
     priority: 1000, //优先级，越小优先度越高
     describe: "经典发言", //【命令】功能说明
   },
@@ -26,8 +26,11 @@ export async function sjclassic(e) {
   e.reply(msg,true);
   }
   export async function zdclassic(e) {
+if (e.msg.replace("乐子")){
+  return false
+  }
 let keyword = e.msg.replace("#","");
-  keyword = keyword.replace("(来点|整点|搞点|随机|看看|来一张)","");
+  keyword = keyword.replace("随机","");
   console.log(keyword);
   let url = `https://api.yxyos.com/liulian/classic/?list=${keyword}`;
        let msg = [
