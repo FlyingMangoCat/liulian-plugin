@@ -45,7 +45,7 @@ sentence
 } from "./manyfunctions.js"
 import { sjclassic,
 zdclassic,
- } from "./transmit.js"
+ } from "./classic.js"
 import { Robacat,
 Loseacat,
 Resetcat,
