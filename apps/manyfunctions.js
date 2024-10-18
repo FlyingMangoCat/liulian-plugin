@@ -160,7 +160,7 @@ export async function weather(e) {
 "\n","省份：",res.data.province,
 "\n","更新时间：",res.data.update_time,
 "\n","天气：",res.data.weather,
-"\n","空气质量：",res.data.air, res.data.aqi.air_level,
+"\n",//"空气质量：",res.data.air, res.data.aqi.air_level,
 "\n","当前温度：",res.data.temp,"℃",
 "\n","最高温度：",res.data.max_temp,"℃",
 "\n","最低温度：",res.data.min_temp,"℃",
