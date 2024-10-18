@@ -10,7 +10,7 @@ export class liulian extends plugin {
     }
     super({
       name: 'liulian-plugin',
-      desc: '留恋插件',
+      desc: '榴莲插件',
       event: 'message',
       priority: 50,
       rule: [rule]
