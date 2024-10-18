@@ -17,7 +17,8 @@ export const rule = {
 
 async function fetchClassic(keyword) {
   try {
-    const url = `${API_BASE_URL}/?=${encodeURIComponent(keyword)}`;
+    const safeKeyword = encodeURIComponent(keyword);
+    const url = `${API_BASE_URL}/?list=${safeKeyword}`;
     const response = await fetch(url);
     if (!response.ok) {
       throw new Error(`API call failed with status ${response.status}`);
@@ -30,7 +31,7 @@ async function fetchClassic(keyword) {
 }
 
 export async function sjclassic(e) {
-  const msg = [fetchClassic("")];
+  const msg = [fetchClassic("sj")]; // 修改为默认关键词
   e.reply(msg, true);
 }
 
