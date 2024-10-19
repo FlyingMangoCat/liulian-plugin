@@ -1,6 +1,4 @@
 #  **榴莲插件**               
-
-# **注意！本分支为测试版本，不保证质量，不建议没有基础及普通用户使用本分支版本！** 
   
 ### 访问数量：
 [![访问量](https://profile-counter.glitch.me/liulian-plugin/count.svg)](https://gitee.com/huifeidemangguomaocoder/liulian-plugin)
