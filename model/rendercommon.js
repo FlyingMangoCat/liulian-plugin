@@ -12,11 +12,10 @@ if (isV3) {
   const YAML = await import('yaml');
 
   let configUrl = `${_path}/config/config`
-  let qq = YAML.parse(fs.readFileSync(`${configUrl}/qq.yaml`, 'utf8'));
-  let other = YAML.parse(fs.readFileSync(`${configUrl}//other.yaml`, 'utf8'));
-  let group = YAML.parse(fs.readFileSync(`${configUrl}//group.yaml`, 'utf8'));
+  let other = YAML.parse(fs.readFileSync(`${configUrl}/other.yaml`, 'utf8'));
+  let group = YAML.parse(fs.readFileSync(`${configUrl}/group.yaml`, 'utf8'));
 
-  config = { qq, other, group, masterQQ: other.masterQQ, account: qq };
+  config = { other, group, masterQQ: other.masterQQ };
 } else {
   config = BotConfig;
 }
@@ -38,7 +37,7 @@ async function relpyPrivate(user_id, msg ,isStranger = false) {
     Bot.pickUser(user_id).sendMsg(msg).catch((err) => {
       Bot.logger.mark(err);
     });
-    redis.incr(`Yunzai:sendMsgNum:${botConfig.account.qq}`);
+    redis.incr(`Yunzai:sendMsgNum:${Bot.uin}`);
     return;
   }
   else {
@@ -77,7 +76,7 @@ async function relpyPrivate(user_id, msg ,isStranger = false) {
         return;
       }
 
-      redis.incr(`Yunzai:sendMsgNum:${BotConfig.account.qq}`);
+      redis.incr(`Yunzai:sendMsgNum:${Bot.uin}`);
     } else {
       Bot.logger.mark(`发送临时消息失败：[${user_id}]`);
     }
