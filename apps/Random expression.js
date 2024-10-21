@@ -99,7 +99,7 @@ Bot.on("notice.group.poke", async (e)=> {
   e.isPoke = true;
   e.user_id = e.operator_id;
 
-  if (e.target_id != BotConfig.account.qq) {
+  if (e.target_id != e.self_id) {
     return;
   }
 
