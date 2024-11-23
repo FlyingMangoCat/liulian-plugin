@@ -10,7 +10,7 @@ export const rule = {
     reg: "#?随机(.*)$", //匹配消息正则，命令正则
     priority: 1000, //优先级，越小优先度越高
     describe: "经典发言", //【命令】功能说明
-  },
+  }, 
 };
 
 export async function sjclassic(e) {
