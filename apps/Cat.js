@@ -39,7 +39,7 @@ export const rule = {
     reg: "^#*重置猫猫$",
     priority: 4999,
     describe: "【#重置猫猫】重置今日可抢的猫猫数量",
-  },
+  }, 
   Bouncecat: {
     reg: "^#*猫猫反弹$",
     priority: 4999,
