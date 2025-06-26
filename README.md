@@ -13,13 +13,13 @@
 
 请使用 git 进行安装，以方便后续升级。在 Yunzai-Bot 根目录夹打开终端，运行下述指令之一 
 
-#### 使用gitee安装
+#### 使用Gitee安装
 ```
 git clone https://gitee.com/huifeidemangguomao/liulian-plugin.git ./plugins/liulian-plugin/
 pnpm install -P
 ``` 
 
-#### 使用github安装 
+#### 使用Github安装 
 ```
 git clone https://github.com/flyingmangocat/liulian-plugin.git ./plugins/liulian-plugin/
 pnpm install -P
