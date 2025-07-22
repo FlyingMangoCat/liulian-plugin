@@ -59,7 +59,7 @@ pnpm install -P
 
 * [榴莲插件(liulian-plugin)B站问题反馈专栏](https://b23.tv/GecaEsK)
  
-<details><summary>**免责声明**</summary>
+<details><summary>⚠️免责声明⚠️</summary>
 
 * 本插件及云崽禁止**任何形式**的商用和违法用途，仅供小范围使用和学习，如违反相关规定，后果自负
 
@@ -106,7 +106,7 @@ pnpm install -P
 |寄 |10 |
 |熊熊 |5 |
 
-<details><summary>### **广告**</summary>
+<details><summary>🌹广告🌹</summary>
 
-* 广告位招租
+* 广告位招租🌹
 </details>
