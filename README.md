@@ -106,7 +106,7 @@ pnpm install -P
 |寄 |10 |
 |熊熊 |5 |
 
-#### **广告**
+#### <details><summary>**广告**</summary>
 
 * 广告位招租
-- 这里是列表文本
+</details>
