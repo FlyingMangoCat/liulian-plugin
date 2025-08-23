@@ -1,28 +1,78 @@
 import fetch from "node-fetch";
-import fs from 'fs';
-import path from 'path';
-import axios from 'axios';
-import moment from 'moment';
 import lodash from "lodash";
-const _path = process.cwd();
+
+// ==================== 配置区域开始 ====================
+// 请根据您的实际环境修改以下配置
+
+const OLLAMA_API_URL = "http://192.168.0.112:11434"; // Ollama API地址
+const MODEL_NAME = "deepseek-llm:7b"; // 使用的模型名称
+const SYSTEM_PROMPT = "你是一个名叫绿豆的群友，回答要简洁友好"; // 系统提示词/基础设定
+
+// 概率设置 (40% ≈ 5句话回2句, 50% ≈ 5句话回2.5句, 60% ≈ 5句话回3句)
+const DEFAULT_PROBABILITY = 40; // 默认触发概率
+
+// ==================== 配置区域结束 ====================
+
 export const rule = {
   ai: {
-    reg: "#?可心(.*)$", //匹配消息正则，命令正则
-    priority: 10, //优先级，越小优先度越高
-    describe: "ai", //【命令】功能说明
+    reg: "(.*)", // 匹配所有消息
+    priority: 1000, // 优先级
+    describe: "AI自动回复", // 功能说明
   },
 };
 
 export async function ai(e) {
-let keyword = e.msg.replace("#","");
-  keyword = keyword.replace("可心","");
-  console.log(keyword);
- let url = `https://v2.alapi.cn/api/chatgpt/pro?token=zO5Dd2HkhbM9Wbyt&content=${keyword}`;
-  let response = await fetch(url);
-  let res = await response.json(); //结果json字符串转对象
-       let msg = [segment.at(e.user_id),
-      res.data.content, 
-  ];
-
-  e.reply(msg,true);
+  // 排除自己发的消息和命令消息
+  if (e.user_id === e.self_id || e.message[0]?.type === 'at') {
+    return;
   }
+  
+  // 获取配置
+  const aiEnabled = Cfg.get('sys.ai', false);
+  const aiProbability = Cfg.get('sys.aigl', DEFAULT_PROBABILITY);
+  
+  // 检查自动回复是否开启
+  if (!aiEnabled) {
+    return;
+  }
+  
+  // 概率触发检查
+  let random_ = lodash.random(1, 100);
+  if (random_ > aiProbability) {
+    return; // 概率未命中，不处理
+  }
+  
+  // 调用Ollama API
+  try {
+    // 构建带有系统提示词的消息
+    const fullPrompt = `${SYSTEM_PROMPT}\n\n用户说: ${e.msg}`;
+    
+    const requestData = {
+      model: MODEL_NAME,
+      prompt: fullPrompt,
+      stream: false
+    };
+
+    const response = await fetch(`${OLLAMA_API_URL}/api/generate`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(requestData)
+    });
+
+    if (!response.ok) {
+      throw new Error(`API请求失败: ${response.status} ${response.statusText}`);
+    }
+
+    const responseData = await response.json();
+    const botReply = responseData.response?.trim();
+
+    if (botReply) {
+      await e.reply(botReply, true);
+    }
+  } catch (error) {
+    // 只打印错误日志，不回复用户
+    console.error(`[榴莲AI错误] ${new Date().toLocaleString()}:`, error.message);
+  }
+}
