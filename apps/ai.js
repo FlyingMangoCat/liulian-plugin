@@ -28,7 +28,7 @@ export async function ai(e) {
   }
   
   // 获取配置
-  const aiProbability = Cfg.get('sys.aigl', DEFAULT_PROBABILITY);
+  const aiProbability = DEFAULT_PROBABILITY
   
   // 概率触发检查
   let random_ = lodash.random(1, 100);
