@@ -4,7 +4,7 @@ import lodash from "lodash";
 // ==================== 配置区域开始 ====================
 // 请根据您的实际环境修改以下配置
 
-const OLLAMA_API_URL = "http://192.168.0.112:11434"; // Ollama API地址
+const OLLAMA_API_URL = "http://192.168.0.112:11435"; // Ollama API地址
 const MODEL_NAME = "deepseek-llm:7b"; // 使用的模型名称
 const SYSTEM_PROMPT = "你是一个名叫绿豆的群友，回答要简洁友好"; // 系统提示词/基础设定
 
