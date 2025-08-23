@@ -28,13 +28,7 @@ export async function ai(e) {
   }
   
   // 获取配置
-  const aiEnabled = Cfg.get('sys.ai', false);
   const aiProbability = Cfg.get('sys.aigl', DEFAULT_PROBABILITY);
-  
-  // 检查自动回复是否开启
-  if (!aiEnabled) {
-    return;
-  }
   
   // 概率触发检查
   let random_ = lodash.random(1, 100);
