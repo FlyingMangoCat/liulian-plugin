@@ -9,6 +9,7 @@ git地址：https://gitee.com/huifeidemangguomao/liulian-plugin.git ./plugins/li
 Liulian-Plugin需要最新版本的Yunzai-Bot
 将整个liulian-plugin文件夹放置在Yunzai-Bot/plugins/目录下，重启Yunzai-Bot即可使用。
 *由于TRSS版云崽与其他版本云崽配置文件位置不同，如插件载入时报错，请在`config\config`下创建`qq.yaml`，模板路径`liulian-plugin/config/qq.yaml`，根据ICQQ-plugin下config.yaml中的配置填写后即可正常使用
+榴莲ai正式上限（目前可在往生堂业务群/榴莲官方群体验）
 
 【当前所有命令】
 部分功能可能已经失效，可以通过提供的渠道进行反应(如需要修复请备注)收到反馈后会处理
