@@ -1,6 +1,6 @@
 // plugins/liulian-plugin/apps/ai.js
 import lodash from 'lodash';
-import config from '../config.js';
+import aiconfig from '../config/aiconfig.js';
 import { fileURLToPath } from 'url';
 import path from 'path';
 import fs from 'fs/promises';
@@ -60,7 +60,7 @@ export async function ai(e) {
   if (e.user_id === e.self_id) return;
 
   // 2. 概率触发
-  const probability = e.isPrivate ? config.probability.private : config.probability.group;
+  const probability = e.isPrivate ? aiconfig.probability.private : aiconfig.probability.group;
   if (lodash.random(1, 100) > probability) return;
 
   // 3. 遍历所有插件，直到有一个能成功处理
