@@ -51,7 +51,7 @@ export class GeneralChatPlugin {
     } catch (error) {
       console.error('[GeneralChatPlugin] 请求失败:', error.message);
       // 可以选择返回一个友好的降级回复，或者直接抛出错误由主程序统一处理
-      // return '本大爷现在有点头晕，待会再战！';
+      return '本大爷现在有点头晕，待会再战！';
       return false; // 处理失败，交给下一个插件
     }
   }
