@@ -1,24 +1,30 @@
 import { OllamaHandler } from './ollama.js';
-// 确保这里的路径正确指向您的配置文件
 import config from '../../config/ai.js';
 
-// 初始化Ollama处理器
+// 确保配置中的 URL 正确
+console.log('[AI模块] 配置中的Ollama URL:', config.ai.ollama.api_url);
+
+// 初始化Ollama处理器 - 使用配置中的URL
 const ollama = new OllamaHandler(config.ai.ollama.api_url);
 
 class AIManager {
   // 通用聊天方法
   static async generalChat(message) {
     try {
-      // 正确引用配置中的系统提示词
+      console.log('[AI模块] 处理消息:', message.substring(0, 50) + '...');
+      
       const fullPrompt = `${config.ai.system_prompt}\n\n用户消息: ${message}`;
+      console.log('[AI模块] 完整提示词长度:', fullPrompt.length);
+      
       const reply = await ollama.generate(
         config.ai.ollama.model, 
-        fullPrompt,
-        config.ai.system_prompt // 也作为system参数传递，如果Ollama支持
+        fullPrompt
       );
+      
+      console.log('[AI模块] 收到回复:', reply?.substring(0, 50) + '...');
       return reply?.trim();
     } catch (error) {
-      console.error('[AI处理错误]', error);
+      console.error('[AI处理错误]', error.message);
       return null;
     }
   }
@@ -28,7 +34,9 @@ class AIManager {
     const probability = isPrivate 
       ? config.ai.probability.private 
       : config.ai.probability.group;
-    return Math.random() * 100 <= probability;
+    const shouldReply = Math.random() * 100 <= probability;
+    console.log('[AI模块] 概率检查:', {isPrivate, probability, shouldReply});
+    return shouldReply;
   }
 }
 

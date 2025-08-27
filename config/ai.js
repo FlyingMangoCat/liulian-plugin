@@ -8,7 +8,7 @@ export const config = {
     },
     // Ollama配置
     ollama: {
-      api_url: "http://192.168.0.112:11435/api/generate",
+      api_url: "http://192.168.0.112:11435",
       model: "deepseek-llm:7b"
     },
     // 系统提示词
