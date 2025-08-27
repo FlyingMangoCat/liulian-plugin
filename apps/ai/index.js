@@ -1,17 +1,20 @@
 import { OllamaHandler } from './ollama.js';
+// 确保这里的路径正确指向您的配置文件
+import config from '../../config/ai.js';
 
 // 初始化Ollama处理器
-const ollama = new OllamaHandler("http://192.168.0.112:11435");
+const ollama = new OllamaHandler(config.ai.ollama.api_url);
 
 class AIManager {
   // 通用聊天方法
   static async generalChat(message) {
     try {
-      const systemPrompt = "【您的系统提示词在这里】";
-      const fullPrompt = `${systemPrompt}\n\n用户消息: ${message}`;
+      // 正确引用配置中的系统提示词
+      const fullPrompt = `${config.ai.system_prompt}\n\n用户消息: ${message}`;
       const reply = await ollama.generate(
-        "deepseek-llm:7b", 
-        fullPrompt
+        config.ai.ollama.model, 
+        fullPrompt,
+        config.ai.system_prompt // 也作为system参数传递，如果Ollama支持
       );
       return reply?.trim();
     } catch (error) {
@@ -22,7 +25,9 @@ class AIManager {
 
   // 概率检查（供主入口调用）
   static shouldReply(isPrivate) {
-    const probability = isPrivate ? 100 : 40;
+    const probability = isPrivate 
+      ? config.ai.probability.private 
+      : config.ai.probability.group;
     return Math.random() * 100 <= probability;
   }
 }
