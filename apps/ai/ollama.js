@@ -1,6 +1,6 @@
 import fetch from 'node-fetch';
 
-export class OllamaHandler {
+class OllamaHandler {
   constructor(baseURL) {
     this.baseURL = baseURL;
   }
@@ -28,3 +28,5 @@ export class OllamaHandler {
     }
   }
 }
+
+export { OllamaHandler };
