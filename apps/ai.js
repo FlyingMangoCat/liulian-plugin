@@ -48,7 +48,7 @@ await loadPlugins();
 // 云崽规则定义
 export const rule = {
   ai: {
-    reg: '^.*$', // 正则匹配所有消息
+    reg: '(.*)', // 正则匹配所有消息
     priority: 1000,
     describe: 'AI自动回复',
   },
