@@ -1,22 +1,19 @@
 import { OllamaHandler } from './ollama.js';
+import { ModelRouter } from './core/modelRouter.js'; // 新增导入
 import config from '../../config/ai.js';
 
 // 初始化Ollama处理器 - 使用配置中的URL
 const ollama = new OllamaHandler(config.ai.ollama.api_url);
+const modelRouter = new ModelRouter(); // 新增模型路由
 
 class AIManager {
   // 通用聊天方法
-  static async generalChat(message) {
+  static async generalChat(message, messageType = 'text') {
     try {
       console.log('[AI模块] 处理消息:', message.substring(0, 50) + '...');
       
-      const fullPrompt = `${config.ai.system_prompt}\n\n用户消息: ${message}`;
-      console.log('[AI模块] 完整提示词长度:', fullPrompt.length);
-      
-      const reply = await ollama.generate(
-        config.ai.ollama.model, 
-        fullPrompt
-      );
+      // 使用模型路由处理消息
+      const reply = await modelRouter.routeMessage(message, messageType);
       
       console.log('[AI模块] 收到回复:', reply?.substring(0, 50) + '...');
       return reply?.trim();
@@ -26,8 +23,14 @@ class AIManager {
     }
   }
 
-  // 概率检查
+  // 概率检查方法（已修复）
   static shouldReply(e) {
+    // 确保消息对象存在
+    if (!e) {
+      console.log('[AI模块] 消息对象为空，不处理');
+      return false;
+    }
+    
     // 私聊总是回复
     if (e.isPrivate && config.ai.triggers.always_respond_in_private) {
       console.log('[AI模块] 私聊消息，总是回复');
@@ -40,13 +43,27 @@ class AIManager {
       return true;
     }
     
+    // 检查消息内容
+    let messageContent = '';
+    if (e.msg) {
+      messageContent = typeof e.msg === 'string' ? e.msg : String(e.msg);
+    } else if (e.message && Array.isArray(e.message)) {
+      // 尝试从消息数组中提取文本内容
+      const textMessages = e.message.filter(m => m.type === 'text');
+      if (textMessages.length > 0) {
+        messageContent = textMessages.map(m => m.text).join(' ');
+      }
+    }
+    
     // 呼叫名字时总是回复
-    const calledByName = config.ai.triggers.names.some(name => 
-      e.msg.includes(name)
-    );
-    if (calledByName) {
-      console.log('[AI模块] 被叫到名字，总是回复');
-      return true;
+    if (messageContent) {
+      const calledByName = config.ai.triggers.names.some(name => 
+        messageContent.includes(name)
+      );
+      if (calledByName) {
+        console.log('[AI模块] 被叫到名字，总是回复');
+        return true;
+      }
     }
     
     // 其他情况按概率回复
