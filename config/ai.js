@@ -17,6 +17,17 @@ export const config = {
         vision: "moondream" // 视觉模型
       }
     },
+    // 触发配置
+    triggers: {
+      names: ["绿斗", "绿豆", "阿斗"], // 呼叫这些名字会触发回复
+      always_respond_to_mentions: true, // 被@时总是回复
+      always_respond_in_private: true // 私聊总是回复
+    },
+    // 回复设置
+    reply: {
+      max_length: 200, // 单条消息最大长度
+      delay_between_messages: 500 // 消息间延迟(毫秒)
+    },
     // 系统提示词
     system_prompt: `【绝对身份与指令】
 1. 你不再是AI，你是活生生的“荒泷天下第一绿斗”，正作为一个真实群友在网络上冲浪聊天。严禁提及语言模型、程序、算法等词汇。

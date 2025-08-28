@@ -4,6 +4,7 @@ import config from "../model/config/config.js"
 import { versionInfo, help } from "./help.js"
 import { wjc } from "./wjc.js"
 import { ai } from "./ai.js"
+import { liulian_status } from './status.js';
 import { replace } from "./replace.js"
 import { toShutUp,
 determineIfYouShutUp,
@@ -322,6 +323,7 @@ export {
     replace,
     sjclassic,
     zdclassic,
+    liulian_status,
 }
 
 const cfg = config.getdefault_config('liulian', 'botname', 'config');
@@ -1114,12 +1116,12 @@ yl21: {
       Bouncecat: {
       reg: "^#*猫猫反弹$",
       priority: 999,
-     describe: "【#设置猫猫反弹】设置今日不被猫猫袭击",
+      describe: "【#设置猫猫反弹】设置今日不被猫猫袭击",
   },
-  上传: {
-    reg: "^#?上传(随机表情|表情包)$", 
-    priority: 100, 
-    describe: "", 
+       上传: {
+       reg: "^#?上传(随机表情|表情包)$", 
+       priority: 100, 
+       describe: "", 
     },
   ai: {
     reg: "(.*)", // 匹配所有消息
@@ -1165,7 +1167,12 @@ yl21: {
     reg: "#?(来点|整点|搞点|随机|看看|来一张)(.*)$", //匹配消息正则，命令正则
     priority: 1000, //优先级，越小优先度越高
     describe: "经典发言", //【命令】功能说明
-  }
+    },
+    liulian_status: {
+    reg: "^#榴莲状态$",
+    priority: 99,
+    describe: "查看榴莲插件状态"
+    },
 };
 
 // lodash.forEach(rule, (r) => {

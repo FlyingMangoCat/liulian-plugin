@@ -3,7 +3,7 @@ import { AIManager } from './ai/index.js';
 console.log('[榴莲AI] 插件开始加载');
 console.log('[榴莲AI] AI模块导入完成');
 
-// 云崽规则定义
+// 云崽规则定义 - 只保留AI功能规则
 export const rule = {
   ai: {
     reg: "^.*$",      // 匹配所有消息

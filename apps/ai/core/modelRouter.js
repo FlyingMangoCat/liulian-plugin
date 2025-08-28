@@ -1,4 +1,5 @@
 import { OllamaHandler } from '../ollama.js';
+import serviceDetector from './serviceDetector.js';
 import config from '../../../config/ai.js';
 
 class ModelRouter {
@@ -15,6 +16,13 @@ class ModelRouter {
       /public\s+static\s+void/,
       /import\s+\w+/
     ];
+    
+    // 提供默认模型配置
+    this.models = {
+      general: config.ai.ollama.model || "deepseek-llm:7b",
+      code: config.ai.ollama.models.code || "deepseek-coder:6.7b",
+      vision: config.ai.ollama.models.vision || "moondream"
+    };
   }
 
   // 路由消息到合适的模型
@@ -22,14 +30,31 @@ class ModelRouter {
     try {
       console.log('[ModelRouter] 路由消息，类型:', messageType);
       
+      // 检查服务可用性
+      if (!serviceDetector.isServiceAvailable()) {
+        return "AI服务当前不可用，无法处理消息。";
+      }
+      
       // 1. 确定消息类型
       if (messageType === 'image') {
-        return await this.processImage(message);
+        // 检查视觉模型是否可用
+        if (serviceDetector.isModelAvailable('vision')) {
+          return await this.processImage(message);
+        } else {
+          console.log('[ModelRouter] 视觉模型不可用，使用通用模型处理图片');
+          return await this.processGeneral(`用户发送了一张图片: ${message}`);
+        }
       }
       
       // 2. 检查是否包含代码
       if (this.containsCode(message)) {
-        return await this.processCode(message);
+        // 检查代码模型是否可用
+        if (serviceDetector.isModelAvailable('code')) {
+          return await this.processCode(message);
+        } else {
+          console.log('[ModelRouter] 代码模型不可用，使用通用模型处理代码');
+          return await this.processGeneral(message);
+        }
       }
       
       // 3. 默认使用通用模型
@@ -49,9 +74,9 @@ class ModelRouter {
   // 处理通用消息
   async processGeneral(message) {
     console.log('[ModelRouter] 使用通用模型处理消息');
-    const fullPrompt = `${config.ai.system_prompt}\n\n用户消息: ${message}`;
+    const fullPrompt = `${config.ai?.system_prompt || ''}\n\n用户消息: ${message}`;
     return await this.ollama.generate(
-      config.ai.ollama.model,
+      this.models.general,
       fullPrompt
     );
   }
@@ -61,7 +86,7 @@ class ModelRouter {
     console.log('[ModelRouter] 使用代码模型处理消息');
     const codePrompt = `你是一个资深的编程助手。请分析或处理以下代码：\n\n${message}`;
     return await this.ollama.generate(
-      "deepseek-coder:6.7b", // 使用代码专用模型
+      this.models.code,
       codePrompt
     );
   }
@@ -75,15 +100,15 @@ class ModelRouter {
     
     // 使用视觉模型分析图片
     const analysis = await this.ollama.generate(
-      "moondream", // 使用视觉模型
+      this.models.vision,
       imagePrompt
     );
     
     // 将分析结果传递给通用模型生成回复
-    const replyPrompt = `${config.ai.system_prompt}\n\n用户发送了一张图片，图片分析结果: ${analysis}\n\n请根据图片内容生成合适的回复。`;
+    const replyPrompt = `${config.ai?.system_prompt || ''}\n\n用户发送了一张图片，图片分析结果: ${analysis}\n\n请根据图片内容生成合适的回复。`;
     
     return await this.ollama.generate(
-      config.ai.ollama.model,
+      this.models.general,
       replyPrompt
     );
   }
