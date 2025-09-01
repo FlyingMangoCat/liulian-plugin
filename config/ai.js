@@ -14,7 +14,7 @@ export const config = {
       models: {
         general: "deepseek-llm:7b", // 通用模型
         code: "deepseek-coder:6.7b", // 代码模型
-        vision: "moondream" // 视觉模型
+        vision: "moondream:latest" // 视觉模型
       }
     },
     // 触发配置
@@ -28,7 +28,7 @@ export const config = {
       max_length: 200, // 单条消息最大长度
       delay_between_messages: 500 // 消息间延迟(毫秒)
     },
-    // 新增黑名单配置
+    // 黑名单配置
     blacklist: {
       groups: ["123456789", "987654321"], // 群号黑名单，替换为实际群号
       enable: true // 是否启用黑名单功能
@@ -45,6 +45,18 @@ export const config = {
       enabled: true,
       max_description_length: 150, // 描述最大长度
       timeout_ms: 8000 // 处理超时时间
+    },
+    // 回复长度控制配置
+    reply_length: {
+      max_chars: 120, // 最大字符数
+      max_sentences: 2, // 最大句子数
+      trim_ellipsis: true // 是否使用省略号截断
+    },
+    // 插件兼容性配置
+    compatibility: {
+      skip_command_messages: true, // 跳过可能是命令的消息
+      command_prefixes: ['/', '#', '!', '！', '.', '。', '、'], // 命令前缀
+      min_processing_delay: 100 // 最小处理延迟(毫秒)，避免抢占资源
     },
     // 系统提示词
     system_prompt: `【绝对身份与指令】

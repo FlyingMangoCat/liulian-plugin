@@ -48,6 +48,11 @@ class AIManager {
       blacklist: config.ai?.blacklist || {
         groups: [],
         enable: false
+      },
+      reply_length: config.ai?.reply_length || {
+        max_chars: 120,
+        max_sentences: 2,
+        trim_ellipsis: true
       }
     };
   }
@@ -151,26 +156,40 @@ class AIManager {
     }
   }
 
-  // 分段回复方法
+  // 修改分段回复方法，添加长度控制
   static async splitReply(e, reply) {
     const safeConfig = this.getConfig();
     const maxLength = safeConfig.reply.max_length;
     const delay = safeConfig.reply.delay_between_messages;
     
-    if (reply.length <= maxLength) {
-      await e.reply(reply, true);
+    // 首先修剪回复长度
+    const trimmedReply = this.trimReply(reply, safeConfig.reply_length.max_chars);
+    
+    if (trimmedReply.length <= maxLength) {
+      await e.reply(trimmedReply, true);
       return;
     }
     
     // 按句子分割，避免在句子中间切断
-    const sentences = reply.split(/(?<=[.!?。！？])/g);
+    const sentences = trimmedReply.split(/(?<=[.!?。！？])/g);
     let currentMessage = '';
+    let sentMessages = 0;
     
     for (const sentence of sentences) {
       if ((currentMessage + sentence).length > maxLength && currentMessage) {
         // 发送当前积累的消息
         await e.reply(currentMessage, true);
+        sentMessages++;
         currentMessage = sentence;
+        
+        // 检查是否达到最大消息数
+        if (sentMessages >= safeConfig.reply_length.max_sentences) {
+          if (safeConfig.reply_length.trim_ellipsis && currentMessage.length > 0) {
+            await e.reply(currentMessage.substring(0, Math.min(currentMessage.length, 20)) + '...', true);
+          }
+          return;
+        }
+        
         // 添加延迟，避免消息过快被限制
         await new Promise(resolve => setTimeout(resolve, delay));
       } else {
@@ -179,9 +198,28 @@ class AIManager {
     }
     
     // 发送最后一条消息
-    if (currentMessage) {
+    if (currentMessage && sentMessages < safeConfig.reply_length.max_sentences) {
       await e.reply(currentMessage, true);
     }
+  }
+  
+  // 修剪回复长度
+  static trimReply(reply, maxLength = 120) {
+    if (!reply || reply.length <= maxLength) return reply;
+    
+    // 查找合适的截断点（在句子结束处）
+    const lastPeriod = reply.lastIndexOf('.', maxLength);
+    const lastExclamation = reply.lastIndexOf('!', maxLength);
+    const lastQuestion = reply.lastIndexOf('?', maxLength);
+    
+    const cutPoint = Math.max(lastPeriod, lastExclamation, lastQuestion);
+    
+    if (cutPoint > 0 && cutPoint > maxLength * 0.7) {
+      return reply.substring(0, cutPoint + 1);
+    }
+    
+    // 如果没有合适的句子结束点，直接截断并添加省略号
+    return reply.substring(0, maxLength - 3) + '...';
   }
 }
 

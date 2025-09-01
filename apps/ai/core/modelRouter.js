@@ -19,12 +19,25 @@ class ModelRouter {
       /import\s+\w+/
     ];
     
-    // 提供默认模型配置
+    // 解析模型名称（确保使用实际可用的名称）
     this.models = {
-      general: config.ai.ollama.model || "deepseek-llm:7b",
-      code: config.ai.ollama.models.code || "deepseek-coder:6.7b",
-      vision: config.ai.ollama.models.vision || "moondream"
+      general: this.resolveModelName(config.ai.ollama.model),
+      code: this.resolveModelName(config.ai.ollama.models.code),
+      vision: this.resolveModelName(config.ai.ollama.models.vision)
     };
+    
+    console.log('[ModelRouter] 解析后的模型配置:', this.models);
+  }
+
+  // 解析模型名称（确保使用实际可用的名称）
+  resolveModelName(configuredName) {
+    // 如果配置的名称包含标签，直接使用
+    if (configuredName && configuredName.includes(':')) {
+      return configuredName;
+    }
+    
+    // 如果不包含标签，尝试添加默认标签
+    return configuredName ? `${configuredName}:latest` : "deepseek-llm:7b";
   }
 
   // 路由消息到合适的模型
@@ -76,21 +89,28 @@ class ModelRouter {
   // 处理通用消息
   async processGeneral(message) {
     console.log('[ModelRouter] 使用通用模型处理消息');
-    const fullPrompt = `${config.ai?.system_prompt || ''}\n\n用户消息: ${message}`;
-    return await this.ollama.generate(
+    const prompt = `${config.ai.system_prompt}
+用户:${message}`;
+    
+    const reply = await this.ollama.generate(
       this.models.general,
-      fullPrompt
+      prompt
     );
+    
+    return this.trimReply(reply);
   }
 
   // 处理代码消息
   async processCode(message) {
     console.log('[ModelRouter] 使用代码模型处理消息');
-    const codePrompt = `你是一个资深的编程助手。请分析或处理以下代码：\n\n${message}`;
-    return await this.ollama.generate(
+    const prompt = `代码:${message}→分析`;
+    
+    const reply = await this.ollama.generate(
       this.models.code,
-      codePrompt
+      prompt
     );
+    
+    return this.trimReply(reply);
   }
 
   // 处理图片消息
@@ -112,18 +132,34 @@ class ModelRouter {
 
   // 根据分析结果生成回复
   async generateReplyFromAnalysis(analysis, originalDescription) {
-    // 简化的回复生成提示词
     const prompt = `${config.ai.system_prompt}
-
-用户发送了一张图片，图片分析结果如下：
-${analysis}
-
-请根据以上分析生成一个自然、简短的回复。如果图片有趣，可以幽默回应；如果图片包含信息，可以针对内容回应。`;
-
-    return await this.ollama.generate(
+图片分析:${analysis}→回复`;
+    
+    const reply = await this.ollama.generate(
       config.ai.ollama.model,
       prompt
     );
+    
+    return this.trimReply(reply);
+  }
+
+  // 修剪回复长度
+  trimReply(reply, maxLength = 120) {
+    if (!reply || reply.length <= maxLength) return reply;
+    
+    // 查找合适的截断点（在句子结束处）
+    const lastPeriod = reply.lastIndexOf('.', maxLength);
+    const lastExclamation = reply.lastIndexOf('!', maxLength);
+    const lastQuestion = reply.lastIndexOf('?', maxLength);
+    
+    const cutPoint = Math.max(lastPeriod, lastExclamation, lastQuestion);
+    
+    if (cutPoint > 0 && cutPoint > maxLength * 0.7) {
+      return reply.substring(0, cutPoint + 1);
+    }
+    
+    // 如果没有合适的句子结束点，直接截断并添加省略号
+    return reply.substring(0, maxLength - 3) + '...';
   }
 }
 

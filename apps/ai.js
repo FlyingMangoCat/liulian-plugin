@@ -1,4 +1,5 @@
 import { AIManager } from './ai/index.js';
+import config from '../config/ai.js';
 
 console.log('[榴莲AI] 插件开始加载');
 console.log('[榴莲AI] AI模块导入完成');
@@ -14,8 +15,35 @@ export const rule = {
 
 console.log('[榴莲AI] 规则定义完成');
 
+// 检查是否为命令消息（可能被其他插件处理）
+function isCommandMessage(e) {
+  if (!e.msg) return false;
+  
+  const message = typeof e.msg === 'string' ? e.msg : String(e.msg);
+  const trimmedMsg = message.trim();
+  
+  // 常见命令前缀
+  const commandPrefixes = config.ai?.compatibility?.command_prefixes || ['/', '#', '!', '！', '.', '。', '、'];
+  
+  // 检查消息是否以命令前缀开头
+  if (commandPrefixes.some(prefix => trimmedMsg.startsWith(prefix))) {
+    return true;
+  }
+  
+  // 检查是否为常见命令模式
+  const commandPatterns = [
+    /^[\u4e00-\u9fa5]{1,4}[\s\b]/ // 中文命令（1-4个汉字后跟空格或边界）
+  ];
+  
+  return commandPatterns.some(pattern => pattern.test(trimmedMsg));
+}
+
 // 主处理函数
 export async function ai(e) {
+  // 添加小延迟，避免抢占其他插件资源
+  const minDelay = config.ai?.compatibility?.min_processing_delay || 100;
+  await new Promise(resolve => setTimeout(resolve, minDelay));
+  
   console.log('[榴莲AI] 函数被调用，消息类型:', e.message ? e.message[0]?.type : 'text');
   
   // 1. 基础检查
@@ -24,7 +52,14 @@ export async function ai(e) {
     return;
   }
   
-  // 2. 确定消息类型和内容
+  // 2. 检查是否为命令消息（可能被其他插件处理）
+  const skipCommands = config.ai?.compatibility?.skip_command_messages !== false;
+  if (skipCommands && isCommandMessage(e)) {
+    console.log('[榴莲AI] 可能是命令消息，让其他插件处理');
+    return;
+  }
+  
+  // 3. 确定消息类型和内容
   let messageType = 'text';
   let messageContent = '';
   
@@ -57,7 +92,7 @@ export async function ai(e) {
     return;
   }
   
-  // 3. 概率检查
+  // 4. 概率检查
   if (!AIManager.shouldReply(e)) {
     console.log('[榴莲AI] 不满足回复条件，不处理');
     return;
@@ -65,7 +100,7 @@ export async function ai(e) {
   
   console.log('[榴莲AI] 满足回复条件，继续处理');
   
-  // 4. 处理消息并回复
+  // 5. 处理消息并回复
   try {
     const reply = await AIManager.generalChat(messageContent, messageType);
     if (reply) {
