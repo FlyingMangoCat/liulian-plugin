@@ -1,10 +1,12 @@
 import { OllamaHandler } from '../ollama.js';
 import serviceDetector from './serviceDetector.js';
+import imageProcessor from './imageProcessor.js';
 import config from '../../../config/ai.js';
 
 class ModelRouter {
   constructor() {
     this.ollama = new OllamaHandler(config.ai.ollama.api_url);
+    this.imageProcessor = imageProcessor;
     this.codePatterns = [
       /function\s+\w+\s*\(/,
       /def\s+\w+\s*\(/,
@@ -93,23 +95,34 @@ class ModelRouter {
 
   // 处理图片消息
   async processImage(imageDescription) {
-    console.log('[ModelRouter] 使用视觉模型处理图片');
+    console.log('[ModelRouter] 处理图片消息');
     
-    // 构建图片分析提示词
-    const imagePrompt = `请分析以下图片内容：${imageDescription}\n\n请详细描述图片中的内容，包括人物、物体、场景、文字等任何可见元素。`;
-    
-    // 使用视觉模型分析图片
-    const analysis = await this.ollama.generate(
-      this.models.vision,
-      imagePrompt
-    );
-    
-    // 将分析结果传递给通用模型生成回复
-    const replyPrompt = `${config.ai?.system_prompt || ''}\n\n用户发送了一张图片，图片分析结果: ${analysis}\n\n请根据图片内容生成合适的回复。`;
-    
+    try {
+      // 使用专用处理器分析图片
+      const analysis = await this.imageProcessor.process(imageDescription);
+      
+      // 使用通用模型生成回复
+      return await this.generateReplyFromAnalysis(analysis, imageDescription);
+    } catch (error) {
+      console.error('[ModelRouter] 图片处理失败:', error);
+      // 降级处理
+      return await this.processGeneral(`用户发送了一张图片: ${imageDescription}`);
+    }
+  }
+
+  // 根据分析结果生成回复
+  async generateReplyFromAnalysis(analysis, originalDescription) {
+    // 简化的回复生成提示词
+    const prompt = `${config.ai.system_prompt}
+
+用户发送了一张图片，图片分析结果如下：
+${analysis}
+
+请根据以上分析生成一个自然、简短的回复。如果图片有趣，可以幽默回应；如果图片包含信息，可以针对内容回应。`;
+
     return await this.ollama.generate(
-      this.models.general,
-      replyPrompt
+      config.ai.ollama.model,
+      prompt
     );
   }
 }

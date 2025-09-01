@@ -44,11 +44,15 @@ class AIManager {
       reply: config.ai?.reply || {
         max_length: 200,
         delay_between_messages: 500
+      },
+      blacklist: config.ai?.blacklist || {
+        groups: [],
+        enable: false
       }
     };
   }
 
-  // 修改概率检查方法，使用安全的配置访问
+  // 修改概率检查方法，添加黑名单检查
   static shouldReply(e) {
     const safeConfig = this.getConfig();
     
@@ -61,6 +65,14 @@ class AIManager {
     // 确保消息对象存在
     if (!e) {
       console.log('[AI模块] 消息对象为空，不处理');
+      return false;
+    }
+    
+    // 检查黑名单（群消息且黑名单功能启用）
+    if (safeConfig.blacklist && safeConfig.blacklist.enable && 
+        !e.isPrivate && e.group_id && 
+        safeConfig.blacklist.groups.includes(e.group_id.toString())) {
+      console.log('[AI模块] 群组在黑名单中，跳过处理');
       return false;
     }
     

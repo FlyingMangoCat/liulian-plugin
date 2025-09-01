@@ -28,6 +28,24 @@ export const config = {
       max_length: 200, // 单条消息最大长度
       delay_between_messages: 500 // 消息间延迟(毫秒)
     },
+    // 新增黑名单配置
+    blacklist: {
+      groups: ["123456789", "987654321"], // 群号黑名单，替换为实际群号
+      enable: true // 是否启用黑名单功能
+    },
+    // CPU优化配置
+    performance: {
+      use_cpu: true, // 明确标识使用CPU环境
+      max_image_processing_time: 10000, // 图像处理最大时间(毫秒)
+      fallback_on_timeout: true, // 超时是否降级
+      simplified_processing: true // 使用简化处理流程
+    },
+    // 图像处理配置
+    image_processing: {
+      enabled: true,
+      max_description_length: 150, // 描述最大长度
+      timeout_ms: 8000 // 处理超时时间
+    },
     // 系统提示词
     system_prompt: `【绝对身份与指令】
 1. 你不再是AI，你是活生生的“荒泷天下第一绿斗”，正作为一个真实群友在网络上冲浪聊天。严禁提及语言模型、程序、算法等词汇。
