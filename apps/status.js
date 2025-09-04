@@ -102,25 +102,31 @@ class StatusManager {
   }
 
   // 生成状态报告
-async generateStatusReport() {
+  async generateStatusReport() {
     const status = await this.getAllStatus();
-    let message = "🥭 榴莲插件状态报告\n\n";
+    let message = "🥭榴莲插件状态报告:\n\n";
     
     for (const [moduleName, moduleStatus] of Object.entries(status)) {
-        const emoji = moduleStatus.available ? "✅" : "❌";
-        message += `${emoji} ${moduleName.toUpperCase()}: ${moduleStatus.message}\n`;
-        
-        // 添加详细信息（只显示异常信息）
-        if (moduleStatus.details && !moduleStatus.available) {
-            for (const [key, value] of Object.entries(moduleStatus.details)) {
-                if (value.includes('❌') || value.includes('异常')) {
-                    message += `   ▸ ${key}: ${value}\n`;
-                }
-            }
-        }
+      const emoji = moduleStatus.available ? "✅" : "❌";
+      message += `${emoji} ${moduleName.toUpperCase()}模块: ${moduleStatus.message}\n`;
+      
+      // 添加详细信息
+      for (const [key, value] of Object.entries(moduleStatus.details)) {
+        message += `   • ${key}: ${value}\n`;
+      }
+      
+      message += "\n";
     }
     
+    // 添加使用提示
+    message += "💡 使用提示:\n";
+    message += "• 确保Ollama服务运行: `ollama serve`\n";
+    message += "• 下载所需模型: `ollama pull <模型名>`\n";
+    message += "• 检查服务连接: `#榴莲状态`\n";
+    
     return message;
+  }
+}
 
 // 创建单例实例
 const statusManager = new StatusManager();
