@@ -1,7 +1,7 @@
 import pg from 'pg';
 import Redis from 'ioredis';
 const { Pool } = pg;
-import config from '../../../../config/ai.js';
+import config from '../../../config/ai.js';
 
 class DatabaseManager {
     constructor() {
