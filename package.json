@@ -13,7 +13,7 @@
     "request": "^2.88.2",
     "qrcode": "^1.5.3",
     "ioredis": "^5.4.1",
-    "pg": "^5.4.1"
+    "pg": "^8.16.3"
   },
   "devDependencies": {
     "cheerio": "1.0.0-rc.12",
