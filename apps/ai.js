@@ -10,12 +10,7 @@ export const rule = {
     reg: "^.*$",      // 匹配所有消息
     priority: 1000,
     describe: "AI自动回复"
-  },
-   ai_reset_memory: {
-        reg: "^#榴莲重置记忆\\s*@?(\\d+)", // 匹配 #榴莲重置记忆@123456 或 #榴莲重置记忆 123456
-        priority: 999, // 高优先级
-        describe: "重置用户记忆（管理员功能）"
-    }
+  }
 };
 
 console.log('[榴莲AI] 规则定义完成');
@@ -119,25 +114,4 @@ export async function ai(e) {
   } catch (error) {
     console.error('[榴莲AI] 处理失败:', error);
   }
-}
-export async function ai_reset_memory(e) {
-    // 检查管理员权限（替换为实际的管理员用户ID）
-    const adminUsers = ["1280951594"]; 
-    if (!adminUsers.includes(e.user_id?.toString())) {
-        await e.reply("❌ 抱歉，您没有权限执行此操作", true);
-        return;
-    }
-    
-    // 提取要重置的用户ID
-    const match = e.msg.match(/^#榴莲重置记忆\s*@?(\d+)/);
-    if (!match) {
-        await e.reply("ℹ️ 使用方法: #榴莲重置记忆@用户ID 或 #榴莲重置记忆 用户ID", true);
-        return;
-    }
-    
-    const targetUserId = match[1];
-    
-    // 调用 AIManager 的重置方法
-    const result = await AIManager.resetUserMemory(targetUserId);
-    await e.reply(result, true);
 }

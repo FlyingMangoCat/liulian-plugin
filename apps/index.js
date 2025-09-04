@@ -3,7 +3,7 @@ import schedule from "node-schedule";
 import config from "../model/config/config.js"
 import { versionInfo, help } from "./help.js"
 import { wjc } from "./wjc.js"
-import { ai, ai_reset_memory } from "./ai.js"
+import { ai } from "./ai.js"
 import { liulian_status } from './status.js';
 import { replace } from "./replace.js"
 import { toShutUp,
@@ -313,7 +313,6 @@ export {
     mapnumber,
     上传,
     ai,
-    ai_reset_memory,
     daihua,
     guangbo,
     starguessAvatar,
@@ -1129,11 +1128,6 @@ yl21: {
     priority: 1000, // 优先级
     describe: "AI自动回复", // 功能说明
   },
-   ai_reset_memory: {
-        reg: "^#榴莲重置记忆\\s*@?(\\d+)", // 匹配 #榴莲重置记忆@123456 或 #榴莲重置记忆 123456
-        priority: 999, // 高优先级
-        describe: "重置用户记忆（管理员功能）"
-    },
     daihua: {
 		reg: "^带话(.*)$", //匹配消息正则，命令正则
 		priority: 400, //优先级，越小优先度越高
