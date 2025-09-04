@@ -221,22 +221,6 @@ class AIManager {
     // 如果没有合适的句子结束点，直接截断并添加省略号
     return reply.substring(0, maxLength - 3) + '...';
   }
-
-static async resetUserMemory(userId) {
-    if (!DatabaseManager.isConnected) {
-        return "数据库未连接，无法重置记忆";
-    }
-    
-    try {
-        const success = await DatabaseManager.resetUserMemories(userId);
-        return success ? 
-            `✅ 已重置用户 ${userId} 的记忆` : 
-            `❌ 重置用户 ${userId} 的记忆失败`;
-    } catch (error) {
-        console.error('[AI模块] 重置记忆失败:', error);
-        return `❌ 重置记忆时发生错误: ${error.message}`;
-    }
-  }
 }
 
 export { AIManager };
