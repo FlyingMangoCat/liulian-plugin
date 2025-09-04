@@ -102,7 +102,7 @@ class StatusManager {
   }
 
   // 生成状态报告
-async generateStatusReport() {
+    async generateStatusReport() {
     const status = await this.getAllStatus();
     let message = "🥭 榴莲插件状态报告\n\n";
     
@@ -119,7 +119,7 @@ async generateStatusReport() {
             }
         }
     }
-    
+  }
     return message;
 
 // 创建单例实例
