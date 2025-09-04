@@ -17,6 +17,23 @@ export const config = {
         vision: "moondream:latest" // 视觉模型
       }
     },
+     database: {
+    postgres: {
+      host: '192.168.0.112', // PostgreSQL地址
+      port: 5432,           // 端口
+      user: 'liulian_user',
+      password: 'your_secure_password_here', // 改为docker-compose中设置的密码
+      database: 'liulian_db',
+      max: 20,
+      idleTimeoutMillis: 30000
+    },
+    redis: {
+      host: '192.168.0.112', // redis地址
+      port: 6379,           // 端口
+      password: 'your_redis_password', // 改为docker-compose中设置的密码
+      ttl: 3600
+    }
+  },
     // 触发配置
     triggers: {
       names: ["绿斗", "绿豆", "阿斗"], // 呼叫这些名字会触发回复
