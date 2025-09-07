@@ -1,5 +1,8 @@
 import { AIManager } from './ai/index.js';
 import config from '../config/ai.js';
+import Cfg from '../components/Cfg.js'
+
+const VERIFICATION_URL = "http://192.168.0.112:3001/verify";
 
 console.log('[榴莲AI] 插件开始加载');
 console.log('[榴莲AI] AI模块导入完成');
@@ -101,6 +104,15 @@ export async function ai(e) {
   if (!AIManager.shouldReply(e)) {
     console.log('[榴莲AI] 不满足回复条件，不处理');
     return;
+  }
+  if (!Cfg.get('sys.aits', false))  {
+  return false
+}
+  if (!await verifyUserAccess(e.user_id)) {
+      if (shouldShowPurchasePrompt()) {
+           await e.reply("请购买服务后使用");
+       }
+       return;
   }
   
   console.log('[榴莲AI] 满足回复条件，继续处理');
