@@ -60,6 +60,28 @@ export async function ai(e) {
     return;
   }
   
+async function verifyUserAccess(userId) {
+  try {
+      const userConfig = config.api?.users?.[userId];
+      if (!userConfig) return false;
+
+      const response = await fetch(VERIFICATION_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+              qq: userId,
+              key: userConfig.api_key
+          })
+      });
+
+      const result = await response.json();
+      return result.valid;
+  } catch (error) {
+      console.error('验证失败:', error);
+      return false;
+  }
+}
+
   // 2. 检查是否为命令消息（可能被其他插件处理）
   const skipCommands = config.ai?.compatibility?.skip_command_messages !== false;
   if (skipCommands && isCommandMessage(e)) {
