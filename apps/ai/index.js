@@ -3,7 +3,7 @@ import { ModelRouter } from './core/modelRouter.js';
 import serviceDetector from './core/serviceDetector.js';
 import fallbackProcessor from './core/fallbackProcessor.js';
 import DatabaseManager from './core/database.js';
-import config from '../config/ai.js';
+import config from '../../config/ai.js';
 
 // 环境检测
 const isMiddlewareMode = process.env.LIULIAN_MODE === 'middleware';
