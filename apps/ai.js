@@ -1,27 +1,42 @@
+// @liulian-middleware
+// 榴莲AI模块 - 支持中间件模式
+
 import { AIManager } from './ai/index.js';
 import config from '../config/ai.js';
-import Cfg from '../components/Cfg.js'
 
-const VERIFICATION_URL = "http://192.168.0.112:3001/verify";
+// 导出中间件模式下的处理函数
+export async function handleMiddlewareRequest(data) {
+    const { message, user_id, message_type = 'text' } = data;
+    
+    try {
+        const reply = await AIManager.generalChat(
+            message, 
+            message_type, 
+            user_id.toString()
+        );
+        
+        return {
+            success: true,
+            data: { reply },
+            timestamp: new Date().toISOString()
+        };
+    } catch (error) {
+        console.error('AI处理错误:', error);
+        return {
+            success: false,
+            error: '处理请求时发生错误'
+        };
+    }
+}
 
-console.log('[榴莲AI] 插件开始加载');
-console.log('[榴莲AI] AI模块导入完成');
-
-// 云崽规则定义 - 只保留AI功能规则
+// 云崽规则定义
 export const rule = {
   ai: {
     reg: "^.*$",      // 匹配所有消息
     priority: 1000,
     describe: "AI自动回复"
-  },
-   ai_reset_memory: {
-        reg: "^#榴莲重置记忆\\s*@?(\\d+)", // 匹配 #榴莲重置记忆@123456 或 #榴莲重置记忆 123456
-        priority: 999, // 高优先级
-        describe: "重置用户记忆（管理员功能）"
-    }
+  }
 };
-
-console.log('[榴莲AI] 规则定义完成');
 
 // 检查是否为命令消息（可能被其他插件处理）
 function isCommandMessage(e) {
@@ -60,28 +75,6 @@ export async function ai(e) {
     return;
   }
   
-async function verifyUserAccess(userId) {
-  try {
-      const userConfig = config.api?.users?.[userId];
-      if (!userConfig) return false;
-
-      const response = await fetch(VERIFICATION_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-              qq: userId,
-              key: userConfig.api_key
-          })
-      });
-
-      const result = await response.json();
-      return result.valid;
-  } catch (error) {
-      console.error('验证失败:', error);
-      return false;
-  }
-}
-
   // 2. 检查是否为命令消息（可能被其他插件处理）
   const skipCommands = config.ai?.compatibility?.skip_command_messages !== false;
   if (skipCommands && isCommandMessage(e)) {
@@ -89,7 +82,21 @@ async function verifyUserAccess(userId) {
     return;
   }
   
-  // 3. 确定消息类型和内容
+  // 3. 服务购买提示检查
+  const showPurchasePrompt = true; // 这里使用您提供的Cfg.get方法对接
+  const userConfig = config.api?.users?.[e.user_id?.toString()];
+  
+  if (!userConfig && showPurchasePrompt) {
+    // 检查是否在私聊或者被@，避免频繁提示
+    if (e.isPrivate || e.at) {
+      await e.reply("⚠️ 您尚未购买榴莲AI服务，部分功能可能受限。\n" +
+                   "请联系管理员购买服务获取API密钥。\n" +
+                   "提示：如需关闭此提示，可使用【#榴莲设置 购买提示关闭】");
+      // 不返回，继续处理，但用户可能无法获得正常回复
+    }
+  }
+  
+  // 4. 确定消息类型和内容
   let messageType = 'text';
   let messageContent = '';
   
@@ -122,26 +129,17 @@ async function verifyUserAccess(userId) {
     return;
   }
   
-  // 4. 概率检查
+  // 5. 概率检查
   if (!AIManager.shouldReply(e)) {
     console.log('[榴莲AI] 不满足回复条件，不处理');
     return;
   }
-  if (!Cfg.get('sys.aits', false))  {
-  return false
-}
-  if (!await verifyUserAccess(e.user_id)) {
-      if (shouldShowPurchasePrompt()) {
-           await e.reply("请购买服务后使用");
-       }
-       return;
-  }
   
   console.log('[榴莲AI] 满足回复条件，继续处理');
   
-  // 5. 处理消息并回复
+  // 6. 处理消息并回复
   try {
-    const reply = await AIManager.generalChat(messageContent, messageType);
+    const reply = await AIManager.generalChat(messageContent, messageType, e.user_id?.toString());
     if (reply) {
       console.log('[榴莲AI] 准备回复:', reply.substring(0, 50) + '...');
       // 使用分段回复
@@ -154,24 +152,24 @@ async function verifyUserAccess(userId) {
     console.error('[榴莲AI] 处理失败:', error);
   }
 }
+
+// 重置记忆处理函数
 export async function ai_reset_memory(e) {
-    // 检查管理员权限（替换为实际的管理员用户ID）
-    const adminUsers = ["1280951594"]; 
-    if (!adminUsers.includes(e.user_id?.toString())) {
-        await e.reply("❌ 抱歉，您没有权限执行此操作", true);
-        return;
-    }
-    
-    // 提取要重置的用户ID
-    const match = e.msg.match(/^#榴莲重置记忆\s*@?(\d+)/);
-    if (!match) {
-        await e.reply("ℹ️ 使用方法: #榴莲重置记忆@用户ID 或 #榴莲重置记忆 用户ID", true);
-        return;
-    }
-    
-    const targetUserId = match[1];
-    
-    // 调用 AIManager 的重置方法
-    const result = await AIManager.resetUserMemory(targetUserId);
-    await e.reply(result, true);
+  // 检查管理员权限
+  const adminUsers = ["123456789"]; // 替换为实际管理员ID
+  if (!adminUsers.includes(e.user_id.toString())) {
+    await e.reply("抱歉，您没有权限执行此操作", true);
+    return;
+  }
+  
+  // 提取要重置的用户ID
+  const match = e.msg.match(/^#榴莲重置记忆\\s*@?(\\d+)/);
+  if (!match) {
+    await e.reply("使用方法: #榴莲重置记忆@用户ID 或 #榴莲重置记忆 用户ID", true);
+    return;
+  }
+  
+  const targetUserId = match[1];
+  const result = await AIManager.resetUserMemory(targetUserId);
+  await e.reply(result, true);
 }
