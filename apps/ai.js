@@ -3,6 +3,7 @@
 
 import { AIManager } from './ai/index.js';
 import config from '../config/ai.js';
+import Cfg from '../components/Cfg.js'
 
 // 导出中间件模式下的处理函数
 export async function handleMiddlewareRequest(data) {
@@ -83,18 +84,16 @@ export async function ai(e) {
   }
   
   // 3. 服务购买提示检查
-  const showPurchasePrompt = true; // 这里使用您提供的Cfg.get方法对接
   const userConfig = config.api?.users?.[e.user_id?.toString()];
   
-  if (!userConfig && showPurchasePrompt) {
-    if (!Cfg.get('sys.aits', false))  {
-    // 检查是否在私聊或者被@，避免频繁提示
-      if (e.isPrivate || e.at) {
-       await e.reply("⚠️ 您尚未购买榴莲AI服务，部分功能可能受限。\n" +
-                     "请联系管理员购买服务获取API密钥。\n" +
+  if (!Cfg.get('sys.aits', false))  {
+  // 检查是否在私聊或者被@，避免频繁提示
+    if (e.isPrivate || e.at) {
+      await e.reply("⚠️ 您尚未购买榴莲AI服务，部分功能可能受限。\n" +
+                    "请联系管理员购买服务获取API密钥。\n" +
                     "提示：如需关闭此提示，可使用【#榴莲设置 购买提示关闭】");
-      return false// 不返回，继续处理，但用户可能无法获得正常回复
     }
+     return false// 不返回，继续处理，但用户可能无法获得正常回复
   }
   
   // 4. 确定消息类型和内容
