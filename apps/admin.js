@@ -22,6 +22,7 @@ let cfgMap = {
   群聊闭嘴限制:'sys.limit',
   群聊闭嘴:'sys.shutup',
   插件名:'sys.PiuginName',
+  购买提示:'sys.aits',
 }
 let sysCfgReg = `^#榴莲设置\\s*(${lodash.keys(cfgMap).join('|')})?\\s*(.*)$`
 export const rule = {
@@ -113,6 +114,7 @@ export async function sysCfg (e, { render }) {
     limit: Cfg.get('sys.limit', 0),
     shutup: getStatus('sys.shutup', false),
     PluginName: Cfg.get('sys.PluginName', 1),
+    aits: getStatus('sys.aits', false),
   }
 
   // 渲染图像
