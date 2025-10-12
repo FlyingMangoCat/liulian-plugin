@@ -83,15 +83,24 @@ export async function ai(e) {
     return;
   }
   
-   // 3. 服务购买提示检查 - 使用Cfg配置
+  // 3. 服务购买提示检查 - 使用Cfg配置
+  // 如果购买提示关闭，直接跳过提示检查，继续处理AI回复
   if (!Cfg.get('sys.aits', false))  {
-    // 检查是否在私聊或者被@，避免频繁提示
-    if (e.isPrivate || e.at) {
-      await e.reply("⚠️ 您尚未购买榴莲AI服务，部分功能可能受限。\n" +
-                    "请联系管理员购买服务获取API密钥。\n" +
-                    "提示：如需关闭此提示，可使用【#榴莲设置 购买提示关闭】");
+    // 完全跳过购买提示，不回复任何提示信息
+    console.log('[榴莲AI] 购买提示已关闭，跳过提示检查');
+    // 这里不返回，继续执行后面的AI处理逻辑
+  } else {
+    // 如果购买提示开启，检查用户配置
+    const userConfig = config.api?.users?.[e.user_id?.toString()];
+    if (!userConfig || !userConfig.apiKey) {
+      // 只在购买提示开启且用户没有配置时才显示提示
+      if (e.isPrivate || e.at) {
+        await e.reply("⚠️ 您尚未购买榴莲AI服务，部分功能可能受限。\n" +
+                      "请联系管理员购买服务获取API密钥。\n" +
+                      "提示：如需关闭此提示，可使用【#榴莲设置 购买提示关闭】");
+        return false;
+      }
     }
-    return false; // 不返回，继续处理，但用户可能无法获得正常回复
   }
   
   
