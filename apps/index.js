@@ -334,12 +334,12 @@ let rule = {
  
         help: {
         reg: "^#?(榴莲|留恋)(帮助|help)$",
-        priority: 10,
+        priority: 1,
         describe: "使用帮助",
     },
         maphelp: {
         reg: "^#?(地下地图帮助)$",
-        priority: 100,
+        priority: 10,
         describe: "地下地图使用帮助",
     },
         pluginhelp: {
@@ -359,22 +359,22 @@ let rule = {
     },    
         updateRes: {
         reg: '^#(榴莲|留恋)(更新图像|图像更新)$',
-        priority: 100,
+        priority: 1,
         describe: "更新素材",
     },
         cj: {
         reg: '^#(榴莲|留恋)(更新|安装)芒果插件$',
-        priority: 100,
+        priority: 1,
         describe: "更新素材",
     },
         sysCfg: {
         reg: "^#?(榴莲|留恋)设置(.*)$",
-        priority: 105,
+        priority: 1,
         describe: "设置",
     },
         versionInfo: {
         reg: '^#?(榴莲|留恋)版本$',
-        priority: 100,
+        priority: 1,
         describe: "版本介绍",
     },
         mapnumber: {
@@ -384,12 +384,12 @@ let rule = {
     },
         YZversionInfo: {
         reg: '^#?(猫崽|芒果猫版云崽|芒果崽|芒崽)?版本$',
-        priority: 100,
+        priority: 1,
         describe: "版本介绍",
     },
         哪个群友是我老婆: {
         reg: "^#*(拐群友|绑架群友|娶群友|娶老婆|拐卖人口|哪个群友是我老婆|抽管理|拐卖群友|绑架人口|拐走群友)$", //匹配消息正则，命令正则
-        priority: 1000,
+        priority: 100,
         describe: "哪个群友是我老婆",
     },
         chumeng: {
@@ -836,7 +836,7 @@ yl21: {
   },
         forge: {
         reg: "^#(伪造信息|伪造消息).*$", //匹配消息正则，命令正则
-        priority: 500, //优先级，越小优先度越高
+        priority: 50, //优先级，越小优先度越高
         describe: "【#伪造信息@群成员 信息】", 
     },
         random: {
@@ -856,7 +856,7 @@ yl21: {
     },
         guessAvatar: {
         reg: '^#猜(头像|角色)(普通|困难|地狱)?(模式)?',
-        priority: 909,
+        priority: 10,
         describe: '#猜头像、#猜角色、#猜角色困难模式',
     },
         guessAvatarCheck: {
@@ -866,7 +866,7 @@ yl21: {
     },
         starguessAvatar: {
         reg: '^#(星铁)?猜(角色|角色星铁)(普通|困难|地狱)?(模式)?',
-        priority: 909,
+        priority: 10,
         describe: '猜星铁角色',
     },
         starguessAvatarCheck: {
@@ -891,7 +891,7 @@ yl21: {
     },
        godEyesFUN: {
        reg: "^#*神之眼(.*)$",
-       priority: 5000,
+       priority: 500,
        describe: "【神之眼@xxx】看看ta的神之眼", 
     },
        headPortraitFUN: {
@@ -916,7 +916,7 @@ yl21: {
     },
        fabing: {
        reg: "^#?发病(.*)$", //匹配消息正则，命令正则
-       priority: 500, //优先级，越小优先度越高
+       priority: 50, //优先级，越小优先度越高
        describe: "",
     },
        setu: {
@@ -1131,7 +1131,7 @@ yl21: {
   },
    ai_reset_memory: {
         reg: "^#榴莲重置记忆\\s*@?(\\d+)", // 匹配 #榴莲重置记忆@123456 或 #榴莲重置记忆 123456
-        priority: 999, // 高优先级
+        priority: 99, // 高优先级
         describe: "重置用户记忆（管理员功能）"
     },
     daihua: {
@@ -1166,17 +1166,17 @@ yl21: {
     },
     sjclassic: {
     reg: "#?(来点|整点|搞点|随机|看看|来一张)(经典|小怪话|怪话|逆天|逆天语录|经典语录|乐子|杂图)$", //匹配消息正则，命令正则
-    priority: 1000, //优先级，越小优先度越高
+    priority: 100, //优先级，越小优先度越高
     describe: "经典发言", //【命令】功能说明
     },
     zdclassic: {
     reg: "#?(来点|整点|搞点|随机|看看|来一张)(.*)$", //匹配消息正则，命令正则
-    priority: 1000, //优先级，越小优先度越高
+    priority: 100, //优先级，越小优先度越高
     describe: "经典发言", //【命令】功能说明
     },
     liulian_status: {
     reg: "^#榴莲状态$",
-    priority: 99,
+    priority: 1,
     describe: "查看榴莲插件状态"
     },
 };
