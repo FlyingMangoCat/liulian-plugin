@@ -98,23 +98,23 @@ export async function sysCfg (e, { render }) {
 
   let cfg = {
     help: getStatus('sys.help', false),
-    bq: getStatus('sys.bq', false),
-    dk: getStatus('sys.dk', false),
-    dw: getStatus('sys.dw', false),
-    qmp: getStatus('sys.qmp', false),
+    bq: getStatus('sys.bq', true),
+    dk: getStatus('sys.dk', true),
+    dw: getStatus('sys.dw', true),
+    qmp: getStatus('sys.qmp', true),
     wife: Cfg.get('sys.wife', 1),
     imgPlus: fs.existsSync(imgPath),
-    xx: getStatus('sys.xx', false),
-    forge: getStatus('sys.forge', false),
-    jtm: getStatus('sys.jtm', false),
-    qqy: getStatus('sys.qqy', false),
+    xx: getStatus('sys.xx', true),
+    forge: getStatus('sys.forge', true),
+    jtm: getStatus('sys.jtm', true),
+    qqy: getStatus('sys.qqy', true),
     expression: Cfg.get('sys.expression', 1),
     gl: Cfg.get('sys.gl', 5),
     scale: Cfg.get('sys.scale', 100),
     limit: Cfg.get('sys.limit', 0),
     shutup: getStatus('sys.shutup', false),
     PluginName: Cfg.get('sys.PluginName', 1),
-    aits: getStatus('sys.aits', false),
+    aits: getStatus('sys.aits', true),
   }
 
   // 渲染图像
