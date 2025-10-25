@@ -97,6 +97,7 @@ export async function ai(e) {
       if (e.isPrivate || e.at) {
         await e.reply("⚠️ 您尚未购买榴莲AI服务，部分功能可能受限。\n" +
                       "请联系管理员购买服务获取API密钥。\n" +
+                      "欢迎加入官方社群体验/获取最新生态消息/功能：806760403\n"+
                       "提示：如需关闭此提示，可使用【#榴莲设置 购买提示关闭】");
         return false;
       }
