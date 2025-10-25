@@ -30,7 +30,7 @@ export const rule = {
 
 export async function qmp (e){
 if (!/榴莲/.test(e.msg) && !Cfg.get('sys.qmp', false))  {
-  e.reply (`该功能已被关闭，请通过榴莲设置开启`);
+  e.reply (`该功能已被关闭，请通过榴莲设置开启！`);
   return false
 }
     const totalMem = os.totalmem();

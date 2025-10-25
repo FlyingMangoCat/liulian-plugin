@@ -17,7 +17,7 @@ export const rule = {
 
 export async function HitMe(e) {
 if (!Cfg.get('sys.dw', false))  {
-  e.reply (`该功能已被关闭，请通过榴莲设置开启`);
+  e.reply (`该功能已被关闭，请通过榴莲设置开启！`);
   return false
 }
 	let random = Math.round(Math.random() * 9);//随机生成 0-9 

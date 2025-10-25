@@ -122,7 +122,7 @@ export async function kt1(e) {
 }
 export async function jtm(e) {
 if (!Cfg.get('sys.jtm', false)) {
-  e.reply (`该功能已被关闭，请通过榴莲设置开启`);
+  e.reply (`该功能已被关闭，请通过榴莲设置开启！`);
   return false
   }
  let RandomNum=lodash.random(0, 100);
