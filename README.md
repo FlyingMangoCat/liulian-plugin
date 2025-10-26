@@ -34,7 +34,6 @@ pnpm install -P
 |[叶殇](https://gitee.com/maple-leaf-sweeping) | 负责B站推送维护 |
 |[萧枘（会飞的橘子猫）](https://gitee.com/xiaoxiaorurui) | 上传、整理仓库内容及解答问题 |
 |[会飞的星光猫]() | 宣传及教程配音 |
-|[云溪起源](http://gitee.com/yxyos)❌| 提供接口支持❌ |
 |[会飞的芒果猫](https://b23.tv/RsZvCWJ) | 宣传及发布教程解答问题 |
 
 <details><summary>📩加入我们</summary>
