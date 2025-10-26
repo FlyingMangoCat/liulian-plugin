@@ -339,12 +339,12 @@ let rule = {
     },
         maphelp: {
         reg: "^#?(地下地图帮助)$",
-        priority: 10,
+        priority: 1,
         describe: "地下地图使用帮助",
     },
         pluginhelp: {
         reg: "^#?(插件管理帮助)$",
-        priority: 100,
+        priority: 1,
         describe: "插件管理帮助",
     },
         修仙help: {
@@ -354,7 +354,7 @@ let rule = {
     },
         bilibilihelp: {
         reg: "^#?(B站|b站|小破站)推送帮助$",
-        priority: 100,
+        priority: 1,
         describe: "B站推送帮助",
     },    
         updateRes: {
@@ -379,7 +379,7 @@ let rule = {
     },
         mapnumber: {
         reg: '^#?(原神地下地图编号)$',
-        priority: 100,
+        priority: 10,
         describe: "介绍",
     },
         YZversionInfo: {
@@ -389,7 +389,7 @@ let rule = {
     },
         哪个群友是我老婆: {
         reg: "^#*(拐群友|绑架群友|娶群友|娶老婆|拐卖人口|哪个群友是我老婆|抽管理|拐卖群友|绑架人口|拐走群友)$", //匹配消息正则，命令正则
-        priority: 100,
+        priority: 10,
         describe: "哪个群友是我老婆",
     },
         chumeng: {
@@ -399,7 +399,7 @@ let rule = {
     },
         randomQA: {
         reg: "^#?(榴莲|留恋|芒果)问答$", //匹配消息正则，命令正则
-        priority: 590, //优先级，越小优先度越高
+        priority: 50, //优先级，越小优先度越高
         describe: "【#竞猜】「派蒙的十万个为什么」题库", //【命令】功能说明
     },
         answerCheck: {
@@ -846,7 +846,7 @@ yl21: {
     },
         chuochuo: {
         reg: "戳䔱戳",
-        priority: 300,
+        priority: 30000,
         describe: "",
     },
         FuckingChatterbox: {
@@ -921,22 +921,22 @@ yl21: {
     },
        setu: {
      		reg: "^#(抽|今日)色图$", //匹配消息正则，命令正则
-	     	priority: 400, //优先级，越小优先度越高
+	     	priority: 4000, //优先级，越小优先度越高
 	     	describe: "【#例子】开发简单示例演示", //【命令】功能说明
    	},
       	lp: {
 	     	reg: "^#(抽|今日)老婆$", //匹配消息正则，命令正则
-	     	priority: 400, //优先级，越小优先度越高
+	     	priority: 4000, //优先级，越小优先度越高
 		     describe: "【#例子】开发简单示例演示", //【命令】功能说明
    	},
        dailyword: {
        reg: "^[^-]*(每日句子|english|句子)$", //匹配消息正则，命令正则
-       priority: 100, //优先级，越小优先度越高
+       priority: 1000, //优先级，越小优先度越高
        describe: "每日句子", //【命令】功能说明
     },
        sentence: {
        reg: "^[^-]*(每日单词|word|单词)$", //匹配消息正则，命令正则
-       priority: 100, //优先级，越小优先度越高
+       priority: 1000, //优先级，越小优先度越高
        describe: "每日单词", //【命令】功能说明
     },
        HitMe: {
@@ -951,22 +951,22 @@ yl21: {
    	},
        dutang: {
        reg: "^[^-]*毒鸡汤$", //匹配消息正则，命令正则
-       priority: 100, //优先级，越小优先度越高
+       priority: 1000, //优先级，越小优先度越高
        describe: "毒鸡汤", //【命令】功能说明
     },
        caihongpi: {
        reg: "^[^-]*(彩虹屁|夸夸我)$", //匹配消息正则，命令正则
-       priority: 100, //优先级，越小优先度越高
+       priority: 1000, //优先级，越小优先度越高
        describe: "彩虹屁", //【命令】功能说明
     },
        saylove: {
        reg: "^[^-]*(土味情话|土味|情话)$", //匹配消息正则，命令正则
-       priority: 100, //优先级，越小优先度越高
+       priority: 1000, //优先级，越小优先度越高
        describe: "土味情话", //【命令】功能说明
     },
        joke: {
        reg: "^[^-]*(讲个笑话|讲笑话|来个笑话)$", 
-       priority: 100, //优先级，越小优先度越高
+       priority: 1000, //优先级，越小优先度越高
        describe: "笑话", //【命令】功能说明
     },
        早报: {
@@ -991,7 +991,7 @@ yl21: {
     },
        daanFUN: {
        reg: "^#*答案之书(.*)$", 
-       priority: 500,
+       priority: 5000,
        describe: "答案之书会告诉你答案", 
     },   
        qiuqianFUN: {
@@ -1091,12 +1091,12 @@ yl21: {
   },
        运势: {
        reg: "(运势|今日运势)$",
-       priority: 100,
+       priority: 1000,
        describe: "",
   },
        小黑子: {
        reg: "^#?上传(真爱粉|black)(图|图片)$", 
-       priority: 100, //优先级，越小优先度越高
+       priority: 1000, //优先级，越小优先度越高
        describe: "", //【命令】功能说明
   },
        Robacat: {
@@ -1146,7 +1146,7 @@ yl21: {
   	},
     toShutUp: {
     reg: "#(闭嘴|自爆)$", //匹配消息正则，命令正则
-    priority: 100, //优先级，越小优先度越高
+    priority: 1000, //优先级，越小优先度越高
     describe: "群聊闭嘴", //【命令】功能说明
     },
     determineIfYouShutUp: {
