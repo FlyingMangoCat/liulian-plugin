@@ -39,18 +39,16 @@ pnpm install -P
 <details><summary>📩加入我们</summary>
 
 * ，
-                            ——会飞的芒果猫&榴莲项目组
-                                       2025.10.11
+*                            ——会飞的芒果猫&榴莲项目组
+*                                       2025.10.11
 </details>
 
 ### **其他**
 
-#### QQ群🌾 
+#### 联系方式🌾 
 
 * liulian-plugin榴莲插件   **[806760403](http://qm.qq.com/cgi-bin/qm/qr?_wv=1027&k=sbYoEYRgwMkO66UsD1RIjyQMys1SSFsn&authKey=LWGw08%2BP0EQepYtZ19T3gRYEbTiV0YeodQTcthEmNdIHnxID%2BT9TTYnYuSGKTjqm&noverify=0&group_code=806760403)**
 
-#### 联系方式
- 
 * QQ **3598537042**（封号了）
  
 * 电子邮箱 **flyingmaogocat@126.com**
@@ -115,6 +113,6 @@ pnpm install -P
 <details><summary>📝写在最后</summary>
 
 * 亲爱的用户朋友们晚上好，可能有人知道“榴莲”这个名字最初，最开始代表的意义，但，现在，榴莲，代表着坚强、独特、自带铠甲的标志，我们将一起告别过去，未来的榴莲是独属于会飞的芒果猫的榴莲，是独属于榴莲项目组的榴莲，是萧枘、星光、苹果猫的，以及每一个用户朋友们的榴莲！榴莲的未来由我们自己定义，榴莲的意义也是仅属于我们的定义！
-                    ——会飞的芒果猫&榴莲项目组
-                                       2025.10.11
+*                    ——会飞的芒果猫&榴莲项目组
+*                                       2025.10.11
 </details>
