@@ -334,17 +334,17 @@ let rule = {
  
         help: {
         reg: "^#?(榴莲|留恋)(帮助|help)$",
-        priority: 10,
+        priority: 1,
         describe: "使用帮助",
     },
         maphelp: {
         reg: "^#?(地下地图帮助)$",
-        priority: 100,
+        priority: 1,
         describe: "地下地图使用帮助",
     },
         pluginhelp: {
         reg: "^#?(插件管理帮助)$",
-        priority: 100,
+        priority: 1,
         describe: "插件管理帮助",
     },
         修仙help: {
@@ -354,42 +354,42 @@ let rule = {
     },
         bilibilihelp: {
         reg: "^#?(B站|b站|小破站)推送帮助$",
-        priority: 100,
+        priority: 1,
         describe: "B站推送帮助",
     },    
         updateRes: {
         reg: '^#(榴莲|留恋)(更新图像|图像更新)$',
-        priority: 100,
+        priority: 1,
         describe: "更新素材",
     },
         cj: {
         reg: '^#(榴莲|留恋)(更新|安装)芒果插件$',
-        priority: 100,
+        priority: 1,
         describe: "更新素材",
     },
         sysCfg: {
         reg: "^#?(榴莲|留恋)设置(.*)$",
-        priority: 105,
+        priority: 1,
         describe: "设置",
     },
         versionInfo: {
         reg: '^#?(榴莲|留恋)版本$',
-        priority: 100,
+        priority: 1,
         describe: "版本介绍",
     },
         mapnumber: {
         reg: '^#?(原神地下地图编号)$',
-        priority: 100,
+        priority: 10,
         describe: "介绍",
     },
         YZversionInfo: {
         reg: '^#?(猫崽|芒果猫版云崽|芒果崽|芒崽)?版本$',
-        priority: 100,
+        priority: 1,
         describe: "版本介绍",
     },
         哪个群友是我老婆: {
         reg: "^#*(拐群友|绑架群友|娶群友|娶老婆|拐卖人口|哪个群友是我老婆|抽管理|拐卖群友|绑架人口|拐走群友)$", //匹配消息正则，命令正则
-        priority: 1000,
+        priority: 10,
         describe: "哪个群友是我老婆",
     },
         chumeng: {
@@ -399,7 +399,7 @@ let rule = {
     },
         randomQA: {
         reg: "^#?(榴莲|留恋|芒果)问答$", //匹配消息正则，命令正则
-        priority: 590, //优先级，越小优先度越高
+        priority: 50, //优先级，越小优先度越高
         describe: "【#竞猜】「派蒙的十万个为什么」题库", //【命令】功能说明
     },
         answerCheck: {
@@ -836,7 +836,7 @@ yl21: {
   },
         forge: {
         reg: "^#(伪造信息|伪造消息).*$", //匹配消息正则，命令正则
-        priority: 500, //优先级，越小优先度越高
+        priority: 50, //优先级，越小优先度越高
         describe: "【#伪造信息@群成员 信息】", 
     },
         random: {
@@ -846,7 +846,7 @@ yl21: {
     },
         chuochuo: {
         reg: "戳䔱戳",
-        priority: 300,
+        priority: 30000,
         describe: "",
     },
         FuckingChatterbox: {
@@ -856,7 +856,7 @@ yl21: {
     },
         guessAvatar: {
         reg: '^#猜(头像|角色)(普通|困难|地狱)?(模式)?',
-        priority: 909,
+        priority: 10,
         describe: '#猜头像、#猜角色、#猜角色困难模式',
     },
         guessAvatarCheck: {
@@ -866,7 +866,7 @@ yl21: {
     },
         starguessAvatar: {
         reg: '^#(星铁)?猜(角色|角色星铁)(普通|困难|地狱)?(模式)?',
-        priority: 909,
+        priority: 10,
         describe: '猜星铁角色',
     },
         starguessAvatarCheck: {
@@ -891,7 +891,7 @@ yl21: {
     },
        godEyesFUN: {
        reg: "^#*神之眼(.*)$",
-       priority: 5000,
+       priority: 500,
        describe: "【神之眼@xxx】看看ta的神之眼", 
     },
        headPortraitFUN: {
@@ -916,27 +916,27 @@ yl21: {
     },
        fabing: {
        reg: "^#?发病(.*)$", //匹配消息正则，命令正则
-       priority: 500, //优先级，越小优先度越高
+       priority: 50, //优先级，越小优先度越高
        describe: "",
     },
        setu: {
      		reg: "^#(抽|今日)色图$", //匹配消息正则，命令正则
-	     	priority: 400, //优先级，越小优先度越高
+	     	priority: 4000, //优先级，越小优先度越高
 	     	describe: "【#例子】开发简单示例演示", //【命令】功能说明
    	},
       	lp: {
 	     	reg: "^#(抽|今日)老婆$", //匹配消息正则，命令正则
-	     	priority: 400, //优先级，越小优先度越高
+	     	priority: 4000, //优先级，越小优先度越高
 		     describe: "【#例子】开发简单示例演示", //【命令】功能说明
    	},
        dailyword: {
        reg: "^[^-]*(每日句子|english|句子)$", //匹配消息正则，命令正则
-       priority: 100, //优先级，越小优先度越高
+       priority: 1000, //优先级，越小优先度越高
        describe: "每日句子", //【命令】功能说明
     },
        sentence: {
        reg: "^[^-]*(每日单词|word|单词)$", //匹配消息正则，命令正则
-       priority: 100, //优先级，越小优先度越高
+       priority: 1000, //优先级，越小优先度越高
        describe: "每日单词", //【命令】功能说明
     },
        HitMe: {
@@ -951,22 +951,22 @@ yl21: {
    	},
        dutang: {
        reg: "^[^-]*毒鸡汤$", //匹配消息正则，命令正则
-       priority: 100, //优先级，越小优先度越高
+       priority: 1000, //优先级，越小优先度越高
        describe: "毒鸡汤", //【命令】功能说明
     },
        caihongpi: {
        reg: "^[^-]*(彩虹屁|夸夸我)$", //匹配消息正则，命令正则
-       priority: 100, //优先级，越小优先度越高
+       priority: 1000, //优先级，越小优先度越高
        describe: "彩虹屁", //【命令】功能说明
     },
        saylove: {
        reg: "^[^-]*(土味情话|土味|情话)$", //匹配消息正则，命令正则
-       priority: 100, //优先级，越小优先度越高
+       priority: 1000, //优先级，越小优先度越高
        describe: "土味情话", //【命令】功能说明
     },
        joke: {
        reg: "^[^-]*(讲个笑话|讲笑话|来个笑话)$", 
-       priority: 100, //优先级，越小优先度越高
+       priority: 1000, //优先级，越小优先度越高
        describe: "笑话", //【命令】功能说明
     },
        早报: {
@@ -991,7 +991,7 @@ yl21: {
     },
        daanFUN: {
        reg: "^#*答案之书(.*)$", 
-       priority: 500,
+       priority: 5000,
        describe: "答案之书会告诉你答案", 
     },   
        qiuqianFUN: {
@@ -1091,12 +1091,12 @@ yl21: {
   },
        运势: {
        reg: "(运势|今日运势)$",
-       priority: 100,
+       priority: 1000,
        describe: "",
   },
        小黑子: {
        reg: "^#?上传(真爱粉|black)(图|图片)$", 
-       priority: 100, //优先级，越小优先度越高
+       priority: 1000, //优先级，越小优先度越高
        describe: "", //【命令】功能说明
   },
        Robacat: {
@@ -1131,7 +1131,7 @@ yl21: {
   },
    ai_reset_memory: {
         reg: "^#榴莲重置记忆\\s*@?(\\d+)", // 匹配 #榴莲重置记忆@123456 或 #榴莲重置记忆 123456
-        priority: 999, // 高优先级
+        priority: 99, // 高优先级
         describe: "重置用户记忆（管理员功能）"
     },
     daihua: {
@@ -1146,7 +1146,7 @@ yl21: {
   	},
     toShutUp: {
     reg: "#(闭嘴|自爆)$", //匹配消息正则，命令正则
-    priority: 100, //优先级，越小优先度越高
+    priority: 1000, //优先级，越小优先度越高
     describe: "群聊闭嘴", //【命令】功能说明
     },
     determineIfYouShutUp: {
@@ -1166,17 +1166,17 @@ yl21: {
     },
     sjclassic: {
     reg: "#?(来点|整点|搞点|随机|看看|来一张)(经典|小怪话|怪话|逆天|逆天语录|经典语录|乐子|杂图)$", //匹配消息正则，命令正则
-    priority: 1000, //优先级，越小优先度越高
+    priority: 100, //优先级，越小优先度越高
     describe: "经典发言", //【命令】功能说明
     },
     zdclassic: {
     reg: "#?(来点|整点|搞点|随机|看看|来一张)(.*)$", //匹配消息正则，命令正则
-    priority: 1000, //优先级，越小优先度越高
+    priority: 100, //优先级，越小优先度越高
     describe: "经典发言", //【命令】功能说明
     },
     liulian_status: {
     reg: "^#榴莲状态$",
-    priority: 99,
+    priority: 1,
     describe: "查看榴莲插件状态"
     },
 };

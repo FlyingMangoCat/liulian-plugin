@@ -34,24 +34,23 @@ pnpm install -P
 |[叶殇](https://gitee.com/maple-leaf-sweeping) | 负责B站推送维护 |
 |[萧枘（会飞的橘子猫）](https://gitee.com/xiaoxiaorurui) | 上传、整理仓库内容及解答问题 |
 |[会飞的星光猫]() | 宣传及教程配音 |
-|[云溪起源](http://gitee.com/yxyos)❌| 提供接口支持❌ |
 |[会飞的芒果猫](https://b23.tv/RsZvCWJ) | 宣传及发布教程解答问题 |
 
 <details><summary>📩加入我们</summary>
 
 * ，
+
                             ——会飞的芒果猫&榴莲项目组
+
                                        2025.10.11
 </details>
 
 ### **其他**
 
-#### QQ群🌾 
+#### 联系方式🌾 
 
 * liulian-plugin榴莲插件   **[806760403](http://qm.qq.com/cgi-bin/qm/qr?_wv=1027&k=sbYoEYRgwMkO66UsD1RIjyQMys1SSFsn&authKey=LWGw08%2BP0EQepYtZ19T3gRYEbTiV0YeodQTcthEmNdIHnxID%2BT9TTYnYuSGKTjqm&noverify=0&group_code=806760403)**
 
-#### 联系方式
- 
 * QQ **3598537042**（封号了）
  
 * 电子邮箱 **flyingmaogocat@126.com**
@@ -82,7 +81,7 @@ pnpm install -P
 
 * 欢迎[爱发电](https://afdian.net/a/huifeidemangguomao)投喂或点个免费的**Star**，您的支持是我们更新及维护的动力~
 
-#### **赞助列表**(排名不分先后，自`未知用户赞助的0.5元`之后每一笔赞助单独列出，不再按照多次金额累计列出)
+#### **赞助列表**
 | 昵称   | 金额    | 昵称    | 金额    | 昵称      | 金额     |
 | :-----: | ---- | :------: | --- | :--------: | ----- |
 |まため！| 10 |会飞的橘子猫 |0.01 |有趣 |4 |
@@ -116,6 +115,8 @@ pnpm install -P
 <details><summary>📝写在最后</summary>
 
 * 亲爱的用户朋友们晚上好，可能有人知道“榴莲”这个名字最初，最开始代表的意义，但，现在，榴莲，代表着坚强、独特、自带铠甲的标志，我们将一起告别过去，未来的榴莲是独属于会飞的芒果猫的榴莲，是独属于榴莲项目组的榴莲，是萧枘、星光、苹果猫的，以及每一个用户朋友们的榴莲！榴莲的未来由我们自己定义，榴莲的意义也是仅属于我们的定义！
-                    ——会飞的芒果猫&榴莲项目组
-                                       2025.10.11
+
+                     ——会飞的芒果猫&榴莲项目组
+
+                                        2025.10.11
 </details>

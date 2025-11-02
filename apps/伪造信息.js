@@ -14,7 +14,7 @@ export const rule = {
 
 export async function forge(e) {
 if (!Cfg.get('sys.forge', false))  {
-  e.reply (`该功能已被关闭，请通过榴莲设置开启`);
+  e.reply (`该功能已被关闭，请通过榴莲设置开启！`);
   return false
 }
   let msgInfo = new Map(); 
