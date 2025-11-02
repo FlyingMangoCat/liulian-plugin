@@ -1,0 +1,84 @@
+AI中间件集成与用户系统对接说明文档
+
+一、项目概述
+本项目将Gitee开源AI中间件（https://gitee.com/huifeidemangguomao/liulian-plugin）集成到现有后端系统中，实现AI功能的统一管理和调用。
+
+二、系统架构
+1. 后端服务：Node.js + Express + MongoDB
+2. AI中间件：通过Gitee拉取的liulian-plugin项目
+3. 数据库集成：共享主系统的MongoDB数据库和User模型
+4. 用户系统：完全共享主系统的用户认证和权限管理
+
+三、核心功能
+1. 自动化部署：
+   - 构建时自动从Gitee拉取AI中间件代码
+   - 自动安装依赖
+   - 定时更新（每天检查一次）
+
+2. 数据库集成：
+   - 使用主系统的MongoDB连接
+   - 共享User模型和用户数据
+   - AI记忆功能存储在user_memories集合中
+
+3. 用户系统对接：
+   - 使用主系统的JWT Token认证
+   - 通过user_id关联用户数据
+   - 共享用户等级、权限等信息
+
+四、API接口列表
+1. POST /api/ai/start - 启动AI中间件
+2. POST /api/ai/chat - AI聊天接口
+   - 参数：message(消息内容), user_id(用户ID), message_type(消息类型)
+3. GET /api/ai/status - AI服务状态检查
+4. GET /api/ai/health - AI中间件健康检查
+5. POST /api/ai/update - 更新AI中间件
+
+五、用户系统调用方式
+1. 导入用户模型：
+   import User from '../../../../../models/User.js';
+
+2. 数据库连接：
+   import mongoose from 'mongoose';
+   // 检查连接状态：mongoose.connection.readyState === 1
+
+3. 查询用户信息：
+   const user = await User.findById(userId).select('-password');
+
+4. 用户认证检查：
+   if (!user) return res.status(404).json({ error: '用户不存在' });
+   if (!user.isActive) return res.status(401).json({ error: '账户已被禁用' });
+
+5. 用户权限检查：
+   if (user.role === 'admin') { /* 管理员操作 */ }
+
+六、更新机制
+1. 每天自动检查更新
+2. 更新前自动备份配置文件
+3. 更新后自动恢复配置文件
+4. 通过POST /api/ai/update手动触发更新
+
+七、配置文件管理
+1. AI配置：Z:\backend\src\ai\config.js
+2. 数据库配置：Z:\backend\src\ai\database.js
+3. 配置备份：Z:\backend\src\ai\config-backup\
+
+八、数据提供方式
+1. 用户信息传递：
+   - 前端请求中包含user_id参数
+   - 通过JWT Token获取用户详细信息
+   - 在AI处理中使用用户等级、经验等信息
+
+2. 用户记忆功能：
+   - 保存：await database.saveMemory(userId, message, reply)
+   - 读取：await database.getMemories(userId, limit)
+
+3. 数据安全：
+   - 密码字段始终被排除(-password)
+   - 敏感操作需要权限验证
+   - 所有数据库操作使用主系统连接
+
+九、部署说明
+1. 启动后端服务时AI中间件自动初始化
+2. 首次使用前调用POST /api/ai/start启动AI中间件
+3. 确保环境变量中配置了OLLAMA服务地址
+4. AI中间件会自动连接主系统的MongoDB数据库

@@ -4,16 +4,29 @@
 import { AIManager } from './ai/index.js';
 import config from '../config/ai.js';
 import Cfg from '../components/Cfg.js'
+import UserService from './ai/core/user.js'
 
 // 导出中间件模式下的处理函数
 export async function handleMiddlewareRequest(data) {
     const { message, user_id, message_type = 'text' } = data;
     
     try {
+        // 获取用户信息（如果可用）
+        let userLevelInfo = null;
+        if (user_id) {
+            userLevelInfo = await UserService.getUserLevelInfo(user_id.toString());
+        }
+        
+        // 构建增强的上下文信息
+        let enhancedMessage = message;
+        if (userLevelInfo) {
+            enhancedMessage = `[用户等级:${userLevelInfo.level}][角色:${userLevelInfo.role}] ${message}`;
+        }
+        
         const reply = await AIManager.generalChat(
-            message, 
+            enhancedMessage, 
             message_type, 
-            user_id.toString()
+            user_id ? user_id.toString() : null
         );
         
         return {

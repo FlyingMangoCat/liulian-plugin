@@ -28,6 +28,12 @@ if (!isMiddlewareMode) {
     DatabaseManager.connect().then(() => {
         console.log('[AI模块] 数据库连接状态:', DatabaseManager.isConnected);
     });
+} else {
+    // 中间件模式下初始化数据库连接
+    console.log('[AI模块] 中间件模式下初始化数据库连接');
+    DatabaseManager.connect().then(() => {
+        console.log('[AI模块] 数据库连接状态:', DatabaseManager.isConnected);
+    });
 }
 
 class AIManager {
@@ -150,6 +156,20 @@ class AIManager {
         }
         
         try {
+            // 获取用户信息（如果提供userId）
+            let userContext = '';
+            if (userId) {
+                try {
+                    const UserService = await import('./core/user.js');
+                    const userLevelInfo = await UserService.default.getUserLevelInfo(userId);
+                    if (userLevelInfo) {
+                        userContext = `【用户信息:等级${userLevelInfo.level},角色${userLevelInfo.role},活跃:${userLevelInfo.isActive ? '是' : '否'}】\n\n`;
+                    }
+                } catch (userError) {
+                    console.log('[AI模块] 获取用户信息失败，继续无用户信息对话');
+                }
+            }
+
             // 获取用户记忆
             let memoryContext = '';
             if (userId && DatabaseManager.isConnected) {
@@ -177,7 +197,7 @@ class AIManager {
             // 构建完整提示词
             const fullPrompt = `${config.ai.system_prompt}
 
-${memoryContext}
+${userContext}${memoryContext}
 
 用户消息: ${message}`;
 
