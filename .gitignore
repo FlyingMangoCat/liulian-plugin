@@ -2,6 +2,7 @@ config/
 node_modules/
 AI_MIDDLEWARE_INTEGRATION.txt
 IFLOW.md
+scripts/auto-push.*
 *.log
 *.tmp
 .DS_Store
