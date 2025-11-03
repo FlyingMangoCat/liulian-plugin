@@ -41,8 +41,7 @@ AI_MIDDLEWARE_INTEGRATION.txt
 package-lock.json
 yarn.lock
 
-# Documentation
-IFLOW.md
+
 
 # Test files
 *.test.js
