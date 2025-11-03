@@ -53,3 +53,6 @@ coverage/
 # Editor files
 *.md.bak
 *.md~
+
+# Documentation
+IFLOW.md
