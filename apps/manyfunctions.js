@@ -542,3 +542,12 @@ export async function sentence(e) {
 
   return true; //返回true 阻挡消息不再往下
 }
+
+export async function 早报(e) {
+   let url = `https://v2.alapi.cn/api/zaobao?token=17Noc6E1x3kduTdK&format=image`;
+   let msg = [
+     segment.image(url),
+   ];
+   e.reply(msg);
+   return true;
+}

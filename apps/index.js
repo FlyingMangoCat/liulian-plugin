@@ -5,7 +5,6 @@ import { versionInfo, help } from "./help.js"
 import { wjc } from "./wjc.js"
 import { ai, ai_reset_memory } from "./ai.js"
 import { liulian_status } from './status.js';
-import { replace } from "./replace.js"
 import { toShutUp,
 determineIfYouShutUp,
 openYourMouth
@@ -1149,25 +1148,20 @@ yl21: {
     priority: 1000, //优先级，越小优先度越高
     describe: "群聊闭嘴", //【命令】功能说明
     },
-    determineIfYouShutUp: {
-    reg: "(.*)", //匹配消息正则，命令正则
-    priority: 0, //优先级，越小优先度越高
-    describe: "闭嘴判断", //【命令】功能说明
-    },
-    openYourMouth: {
-    reg: "#(张嘴|色色|复活)$", //匹配消息正则，命令正则
-    priority: 100, //优先级，越小优先度越高
-    describe: "群聊张嘴", //【命令】功能说明
-    },
-    replace: {
-    reg: "/(.*)",
-    priority: -10,
-    describe: "",
-    },
-    sjclassic: {
-    reg: "#?(来点|整点|搞点|随机|看看|来一张)(经典|小怪话|怪话|逆天|逆天语录|经典语录|乐子|杂图)$", //匹配消息正则，命令正则
-    priority: 100, //优先级，越小优先度越高
-    describe: "经典发言", //【命令】功能说明
+    determineIfYouShutUp: {
+    reg: "(.*)", //匹配消息正则，命令正则
+    priority: 0, //优先级，越小优先度越高
+    describe: "闭嘴判断", //【命令】功能说明
+    },
+    openYourMouth: {
+    reg: "#(张嘴|色色|复活)$", //匹配消息正则，命令正则
+    priority: 100, //优先级，越小优先度越高
+    describe: "群聊张嘴", //【命令】功能说明
+    },
+    sjclassic: {
+    reg: "#?(来点|整点|搞点|随机|看看|来一张)(经典|小怪话|怪话|逆天|逆天语录|经典语录|乐子|杂图)$", //匹配消息正则，命令正则
+    priority: 100, //优先级，越小优先度越高
+    describe: "经典发言", //【命令】功能说明
     },
     zdclassic: {
     reg: "#?(来点|整点|搞点|随机|看看|来一张)(.*)$", //匹配消息正则，命令正则
