@@ -10,8 +10,27 @@
  */
 
 import mongoose from 'mongoose';
+import { commonUserSchema, aiUserSchema } from './models.js';
 
 class UserService {
+  /**
+   * 获取MongoDB模型
+   * 
+   * 从缓存中获取或创建MongoDB模型
+   * 避免重复创建模型
+   * 
+   * @param {string} modelName - 模型名称
+   * @param {object} schema - 模型Schema
+   * @returns {object} Mongoose模型
+   */
+  static getMongoModel(modelName, schema) {
+    try {
+      return mongoose.model(modelName);
+    } catch (error) {
+      return mongoose.model(modelName, schema);
+    }
+  }
+
   /**
    * 获取通用用户信息（跨平台同步的基础信息）
    * 
@@ -31,26 +50,7 @@ class UserService {
     }
     
     try {
-      // 尝试从通用用户集合获取信息
-      let CommonUserModel;
-      try {
-        CommonUserModel = mongoose.model('common_users');
-      } catch (error) {
-        // 如果模型不存在，创建通用用户模型
-        const commonUserSchema = new mongoose.Schema({
-          user_id: { type: String, required: true, unique: true, index: true },
-          username: String,
-          nickname: String,
-          avatar: String,
-          register_date: { type: Date, default: Date.now },
-          last_login: { type: Date, default: Date.now },
-          status: { type: String, default: 'active' }, // active, banned, inactive
-          created_at: { type: Date, default: Date.now },
-          updated_at: { type: Date, default: Date.now }
-        });
-        CommonUserModel = mongoose.model('common_users', commonUserSchema);
-      }
-      
+      const CommonUserModel = this.getMongoModel('common_users', commonUserSchema);
       const user = await CommonUserModel.findOne({ user_id: userId });
       return user;
     } catch (error) {
@@ -80,24 +80,7 @@ class UserService {
     }
     
     try {
-      // 获取通用用户模型
-      let CommonUserModel;
-      try {
-        CommonUserModel = mongoose.model('common_users');
-      } catch (error) {
-        const commonUserSchema = new mongoose.Schema({
-          user_id: { type: String, required: true, unique: true, index: true },
-          username: String,
-          nickname: String,
-          avatar: String,
-          register_date: { type: Date, default: Date.now },
-          last_login: { type: Date, default: Date.now },
-          status: { type: String, default: 'active' },
-          created_at: { type: Date, default: Date.now },
-          updated_at: { type: Date, default: Date.now }
-        });
-        CommonUserModel = mongoose.model('common_users', commonUserSchema);
-      }
+      const CommonUserModel = this.getMongoModel('common_users', commonUserSchema);
       
       // 更新最后登录时间
       const updateData = {
@@ -174,28 +157,13 @@ class UserService {
       return {
         affinity: 0, // 好感度
         interaction_count: 0, // 交互次数
+        total_words: 0, // 总字数
         last_interaction: null // 最后交互时间
       };
     }
     
     try {
-      // AI特定用户数据模型
-      let AIUserModel;
-      try {
-        AIUserModel = mongoose.model('ai_users');
-      } catch (error) {
-        const aiUserSchema = new mongoose.Schema({
-          user_id: { type: String, required: true, unique: true, index: true },
-          affinity: { type: Number, default: 0 }, // 好感度
-          interaction_count: { type: Number, default: 0 }, // 交互次数
-          total_words: { type: Number, default: 0 }, // 总字数
-          last_interaction: { type: Date }, // 最后交互时间
-          preferences: { type: Object, default: {} }, // 用户偏好设置
-          created_at: { type: Date, default: Date.now },
-          updated_at: { type: Date, default: Date.now }
-        });
-        AIUserModel = mongoose.model('ai_users', aiUserSchema);
-      }
+      const AIUserModel = this.getMongoModel('ai_users', aiUserSchema);
       
       let user = await AIUserModel.findOne({ user_id: userId });
       if (!user) {
@@ -245,23 +213,7 @@ class UserService {
     }
     
     try {
-      // AI特定用户数据模型
-      let AIUserModel;
-      try {
-        AIUserModel = mongoose.model('ai_users');
-      } catch (error) {
-        const aiUserSchema = new mongoose.Schema({
-          user_id: { type: String, required: true, unique: true, index: true },
-          affinity: { type: Number, default: 0 },
-          interaction_count: { type: Number, default: 0 },
-          total_words: { type: Number, default: 0 },
-          last_interaction: { type: Date },
-          preferences: { type: Object, default: {} },
-          created_at: { type: Date, default: Date.now },
-          updated_at: { type: Date, default: Date.now }
-        });
-        AIUserModel = mongoose.model('ai_users', aiUserSchema);
-      }
+      const AIUserModel = this.getMongoModel('ai_users', aiUserSchema);
       
       // 更新数据
       const update = {

@@ -10,6 +10,7 @@
 
 import OllamaHandler from './ollama.js';
 import config from '../../../config/ai.js';
+import fetch from 'node-fetch';
 
 class ModelRouter {
     constructor() {
@@ -22,6 +23,8 @@ class ModelRouter {
         };
         // 模型健康状态
         this.modelHealth = new Map();
+        // 支持的视觉模型列表
+        this.visionModels = ['llava', 'bakllava', 'moondream', 'llava-phi3'];
     }
 
     /**
@@ -49,9 +52,14 @@ class ModelRouter {
                 options
             );
             
+            // 更新模型健康状态
+            this.modelHealth.set(model, true);
+            
             return response;
         } catch (error) {
             console.error('[模型路由器] 文本处理失败:', error.message);
+            // 更新模型健康状态
+            this.modelHealth.set(options.model || this.modelConfig.text, false);
             throw error;
         }
     }
@@ -68,18 +76,67 @@ class ModelRouter {
      */
     async processImage(imageUrl, options = {}) {
         try {
-            // 目前返回模拟的图像描述
-            // 在实际实现中，这里可以调用视觉模型处理图像
-            if (imageUrl.startsWith('http') || imageUrl.startsWith('base64:')) {
-                // 对于图像URL，返回通用描述
-                return "这是一张图像，包含一些内容";
+            // 检查是否支持视觉模型
+            const visionModel = this.modelConfig.vision;
+            const isVisionModel = this.visionModels.some(model => 
+                visionModel.toLowerCase().includes(model.toLowerCase())
+            );
+            
+            if (!isVisionModel) {
+                console.warn('[模型路由器] 当前配置的模型不支持图像处理，使用文本模型返回通用描述');
+                return "这是一张图像，但当前配置不支持图像分析功能";
+            }
+            
+            // 下载图像数据
+            let imageData;
+            if (imageUrl.startsWith('http')) {
+                // 从URL下载图像
+                const response = await fetch(imageUrl, {
+                    headers: {
+                        'User-Agent': 'Mozilla/5.0 (compatible; ImageProcessor/1.0)'
+                    }
+                });
+                if (!response.ok) {
+                    throw new Error(`下载图像失败: ${response.statusText}`);
+                }
+                // 检查响应类型是否为图像
+                const contentType = response.headers.get('content-type');
+                if (!contentType || !contentType.startsWith('image/')) {
+                    throw new Error(`URL不指向有效的图像文件: ${contentType}`);
+                }
+                const buffer = await response.buffer();
+                imageData = buffer.toString('base64');
+            } else if (imageUrl.startsWith('base64:')) {
+                // 从base64数据获取图像
+                const base64Data = imageUrl.substring(7); // 移除 "base64:" 前缀
+                imageData = base64Data;
             } else {
                 // 对于文本描述，返回处理结果
                 return `图像描述: ${imageUrl}`;
             }
+            
+            // 构建视觉模型提示
+            const prompt = options.prompt || "请详细描述这张图片的内容，包括场景、人物、物体、颜色和任何文字信息";
+            
+            // 调用视觉模型处理图像
+            const response = await this.ollama.generate(
+                visionModel,
+                prompt,
+                {
+                    ...options,
+                    images: [imageData]
+                }
+            );
+            
+            // 更新模型健康状态
+            this.modelHealth.set(visionModel, true);
+            
+            return response;
         } catch (error) {
             console.error('[模型路由器] 图像处理失败:', error.message);
-            return "图像分析功能暂不可用";
+            // 更新模型健康状态
+            this.modelHealth.set(this.modelConfig.vision, false);
+            return "图像分析功能暂不可用或图像格式不支持";
         }
     }
 
@@ -194,6 +251,21 @@ class ModelRouter {
             health: Object.fromEntries(this.modelHealth),
             lastUpdate: new Date().toISOString()
         };
+    }
+    
+    /**
+     * 设置模型配置
+     * 
+     * 动态更新模型配置
+     * 
+     * @param {object} config - 新的模型配置
+     */
+    setModelConfig(config) {
+        this.modelConfig = {
+            ...this.modelConfig,
+            ...config
+        };
+        console.log('[模型路由器] 更新模型配置:', this.modelConfig);
     }
 }
 

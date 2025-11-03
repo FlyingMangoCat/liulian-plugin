@@ -21,6 +21,10 @@ class OllamaHandler {
         this.isProcessing = false;
         // 请求间隔限制（毫秒）
         this.requestDelay = 1000;
+        // 最大重试次数
+        this.maxRetries = 3;
+        // 超时时间（毫秒）
+        this.timeout = 30000;
     }
 
     /**
@@ -48,7 +52,7 @@ class OllamaHandler {
         };
 
         return new Promise((resolve, reject) => {
-            this.requestQueue.push({ request, resolve, reject });
+            this.requestQueue.push({ request, resolve, reject, retries: 0 });
             this.processQueue();
         });
     }
@@ -67,26 +71,22 @@ class OllamaHandler {
         this.isProcessing = true;
         
         while (this.requestQueue.length > 0) {
-            const { request, resolve, reject } = this.requestQueue.shift();
+            const queueItem = this.requestQueue.shift();
+            const { request, resolve, reject, retries } = queueItem;
             
             try {
-                const response = await fetch(`${this.apiUrl}/generate`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(request)
-                });
-
-                if (!response.ok) {
-                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-                }
-
-                const data = await response.json();
-                resolve(data.response);
+                const response = await this.makeRequest(request);
+                resolve(response);
             } catch (error) {
-                console.error('[Ollama] 请求失败:', error.message);
-                reject(error);
+                // 如果还有重试次数且错误是可重试的，则重新加入队列
+                if (retries < this.maxRetries && this.isRetryableError(error)) {
+                    queueItem.retries++;
+                    this.requestQueue.unshift(queueItem); // 重新放回队列开头
+                    console.warn(`[Ollama] 请求失败，重试第${queueItem.retries}次:`, error.message);
+                } else {
+                    console.error('[Ollama] 请求失败:', error.message);
+                    reject(error);
+                }
             }
 
             // 请求间隔，避免过于频繁
@@ -94,6 +94,62 @@ class OllamaHandler {
         }
 
         this.isProcessing = false;
+    }
+
+    /**
+     * 发送实际的API请求
+     * @param {object} request - 请求对象
+     * @returns {Promise<string>} API返回的响应
+     */
+    async makeRequest(request) {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), this.timeout);
+
+        try {
+            const response = await fetch(`${this.apiUrl}/generate`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(request),
+                signal: controller.signal
+            });
+
+            clearTimeout(timeoutId); // 清除超时定时器
+
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+
+            const data = await response.json();
+            return data.response;
+        } catch (error) {
+            clearTimeout(timeoutId); // 清除超时定时器
+            
+            if (error.name === 'AbortError') {
+                throw new Error('请求超时');
+            }
+            
+            throw error;
+        }
+    }
+
+    /**
+     * 检查错误是否可重试
+     * @param {Error} error - 错误对象
+     * @returns {boolean} 是否可重试
+     */
+    isRetryableError(error) {
+        const retryableMessages = [
+            'timeout',
+            'network',
+            'ECONNRESET',
+            'ECONNREFUSED',
+            'ENOTFOUND'
+        ];
+        
+        const errorMsg = error.message.toLowerCase();
+        return retryableMessages.some(msg => errorMsg.includes(msg));
     }
 
     /**
@@ -116,7 +172,19 @@ class OllamaHandler {
      */
     async checkModel(model) {
         try {
-            const response = await fetch(`${this.apiUrl}/tags`);
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), this.timeout);
+
+            const response = await fetch(`${this.apiUrl}/tags`, {
+                signal: controller.signal
+            });
+            
+            clearTimeout(timeoutId);
+
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+            
             const data = await response.json();
             
             if (data.models) {
@@ -139,7 +207,19 @@ class OllamaHandler {
      */
     async getModels() {
         try {
-            const response = await fetch(`${this.apiUrl}/tags`);
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), this.timeout);
+
+            const response = await fetch(`${this.apiUrl}/tags`, {
+                signal: controller.signal
+            });
+            
+            clearTimeout(timeoutId);
+
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+            
             const data = await response.json();
             
             if (data.models) {

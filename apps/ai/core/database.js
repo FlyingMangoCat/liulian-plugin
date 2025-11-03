@@ -12,6 +12,7 @@
 import pg from 'pg';
 import Redis from 'ioredis';
 import mongoose from 'mongoose';
+import { commonUserSchema, aiUserSchema, memorySchema } from './models.js';
 const { Pool } = pg;
 
 class DatabaseManager {
@@ -26,6 +27,8 @@ class DatabaseManager {
         this.isConnected = false;
         // 当前使用的数据库类型
         this.currentDbType = null;
+        // 缓存的模型引用
+        this.models = {};
     }
 
     /**
@@ -131,6 +134,27 @@ class DatabaseManager {
     }
 
     /**
+     * 获取MongoDB模型
+     * 
+     * 从缓存中获取或创建MongoDB模型
+     * 避免重复创建模型
+     * 
+     * @param {string} modelName - 模型名称
+     * @param {object} schema - 模型Schema
+     * @returns {object} Mongoose模型
+     */
+    getMongoModel(modelName, schema) {
+        if (!this.models[modelName]) {
+            try {
+                this.models[modelName] = mongoose.model(modelName);
+            } catch (error) {
+                this.models[modelName] = mongoose.model(modelName, schema);
+            }
+        }
+        return this.models[modelName];
+    }
+
+    /**
      * 保存用户记忆
      * 
      * 将用户交互内容保存到数据库中
@@ -161,19 +185,7 @@ class DatabaseManager {
             
             // 保存到MongoDB
             if (this.mongoConnected) {
-                // 创建记忆模型（如果不存在）
-                let MemoryModel;
-                try {
-                    MemoryModel = mongoose.model('Memory');
-                } catch (error) {
-                    const memorySchema = new mongoose.Schema({
-                        user_id: { type: String, required: true, index: true },
-                        memory: { type: String, required: true },
-                        category: { type: String, default: 'default' },
-                        created_at: { type: Date, default: Date.now }
-                    });
-                    MemoryModel = mongoose.model('Memory', memorySchema);
-                }
+                const MemoryModel = this.getMongoModel('Memory', memorySchema);
                 
                 const memoryDoc = new MemoryModel({
                     user_id: userId,
@@ -242,19 +254,7 @@ class DatabaseManager {
             }
             // 从MongoDB获取
             else if (this.mongoConnected) {
-                // 创建记忆模型（如果不存在）
-                let MemoryModel;
-                try {
-                    MemoryModel = mongoose.model('Memory');
-                } catch (error) {
-                    const memorySchema = new mongoose.Schema({
-                        user_id: { type: String, required: true, index: true },
-                        memory: { type: String, required: true },
-                        category: { type: String, default: 'default' },
-                        created_at: { type: Date, default: Date.now }
-                    });
-                    MemoryModel = mongoose.model('Memory', memorySchema);
-                }
+                const MemoryModel = this.getMongoModel('Memory', memorySchema);
                 
                 const memoryDocs = await MemoryModel.find({ user_id: userId })
                     .sort({ created_at: -1 })
@@ -311,20 +311,7 @@ class DatabaseManager {
             
             // 从MongoDB删除
             if (this.mongoConnected) {
-                // 创建记忆模型（如果不存在）
-                let MemoryModel;
-                try {
-                    MemoryModel = mongoose.model('Memory');
-                } catch (error) {
-                    const memorySchema = new mongoose.Schema({
-                        user_id: { type: String, required: true, index: true },
-                        memory: { type: String, required: true },
-                        category: { type: String, default: 'default' },
-                        created_at: { type: Date, default: Date.now }
-                    });
-                    MemoryModel = mongoose.model('Memory', memorySchema);
-                }
-                
+                const MemoryModel = this.getMongoModel('Memory', memorySchema);
                 await MemoryModel.deleteMany({ user_id: userId });
             }
             

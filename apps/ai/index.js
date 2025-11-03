@@ -18,6 +18,7 @@ if (!isMiddlewareMode) {
     serviceDetector.checkOllama().then(available => {
         if (available) {
             serviceDetector.startPeriodicCheck();
+            serviceDetector.resetFailureCount(); // 重置失败计数
         } else {
             console.log('[AI模块] AI服务不可用，将禁用AI功能');
         }
@@ -98,7 +99,7 @@ class AIManager {
         // 确保配置结构完整，提供默认值
         return {
             triggers: config.ai?.triggers || {
-                names: ["榴莲", "小莲", "莲莲"],
+                names: ["榴莲", "小莲", "莲莲", "可心"],
                 always_respond_to_mentions: true,
                 always_respond_in_private: true
             },
@@ -230,6 +231,9 @@ class AIManager {
      * @property {string} fallback - 降级回复（如果失败）
      */
     static async processMessage(message, messageType = 'text', userId = null) {
+        // 记录开始时间用于性能监控
+        const startTime = Date.now();
+        
         // 检查服务可用性
         if (!this.isAIAvailable()) {
             return {
@@ -258,7 +262,7 @@ class AIManager {
                         userContext += `【AI好感度:${aiUserData.affinity},交互次数:${aiUserData.interaction_count}】\n\n`;
                     }
                 } catch (userError) {
-                    console.log('[AI模块] 获取用户信息失败，继续无用户信息对话');
+                    console.warn('[AI模块] 获取用户信息失败，继续无用户信息对话:', userError.message);
                 }
             }
 
@@ -271,7 +275,7 @@ class AIManager {
                         memoryContext = `【记忆】${memories.join('; ')}\n\n`;
                     }
                 } catch (memoryError) {
-                    console.log('[AI模块] 获取记忆失败，继续无记忆对话');
+                    console.warn('[AI模块] 获取记忆失败，继续无记忆对话:', memoryError.message);
                 }
             }
 
@@ -296,6 +300,10 @@ class AIManager {
                 config.ai.ollama.model, 
                 fullPrompt
             );
+            
+            // 记录处理时间
+            const processingTime = Date.now() - startTime;
+            console.log(`[AI模块] 消息处理完成，耗时: ${processingTime}ms`);
             
             // 保存交互到记忆
             if (userId && DatabaseManager.isConnected && reply) {
@@ -324,11 +332,13 @@ class AIManager {
                         } else if (replyLength > 20) {
                             await UserService.default.increaseAffinity(userId, 0.5); // 中等回复增加0.5点好感度
                         }
+                        
+                        console.log(`[AI模块] 用户数据更新完成，用户ID: ${userId}`);
                     } catch (userDataError) {
-                        console.log('[AI模块] 更新用户数据失败');
+                        console.warn('[AI模块] 更新用户数据失败:', userDataError.message);
                     }
                 } catch (error) {
-                    console.log('[AI模块] 保存记忆失败');
+                    console.warn('[AI模块] 保存记忆失败:', error.message);
                 }
             }
             
@@ -341,14 +351,17 @@ class AIManager {
             return {
                 success: true,
                 reply: finalReply,
-                raw: reply // 原始回复，用于不同格式处理
+                raw: reply, // 原始回复，用于不同格式处理
+                processingTime: processingTime // 处理时间
             };
         } catch (error) {
+            const processingTime = Date.now() - startTime;
             console.error('[AI处理错误]', error.message);
             return {
                 success: false,
                 error: error.message,
-                fallback: fallbackProcessor.process(message)
+                fallback: fallbackProcessor.process(message),
+                processingTime: processingTime
             };
         }
     }
@@ -393,6 +406,7 @@ class AIManager {
         const available = await serviceDetector.checkOllama();
         if (available) {
             serviceDetector.startPeriodicCheck();
+            serviceDetector.resetFailureCount(); // 重置失败计数
             console.log('[AI模块] AI服务可用');
         } else {
             console.log('[AI模块] AI服务不可用');
@@ -456,10 +470,16 @@ class AIManager {
         const lastPeriod = reply.lastIndexOf('.', maxLength);
         const lastExclamation = reply.lastIndexOf('!', maxLength);
         const lastQuestion = reply.lastIndexOf('?', maxLength);
+        const lastChinesePeriod = reply.lastIndexOf('。', maxLength);
+        const lastChineseExclamation = reply.lastIndexOf('！', maxLength);
+        const lastChineseQuestion = reply.lastIndexOf('？', maxLength);
         
-        const cutPoint = Math.max(lastPeriod, lastExclamation, lastQuestion);
+        // 找到最接近maxLength且在句子结束处的位置
+        const cutPoints = [lastPeriod, lastExclamation, lastQuestion, lastChinesePeriod, lastChineseExclamation, lastChineseQuestion];
+        const validCutPoints = cutPoints.filter(point => point > 0 && point > maxLength * 0.7);
         
-        if (cutPoint > 0 && cutPoint > maxLength * 0.7) {
+        if (validCutPoints.length > 0) {
+            const cutPoint = Math.max(...validCutPoints);
             return reply.substring(0, cutPoint + 1);
         }
         
