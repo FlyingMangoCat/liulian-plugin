@@ -1,6 +1,6 @@
 {
   "name": "liulian-plugin",
-  "version": "0.7.3",
+  "version": "2.0.0",
   "author": "FlyingMangoCat",
   "description": "liulian-plugin",
   "type": "module",
@@ -12,7 +12,10 @@
     "ffmpeg": "^0.0.4",
     "request": "^2.88.2",
     "qrcode": "^1.5.3",
-    "ioredis": "^5.4.1"
+    "ioredis": "^5.4.1",
+    "pg": "^8.16.3",
+    "mongoose": "^8.8.0",
+    "node-fetch": "^3.3.2"
   },
   "devDependencies": {
     "cheerio": "1.0.0-rc.12",

@@ -22,6 +22,11 @@ let app = App.init({
 })
 
 app.reg({
+  zaobao: {
+    reg: "^#*早报$", //匹配消息正则，命令正则
+    priority: 100, //优先级，越小优先度越高
+    describe: "早报", //【命令】功能说明
+  },
   dutang: {
     reg: "^[^-]*毒鸡汤$", //匹配消息正则，命令正则
     priority: 10, //优先级，越小优先度越高
@@ -544,10 +549,35 @@ export async function sentence(e) {
           //发送消息
 		e.reply(msgn);
 
-      }, timeout);
-    }
-  }
-
-
-  return true; //返回true 阻挡消息不再往下
+      }, timeout);
+    }
+  }
+
+
+  return true; //返回true 阻挡消息不再往下
+}
+
+/**
+ * 早报功能
+ * 
+ * 获取每日早报图片并发送
+ * 
+ * @param {object} e - 消息对象
+ * @returns {boolean} 是否处理成功
+ */
+export async function zaobao(e) {
+  try {
+    let url = `https://v2.alapi.cn/api/zaobao?token=17Noc6E1x3kduTdK&format=image`;
+    //https://admin.alapi.cn/account/center
+    let msg = [
+      segment.image(url),
+    ];
+    
+    e.reply(msg);
+    return true;
+  } catch (error) {
+    console.error('[早报] 获取失败:', error);
+    await e.reply("获取早报失败，请稍后再试");
+    return false;
+  }
 }
