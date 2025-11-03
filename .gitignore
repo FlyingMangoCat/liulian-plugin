@@ -1,2 +1,8 @@
 config/
 node_modules/
+AI_MIDDLEWARE_INTEGRATION.txt
+IFLOW.md
+*.log
+*.tmp
+.DS_Store
+Thumbs.db

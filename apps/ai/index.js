@@ -36,18 +36,64 @@ if (!isMiddlewareMode) {
     });
 }
 
+/**
+ * AI管理器类
+ * 
+ * 负责处理所有AI相关功能，包括：
+ * 1. 消息处理和回复生成
+ * 2. 用户记忆管理
+ * 3. 服务状态检测
+ * 4. 配置管理
+ * 5. 概率控制
+ * 
+ * 支持两种运行模式：
+ * - 云崽模式：作为Yunzai-Bot插件运行
+ * - 中间件模式：作为独立服务运行
+ */
 class AIManager {
-    // 添加服务状态检查
+    /**
+     * 检查AI服务是否可用
+     * 
+     * 通过serviceDetector检查Ollama服务状态
+     * 用于决定是否处理用户消息
+     * 
+     * @returns {boolean} AI服务是否可用
+     */
     static isAIAvailable() {
         return serviceDetector.isServiceAvailable();
     }
 
-    // 获取服务状态报告
+    /**
+     * 获取服务状态报告
+     * 
+     * 返回当前AI服务的详细状态信息
+     * 包括Ollama服务、模型可用性等
+     * 
+     * @returns {object} 服务状态报告
+     */
     static getServiceStatus() {
         return serviceDetector.getStatusReport();
     }
 
-    // 添加配置安全检查方法
+    /**
+     * 获取AI配置
+     * 
+     * 返回AI模块的完整配置，包括：
+     * - 触发设置：AI响应触发条件
+     * - 概率设置：私聊和群聊的回复概率
+     * - 回复设置：最大长度和消息间隔
+     * - 黑名单设置：群组回复限制
+     * - 长度限制：回复字符和句子数限制
+     * 
+     * 如果配置项不存在，提供安全的默认值
+     * 
+     * @returns {object} AI配置对象
+     * @property {object} triggers - 触发配置
+     * @property {object} probability - 概率配置
+     * @property {object} reply - 回复配置
+     * @property {object} blacklist - 黑名单配置
+     * @property {object} reply_length - 回复长度限制
+     */
     static getConfig() {
         // 确保配置结构完整，提供默认值
         return {
@@ -76,7 +122,24 @@ class AIManager {
         };
     }
 
-    // 修改概率检查方法，添加黑名单检查
+    /**
+     * 检查是否应该回复消息
+     * 
+     * 根据以下条件决定是否回复：
+     * 1. AI服务是否可用
+     * 2. 消息对象是否存在
+     * 3. 是否在黑名单群组中
+     * 4. 是否为私聊消息
+     * 5. 是否被@提及
+     * 6. 是否包含触发关键词
+     * 7. 随机概率检查
+     * 
+     * @param {object} e - 消息对象
+     * @param {boolean} e.isPrivate - 是否为私聊
+     * @param {boolean} e.at - 是否被@提及
+     * @param {string} e.msg - 消息内容
+     * @returns {boolean} 是否应该回复
+     */
     static shouldReply(e) {
         const safeConfig = this.getConfig();
         
@@ -144,7 +207,28 @@ class AIManager {
         return shouldReply;
     }
 
-    // 统一消息处理方法
+    /**
+     * 统一消息处理方法
+     * 
+     * 处理用户消息的完整流程：
+     * 1. 检查AI服务可用性
+     * 2. 获取用户信息和记忆
+     * 3. 处理特殊消息类型（如图片）
+     * 4. 构建完整提示词
+     * 5. 调用AI模型生成回复
+     * 6. 保存交互到记忆
+     * 7. 更新用户数据
+     * 
+     * @param {string} message - 用户消息内容
+     * @param {string} messageType - 消息类型（text/image）
+     * @param {string|null} userId - 用户ID
+     * @returns {object} 处理结果对象
+     * @property {boolean} success - 处理是否成功
+     * @property {string} reply - AI回复内容
+     * @property {string} raw - 原始回复
+     * @property {string} error - 错误信息（如果失败）
+     * @property {string} fallback - 降级回复（如果失败）
+     */
     static async processMessage(message, messageType = 'text', userId = null) {
         // 检查服务可用性
         if (!this.isAIAvailable()) {
@@ -161,9 +245,17 @@ class AIManager {
             if (userId) {
                 try {
                     const UserService = await import('./core/user.js');
+                    // 获取通用用户等级信息
                     const userLevelInfo = await UserService.default.getUserLevelInfo(userId);
+                    // 获取AI应用特定数据
+                    const aiUserData = await UserService.default.getAIUserData(userId);
+                    
                     if (userLevelInfo) {
-                        userContext = `【用户信息:等级${userLevelInfo.level},角色${userLevelInfo.role},活跃:${userLevelInfo.isActive ? '是' : '否'}】\n\n`;
+                        userContext = `【用户信息:等级${userLevelInfo.level},角色${userLevelInfo.role},活跃:${userLevelInfo.isActive ? '是' : '否'}】\n`;
+                    }
+                    
+                    if (aiUserData) {
+                        userContext += `【AI好感度:${aiUserData.affinity},交互次数:${aiUserData.interaction_count}】\n\n`;
                     }
                 } catch (userError) {
                     console.log('[AI模块] 获取用户信息失败，继续无用户信息对话');
@@ -195,11 +287,7 @@ class AIManager {
             }
 
             // 构建完整提示词
-            const fullPrompt = `${config.ai.system_prompt}
-
-${userContext}${memoryContext}
-
-用户消息: ${message}`;
+            const fullPrompt = `${config.ai.system_prompt}\n\n${userContext}${memoryContext}\n\n用户消息: ${message}`;
 
             console.log('[AI模块] 处理消息，长度:', fullPrompt.length);
             
@@ -216,6 +304,29 @@ ${userContext}${memoryContext}
                         userId, 
                         `用户:「${message.substring(0, 50)}${message.length > 50 ? '...' : ''}」`
                     );
+                    
+                    // 更新AI用户数据（增加交互次数和好感度）
+                    try {
+                        const UserService = await import('./core/user.js');
+                        const aiUserData = await UserService.default.getAIUserData(userId);
+                        
+                        // 增加交互次数
+                        await UserService.default.updateAIUserData(userId, {
+                            interaction_count: aiUserData.interaction_count + 1,
+                            total_words: aiUserData.total_words + (message.length + (reply?.length || 0)),
+                            last_interaction: new Date()
+                        });
+                        
+                        // 根据回复长度增加好感度
+                        const replyLength = reply?.length || 0;
+                        if (replyLength > 50) {
+                            await UserService.default.increaseAffinity(userId, 1); // 长回复增加1点好感度
+                        } else if (replyLength > 20) {
+                            await UserService.default.increaseAffinity(userId, 0.5); // 中等回复增加0.5点好感度
+                        }
+                    } catch (userDataError) {
+                        console.log('[AI模块] 更新用户数据失败');
+                    }
                 } catch (error) {
                     console.log('[AI模块] 保存记忆失败');
                 }

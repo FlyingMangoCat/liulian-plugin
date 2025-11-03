@@ -11,16 +11,34 @@ export async function handleMiddlewareRequest(data) {
     const { message, user_id, message_type = 'text' } = data;
     
     try {
-        // 获取用户信息（如果可用）
-        let userLevelInfo = null;
+        // 确保通用用户存在
         if (user_id) {
-            userLevelInfo = await UserService.getUserLevelInfo(user_id.toString());
+            await UserService.upsertCommonUser(user_id.toString(), {
+                last_interaction: new Date()
+            });
+        }
+        
+        // 获取用户信息（如果可用）
+        let userContext = '';
+        if (user_id) {
+            // 获取通用用户等级信息
+            const userLevelInfo = await UserService.getUserLevelInfo(user_id.toString());
+            // 获取AI应用特定数据
+            const aiUserData = await UserService.getAIUserData(user_id.toString());
+            
+            if (userLevelInfo) {
+                userContext += `[用户等级:${userLevelInfo.level}][角色:${userLevelInfo.role}]`;
+            }
+            
+            if (aiUserData) {
+                userContext += `[AI好感度:${aiUserData.affinity}]`;
+            }
         }
         
         // 构建增强的上下文信息
         let enhancedMessage = message;
-        if (userLevelInfo) {
-            enhancedMessage = `[用户等级:${userLevelInfo.level}][角色:${userLevelInfo.role}] ${message}`;
+        if (userContext) {
+            enhancedMessage = `${userContext} ${message}`;
         }
         
         const reply = await AIManager.generalChat(

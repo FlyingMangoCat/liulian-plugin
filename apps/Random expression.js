@@ -6,7 +6,7 @@ import co from '../tools/common-black.js'
 const __dirname = path.resolve();
 const hmd_userqq = []; //对于某用户黑名单 ,隔开
 const bmd_GroupQQ = [931286774]; //不需要使用的群的黑名单 ,隔开
-const 随机表情_path ='plugins/liulian-plugin/resources/自定义表情/expression/自定义表情'
+const 随机表情_path = 'plugins/liulian-plugin/resources/自定义表情/expression/自定义表情';
 let source={}
 const settings = {
     // 表情包文件存放路径
@@ -24,7 +24,7 @@ export const rule = {
       describe: "",
     },
 	random: {
-    reg: "noCheck",
+    reg: "(.*)",
     priority: 59,
     describe: "概率随机发送表情包",  
     },

@@ -1124,10 +1124,10 @@ yl21: {
        priority: 100, 
        describe: "", 
     },
-  ai: {
-    reg: "(.*)", // 匹配所有消息
-    priority: 1000, // 优先级
-    describe: "AI自动回复", // 功能说明
+  ai: {
+    reg: "(.*)", // 匹配所有消息
+    priority: 1000, // 优先级
+    describe: "AI自动回复", // 功能说明
   },
    ai_reset_memory: {
         reg: "^#榴莲重置记忆\\s*@?(\\d+)", // 匹配 #榴莲重置记忆@123456 或 #榴莲重置记忆 123456

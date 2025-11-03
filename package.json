@@ -1,10 +1,12 @@
 {
   "name": "liulian-plugin",
-  "version": "0.9.4",
+  "version": "0.9.5",
   "author": "FlyingMangoCat",
   "description": "liulian-plugin",
   "type": "module",
   "scripts": {
+    "push": "node scripts/auto-push.js",
+    "postupdate": "node scripts/auto-push.js"
   },
   "dependencies": {
     "image-size": "^1.0.2",

@@ -26,7 +26,7 @@ export const rule = {
     describe: "【#竞猜】「派蒙的十万个为什么」题库", //【命令】功能说明
   },
   answerCheck: {
-    reg: "noCheck",
+    reg: "(.*)",
     priority: 5,
     describe: "",
   },

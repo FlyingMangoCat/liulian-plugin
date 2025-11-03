@@ -218,9 +218,9 @@ export async function updateLiulianPlugin (e) {
     return true
   }
   let isForce = e.msg.includes('强制')
-  let command = 'git  pull'
+  let command = 'git pull'
   if (isForce) {
-    command = 'git  checkout . && git  pull'
+    command = 'git checkout . && git pull'
     e.reply('正在执行强制更新操作，请稍等')
   } else {
     e.reply('正在执行更新操作，请稍等')
@@ -236,10 +236,13 @@ export async function updateLiulianPlugin (e) {
     }
     e.reply('插件更新成功，正在尝试重新启动Yunzai以应用更新...')
     timer && clearTimeout(timer)
-    redis.set('liulian:restart-msg', JSON.stringify({
-      msg: '重启成功，新版插件已经生效',
-      qq: e.user_id
-    }), { EX: 30 })
+    // 修复：检查redis是否存在
+    if (typeof redis !== 'undefined') {
+      redis.set('liulian:restart-msg', JSON.stringify({
+        msg: '重启成功，新版插件已经生效',
+        qq: e.user_id
+      }), { EX: 30 })
+    }
     timer = setTimeout(function () {
       let command = 'npm run start'
       if (process.argv[1].includes('pm2')) {
