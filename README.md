@@ -18,13 +18,13 @@
 
 #### 使用gitee安装
 ```
-git clone https://gitee.com/huifeidemangguomao/liulian-plugin.git ./plugins/liulian-plugin/
+git clone -b liulian2.0 https://gitee.com/huifeidemangguomao/liulian-plugin.git ./plugins/liulian-plugin/
 pnpm install -P
 ``` 
 
 #### 使用github安装 
 ```
-git clone https://github.com/flyingmangocat/liulian-plugin.git ./plugins/liulian-plugin/
+git clone -b liulian2.0 https://github.com/flyingmangocat/liulian-plugin.git ./plugins/liulian-plugin/
 pnpm install -P
 ```
 
