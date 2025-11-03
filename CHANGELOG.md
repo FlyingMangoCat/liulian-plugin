@@ -1,3 +1,10 @@
+# 0.9.7
+
+* 清理apps目录下的冗余代码/文件
+* 移除未使用的replace.js文件
+* 优化早报功能实现，将函数从morningpaper.js整合到manyfunctions.js
+* 删除冗余的morningpaper.js文件
+
 # 0.9.6
 
 * ⚠️ **重要提示：请谨慎更新，本次更新涉及文件结构调整**
