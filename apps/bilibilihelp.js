@@ -4,7 +4,7 @@ import { Cfg, Common } from '../components/index.js';
 import {
 	currentVersion,
 	changelogs
-} from "../components/Changelog (2).js";
+} from "../components/BilibiliChangelog.js";
 
 const _path = process.cwd();
 const helpPath = `${_path}/plugins/liulian-plugin/resources/bilibilihelp`;

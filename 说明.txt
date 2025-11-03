@@ -41,7 +41,7 @@ Liulian-Plugin需要最新版本的Yunzai-Bot
 ## 配置与数据
 
 *   **配置**: `model/config/` 目录下存放配置文件。
-*   **数据**: `components/Data.js`, `components/Data2.js` 用于数据处理。使用 Redis (`ioredis`) 存储插件信息等。
+*   **数据**: `components/Data.js` 用于数据处理。使用 Redis (`ioredis`) 存储插件信息等。
 *   **资源**: `resources/` 目录包含图片、表情包、渲染模板等静态资源。
 
 ## 构建与运行

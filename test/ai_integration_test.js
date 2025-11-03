@@ -3,9 +3,9 @@
  * 用于验证用户系统集成是否正常工作
  */
 
-import { AIManager } from './apps/ai/index.js';
-import UserService from './apps/ai/core/user.js';
-import DatabaseManager from './apps/ai/core/databaseNew.js';
+import { AIManager } from '../apps/ai/index.js';
+import UserService from '../apps/ai/core/user.js';
+import DatabaseManager from '../apps/ai/core/database.js';
 
 // 测试函数
 async function runIntegrationTest() {
