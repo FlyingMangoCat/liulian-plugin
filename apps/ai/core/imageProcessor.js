@@ -5,7 +5,8 @@ import config from '../../../config/ai.js';
 class ImageProcessor {
   constructor() {
     this.ollama = new OllamaHandler(config.ai.ollama.api_url);
-    this.model = config.ai.ollama.models.vision;
+    // 使用配置中的模型，如果不存在则使用默认视觉模型
+    this.model = config.ai.ollama.vision_model || config.ai.ollama.model || 'llava:7b';
   }
 
   // 简化的图片处理流程

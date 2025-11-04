@@ -10,6 +10,8 @@ export default {
     ollama: {
       api_url: process.env.OLLAMA_API_URL || 'http://localhost:11434',
       model: process.env.OLLAMA_MODEL || 'llama3.1:8b',
+      vision_model: process.env.OLLAMA_VISION_MODEL || 'llava:7b',
+      code_model: process.env.OLLAMA_CODE_MODEL || 'deepseek-coder:6.7b'
     },
     
     // 系统提示词

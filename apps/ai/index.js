@@ -1,27 +1,32 @@
-import { OllamaHandler } from './ollama.js';
-import { ModelRouter } from './core/modelRouter.js';
-import serviceDetector from './core/serviceDetector.js';
-import fallbackProcessor from './core/fallbackProcessor.js';
-import DatabaseManager from './core/database.js';
-import config from '../../config/ai.js';
-
-// 环境检测
-const isMiddlewareMode = process.env.LIULIAN_MODE === 'middleware';
-
-// 初始化服务
-const ollama = new OllamaHandler(config.ai.ollama.api_url);
-const modelRouter = new ModelRouter();
-
-// 服务初始化
-if (!isMiddlewareMode) {
-    // 云崽模式下才自动初始化服务
-    serviceDetector.checkOllama().then(available => {
-        if (available) {
-            serviceDetector.startPeriodicCheck();
-        } else {
-            console.log('[AI模块] AI服务不可用，将禁用AI功能');
-        }
-    });
+import { OllamaHandler } from './ollama.js';
+import { ModelRouter } from './core/modelRouter.js';
+import serviceDetector from './core/serviceDetector.js';
+import fallbackProcessor from './core/fallbackProcessor.js';
+import DatabaseManager from './core/database.js';
+import ApiKeyManager from './core/apiKeyManager.js';
+import config from '../../config/ai.js';
+
+// 环境检测
+const isMiddlewareMode = process.env.LIULIAN_MODE === 'middleware';
+
+// 初始化服务
+const ollama = new OllamaHandler(config.ai.ollama.api_url);
+const modelRouter = new ModelRouter();
+
+// 服务初始化
+if (!isMiddlewareMode) {
+    // 云崽模式下才自动初始化服务
+    serviceDetector.checkOllama().then(available => {
+        if (available) {
+            // 更新Ollama Handler的baseURL
+            if (serviceDetector.ollamaBaseUrl) {
+                ollama.updateBaseUrl(serviceDetector.ollamaBaseUrl);
+            }
+            serviceDetector.startPeriodicCheck();
+        } else {
+            console.log('[AI模块] AI服务不可用，将禁用AI功能');
+        }
+    });
     
     // 启动数据库连接
     console.log('[AI模块] 初始化数据库连接');
@@ -34,45 +39,57 @@ if (!isMiddlewareMode) {
     DatabaseManager.connect().then(() => {
         console.log('[AI模块] 数据库连接状态:', DatabaseManager.isConnected);
     });
-}
-
-/**
- * AI管理器类
- * 
- * 负责处理所有AI相关功能，包括：
- * 1. 消息处理和回复生成
- * 2. 用户记忆管理
- * 3. 服务状态检测
- * 4. 配置管理
- * 5. 概率控制
- * 
- * 支持两种运行模式：
- * - 云崽模式：作为Yunzai-Bot插件运行
- * - 中间件模式：作为独立服务运行
- */
-class AIManager {
-    /**
-     * 检查AI服务是否可用
-     * 
-     * 通过serviceDetector检查Ollama服务状态
-     * 用于决定是否处理用户消息
-     * 
-     * @returns {boolean} AI服务是否可用
-     */
-    static isAIAvailable() {
-        return serviceDetector.isServiceAvailable();
-    }
-
-    /**
-     * 获取服务状态报告
-     * 
-     * 返回当前AI服务的详细状态信息
-     * 包括Ollama服务、模型可用性等
-     * 
-     * @returns {object} 服务状态报告
-     */
-    static getServiceStatus() {
-        return serviceDetector.getStatusReport();
+    
+    // 初始化API密钥管理器
+    console.log('[AI模块] 初始化API密钥管理器');
+}
+
+/**
+ * AI管理器类
+ * 
+ * 负责处理所有AI相关功能，包括：
+ * 1. 消息处理和回复生成
+ * 2. 用户记忆管理
+ * 3. 服务状态检测
+ * 4. 配置管理
+ * 5. 概率控制
+ * 
+ * 支持两种运行模式：
+ * - 云崽模式：作为Yunzai-Bot插件运行
+ * - 中间件模式：作为独立服务运行
+ */
+class AIManager {
+    /**
+     * 检查AI服务是否可用
+     * 
+     * 通过serviceDetector检查Ollama服务状态
+     * 用于决定是否处理用户消息
+     * 
+     * @returns {boolean} AI服务是否可用
+     */
+    static isAIAvailable() {
+        return serviceDetector.isServiceAvailable();
+    }
+
+    /**
+     * 检查是否是局域网连接
+     * 
+     * @returns {boolean} 是否连接到局域网AI服务
+     */
+    static isLocalNetworkConnection() {
+        return serviceDetector.isLocalNetwork;
+    }
+
+    /**
+     * 获取服务状态报告
+     * 
+     * 返回当前AI服务的详细状态信息
+     * 包括Ollama服务、模型可用性等
+     * 
+     * @returns {object} 服务状态报告
+     */
+    static getServiceStatus() {
+        return serviceDetector.getStatusReport();
     }
 
     /**
@@ -218,10 +235,12 @@ class AIManager {
      * 5. 调用AI模型生成回复
      * 6. 保存交互到记忆
      * 7. 更新用户数据
+     * 8. 记录使用量和计费
      * 
      * @param {string} message - 用户消息内容
      * @param {string} messageType - 消息类型（text/image）
      * @param {string|null} userId - 用户ID
+     * @param {string|null} apiKey - API密钥（可选，用于计费）
      * @returns {object} 处理结果对象
      * @property {boolean} success - 处理是否成功
      * @property {string} reply - AI回复内容
@@ -229,7 +248,7 @@ class AIManager {
      * @property {string} error - 错误信息（如果失败）
      * @property {string} fallback - 降级回复（如果失败）
      */
-    static async processMessage(message, messageType = 'text', userId = null) {
+    static async processMessage(message, messageType = 'text', userId = null, apiKey = null) {
         // 检查服务可用性
         if (!this.isAIAvailable()) {
             return {
@@ -292,10 +311,34 @@ class AIManager {
             console.log('[AI模块] 处理消息，长度:', fullPrompt.length);
             
             // 调用模型生成回复
+            const startTime = Date.now();
             const reply = await ollama.generate(
                 config.ai.ollama.model, 
                 fullPrompt
             );
+            const processingTime = Date.now() - startTime;
+            
+            // 估算token数量（简化估算：1个token约等于4个字符）
+            const inputTokens = Math.ceil(fullPrompt.length / 4);
+            const outputTokens = Math.ceil(reply?.length / 4 || 0);
+            
+            // 如果提供了API密钥，记录使用量和计费
+            if (apiKey) {
+                try {
+                    const chargingSuccess = await ApiKeyManager.recordUsage(
+                        apiKey,
+                        config.ai.ollama.model,
+                        inputTokens,
+                        outputTokens
+                    );
+                    
+                    if (!chargingSuccess) {
+                        console.warn('[AI模块] API计费记录失败，但继续处理请求');
+                    }
+                } catch (chargeError) {
+                    console.warn('[AI模块] API计费过程中发生错误:', chargeError.message);
+                }
+            }
             
             // 保存交互到记忆
             if (userId && DatabaseManager.isConnected && reply) {
@@ -341,7 +384,13 @@ class AIManager {
             return {
                 success: true,
                 reply: finalReply,
-                raw: reply // 原始回复，用于不同格式处理
+                raw: reply, // 原始回复，用于不同格式处理
+                stats: {
+                    inputTokens: inputTokens,
+                    outputTokens: outputTokens,
+                    totalTokens: inputTokens + outputTokens,
+                    processingTime: processingTime
+                }
             };
         } catch (error) {
             console.error('[AI处理错误]', error.message);
@@ -467,7 +516,11 @@ class AIManager {
         return reply.substring(0, maxLength - 3) + '...';
     }
 
-    // 重置用户记忆方法（管理员功能）
+    /**
+     * 重置用户记忆方法（管理员功能）
+     * @param {string} userId - 用户ID
+     * @returns {Promise<string>} 操作结果
+     */
     static async resetUserMemory(userId) {
         if (!DatabaseManager.isConnected) {
             return "数据库未连接，无法重置记忆";
@@ -481,6 +534,114 @@ class AIManager {
         } catch (error) {
             console.error('[AI模块] 重置记忆失败:', error);
             return `❌ 重置记忆时发生错误: ${error.message}`;
+        }
+    }
+
+    /**
+     * 创建API密钥（管理员功能）
+     * @param {string} userId - 用户ID
+     * @param {string} name - 密钥名称
+     * @param {number} usageLimit - 使用限制
+     * @returns {Promise<Object>} API密钥信息
+     */
+    static async createApiKey(userId, name, usageLimit = 1000000) {
+        try {
+            const apiKey = await ApiKeyManager.createApiKey(userId, name, usageLimit);
+            return {
+                success: true,
+                data: apiKey
+            };
+        } catch (error) {
+            console.error('[AI模块] 创建API密钥失败:', error);
+            return {
+                success: false,
+                error: error.message
+            };
+        }
+    }
+
+    /**
+     * 获取用户API密钥列表
+     * @param {string} userId - 用户ID
+     * @returns {Promise<Object>} API密钥列表
+     */
+    static async getUserApiKeys(userId) {
+        try {
+            const keys = await ApiKeyManager.getUserApiKeys(userId);
+            return {
+                success: true,
+                data: keys
+            };
+        } catch (error) {
+            console.error('[AI模块] 获取API密钥列表失败:', error);
+            return {
+                success: false,
+                error: error.message
+            };
+        }
+    }
+
+    /**
+     * 删除API密钥
+     * @param {string} userId - 用户ID
+     * @param {string} keyId - 密钥ID
+     * @returns {Promise<Object>} 删除结果
+     */
+    static async deleteApiKey(userId, keyId) {
+        try {
+            const success = await ApiKeyManager.deleteApiKey(userId, keyId);
+            return {
+                success: success,
+                message: success ? 'API密钥删除成功' : 'API密钥删除失败'
+            };
+        } catch (error) {
+            console.error('[AI模块] 删除API密钥失败:', error);
+            return {
+                success: false,
+                error: error.message
+            };
+        }
+    }
+
+    /**
+     * 获取用户使用统计
+     * @param {string} userId - 用户ID
+     * @returns {Promise<Object>} 使用统计信息
+     */
+    static async getUserUsage(userId) {
+        try {
+            const usage = await ApiKeyManager.getUserUsage(userId);
+            return {
+                success: true,
+                data: usage
+            };
+        } catch (error) {
+            console.error('[AI模块] 获取用户使用统计失败:', error);
+            return {
+                success: false,
+                error: error.message
+            };
+        }
+    }
+
+    /**
+     * 验证API密钥
+     * @param {string} apiKey - API密钥
+     * @returns {Promise<Object>} 验证结果
+     */
+    static async validateApiKey(apiKey) {
+        try {
+            const keyInfo = await ApiKeyManager.validateApiKey(apiKey);
+            return {
+                success: !!keyInfo,
+                data: keyInfo
+            };
+        } catch (error) {
+            console.error('[AI模块] 验证API密钥失败:', error);
+            return {
+                success: false,
+                error: error.message
+            };
         }
     }
 }

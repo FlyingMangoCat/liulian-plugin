@@ -6,7 +6,8 @@
   "type": "module",
   "scripts": {
     "push": "node scripts/auto-push.js",
-    "postupdate": "node scripts/auto-push.js"
+    "postupdate": "node scripts/auto-push.js",
+    "api-server": "node apps/ai/server.js"
   },
   "dependencies": {
     "image-size": "^1.0.2",
@@ -15,7 +16,12 @@
     "request": "^2.88.2",
     "qrcode": "^1.5.3",
     "ioredis": "^5.4.1",
-    "pg": "^8.16.3"
+    "pg": "^8.16.3",
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "body-parser": "^1.20.2",
+    "mongoose": "^8.0.0",
+    "node-fetch": "^3.3.2"
   },
   "devDependencies": {
     "cheerio": "1.0.0-rc.12",

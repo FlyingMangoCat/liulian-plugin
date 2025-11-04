@@ -8,6 +8,15 @@ import UserService from './ai/core/user.js'
 
 // 导出中间件模式下的处理函数
 export async function handleMiddlewareRequest(data) {
+    // 检查AI功能是否启用
+    if (!Cfg.get('sys.ai_enable', true)) {
+        console.log('[榴莲AI] AI功能已关闭，不处理消息');
+        return {
+            success: false,
+            error: 'AI功能已关闭'
+        };
+    }
+    
     const { message, user_id, message_type = 'text' } = data;
     
     try {
@@ -101,7 +110,13 @@ export async function ai(e) {
   
   console.log('[榴莲AI] 函数被调用，消息类型:', e.message ? e.message[0]?.type : 'text');
   
-  // 1. 基础检查
+  // 1. 检查AI功能是否启用
+  if (!Cfg.get('sys.ai_enable', true)) {
+    console.log('[榴莲AI] AI功能已关闭，不处理消息');
+    return;
+  }
+  
+  // 2. 基础检查
   if (e.user_id === e.self_id) {
     console.log('[榴莲AI] 忽略自身消息');
     return;

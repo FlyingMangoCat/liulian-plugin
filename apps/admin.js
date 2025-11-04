@@ -4,25 +4,26 @@ import lodash from 'lodash'
 import { exec } from 'child_process'
 import Common from '../components/Common.js'
 
-let cfgMap = {
-  渲染: 'sys.scale',
-  帮助: 'sys.help',
-  随机表情: 'sys.bq',
-  打卡: 'sys.dk',
-  群名片: 'sys.qmp',
-  打我: 'sys.dw',
-  设置: 'aysCfgReg',
-  娶群友CD:'sys.wife',
-  伪造信息:'sys.forge',
-  群友强制休息: 'sys.xx',
-  小黑子: 'sys.jtm',
-  随机概率:'sys.gl',
-  表情图库:'sys.expression',
-  娶群友:'sys.qqy',
-  群聊闭嘴限制:'sys.limit',
-  群聊闭嘴:'sys.shutup',
-  插件名:'sys.PiuginName',
-  购买提示:'sys.aits',
+let cfgMap = {
+  渲染: 'sys.scale',
+  帮助: 'sys.help',
+  随机表情: 'sys.bq',
+  打卡: 'sys.dk',
+  群名片: 'sys.qmp',
+  打我: 'sys.dw',
+  设置: 'aysCfgReg',
+  娶群友CD:'sys.wife',
+  伪造信息:'sys.forge',
+  群友强制休息: 'sys.xx',
+  小黑子: 'sys.jtm',
+  随机概率:'sys.gl',
+  表情图库:'sys.expression',
+  娶群友:'sys.qqy',
+  群聊闭嘴限制:'sys.limit',
+  群聊闭嘴:'sys.shutup',
+  插件名:'sys.PiuginName',
+  购买提示:'sys.aits',
+  AI功能:'sys.ai_enable',
 }
 let sysCfgReg = `^#榴莲设置\\s*(${lodash.keys(cfgMap).join('|')})?\\s*(.*)$`
 export const rule = {
@@ -96,25 +97,26 @@ export async function sysCfg (e, { render }) {
     }
   }
 
-  let cfg = {
-    help: getStatus('sys.help', false),
-    bq: getStatus('sys.bq', true),
-    dk: getStatus('sys.dk', true),
-    dw: getStatus('sys.dw', true),
-    qmp: getStatus('sys.qmp', true),
-    wife: Cfg.get('sys.wife', 1),
-    imgPlus: fs.existsSync(imgPath),
-    xx: getStatus('sys.xx', true),
-    forge: getStatus('sys.forge', true),
-    jtm: getStatus('sys.jtm', true),
-    qqy: getStatus('sys.qqy', true),
-    expression: Cfg.get('sys.expression', 1),
-    gl: Cfg.get('sys.gl', 5),
-    scale: Cfg.get('sys.scale', 100),
-    limit: Cfg.get('sys.limit', 0),
-    shutup: getStatus('sys.shutup', false),
-    PluginName: Cfg.get('sys.PluginName', 1),
-    aits: getStatus('sys.aits', true),
+  let cfg = {
+    help: getStatus('sys.help', false),
+    bq: getStatus('sys.bq', true),
+    dk: getStatus('sys.dk', true),
+    dw: getStatus('sys.dw', true),
+    qmp: getStatus('sys.qmp', true),
+    wife: Cfg.get('sys.wife', 1),
+    imgPlus: fs.existsSync(imgPath),
+    xx: getStatus('sys.xx', true),
+    forge: getStatus('sys.forge', true),
+    jtm: getStatus('sys.jtm', true),
+    qqy: getStatus('sys.qqy', true),
+    expression: Cfg.get('sys.expression', 1),
+    gl: Cfg.get('sys.gl', 5),
+    scale: Cfg.get('sys.scale', 100),
+    limit: Cfg.get('sys.limit', 0),
+    shutup: getStatus('sys.shutup', false),
+    PluginName: Cfg.get('sys.PluginName', 1),
+    aits: getStatus('sys.aits', true),
+    ai_enable: getStatus('sys.ai_enable', true),
   }
 
   // 渲染图像

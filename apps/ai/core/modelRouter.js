@@ -22,8 +22,8 @@ class ModelRouter {
         // 解析模型名称（确保使用实际可用的名称）
         this.models = {
             general: this.resolveModelName(config.ai.ollama.model),
-            code: this.resolveModelName(config.ai.ollama.models.code),
-            vision: this.resolveModelName(config.ai.ollama.models.vision)
+            code: this.resolveModelName(config.ai.ollama.code_model || 'deepseek-coder:6.7b'),
+            vision: this.resolveModelName(config.ai.ollama.vision_model)
         };
         
         console.log('[ModelRouter] 解析后的模型配置:', this.models);
