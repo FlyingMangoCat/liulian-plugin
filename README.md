@@ -25,25 +25,6 @@ git clone https://github.com/flyingmangocat/liulian-plugin.git ./plugins/liulian
 pnpm install -P
 ```
 
-### **AI API服务**
-
-榴莲插件现在提供独立的AI API服务，支持RESTful API接口访问AI功能。
-
-#### 启动API服务器
-```bash
-npm run api-server
-```
-
-或直接运行:
-```bash
-node apps/ai/server.js
-```
-
-API服务器默认监听3000端口，可通过`AI_API_PORT`环境变量修改。
-
-#### API文档
-详细API文档请查看 [API_DOCS.md](apps/ai/API_DOCS.md)
-
 ### **参与贡献**
 | Nickname                                                     | Contribution                        |
 | :----------------------------------------------------------: | ----------------------------------- |
