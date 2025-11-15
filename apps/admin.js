@@ -125,52 +125,78 @@ export async function sysCfg (e, { render }) {
   }, { e, render, scale: 1.4 })
 }
 
+/**
+ * 获取状态显示
+ * @param {string} rote - 配置路径
+ * @param {boolean} def - 默认值
+ * @returns {string} HTML状态标签
+ */
 const getStatus = function (rote, def = true) {
   if (Cfg.get(rote, def)) {
-    return '<div class="cfg-status" >已开启</div>'
+    return '<div class="cfg-status" >已开启</div>';
   } else {
-    return '<div class="cfg-status status-off">已关闭</div>'
+    return '<div class="cfg-status status-off">已关闭</div>';
   }
-}
+};
 
-export async function updateRes (e) {
-  if (!e.isMaster) {
-   e.reply('只有主人才能命令榴莲哦~')
-   return true
+/**
+ * 更新资源函数
+ * @param {Object} e - 事件对象
+ * @returns {Promise<boolean>}
+ */
+export async function updateRes(e) {
+  try {
+    if (!e.isMaster) {
+      e.reply('只有主人才能命令榴莲哦~');
+      return true;
+    }
+
+    const command = fs.existsSync(`${resPath}/liulian-res-plus/`) ? 'git pull' : 
+      `git clone https://gitee.com/huifeidemangguomao/liulian-res-plus.git "${resPath}/liulian-res-plus/"`;
+
+    if (fs.existsSync(`${resPath}/liulian-res-plus/`)) {
+      e.reply('开始尝试更新，请耐心等待~');
+      exec(command, { cwd: `${resPath}/liulian-res-plus/` }, function (error, stdout, stderr) {
+        console.log(stdout);
+        if (/(Already up[ -]to[ -]date|已经是最新的)/.test(stdout)) {
+          e.reply('目前所有图片都已经是最新了~');
+          return;
+        }
+        const numRet = /(\d*) files changed,/.exec(stdout);
+        if (numRet && numRet[1]) {
+          e.reply(`报告主人，更新了${numRet[1]}个图片~`);
+          return;
+        }
+        if (error) {
+          e.reply('更新失败！
+Error code: ' + error.code + '
+' + error.stack + '
+ 请稍后重试。');
+          console.error('更新资源失败:', error);
+        } else {
+          e.reply('图片加量包更新成功~');
+        }
+      });
+    } else {
+      e.reply('开始尝试安装图片加量包，可能会需要一段时间，请耐心等待~');
+      exec(command, function (error, stdout, stderr) {
+        if (error) {
+          e.reply('图片加量包安装失败！
+Error code: ' + error.code + '
+' + error.stack + '
+ 请稍后重试。');
+          console.error('安装资源失败:', error);
+        } else {
+          e.reply('图片加量包安装成功！您后续也可以通过 #榴莲更新图像 命令来更新图像');
+        }
+      });
+    }
+    return true;
+  } catch (error) {
+    console.error('更新资源函数出错:', error);
+    e.reply('更新资源功能出现错误，请稍后重试或联系开发者。');
+    return false;
   }
-  let command = ''
-  if (fs.existsSync(`${resPath}/liulian-res-plus/`)) {
-    e.reply('开始尝试更新，请耐心等待~')
-    command = 'git pull'
-    exec(command, { cwd: `${resPath}/liulian-res-plus/` }, function (error, stdout, stderr) {
-      console.log(stdout)
-      if (/(Already up[ -]to[ -]date|已经是最新的)/.test(stdout)) {
-        e.reply('目前所有图片都已经是最新了~')
-        return true
-      }
-      let numRet = /(\d*) files changed,/.exec(stdout)
-      if (numRet && numRet[1]) {
-        e.reply(`报告主人，更新成功，此次更新了${numRet[1]}个图片~`)
-        return true
-      }
-      if (error) {
-        e.reply('更新失败！\nError code: ' + error.code + '\n' + error.stack + '\n 请稍后重试。')
-      } else {
-        e.reply('图片加量包更新成功~')
-      }
-    })
-  } else {
-    command = `git clone https://gitee.com/huifeidemangguomao/liulian-res-plus.git "${resPath}/liulian-res-plus/"`
-    e.reply('开始尝试安装图片加量包，可能会需要一段时间，请耐心等待~')
-    exec(command, function (error, stdout, stderr) {
-      if (error) {
-        e.reply('图片加量包安装失败！\nError code: ' + error.code + '\n' + error.stack + '\n 请稍后重试。')
-      } else {
-        e.reply('图片加量包安装成功！您后续也可以通过 #榴莲更新图像 命令来更新图像')
-      }
-    })
-  }
-  return true
 }
 export async function cj (e) {
   if (!e.isMaster) {
@@ -214,56 +240,70 @@ export async function cj (e) {
 
 let timer
 
-export async function updateLiulianPlugin (e) {
-  if (!e.isMaster) {
-    e.reply('只有主人才能命令榴莲哦~')
-    return true
-  }
-  let isForce = e.msg.includes('强制')
-  let command = 'git pull'
-  if (isForce) {
-    command = 'git checkout . && git pull'
-    e.reply('正在执行强制更新操作，请稍等')
-  } else {
-    e.reply('正在执行更新操作，请稍等')
-  }
-  exec(command, { cwd: `${_path}/plugins/liulian-plugin/` }, function (error, stdout, stderr) {
-    if (/(Already up[ -]to[ -]date|已经是最新的)/.test(stdout)) {
-      e.reply('目前已经是最新版了哦~')
+/**
+ * 更新榴莲插件函数
+ * @param {Object} e - 事件对象
+ * @returns {Promise<boolean>}
+ */
+export async function updateLiulianPlugin(e) {
+  try {
+    if (!e.isMaster) {
+      e.reply('只有主人才能命令榴莲哦~')
       return true
     }
-    if (error) {
-      e.reply('榴莲更新失败！\nError code: ' + error.code + '\n' + error.stack + '\n 请稍后重试。')
-      return true
+
+    const isForce = e.msg.includes('强制')
+    let command = 'git pull'
+    if (isForce) {
+      command = 'git checkout . && git pull'
+      e.reply('正在执行强制更新操作，请稍等')
+    } else {
+      e.reply('正在执行更新操作，请稍等')
     }
-    e.reply('插件更新成功，正在尝试重新启动Yunzai以应用更新...')
-    timer && clearTimeout(timer)
-    // 修复：检查redis是否存在
-    if (typeof redis !== 'undefined') {
-      redis.set('liulian:restart-msg', JSON.stringify({
-        msg: '重启成功，新版插件已经生效',
-        qq: e.user_id
-      }), { EX: 30 })
-    }
-    timer = setTimeout(function () {
-      let command = 'npm run start'
-      if (process.argv[1].includes('pm2')) {
-        command = 'npm run restart'
+
+    exec(command, { cwd: `${_path}/plugins/liulian-plugin/` }, function (error, stdout, stderr) {
+      if (/(Already up[ -]to[ -]date|已经是最新的)/.test(stdout)) {
+        e.reply('目前已经是最新版了哦~')
+        return
       }
-      exec(command, function (error, stdout, stderr) {
-        if (error) {
-          e.reply('自动重启失败，请手动重启以应用新版插件。\nError code: ' + error.code + '\n' + error.stack + '\n')
-          Bot.logger.error(`重启失败\n${error.stack}`)
-          return true
-        } else if (stdout) {
-          Bot.logger.mark('重启成功，运行已转为后台，查看日志请用命令：npm run log')
-          Bot.logger.mark('停止后台运行命令：npm stop')
-          process.exit()
+      if (error) {
+        e.reply('榴莲更新失败！\nError code: ' + error.code + '\n' + error.stack + '\n 请稍后重试。')
+        console.error('插件更新失败:', error)
+        return
+      }
+      e.reply('插件更新成功，正在尝试重新启动Yunzai以应用更新...')
+      timer && clearTimeout(timer)
+      // 修复：检查redis是否存在
+      if (typeof redis !== 'undefined') {
+        redis.set('liulian:restart-msg', JSON.stringify({
+          msg: '重启成功，新版插件已经生效',
+          qq: e.user_id
+        }), { EX: 30 })
+      }
+      timer = setTimeout(function () {
+        let command = 'npm run start'
+        if (process.argv[1].includes('pm2')) {
+          command = 'npm run restart'
         }
-      })
-    }, 1000)
-  })
-  return true
+        exec(command, function (error, stdout, stderr) {
+          if (error) {
+            e.reply('自动重启失败，请手动重启以应用新版插件。\nError code: ' + error.code + '\n' + error.stack + '\n')
+            Bot.logger.error(`重启失败\n${error.stack}`)
+            return
+          } else if (stdout) {
+            Bot.logger.mark('重启成功，运行已转为后台，查看日志请用命令：npm run log')
+            Bot.logger.mark('停止后台运行命令：npm stop')
+            process.exit()
+          }
+        })
+      }, 1000)
+    })
+    return true
+  } catch (error) {
+    console.error('插件更新函数出错:', error)
+    e.reply('插件更新功能出现错误，请稍后重试或联系开发者。')
+    return false
+  }
 }
 
 export async function profileCfg (e, { render }) {
