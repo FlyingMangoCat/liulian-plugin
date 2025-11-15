@@ -1,8 +1,17 @@
-# 0.9.7
-
-* 清理apps目录下的冗余代码/文件
-* 移除未使用的replace.js文件
-* 优化早报功能实现，将函数从morningpaper.js整合到manyfunctions.js
+# 0.9.8
+
+* 优化apps目录中的多个文件，提升代码质量和可维护性
+* 修复manyfunctions.js中的语法错误和重复函数定义问题
+* 修复Guess.js中的语法错误和变量名错误问题
+* 优化help.js文件，添加错误处理和代码注释
+* 优化ai.js文件，修复正则表达式和添加错误处理机制
+* 统一代码错误处理机制，增强插件稳定性
+
+# 0.9.7
+
+* 清理apps目录下的冗余代码/文件
+* 移除未使用的replace.js文件
+* 优化早报功能实现，将函数从morningpaper.js整合到manyfunctions.js
 * 删除冗余的morningpaper.js文件
 
 # 0.9.6

@@ -210,6 +210,7 @@ export async function ai(e) {
 
 // 重置记忆处理函数
 export async function ai_reset_memory(e) {
+  try {
   // 检查管理员权限
   const adminUsers = ["123456789"]; // 替换为实际管理员ID
   if (!adminUsers.includes(e.user_id.toString())) {
@@ -218,7 +219,7 @@ export async function ai_reset_memory(e) {
   }
   
   // 提取要重置的用户ID
-  const match = e.msg.match(/^#榴莲重置记忆\\s*@?(\d+)/);
+  const match = e.msg.match(/^#榴莲重置记忆\s*@?(\d+)/);
   if (!match) {
     await e.reply("使用方法: #榴莲重置记忆@用户ID 或 #榴莲重置记忆 用户ID", true);
     return;
@@ -226,5 +227,8 @@ export async function ai_reset_memory(e) {
   
   const targetUserId = match[1];
   const result = await AIManager.resetUserMemory(targetUserId);
-  await e.reply(result, true);
+  } catch (error) {
+    console.error('[榴莲AI] 重置记忆失败:', error);
+    await e.reply("重置记忆时发生错误，请稍后重试", true);
+  }
 }

@@ -15,10 +15,14 @@ export const rule = {
     reg: '^#猜(头像|角色)(普通|困难|地狱)?(模式)?',
     priority: 99,
     describe: '#猜头像、#猜角色、#猜角色困难模式',
-  },
+  return true;
+},
   guessAvatarCheck: {
-    reg: '^.*
-    guessmusic: {
+    reg: '^.*$',
+    priority: 908,
+    describe: '',
+  },
+  guessmusic: {
     reg: "^#?猜歌名$", //匹配消息正则，命令正则
     priority: 100, //优先级，越小优先度越高
     describe: "【猜歌名】", //【命令】功能说明
@@ -170,7 +174,7 @@ export async function guessAvatarCheck(e) {
   let {playing, roleId, normalMode} = guessConfig;
   if (playing && roleId && e.msg) {
     let id = roleIdToName(e.msg.trim());
-    if (roleId === id) {
+    if (starroleId === id) {
       await replayAnswer(e, ['恭喜你答对了！'], guessConfig, true);
       if (normalMode && lodash.random(0, 100) <= 8) {
         e.reply('如果感觉太简单了的话，可以对我说“#猜角色困难模式”或者“#猜角色地狱模式”哦！');
@@ -494,14 +498,15 @@ export async function bbguessAvatarCheck(e) {
   let {playing, bbroleId, normalMode} = guessConfig;
   if (playing && bbroleId && e.msg) {
     let id = bbroleIdToName(e.msg.trim());
-    if (roleId === id) {
+    if (bbroleId === id) {
       await replayAnswer(e, ['恭喜你答对了！'], guessConfig, true);
       if (normalMode && lodash.random(0, 100) <= 8) {
-        e.reply('如果感觉太简单了的话，可以对我说“#猜邦布困难模式”或者“#猜邦布地狱模式”哦！');
+        e.reply('如果感觉太简单了的话，可以对我说"#猜邦布困难模式"或者"#猜邦布地狱模式"哦！');
       }
       return true;
     }
   }
+  return true;
 },
     priority: 98,
     describe: '',
@@ -982,12 +987,13 @@ export async function bbguessAvatarCheck(e) {
   let {playing, bbroleId, normalMode} = guessConfig;
   if (playing && bbroleId && e.msg) {
     let id = bbroleIdToName(e.msg.trim());
-    if (roleId === id) {
+    if (bbroleId === id) {
       await replayAnswer(e, ['恭喜你答对了！'], guessConfig, true);
       if (normalMode && lodash.random(0, 100) <= 8) {
-        e.reply('如果感觉太简单了的话，可以对我说“#猜邦布困难模式”或者“#猜邦布地狱模式”哦！');
+        e.reply('如果感觉太简单了的话，可以对我说"#猜邦布困难模式"或者"#猜邦布地狱模式"哦！');
       }
       return true;
     }
   }
+  return true;
 }
