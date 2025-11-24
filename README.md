@@ -53,7 +53,7 @@ pnpm install -P
 
 * QQ **3598537042**（封号了）
  
-* 电子邮箱 **flyingmaogocat@126.com**
+* 电子邮箱 **fmc@liulian-ai.top**
 
 #### [本插件已收录至**云崽纯净插件**](https://gitee.com/huifeidemangguomao/yunzai-one-button/blob/master/include.md)
 
