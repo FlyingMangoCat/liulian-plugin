@@ -36,14 +36,11 @@ pnpm install -P
 |[会飞的星光猫]() | 宣传及教程配音 |
 |[会飞的芒果猫](https://b23.tv/RsZvCWJ) | 宣传及发布教程解答问题 |
 
-<details><summary>📩加入我们</summary>
+#### 📩加入我们</summary>
 
-* ，
+* 电子邮箱 **fmc@liulian-ai.top**
 
-                            ——会飞的芒果猫&榴莲项目组
-
-                                       2025.10.11
-</details>
+* liulian-plugin榴莲插件   **[806760403](http://qm.qq.com/cgi-bin/qm/qr?_wv=1027&k=sbYoEYRgwMkO66UsD1RIjyQMys1SSFsn&authKey=LWGw08%2BP0EQepYtZ19T3gRYEbTiV0YeodQTcthEmNdIHnxID%2BT9TTYnYuSGKTjqm&noverify=0&group_code=806760403)**
 
 ### **其他**
 
