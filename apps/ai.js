@@ -34,7 +34,7 @@ export async function handleMiddlewareRequest(data) {
 export const rule = {
   ai: {
     reg: "^.*$",      // 匹配所有消息
-    priority: 1000,
+    priority: 5000,   // 降低优先级，确保榴莲核心指令优先处理
     describe: "AI自动回复"
   }
 };
@@ -45,6 +45,26 @@ function isCommandMessage(e) {
   
   const message = typeof e.msg === 'string' ? e.msg : String(e.msg);
   const trimmedMsg = message.trim();
+  
+  // 榴莲插件指令白名单 - 这些指令绝对不要拦截
+  const liulianCommands = config.ai?.compatibility?.liulian_command_patterns || [
+    /^#?(榴莲|留恋)(帮助|help)$/,
+    /^#?(榴莲|留恋)设置(.*)$/,
+    /^#?(榴莲|留恋)(更新|强制更新|更新图像|图像更新)$/,
+    /^#?(榴莲|留恋)版本$/,
+    /^#?(地下地图帮助)$/,
+    /^#?(插件管理帮助)$/,
+    /^#?(修仙使用帮助)$/,
+    /^#?(B站|b站|小破站)推送帮助$/,
+    /^#?(原神地下地图编号)$/,
+    /^#榴莲状态$/,
+    /^#榴莲重置记忆/
+  ];
+  
+  // 如果是榴莲插件指令，不拦截
+  if (liulianCommands.some(pattern => pattern.test(trimmedMsg))) {
+    return false;
+  }
   
   // 常见命令前缀
   const commandPrefixes = config.ai?.compatibility?.command_prefixes || ['/', '#', '!', '！', '.', '。', '、'];
