@@ -1,0 +1,84 @@
+version: '3.8'
+
+services:
+  # PostgreSQL数据库
+  postgres:
+    image: postgres:15-alpine
+    container_name: liulian-postgres
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-liulian_db}
+      POSTGRES_USER: ${POSTGRES_USER:-liulian_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-your_password_here}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "5432:5432"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-liulian_user} -d ${POSTGRES_DB:-liulian_db}"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Redis缓存
+  redis:
+    image: redis:7-alpine
+    container_name: liulian-redis
+    command: redis-server --requirepass ${REDIS_PASSWORD:-your_redis_password}
+    volumes:
+      - redis_data:/data
+    ports:
+      - "6379:6379"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # 榴莲API服务
+  liulian-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: liulian-api
+    environment:
+      API_PORT: 8080
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: ${POSTGRES_DB:-liulian_db}
+      POSTGRES_USER: ${POSTGRES_USER:-liulian_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-your_password_here}
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-your_redis_password}
+      OLLAMA_URL: http://host.docker.internal:11434
+      GENERAL_MODEL: ${GENERAL_MODEL:-deepseek-llm:7b}
+      VISION_MODEL: ${VISION_MODEL:-moondream:latest}
+      FAST_MODEL: ${FAST_MODEL:-qwen:7b-chat}
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+    volumes:
+      - ./logs:/app/logs
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+
+networks:
+  default:
+    name: liulian-network

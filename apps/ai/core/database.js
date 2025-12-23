@@ -1,7 +1,7 @@
 import pg from 'pg';
 import Redis from 'ioredis';
 const { Pool } = pg;
-import config from '../../../config/ai.js';
+import config from '../../config/ai.js';
 
 class DatabaseManager {
     constructor() {
@@ -12,20 +12,24 @@ class DatabaseManager {
 
     async connect() {
         try {
-            // 连接PostgreSQL (主数据库)
+            // 连接PostgreSQL
             this.pgPool = new Pool(config.database.postgres);
             await this.pgPool.query('SELECT 1');
             console.log('[Database] PostgreSQL连接成功');
             
-            // 连接Redis (专用缓存)
+            // 连接Redis（远程连接）
             this.redis = new Redis({
                 host: config.database.redis.host,
                 port: config.database.redis.port,
                 password: config.database.redis.password,
-                // Redis专用缓存配置
                 keyPrefix: 'liulian:cache:',
                 ttl: config.database.redis.ttl || 3600,
-                enableOfflineQueue: false // 禁用离线队列，缓存失败不应阻塞主流程
+                enableOfflineQueue: false,
+                ssl: config.database.redis.ssl || false,
+                connectTimeout: config.database.redis.connectTimeout || 10000,
+                lazyConnect: true, // 延迟连接，避免阻塞启动
+                retryDelayOnFailover: 100,
+                maxRetriesPerRequest: 3
             });
             
             await this.redis.ping();
@@ -35,7 +39,6 @@ class DatabaseManager {
             await this.initTables();
         } catch (error) {
             console.error('[Database] 连接失败:', error);
-            // 即使缓存失败，也不应影响主数据库功能
             if (this.pgPool) {
                 this.isConnected = true;
                 console.log('[Database] 主数据库连接成功，但缓存不可用');
@@ -44,7 +47,6 @@ class DatabaseManager {
     }
 
     async initTables() {
-        // 只初始化PostgreSQL表结构
         const memoryTableQuery = `
             CREATE TABLE IF NOT EXISTS user_memories (
                 id SERIAL PRIMARY KEY,
@@ -56,10 +58,25 @@ class DatabaseManager {
             CREATE INDEX IF NOT EXISTS idx_user_memories ON user_memories(user_id);
         `;
         await this.pgPool.query(memoryTableQuery);
+
+        // 用户好感度表
+        const resonanceTableQuery = `
+            CREATE TABLE IF NOT EXISTS user_resonance (
+                user_id VARCHAR(50) PRIMARY KEY,
+                resonance_value INTEGER DEFAULT 0,
+                resonance_level VARCHAR(20) DEFAULT 'NEUTRAL',
+                last_interaction TIMESTAMP,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
+            CREATE INDEX IF NOT EXISTS idx_user_resonance ON user_resonance(user_id);
+        `;
+        await this.pgPool.query(resonanceTableQuery);
+
         console.log('[Database] 表初始化完成');
     }
 
-    // 保存记忆 (只写入PostgreSQL，使缓存失效)
+    // 保存记忆
     async saveMemory(userId, memoryText, memoryType = 'interaction') {
         if (!this.pgPool) return false;
         
@@ -82,7 +99,7 @@ class DatabaseManager {
         }
     }
 
-    // 获取用户记忆 (Redis缓存 + PostgreSQL)
+    // 获取用户记忆
     async getMemories(userId, limit = 5) {
         if (!this.pgPool) return [];
         
@@ -97,7 +114,6 @@ class DatabaseManager {
                     }
                 } catch (cacheError) {
                     console.warn('[Database] 缓存获取失败，回退到数据库:', cacheError.message);
-                    // 缓存失败不应影响主流程
                 }
             }
             
@@ -112,7 +128,7 @@ class DatabaseManager {
             const result = await this.pgPool.query(query, [userId, limit]);
             const memories = result.rows.map(row => row.memory_text);
             
-            // 存入Redis缓存 (异步，不阻塞主流程)
+            // 存入Redis缓存
             if (this.redis && memories.length > 0) {
                 this.redis.setex(
                     `user:${userId}:memories`,
@@ -135,11 +151,9 @@ class DatabaseManager {
         if (!this.pgPool) return false;
         
         try {
-            // 删除PostgreSQL中的记忆
             const query = `DELETE FROM user_memories WHERE user_id = $1`;
             await this.pgPool.query(query, [userId]);
             
-            // 删除Redis中的缓存
             if (this.redis) {
                 await this.redis.del(`user:${userId}:memories`);
             }
@@ -181,7 +195,86 @@ class DatabaseManager {
         
         return status;
     }
+
+    // 获取用户好感度
+    async getUserResonance(userId) {
+        if (!this.pgPool) return null;
+        
+        try {
+            const result = await this.pgPool.query(
+                'SELECT * FROM user_resonance WHERE user_id = $1',
+                [userId]
+            );
+            
+            if (result.rows.length === 0) {
+                // 创建新用户
+                await this.pgPool.query(`
+                    INSERT INTO user_resonance (user_id, resonance_value, resonance_level)
+                    VALUES ($1, $2, $3)
+                `, [userId, 0, 'NEUTRAL']);
+                
+                return {
+                    value: 0,
+                    level: 'NEUTRAL'
+                };
+            }
+            
+            return result.rows[0];
+        } catch (error) {
+            console.error('[Database] 获取用户好感度失败:', error);
+            return null;
+        }
+    }
+
+    // 更新用户好感度
+    async updateUserResonance(userId, change) {
+        if (!this.pgPool) return false;
+        
+        try {
+            const currentResonance = await this.getUserResonance(userId);
+            if (!currentResonance) return false;
+            
+            const newValue = Math.max(-100, Math.min(100, currentResonance.resonance_value + change));
+            let newLevel = 'NEUTRAL';
+            
+            if (newValue >= 80) {
+                newLevel = 'INTIMATE';
+            } else if (newValue >= 40) {
+                newLevel = 'FRIENDLY';
+            } else if (newValue >= 0) {
+                newLevel = 'NEUTRAL';
+            } else if (newValue >= -40) {
+                newLevel = 'COLD';
+            } else {
+                newLevel = 'HATED';
+            }
+            
+            await this.pgPool.query(`
+                UPDATE user_resonance 
+                SET resonance_value = $1, 
+                    resonance_level = $2,
+                    last_interaction = CURRENT_TIMESTAMP,
+                    updated_at = CURRENT_TIMESTAMP
+                WHERE user_id = $3
+            `, [newValue, newLevel, userId]);
+            
+            return true;
+        } catch (error) {
+            console.error('[Database] 更新用户好感度失败:', error);
+            return false;
+        }
+    }
+
+    // 关闭连接
+    async disconnect() {
+        if (this.pgPool) {
+            await this.pgPool.end();
+        }
+        if (this.redis) {
+            await this.redis.quit();
+        }
+        this.isConnected = false;
+    }
 }
 
-// 导出单例
 export default new DatabaseManager();

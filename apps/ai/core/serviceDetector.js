@@ -1,113 +1,107 @@
-import fetch from 'node-fetch';
-import config from '../../../config/ai.js';
+import ollama from '../ollama.js';
+import config from '../../config/ai.js';
 
 class ServiceDetector {
-  constructor() {
-    this.ollamaAvailable = false;
-    this.modelsAvailable = {
-      general: false,
-      code: false,
-      vision: false
-    };
-    this.checkInterval = null;
-  }
+    constructor() {
+        this.isAvailable = false;
+        this.lastCheckTime = null;
+        this.checkInterval = config.ai?.performance?.check_interval || 60000; // 1分钟检查一次
+        this.checkTimer = null;
+    }
 
-  // 检测Ollama服务是否可用
-  async checkOllama() {
-    try {
-      console.log('[ServiceDetector] 检查Ollama服务...');
-      const response = await fetch(`${config.ai.ollama.api_url}/api/tags`, {
-        timeout: 5000
-      });
-      
-      if (response.ok) {
-        const data = await response.json();
-        this.ollamaAvailable = true;
-        console.log('[ServiceDetector] Ollama服务正常');
+    async checkOllama() {
+        try {
+            // 尝试获取模型列表来检查服务是否可用
+            await ollama.listModels();
+            this.isAvailable = true;
+            this.lastCheckTime = new Date();
+            console.log('[ServiceDetector] Ollama服务可用');
+            return true;
+        } catch (error) {
+            this.isAvailable = false;
+            this.lastCheckTime = new Date();
+            console.log('[ServiceDetector] Ollama服务不可用:', error.message);
+            return false;
+        }
+    }
+
+    async checkModels() {
+        try {
+            const models = await ollama.listModels();
+            const availableModels = models.map(m => m.name);
+            
+            const configModels = config.ai?.ollama?.models || {};
+            const modelStatus = {};
+
+            for (const [key, modelName] of Object.entries(configModels)) {
+                modelStatus[key] = {
+                    name: modelName,
+                    available: availableModels.includes(modelName)
+                };
+            }
+
+            return modelStatus;
+        } catch (error) {
+            console.error('[ServiceDetector] 检查模型状态失败:', error);
+            return {};
+        }
+    }
+
+    startPeriodicCheck() {
+        if (this.checkTimer) {
+            clearInterval(this.checkTimer);
+        }
+
+        this.checkTimer = setInterval(async () => {
+            await this.checkOllama();
+        }, this.checkInterval);
+
+        console.log('[ServiceDetector] 启动定期检查，间隔:', this.checkInterval + 'ms');
+    }
+
+    stopPeriodicCheck() {
+        if (this.checkTimer) {
+            clearInterval(this.checkTimer);
+            this.checkTimer = null;
+            console.log('[ServiceDetector] 停止定期检查');
+        }
+    }
+
+    isServiceAvailable() {
+        return this.isAvailable;
+    }
+
+    getLastCheckTime() {
+        return this.lastCheckTime;
+    }
+
+    async getStatusReport() {
+        const modelStatus = await this.checkModels();
         
-        await this.checkAvailableModels(data.models || []);
-        return true;
-      } else {
-        console.log('[ServiceDetector] Ollama服务异常:', response.status);
-        this.ollamaAvailable = false;
+        return {
+            available: this.isAvailable,
+            lastCheck: this.lastCheckTime,
+            ollama: {
+                url: config.ai?.ollama?.api_url || 'http://localhost:11434',
+                available: this.isAvailable
+            },
+            models: modelStatus
+        };
+    }
+
+    async waitForService(timeout = 30000) {
+        const startTime = Date.now();
+        
+        while (Date.now() - startTime < timeout) {
+            const available = await this.checkOllama();
+            if (available) {
+                return true;
+            }
+            await new Promise(resolve => setTimeout(resolve, 1000));
+        }
+        
         return false;
-      }
-    } catch (error) {
-      console.log('[ServiceDetector] Ollama服务连接失败:', error.message);
-      this.ollamaAvailable = false;
-      return false;
     }
-  }
-
-  // 检查可用模型
-  async checkAvailableModels(models) {
-    const availableModels = models.map(m => m.name);
-    console.log('[ServiceDetector] 可用模型列表:', availableModels);
-    
-    // 检查模型是否存在（支持多种名称格式）
-    this.modelsAvailable.general = this.checkModelExists(availableModels, config.ai.ollama.model);
-    this.modelsAvailable.code = this.checkModelExists(availableModels, config.ai.ollama.models.code);
-    this.modelsAvailable.vision = this.checkModelExists(availableModels, config.ai.ollama.models.vision);
-    
-    console.log('[ServiceDetector] 模型可用性:', this.modelsAvailable);
-  }
-
-  // 检查模型是否存在（支持多种名称格式）
-  checkModelExists(availableModels, modelName) {
-    if (!modelName) return false;
-    
-    // 检查精确匹配
-    if (availableModels.includes(modelName)) {
-      return true;
-    }
-    
-    // 检查不带标签的匹配（如：moondream 匹配 moondream:latest）
-    const baseName = modelName.split(':')[0];
-    const found = availableModels.some(model => model.split(':')[0] === baseName);
-    
-    if (found) {
-      console.log(`[ServiceDetector] 模型 ${modelName} 匹配到可用模型: ${baseName}`);
-    }
-    
-    return found;
-  }
-
-  // 启动定期检测
-  startPeriodicCheck(interval = 300000) {
-    this.checkInterval = setInterval(() => {
-      this.checkOllama();
-    }, interval);
-    
-    console.log('[ServiceDetector] 启动定期服务检测');
-  }
-
-  // 停止检测
-  stopPeriodicCheck() {
-    if (this.checkInterval) {
-      clearInterval(this.checkInterval);
-      this.checkInterval = null;
-      console.log('[ServiceDetector] 停止定期服务检测');
-    }
-  }
-
-  // 检查服务是否可用
-  isServiceAvailable() {
-    return this.ollamaAvailable;
-  }
-
-  // 检查特定模型是否可用
-  isModelAvailable(modelType) {
-    return this.modelsAvailable[modelType] || false;
-  }
-
-  // 获取服务状态报告
-  getStatusReport() {
-    return {
-      ollama: this.ollamaAvailable,
-      models: this.modelsAvailable,
-      timestamp: new Date().toISOString()
-    };
-  }
 }
 
 export default new ServiceDetector();

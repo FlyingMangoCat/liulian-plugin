@@ -23,6 +23,14 @@ let cfgMap = {
   群聊闭嘴:'sys.shutup',
   插件名:'sys.PiuginName',
   购买提示:'sys.aits',
+  // 榴莲AI相关配置
+  AI服务:'liulian.ai.enabled',
+  API地址:'liulian.api.endpoint',
+  API密钥:'liulian.api.key',
+  黑名单群组:'liulian.blacklist.groups',
+  AI概率:'liulian.ai.probability',
+  回复长度:'liulian.ai.reply_length',
+  管理员:'liulian.admin.users',
 }
 let sysCfgReg = `^#榴莲设置\\s*(${lodash.keys(cfgMap).join('|')})?\\s*(.*)$`
 export const rule = {
@@ -87,6 +95,28 @@ export async function sysCfg (e, { render }) {
 			val= Math.min(2,Math.max(val,0));
 		} else if(cfgKey === "sys.PluginName"){
 			val= Math.min(2,Math.max(val,0));
+		} else if(cfgKey === "liulian.ai.probability"){
+			val= Math.min(100,Math.max(val,0));
+		} else if(cfgKey === "liulian.ai.reply_length"){
+			val= Math.min(500,Math.max(val,50));
+		} else if(cfgKey === "liulian.blacklist.groups"){
+      // 处理黑名单群组，支持逗号分隔的多个群号
+      if (val.includes(',')) {
+        val = val.split(',').map(id => id.trim()).filter(id => id);
+      } else if (val) {
+        val = [val.trim()];
+      } else {
+        val = [];
+      }
+    } else if(cfgKey === "liulian.admin.users"){
+      // 处理管理员用户，支持逗号分隔的多个用户ID
+      if (val.includes(',')) {
+        val = val.split(',').map(id => id.trim()).filter(id => id);
+      } else if (val) {
+        val = [val.trim()];
+      } else {
+        val = [];
+      }
 		} else {
       val = !/关闭/.test(val)
     }
@@ -115,6 +145,16 @@ export async function sysCfg (e, { render }) {
     shutup: getStatus('sys.shutup', false),
     PluginName: Cfg.get('sys.PluginName', 1),
     aits: getStatus('sys.aits', true),
+    // 榴莲AI配置显示
+    aiEnabled: getStatus('liulian.ai.enabled', false),
+    apiEndpoint: Cfg.get('liulian.api.endpoint', 'https://api.liulian.ai/v1'),
+    apiKey: Cfg.get('liulian.api.key', '') ? '已设置' : '未设置',
+    blacklistGroups: Cfg.get('liulian.blacklist.groups', []).length > 0 ? 
+      `${Cfg.get('liulian.blacklist.groups', []).length}个群组` : '无',
+    aiProbability: Cfg.get('liulian.ai.probability', 40),
+    replyLength: Cfg.get('liulian.ai.reply_length', 120),
+    adminUsers: Cfg.get('liulian.admin.users', []).length > 0 ? 
+      `${Cfg.get('liulian.admin.users', []).length}个管理员` : '无',
   }
 
   // 渲染图像

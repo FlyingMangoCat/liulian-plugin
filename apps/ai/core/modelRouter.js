@@ -1,174 +1,143 @@
-import { OllamaHandler } from '../ollama.js';
-import serviceDetector from './serviceDetector.js';
-import imageProcessor from './imageProcessor.js';
-import config from '../../../config/ai.js';
+import ollama from '../ollama.js';
+import config from '../../config/ai.js';
 
-class ModelRouter {
+export class ModelRouter {
     constructor() {
-        this.ollama = new OllamaHandler(config.ai.ollama.api_url);
-        this.imageProcessor = imageProcessor;
-        this.codePatterns = [
-            /function\s+\w+\s*\(/,
-            /def\s+\w+\s*\(/,
-            /class\s+\w+/,
-            /console\.log/,
-            /#include/,
-            /<?php/,
-            /<script>/,
-            /public\s+static\s+void/,
-            /import\s+\w+/
-        ];
-        
-        // 解析模型名称（确保使用实际可用的名称）
-        this.models = {
-            general: this.resolveModelName(config.ai.ollama.model),
-            code: this.resolveModelName(config.ai.ollama.models.code),
-            vision: this.resolveModelName(config.ai.ollama.models.vision)
+        this.models = config.ai?.ollama?.models || {
+            general: 'deepseek-llm:7b',
+            code: 'deepseek-coder:6.7b',
+            vision: 'moondream:latest'
         };
-        
-        console.log('[ModelRouter] 解析后的模型配置:', this.models);
     }
 
-    // 解析模型名称（确保使用实际可用的名称）
-    resolveModelName(configuredName) {
-        // 如果配置的名称包含标签，直接使用
-        if (configuredName && configuredName.includes(':')) {
-            return configuredName;
-        }
-        
-        // 如果不包含标签，尝试添加默认标签
-        return configuredName ? `${configuredName}:latest` : "deepseek-llm:7b";
-    }
-
-    // 路由消息到合适的模型
-    async routeMessage(message, messageType = 'text') {
+    async processMessage(message, messageType = 'text', context = {}) {
         try {
-            console.log('[ModelRouter] 路由消息，类型:', messageType);
+            // 选择合适的模型
+            const model = this.selectModel(message, messageType, context);
             
-            // 检查服务可用性
-            if (!serviceDetector.isServiceAvailable()) {
-                return "AI服务当前不可用，无法处理消息。";
-            }
+            // 构建提示词
+            const prompt = this.buildPrompt(message, context);
             
-            // 1. 确定消息类型
-            if (messageType === 'image') {
-                // 检查视觉模型是否可用
-                if (serviceDetector.isModelAvailable('vision')) {
-                    return await this.processImage(message);
-                } else {
-                    console.log('[ModelRouter] 视觉模型不可用，使用通用模型处理图片');
-                    return await this.processGeneral(`用户发送了一张图片: ${message}`);
+            // 调用模型
+            const response = await ollama.generate(model, prompt, {
+                temperature: this.getTemperature(message, context),
+                num_predict: this.getMaxTokens(message)
+            });
+            
+            return {
+                success: true,
+                response: response,
+                model: model,
+                metadata: {
+                    messageType,
+                    responseLength: response.length
                 }
-            }
+            };
             
-            // 2. 检查是否包含代码
-            if (this.containsCode(message)) {
-                // 检查代码模型是否可用
-                if (serviceDetector.isModelAvailable('code')) {
-                    return await this.processCode(message);
-                } else {
-                    console.log('[ModelRouter] 代码模型不可用，使用通用模型处理代码');
-                    return await this.processGeneral(message);
-                }
-            }
-            
-            // 3. 默认使用通用模型
-            return await this.processGeneral(message);
         } catch (error) {
-            console.error('[ModelRouter] 路由失败:', error);
-            // 降级处理：使用通用模型
-            return await this.processGeneral(message);
+            console.error('[ModelRouter] 处理消息失败:', error);
+            return {
+                success: false,
+                error: error.message
+            };
         }
     }
 
-    // 检查消息是否包含代码
-    containsCode(message) {
-        return this.codePatterns.some(pattern => pattern.test(message));
-    }
-
-    // 处理通用消息
-    async processGeneral(message) {
-        console.log('[ModelRouter] 使用通用模型处理消息');
-        const prompt = `${config.ai.system_prompt}
-用户:${message}`;
-        
-        const reply = await this.ollama.generate(
-            this.models.general,
-            prompt
-        );
-        
-        return this.trimReply(reply);
-    }
-
-    // 处理代码消息
-    async processCode(message) {
-        console.log('[ModelRouter] 使用代码模型处理消息');
-        const prompt = `代码:${message}→分析`;
-        
-        const reply = await this.ollama.generate(
-            this.models.code,
-            prompt
-        );
-        
-        return this.trimReply(reply);
-    }
-
-    // 处理图片消息
-    async processImage(imageDescription) {
-        console.log('[ModelRouter] 处理图片消息');
-        
+    async processImage(imageDescription, image) {
         try {
-            // 使用专用处理器分析图片
-            const analysis = await this.imageProcessor.process(imageDescription);
+            const model = this.models.vision;
             
-            // 使用通用模型生成回复，并明确要求包含分析结果
-            return await this.generateReplyFromAnalysis(analysis, imageDescription);
+            const prompt = `请描述这张图片的内容。${imageDescription ? '用户说明：' + imageDescription : ''}`;
+            
+            const response = await ollama.generateWithImage(model, prompt, image);
+            
+            return {
+                success: true,
+                response: response,
+                model: model
+            };
+            
         } catch (error) {
-            console.error('[ModelRouter] 图片处理失败:', error);
-            // 降级处理
-            return await this.processGeneral(`用户发送了一张图片但分析失败: ${imageDescription}`);
+            console.error('[ModelRouter] 处理图片失败:', error);
+            return {
+                success: false,
+                error: error.message
+            };
         }
     }
 
-    // 根据分析结果生成回复
-    async generateReplyFromAnalysis(analysis, originalDescription) {
-        const prompt = `${config.ai.system_prompt}
-        
-图片分析结果: ${analysis}
+    selectModel(message, messageType, context) {
+        // 图像消息使用视觉模型
+        if (messageType === 'image') {
+            return this.models.vision;
+        }
 
-请基于以上分析生成回复，并在回复开头用括号简要提及分析结果。`;
-
-        const reply = await this.ollama.generate(
-            config.ai.ollama.model,
-            prompt
+        // 代码相关使用代码模型
+        const codeKeywords = ['代码', '编程', '函数', '算法', 'bug', '```', 'javascript', 'python', 'java'];
+        const hasCodeKeywords = codeKeywords.some(keyword => 
+            message.toLowerCase().includes(keyword.toLowerCase())
         );
-        
-        // 确保分析结果被包含在回复中
-        if (!reply.includes(analysis.substring(0, 20)) && !reply.includes('(')) {
-            return `(${analysis}) ${reply}`;
+
+        if (hasCodeKeywords && this.models.code) {
+            return this.models.code;
         }
-        
-        return this.trimReply(reply);
+
+        // 默认使用通用模型
+        return this.models.general;
     }
 
-    // 修剪回复长度
-    trimReply(reply, maxLength = 120) {
-        if (!reply || reply.length <= maxLength) return reply;
-        
-        // 查找合适的截断点（在句子结束处）
-        const lastPeriod = reply.lastIndexOf('.', maxLength);
-        const lastExclamation = reply.lastIndexOf('!', maxLength);
-        const lastQuestion = reply.lastIndexOf('?', maxLength);
-        
-        const cutPoint = Math.max(lastPeriod, lastExclamation, lastQuestion);
-        
-        if (cutPoint > 0 && cutPoint > maxLength * 0.7) {
-            return reply.substring(0, cutPoint + 1);
+    buildPrompt(message, context) {
+        let prompt = config.ai?.system_prompt || '你是榴莲，一个活泼开朗的AI助手。';
+
+        // 添加用户上下文
+        if (context.memories && context.memories.length > 0) {
+            prompt += '\n\n【最近记忆】';
+            context.memories.slice(0, 3).forEach((memory, index) => {
+                prompt += `\n${index + 1}. ${memory}`;
+            });
         }
-        
-        // 如果没有合适的句子结束点，直接截断并添加省略号
-        return reply.substring(0, maxLength - 3) + '...';
+
+        if (context.resonanceLevel && context.resonanceLevel !== 'NEUTRAL') {
+            prompt += `\n\n【关系状态】用户与你的好感度等级：${context.resonanceLevel}`;
+        }
+
+        prompt += `\n\n【用户消息】${message}`;
+
+        return prompt;
+    }
+
+    getTemperature(message, context) {
+        let temperature = 0.7;
+
+        // 根据消息内容调整
+        if (message.includes('开心') || message.includes('高兴')) {
+            temperature += 0.1;
+        } else if (message.includes('生气') || message.includes('讨厌')) {
+            temperature -= 0.1;
+        }
+
+        return Math.max(0.1, Math.min(1.0, temperature));
+    }
+
+    getMaxTokens(message) {
+        if (message.length > 200) {
+            return 2000;
+        } else if (message.length > 100) {
+            return 1000;
+        } else {
+            return 500;
+        }
+    }
+
+    async getAvailableModels() {
+        try {
+            const models = await ollama.listModels();
+            return models.map(m => m.name);
+        } catch (error) {
+            console.error('[ModelRouter] 获取可用模型失败:', error);
+            return Object.values(this.models);
+        }
     }
 }
 
-export { ModelRouter };
+export default new ModelRouter();

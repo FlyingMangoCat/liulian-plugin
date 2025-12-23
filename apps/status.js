@@ -25,8 +25,11 @@ export async function getMiddlewareStatus() {
             }
         };
     } catch (error) {
-        console.error('获取状态错误:', error);
-        throw new Error('获取状态失败');
+        return {
+            mode: 'middleware',
+            status: 'error',
+            error: error.message
+        };
     }
 }
 

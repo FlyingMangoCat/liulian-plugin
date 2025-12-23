@@ -1,9 +1,10 @@
 import { OllamaHandler } from './ollama.js';
 import { ModelRouter } from './core/modelRouter.js';
 import serviceDetector from './core/serviceDetector.js';
-import fallbackProcessor from './core/fallbackProcessor.js';
 import DatabaseManager from './core/database.js';
+import moodSystem from './core/moodSystem.js';
 import config from '../../config/ai.js';
+import Cfg from '../../components/Cfg.js';
 
 // 环境检测
 const isMiddlewareMode = process.env.LIULIAN_MODE === 'middleware';
@@ -27,7 +28,15 @@ if (!isMiddlewareMode) {
     console.log('[AI模块] 初始化数据库连接');
     DatabaseManager.connect().then(() => {
         console.log('[AI模块] 数据库连接状态:', DatabaseManager.isConnected);
+        
+        // 初始化情绪系统
+        moodSystem.initialize();
     });
+    
+    // 启动情绪处理定时任务（每分钟检查一次）
+    setInterval(() => {
+        moodSystem.processMoodEffects();
+    }, 60000);
 }
 
 class AIManager {
@@ -86,10 +95,10 @@ class AIManager {
             return false;
         }
         
-        // 检查黑名单（群消息且黑名单功能启用）
-        if (safeConfig.blacklist && safeConfig.blacklist.enable && 
-            !e.isPrivate && e.group_id && 
-            safeConfig.blacklist.groups.includes(e.group_id.toString())) {
+        // 检查黑名单群组（从Cfg系统读取）
+        const blacklistGroups = Cfg.get('liulian.blacklist.groups', []);
+        if (!e.isPrivate && e.group_id && 
+            blacklistGroups.includes(e.group_id.toString())) {
             console.log('[AI模块] 群组在黑名单中，跳过处理');
             return false;
         }
@@ -138,18 +147,22 @@ class AIManager {
         return shouldReply;
     }
 
-    // 统一消息处理方法
+// 统一消息处理方法
     static async processMessage(message, messageType = 'text', userId = null) {
         // 检查服务可用性
         if (!this.isAIAvailable()) {
             return {
                 success: false,
-                error: 'AI服务不可用',
-                fallback: fallbackProcessor.process(message)
+                error: 'AI服务不可用'
             };
         }
         
         try {
+            // 更新用户情绪
+            if (userId) {
+                await moodSystem.updateUserMood(userId, message);
+            }
+
             // 获取用户记忆
             let memoryContext = '';
             if (userId && DatabaseManager.isConnected) {
@@ -160,6 +173,26 @@ class AIManager {
                     }
                 } catch (memoryError) {
                     console.log('[AI模块] 获取记忆失败，继续无记忆对话');
+                }
+            }
+
+            // 获取用户情绪和好感度
+            let moodContext = '';
+            let resonanceContext = '';
+            if (userId && DatabaseManager.isConnected) {
+                try {
+                    const userMood = await moodSystem.getUserMood(userId);
+                    const userResonance = await DatabaseManager.getUserResonance(userId);
+                    
+                    if (userMood && userMood.mood !== 'neutral') {
+                        moodContext = `【情绪状态】当前情绪：${userMood.mood}，强度：${userMood.intensity}\n`;
+                    }
+                    
+                    if (userResonance && userResonance.level !== 'NEUTRAL') {
+                        resonanceContext = `【关系状态】好感度等级：${userResonance.level}\n`;
+                    }
+                } catch (error) {
+                    console.log('[AI模块] 获取用户状态失败，继续无状态对话');
                 }
             }
 
@@ -177,50 +210,51 @@ class AIManager {
             // 构建完整提示词
             const fullPrompt = `${config.ai.system_prompt}
 
+${moodContext}
+${resonanceContext}
 ${memoryContext}
 
 用户消息: ${message}`;
 
             console.log('[AI模块] 处理消息，长度:', fullPrompt.length);
             
-            // 调用模型生成回复
-            const reply = await ollama.generate(
-                config.ai.ollama.model, 
-                fullPrompt
-            );
+            // 调用模型路由器
+            const result = await modelRouter.processMessage(message, messageType, {
+                memories: memoryContext ? memories : []
+            });
             
-            // 保存交互到记忆
-            if (userId && DatabaseManager.isConnected && reply) {
-                try {
-                    await DatabaseManager.saveMemory(
-                        userId, 
-                        `用户:「${message.substring(0, 50)}${message.length > 50 ? '...' : ''}」`
-                    );
-                } catch (error) {
-                    console.log('[AI模块] 保存记忆失败');
+            if (result.success) {
+                // 保存交互到记忆
+                if (userId && DatabaseManager.isConnected && result.response) {
+                    try {
+                        await DatabaseManager.saveMemory(
+                            userId, 
+                            `用户:「${message.substring(0, 50)}${message.length > 50 ? '...' : ''}」`
+                        );
+                    } catch (error) {
+                        console.log('[AI模块] 保存记忆失败');
+                    }
                 }
+                
+                return {
+                    success: true,
+                    reply: result.response,
+                    raw: result
+                };
+            } else {
+                throw new Error(result.error || '模型处理失败');
             }
             
-            // 如果是图片消息，在回复前添加分析结果
-            let finalReply = reply?.trim();
-            if (messageType === 'image' && imageAnalysis) {
-                finalReply = `(${imageAnalysis}) ${finalReply}`;
-            }
-            
-            return {
-                success: true,
-                reply: finalReply,
-                raw: reply // 原始回复，用于不同格式处理
-            };
         } catch (error) {
             console.error('[AI处理错误]', error.message);
             return {
                 success: false,
-                error: error.message,
-                fallback: fallbackProcessor.process(message)
+                error: error.message
             };
         }
     }
+
+    
     
     // 通用聊天方法 - 根据模式返回不同格式
     static async generalChat(message, messageType = 'text', userId = null) {
@@ -243,7 +277,7 @@ ${memoryContext}
     static async processImageMessage(imageDescription) {
         try {
             const analysis = await modelRouter.processImage(imageDescription);
-            return analysis;
+            return analysis.response || "图片分析完成";
         } catch (error) {
             console.error('[AI模块] 图片处理失败:', error);
             return "图片分析失败";
@@ -254,9 +288,11 @@ ${memoryContext}
     static async initializeServices() {
         console.log('[AI模块] 初始化服务...');
         
-        // 初始化数据库
-        await DatabaseManager.connect();
-        console.log('[AI模块] 数据库连接状态:', DatabaseManager.isConnected);
+        // 启动数据库连接
+        console.log('[AI模块] 初始化数据库连接');
+        DatabaseManager.connect().then(() => {
+            console.log('[AI模块] 数据库连接状态:', DatabaseManager.isConnected);
+        });
         
         // 初始化AI服务检测
         const available = await serviceDetector.checkOllama();

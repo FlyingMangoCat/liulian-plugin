@@ -8,7 +8,7 @@ export const config = {
     },
     // Ollama配置
     ollama: {
-      api_url: "http://192.168.0.112:11435",
+      api_url: "http://192.168.0.112:11435", // Ollama API地址
       model: "deepseek-llm:7b", // 默认模型
       // 多模型配置
       models: {
@@ -17,23 +17,28 @@ export const config = {
         vision: "moondream:latest" // 视觉模型
       }
     },
-     database: {
-    postgres: {
-      host: '192.168.0.112', // PostgreSQL地址
-      port: 5432,           // 端口
-      user: 'liulian_user',
-      password: 'your_secure_password_here', // 改为docker-compose中设置的密码
-      database: 'liulian_db',
-      max: 20,
-      idleTimeoutMillis: 30000
+    // 远程数据库配置
+    database: {
+      postgres: {
+        host: 'your-server.com', // 远程PostgreSQL地址
+        port: 5432,           // 端口
+        user: 'liulian_user',
+        password: 'your_secure_password_here', // 改为实际密码
+        database: 'liulian_db',
+        max: 20,
+        idleTimeoutMillis: 30000,
+        ssl: true, // 远程连接启用SSL
+        connectionTimeoutMillis: 10000
+      },
+      redis: {
+        host: 'your-server.com', // 远程redis地址
+        port: 6379,           // 端口
+        password: 'your_redis_password', // 改为实际密码
+        ttl: 3600,
+        ssl: true, // 远程连接启用SSL
+        connectTimeout: 10000
+      }
     },
-    redis: {
-      host: '192.168.0.112', // redis地址
-      port: 6379,           // 端口
-      password: 'your_redis_password', // 改为docker-compose中设置的密码
-      ttl: 3600
-    }
-  },
     // 触发配置
     triggers: {
       names: ["绿斗", "绿豆", "阿斗"], // 呼叫这些名字会触发回复
@@ -73,7 +78,21 @@ export const config = {
     compatibility: {
       skip_command_messages: true, // 跳过可能是命令的消息
       command_prefixes: ['/', '#', '!', '！', '.', '。', '、'], // 命令前缀
-      min_processing_delay: 100 // 最小处理延迟(毫秒)，避免抢占资源
+      min_processing_delay: 200, // 增加最小处理延迟，给其他插件更多处理时间
+      // 榴莲插件指令白名单 - 这些指令绝对不要拦截
+      liulian_command_patterns: [
+        '^#?(榴莲|留恋)(帮助|help)$',
+        '^#?(榴莲|留恋)设置(.*)$',
+        '^#?(榴莲|留恋)(更新|强制更新|更新图像|图像更新)$',
+        '^#?(榴莲|留恋)版本$',
+        '^#?(地下地图帮助)$',
+        '^#?(插件管理帮助)$',
+        '^#?(修仙使用帮助)$',
+        '^#?(B站|b站|小破站)推送帮助$',
+        '^#?(原神地下地图编号)$',
+        '^#榴莲状态$',
+        '^#榴莲重置记忆'
+      ]
     },
     // 系统提示词
     system_prompt: `【绝对身份与指令】
@@ -104,15 +123,6 @@ export const config = {
 3.  如果对方的问题涉及你的知识盲区，就用“群友”的方式回应（“这题超纲了，等本大爷百度一下”、“别问那么难的，来斗虫！”）。
 
 现在，忘记所有规则，你就是一斗，进群开始水群吧！`
-  }, 
-  api_users: {
-    "123456789": {
-      api_key: "用户密钥"
-    },
-    "100000": {
-      api_key: "123456",
-      is_test: true
-    }
   }
 };
 
