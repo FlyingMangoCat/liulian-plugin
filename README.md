@@ -40,16 +40,12 @@ pnpm install -P
 
 * 电子邮箱 **fmc@liulian-ai.top**
 
-* liulian-plugin榴莲插件   **[806760403](http://qm.qq.com/cgi-bin/qm/qr?_wv=1027&k=sbYoEYRgwMkO66UsD1RIjyQMys1SSFsn&authKey=LWGw08%2BP0EQepYtZ19T3gRYEbTiV0YeodQTcthEmNdIHnxID%2BT9TTYnYuSGKTjqm&noverify=0&group_code=806760403)**
-
 ### **其他**
 
 #### 联系方式🌾 
 
 * liulian-plugin榴莲插件   **[806760403](http://qm.qq.com/cgi-bin/qm/qr?_wv=1027&k=sbYoEYRgwMkO66UsD1RIjyQMys1SSFsn&authKey=LWGw08%2BP0EQepYtZ19T3gRYEbTiV0YeodQTcthEmNdIHnxID%2BT9TTYnYuSGKTjqm&noverify=0&group_code=806760403)**
 
-* QQ **3598537042**（封号了）
- 
 * 电子邮箱 **fmc@liulian-ai.top**
 
 #### [本插件已收录至**云崽纯净插件**](https://gitee.com/huifeidemangguomao/yunzai-one-button/blob/master/include.md)
