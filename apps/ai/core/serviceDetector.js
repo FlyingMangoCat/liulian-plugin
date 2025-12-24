@@ -1,5 +1,5 @@
-import ollama from '../ollama.js';
-import config from '../../../config/ai.js';
+import { default as ollama } from '#liulian.ollama';
+import config from '#liulian.config';
 
 class ServiceDetector {
     constructor() {

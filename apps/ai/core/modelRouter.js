@@ -1,5 +1,5 @@
-import ollama from '../ollama.js';
-import config from '../../../config/ai.js';
+import ollama from '#liulian.ollama';
+import config from '#liulian.config';
 
 export class ModelRouter {
     constructor() {
