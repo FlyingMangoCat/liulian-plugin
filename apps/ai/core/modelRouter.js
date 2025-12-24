@@ -1,5 +1,5 @@
 import ollama from '../ollama.js';
-import config from '../../config/ai.js';
+import config from '../../../config/ai.js';
 
 export class ModelRouter {
     constructor() {
