@@ -11,7 +11,8 @@ determineIfYouShutUp,
 openYourMouth
  } from "./Groupshutup.js"
 import { daihua,
-guangbo
+guangbo,
+guangboHelp
  } from "./transmit.js"
 import { 运势 } from "./lucktendency.js"
 import { maphelp, mapnumber } from "./maphelp.js"
@@ -316,6 +317,7 @@ export {
     ai_reset_memory,
     daihua,
     guangbo,
+    guangboHelp,
     starguessAvatar,
     starguessAvatarCheck,
     toShutUp,
@@ -1143,6 +1145,11 @@ yl21: {
 		reg: "^#广播(.*)内容(.*)$", //匹配消息正则，命令正则
 		priority: 400, //优先级，越小优先度越高
 		describe: "机器人在指定群说指定内容", //【命令】功能说明
+  	},
+        guangboHelp: {
+		reg: "^#(广播|群广播)帮助$", //匹配消息正则，命令正则
+		priority: 401, //优先级，越小优先度越高
+		describe: "群广播使用帮助", //【命令】功能说明
   	},
     toShutUp: {
     reg: "#(闭嘴|自爆)$", //匹配消息正则，命令正则
