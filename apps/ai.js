@@ -110,17 +110,13 @@ export async function ai(e) {
     console.log('[榴莲AI] 购买提示已关闭，跳过提示检查');
     // 这里不返回，继续执行后面的AI处理逻辑
   } else {
-    // 如果购买提示开启，检查用户配置
-    const userConfig = config.api?.users?.[e.user_id?.toString()];
-    if (!userConfig || !userConfig.apiKey) {
-      // 只在购买提示开启且用户没有配置时才显示提示
-      if (e.isPrivate || e.at) {
-        await e.reply("⚠️ 您尚未购买榴莲AI服务，部分功能可能受限。\n" +
-                      "请联系管理员购买服务获取API密钥。\n" +
-                      "欢迎加入官方社群体验/获取最新生态消息/功能：806760403\n"+
-                      "提示：如需关闭此提示，可使用【#榴莲设置 购买提示关闭】");
-        return false;
-      }
+    // 如果购买提示开启，直接显示提示（移除了不存在的用户配置检查）
+    if (e.isPrivate || e.at) {
+      await e.reply("⚠️ 您尚未购买榴莲AI服务，部分功能可能受限。\n" +
+                    "请联系管理员购买服务获取API密钥。\n" +
+                    "欢迎加入官方社群体验/获取最新生态消息/功能：806760403\n"+
+                    "提示：如需关闭此提示，可使用【#榴莲设置 购买提示关闭】");
+      return false;
     }
   }
   

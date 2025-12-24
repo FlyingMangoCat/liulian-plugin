@@ -17,16 +17,16 @@ export class GeneralChatPlugin {
   async execute(e) {
     // 构建带有系统提示词和上下文的完整Prompt
     // 注意：为了后续微调，我们依然保留系统提示词，但这是最后一步了。
-    const fullPrompt = `${config.system_prompt}\n\n用户说: ${e.msg}`;
+    const fullPrompt = `${config.ai.system_prompt}\n\n用户说: ${e.msg}`;
 
     const requestData = {
-      model: config.ollama.models.main,
+      model: config.ai.ollama.models.general,
       prompt: fullPrompt,
       stream: false,
     };
 
     try {
-      const response = await fetch(config.ollama.api_url, {
+      const response = await fetch(config.ai.ollama.api_url, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

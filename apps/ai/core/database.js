@@ -13,20 +13,20 @@ class DatabaseManager {
     async connect() {
         try {
             // 连接PostgreSQL
-            this.pgPool = new Pool(config.database.postgres);
+            this.pgPool = new Pool(config.ai.database.postgres);
             await this.pgPool.query('SELECT 1');
             console.log('[Database] PostgreSQL连接成功');
             
             // 连接Redis（远程连接）
             this.redis = new Redis({
-                host: config.database.redis.host,
-                port: config.database.redis.port,
-                password: config.database.redis.password,
+                host: config.ai.database.redis.host,
+                port: config.ai.database.redis.port,
+                password: config.ai.database.redis.password,
                 keyPrefix: 'liulian:cache:',
-                ttl: config.database.redis.ttl || 3600,
+                ttl: config.ai.database.redis.ttl || 3600,
                 enableOfflineQueue: false,
-                ssl: config.database.redis.ssl || false,
-                connectTimeout: config.database.redis.connectTimeout || 10000,
+                ssl: config.ai.database.redis.ssl || false,
+                connectTimeout: config.ai.database.redis.connectTimeout || 10000,
                 lazyConnect: true, // 延迟连接，避免阻塞启动
                 retryDelayOnFailover: 100,
                 maxRetriesPerRequest: 3
@@ -132,7 +132,7 @@ class DatabaseManager {
             if (this.redis && memories.length > 0) {
                 this.redis.setex(
                     `user:${userId}:memories`,
-                    config.database.redis.ttl,
+                    config.ai.database.redis.ttl,
                     JSON.stringify(memories)
                 ).catch(err => {
                     console.warn('[Database] 缓存设置失败:', err.message);
