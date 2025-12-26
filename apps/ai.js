@@ -94,6 +94,11 @@ function isCommandMessage(e) {
 
 // 主处理函数
 export async function ai(e) {
+  // 0. AI服务总开关检查 - 如果AI服务关闭，直接返回，不输出任何日志
+  if (!Cfg.get('sys.aits', false)) {
+    return;
+  }
+  
   // 添加小延迟，避免抢占其他插件资源
   const minDelay = config.ai?.compatibility?.min_processing_delay || 100;
   await new Promise(resolve => setTimeout(resolve, minDelay));
@@ -113,21 +118,14 @@ export async function ai(e) {
     return;
   }
   
-  // 3. 服务购买提示检查 - 使用Cfg配置
-  // 如果购买提示关闭，直接跳过提示检查，继续处理AI回复
-  if (!Cfg.get('sys.aits', false))  {
-    // 完全跳过购买提示，不回复任何提示信息
-    console.log('[榴莲AI] 购买提示已关闭，跳过提示检查');
-    // 这里不返回，继续执行后面的AI处理逻辑
-  } else {
-    // 如果购买提示开启，直接显示提示（移除了不存在的用户配置检查）
-    if (e.isPrivate || e.at) {
-      await e.reply("⚠️ 您尚未购买榴莲AI服务，部分功能可能受限。\n" +
-                    "请联系管理员购买服务获取API密钥。\n" +
-                    "欢迎加入官方社群体验/获取最新生态消息/功能：806760403\n"+
-                    "提示：如需关闭此提示，可使用【#榴莲设置 购买提示关闭】");
-      return false;
-    }
+  // 3. 服务购买提示检查 - AI服务已确认开启，检查是否需要显示购买提示
+  // 由于已在开头确认AI服务开启，这里只需要检查是否需要显示购买提示
+  if (e.isPrivate || e.at) {
+    await e.reply("⚠️ 您尚未购买榴莲AI服务，部分功能可能受限。\n" +
+                  "请联系管理员购买服务获取API密钥。\n" +
+                  "欢迎加入官方社群体验/获取最新生态消息/功能：806760403\n"+
+                  "提示：如需关闭此提示，可使用【#榴莲设置 购买提示关闭】");
+    return false;
   }
   
   
