@@ -30,12 +30,12 @@ export async function handleMiddlewareRequest(data) {
     }
 }
 
-// 云崽规则定义
+// 云崽规则定义 - 暂时禁用AI模块
 export const rule = {
   ai: {
-    reg: "^.*$",      // 匹配所有消息
+    reg: "^noMatchAnything$",      // 不匹配任何消息，暂时禁用
     priority: 99999,  // 极低优先级，确保所有其他指令优先处理
-    describe: "AI自动回复"
+    describe: "AI自动回复（已禁用）"
   }
 };
 
