@@ -47,19 +47,24 @@ function isCommandMessage(e) {
   const trimmedMsg = message.trim();
   
   // 榴莲插件指令白名单 - 这些指令绝对不要拦截
-  const liulianCommands = config.ai?.compatibility?.liulian_command_patterns || [
-    /^#?(榴莲|留恋)(帮助|help)$/,
-    /^#?(榴莲|留恋)设置(.*)$/,
-    /^#?(榴莲|留恋)(更新|强制更新|更新图像|图像更新)$/,
-    /^#?(榴莲|留恋)版本$/,
-    /^#?(地下地图帮助)$/,
-    /^#?(插件管理帮助)$/,
-    /^#?(修仙使用帮助)$/,
-    /^#?(B站|b站|小破站)推送帮助$/,
-    /^#?(原神地下地图编号)$/,
-    /^#榴莲状态$/,
-    /^#榴莲重置记忆/
+  const liulianCommandPatterns = config.ai?.compatibility?.liulian_command_patterns || [
+    '^#?(榴莲|留恋)(帮助|help)$',
+    '^#?(榴莲|留恋)设置(.*)$',
+    '^#?(榴莲|留恋)(更新|强制更新|更新图像|图像更新)$',
+    '^#?(榴莲|留恋)版本$',
+    '^(地下地图帮助)$',
+    '^(插件管理帮助)$',
+    '^(修仙使用帮助)$',
+    '^#?(B站|b站|小破站)推送帮助$',
+    '^#?(原神地下地图编号)$',
+    '^#榴莲状态$',
+    '^#榴莲重置记忆'
   ];
+  
+  // 将字符串转换为正则表达式对象
+  const liulianCommands = liulianCommandPatterns.map(pattern => 
+    typeof pattern === 'string' ? new RegExp(pattern) : pattern
+  );
   
   // 如果是榴莲插件指令，不拦截
   if (liulianCommands.some(pattern => pattern.test(trimmedMsg))) {
@@ -75,9 +80,14 @@ function isCommandMessage(e) {
   }
   
   // 检查是否为常见命令模式
-  const commandPatterns = [
-    /^[\u4e00-\u9fa5]{1,4}[\s\b]/ // 中文命令（1-4个汉字后跟空格或边界）
+  const commandPatternStrings = [
+    '^[\u4e00-\u9fa5]{1,4}[\\s\\b]' // 中文命令（1-4个汉字后跟空格或边界）
   ];
+  
+  // 将字符串转换为正则表达式对象
+  const commandPatterns = commandPatternStrings.map(pattern => 
+    typeof pattern === 'string' ? new RegExp(pattern) : pattern
+  );
   
   return commandPatterns.some(pattern => pattern.test(trimmedMsg));
 }
