@@ -122,7 +122,17 @@ export async function sysCfg (e, { render }) {
     }
 
     if (cfgKey) {
-      Cfg.set(cfgKey, val)
+      const oldValue = Cfg.get(cfgKey);
+      Cfg.set(cfgKey, val);
+      
+      // 如果是AI开关设置，添加重启提示
+      if (cfgKey === 'sys.aits' && oldValue !== val) {
+        if (val) {
+          e.reply('✅ AI功能已开启\n💡 提示：请重启机器人以便加载AI相关数据和组件');
+        } else {
+          e.reply('❌ AI功能已关闭\n💡 提示：AI相关组件将不再加载，节省系统资源');
+        }
+      }
     }
   }
 

@@ -13,43 +13,52 @@ const isMiddlewareMode = process.env.LIULIAN_MODE === 'middleware';
 const ollama = new OllamaHandler(config.ai.ollama.api_url);
 const modelRouter = new ModelRouter();
 
-// 服务初始化
+// 服务初始化 - 只有AI功能开启时才加载相关组件
 if (!isMiddlewareMode) {
-    // 云崽模式下才自动初始化服务
-    serviceDetector.checkOllama().then(available => {
-        if (available) {
-            serviceDetector.startPeriodicCheck();
-        } else {
-            console.log('[AI模块] AI服务不可用，将禁用AI功能');
-        }
-    }).catch(error => {
-        console.error('[AI模块] AI服务检测失败:', error);
-    });
+    // 检查AI功能是否开启
+    const isAIEnabled = Cfg.get('sys.aits', false);
     
-    // 启动数据库连接（添加错误处理）
-    console.log('[AI模块] 初始化数据库连接');
-    DatabaseManager.connect().then(() => {
-        console.log('[AI模块] 数据库连接状态:', DatabaseManager.isConnected);
+    if (isAIEnabled) {
+        console.log('[AI模块] AI功能已开启，开始初始化相关组件');
         
-        // 初始化情绪系统
-        try {
-            moodSystem.initialize();
-        } catch (error) {
-            console.error('[AI模块] 情绪系统初始化失败:', error);
-        }
-    }).catch(error => {
-        console.error('[AI模块] 数据库连接失败:', error);
-        console.log('[AI模块] AI功能将在没有数据库的情况下运行');
-    });
-    
-    // 启动情绪处理定时任务（每分钟检查一次，添加错误处理）
-    setInterval(() => {
-        try {
-            moodSystem.processMoodEffects();
-        } catch (error) {
-            console.error('[AI模块] 情绪处理失败:', error);
-        }
-    }, 60000);
+        // 云崽模式下才自动初始化服务
+        serviceDetector.checkOllama().then(available => {
+            if (available) {
+                serviceDetector.startPeriodicCheck();
+            } else {
+                console.log('[AI模块] AI服务不可用，将禁用AI功能');
+            }
+        }).catch(error => {
+            console.error('[AI模块] AI服务检测失败:', error);
+        });
+        
+        // 启动数据库连接（添加错误处理）
+        console.log('[AI模块] 初始化数据库连接');
+        DatabaseManager.connect().then(() => {
+            console.log('[AI模块] 数据库连接状态:', DatabaseManager.isConnected);
+            
+            // 初始化情绪系统
+            try {
+                moodSystem.initialize();
+            } catch (error) {
+                console.error('[AI模块] 情绪系统初始化失败:', error);
+            }
+        }).catch(error => {
+            console.error('[AI模块] 数据库连接失败:', error);
+            console.log('[AI模块] AI功能将在没有数据库的情况下运行');
+        });
+        
+        // 启动情绪处理定时任务（每分钟检查一次，添加错误处理）
+        setInterval(() => {
+            try {
+                moodSystem.processMoodEffects();
+            } catch (error) {
+                console.error('[AI模块] 情绪处理失败:', error);
+            }
+        }, 60000);
+    } else {
+        console.log('[AI模块] AI功能已关闭，跳过相关组件加载');
+    }
 }
 
 class AIManager {
