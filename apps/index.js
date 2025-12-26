@@ -1158,7 +1158,7 @@ yl21: {
     },
     determineIfYouShutUp: {
     reg: "(.*)", //匹配消息正则，命令正则
-    priority: 1000, //调整优先级，避免拦截所有消息
+    priority: 0, //优先级，越小优先度越高
     describe: "闭嘴判断", //【命令】功能说明
     },
     openYourMouth: {
