@@ -1128,7 +1128,7 @@ yl21: {
     },
   ai: {
     reg: "(.*)", // 匹配所有消息
-    priority: 1000, // 优先级
+    priority: 99999, // 极低优先级，确保所有其他指令优先处理
     describe: "AI自动回复", // 功能说明
   },
    ai_reset_memory: {

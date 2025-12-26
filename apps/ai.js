@@ -34,7 +34,7 @@ export async function handleMiddlewareRequest(data) {
 export const rule = {
   ai: {
     reg: "^.*$",      // 匹配所有消息
-    priority: 5000,   // 降低优先级，确保榴莲核心指令优先处理
+    priority: 99999,  // 极低优先级，确保所有其他指令优先处理
     describe: "AI自动回复"
   }
 };
@@ -71,17 +71,26 @@ function isCommandMessage(e) {
     return false;
   }
   
-  // 常见命令前缀
-  const commandPrefixes = config.ai?.compatibility?.command_prefixes || ['/', '#', '!', '！', '.', '。', '、'];
+  // 常见命令前缀 - 扩展更多符号，确保不抢指令
+  const commandPrefixes = config.ai?.compatibility?.command_prefixes || [
+    '/', '#', '!', '！', '.', '。', '、', 
+    '@', '￥', '%', '^', '&', '*', '(', ')', 
+    '-', '_', '+', '=', '|', '\\', '~', '`'
+  ];
   
-  // 检查消息是否以命令前缀开头
+  // 检查消息是否以命令前缀开头 - 严格检查，任何符号开头都认为是命令
   if (commandPrefixes.some(prefix => trimmedMsg.startsWith(prefix))) {
     return true;
   }
   
-  // 检查是否为常见命令模式
+  // 检查是否为常见命令模式 - 扩展模式，更严格过滤
   const commandPatternStrings = [
-    '^[\u4e00-\u9fa5]{1,4}[\\s\\b]' // 中文命令（1-4个汉字后跟空格或边界）
+    '^[\u4e00-\u9fa5]{1,4}[\\s\\b]', // 中文命令（1-4个汉字后跟空格或边界）
+    '^\\w{1,6}\\s', // 英文命令（1-6个字符后跟空格）
+    '^[a-zA-Z]+\\s*[^\\s]*$', // 纯英文命令
+    '^[\u4e00-\u9fa5]{1,6}$', // 纯中文短命令（1-6个汉字）
+    '^\\d+$', // 纯数字命令
+    '^[#！@￥%……&*（）——+=|\\]}' // 特殊符号开头的消息
   ];
   
   // 将字符串转换为正则表达式对象
@@ -89,7 +98,17 @@ function isCommandMessage(e) {
     typeof pattern === 'string' ? new RegExp(pattern) : pattern
   );
   
-  return commandPatterns.some(pattern => pattern.test(trimmedMsg));
+  // 如果匹配任何命令模式，都认为是命令
+  if (commandPatterns.some(pattern => pattern.test(trimmedMsg))) {
+    return true;
+  }
+  
+  // 额外检查：如果消息很短且看起来像命令，也过滤掉
+  if (trimmedMsg.length <= 4 && /^[\u4e00-\u9fa5a-zA-Z0-9]+$/.test(trimmedMsg)) {
+    return true;
+  }
+  
+  return false;
 }
 
 // 主处理函数
@@ -99,8 +118,8 @@ export async function ai(e) {
     return;
   }
   
-  // 添加小延迟，避免抢占其他插件资源
-  const minDelay = config.ai?.compatibility?.min_processing_delay || 100;
+  // 增加延迟，确保其他插件优先处理
+  const minDelay = config.ai?.compatibility?.min_processing_delay || 300;
   await new Promise(resolve => setTimeout(resolve, minDelay));
   
   console.log('[榴莲AI] 函数被调用，消息类型:', e.message ? e.message[0]?.type : 'text');
@@ -111,10 +130,18 @@ export async function ai(e) {
     return;
   }
   
-  // 2. 检查是否为命令消息（可能被其他插件处理）
+  // 2. 严格的命令消息检查 - 确保不抢任何指令
   const skipCommands = config.ai?.compatibility?.skip_command_messages !== false;
   if (skipCommands && isCommandMessage(e)) {
-    console.log('[榴莲AI] 可能是命令消息，让其他插件处理');
+    console.log('[榴莲AI] 检测到命令消息，跳过处理');
+    return;
+  }
+  
+  // 2.1 额外检查：如果消息很短或看起来像指令，也跳过
+  const message = e.msg || '';
+  const trimmedMsg = message.trim();
+  if (trimmedMsg.length <= 3 || /^[\W_]/.test(trimmedMsg)) {
+    console.log('[榴莲AI] 消息过短或包含特殊字符，跳过处理');
     return;
   }
   
