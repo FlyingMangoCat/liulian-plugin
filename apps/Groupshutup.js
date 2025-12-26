@@ -54,8 +54,13 @@ let limit=Cfg.get('sys.limit');
   return true;
 }
 export async function determineIfYouShutUp(e) {
-  if (!/#闭嘴/.test(e.msg) && !/#张嘴/.test(e.msg) && e.isGroup && (await redis.get(`Yunzai:ShutUp${e.group_id}`))) {
-    return true;
+  try {
+    if (!/#闭嘴/.test(e.msg) && !/#张嘴/.test(e.msg) && e.isGroup && (await redis.get(`Yunzai:ShutUp${e.group_id}`))) {
+      return true;
+    }
+  } catch (error) {
+    console.error('[闭嘴判断] Redis操作失败:', error);
+    // Redis出错时不阻止后续处理，让其他功能正常工作
   }
 }
 export async function openYourMouth(e) {
