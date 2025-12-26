@@ -109,7 +109,7 @@
         <span class="cfg-hint">#榴莲设置购买提示 + 开启/关闭 </span>
         {{@aits}}
       </div>
-      <div class="cfg-desc"></div>
+      <div class="cfg-desc">开启后将显示AI服务购买提示。注意：开启/关闭AI功能后需要重启机器人以便加载相关组件</div>
     </li>
   </ul>
 </div>
@@ -172,6 +172,73 @@
         {{@help}}
       </div>
       <div class="cfg-desc">开启后将使用榴莲版帮助作为Yunzai的默认帮助</div>
+    </li>
+  </ul>
+</div>
+<div class="cfg-box">
+  <div class="cfg-group">榴莲AI设置</div>
+  <ul class="cfg-ul">
+    <li class="cfg-li">
+      <div class="cfg-line">
+        AI服务状态
+        <span class="cfg-hint">#榴莲设置AI服务 + 开启/关闭 </span>
+        {{aiEnabled}}
+      </div>
+      <div class="cfg-desc">开启后启用榴莲AI对话功能。注意：开启/关闭后需要重启机器人以便加载相关组件</div>
+    </li>
+    
+    <li class="cfg-li">
+      <div class="cfg-line">
+        API端点
+        <span class="cfg-hint">#榴莲设置API地址 + 地址 </span>
+        <div class="cfg-status">{{apiEndpoint}}</div>
+      </div>
+      <div class="cfg-desc">AI服务的API地址配置</div>
+    </li>
+    
+    <li class="cfg-li">
+      <div class="cfg-line">
+        API密钥
+        <span class="cfg-hint">#榴莲设置API密钥 + 密钥 </span>
+        <div class="cfg-status">{{apiKey}}</div>
+      </div>
+      <div class="cfg-desc">AI服务的API密钥，用于身份验证</div>
+    </li>
+    
+    <li class="cfg-li">
+      <div class="cfg-line">
+        黑名单群组
+        <span class="cfg-hint">#榴莲设置黑名单群组 + 群号 </span>
+        <div class="cfg-status">{{blacklistGroups}}</div>
+      </div>
+      <div class="cfg-desc">不响应AI功能的群组列表，多个群号用逗号分隔</div>
+    </li>
+    
+    <li class="cfg-li">
+      <div class="cfg-line">
+        AI回复概率
+        <span class="cfg-hint">#榴莲设置AI概率 + 数值 </span>
+        <div class="cfg-status">{{aiProbability}}%</div>
+      </div>
+      <div class="cfg-desc">AI自动回复的概率，0-100之间</div>
+    </li>
+    
+    <li class="cfg-li">
+      <div class="cfg-line">
+        回复长度限制
+        <span class="cfg-hint">#榴莲设置回复长度 + 字数 </span>
+        <div class="cfg-status">{{replyLength}}字</div>
+      </div>
+      <div class="cfg-desc">AI回复的最大字符数限制</div>
+    </li>
+    
+    <li class="cfg-li">
+      <div class="cfg-line">
+        管理员用户
+        <span class="cfg-hint">#榴莲设置管理员 + 用户ID </span>
+        <div class="cfg-status">{{adminUsers}}</div>
+      </div>
+      <div class="cfg-desc">AI功能的管理员用户列表，多个ID用逗号分隔</div>
     </li>
   </ul>
 </div>
