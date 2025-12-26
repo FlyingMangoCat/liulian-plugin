@@ -4,7 +4,7 @@ import config from '../../config/ai.js';
 export class OllamaHandler {
     constructor(apiUrl) {
         this.apiUrl = apiUrl;
-        this.timeout = config.ai?.performance?.max_image_processing_time || 10000;
+        this.timeout = config.ai?.performance?.max_response_time || 30000;
     }
 
     async generate(model, prompt, options = {}) {

@@ -58,9 +58,11 @@ export const config = {
     // CPU优化配置
     performance: {
       use_cpu: true, // 明确标识使用CPU环境
-      max_image_processing_time: 10000, // 图像处理最大时间(毫秒)
+      max_image_processing_time: 30000, // 图像处理最大时间(毫秒)
       fallback_on_timeout: true, // 超时是否降级
-      simplified_processing: true // 使用简化处理流程
+      simplified_processing: true, // 使用简化处理流程
+      check_interval: 30000, // 服务检查间隔
+      max_response_time: 60000 // 最大响应时间
     },
     // 图像处理配置
     image_processing: {
