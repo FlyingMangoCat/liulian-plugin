@@ -1127,9 +1127,9 @@ yl21: {
        describe: "", 
     },
   ai: {
-    reg: "noMatchAnything", // 不匹配任何消息，暂时禁用
+    reg: "(.*)", // 匹配所有消息
     priority: 99999, // 极低优先级，确保所有其他指令优先处理
-    describe: "AI自动回复（已禁用）", // 功能说明
+    describe: "AI自动回复", // 功能说明
   },
    ai_reset_memory: {
         reg: "^#榴莲重置记忆\\s*@?(\\d+)", // 匹配 #榴莲重置记忆@123456 或 #榴莲重置记忆 123456
@@ -1158,7 +1158,7 @@ yl21: {
     },
     determineIfYouShutUp: {
     reg: "(.*)", //匹配消息正则，命令正则
-    priority: 0, //优先级，越小优先度越高
+    priority: 1000, //调整优先级，避免拦截所有消息
     describe: "闭嘴判断", //【命令】功能说明
     },
     openYourMouth: {
