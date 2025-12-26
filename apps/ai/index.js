@@ -22,20 +22,33 @@ if (!isMiddlewareMode) {
         } else {
             console.log('[AI模块] AI服务不可用，将禁用AI功能');
         }
+    }).catch(error => {
+        console.error('[AI模块] AI服务检测失败:', error);
     });
     
-    // 启动数据库连接
+    // 启动数据库连接（添加错误处理）
     console.log('[AI模块] 初始化数据库连接');
     DatabaseManager.connect().then(() => {
         console.log('[AI模块] 数据库连接状态:', DatabaseManager.isConnected);
         
         // 初始化情绪系统
-        moodSystem.initialize();
+        try {
+            moodSystem.initialize();
+        } catch (error) {
+            console.error('[AI模块] 情绪系统初始化失败:', error);
+        }
+    }).catch(error => {
+        console.error('[AI模块] 数据库连接失败:', error);
+        console.log('[AI模块] AI功能将在没有数据库的情况下运行');
     });
     
-    // 启动情绪处理定时任务（每分钟检查一次）
+    // 启动情绪处理定时任务（每分钟检查一次，添加错误处理）
     setInterval(() => {
-        moodSystem.processMoodEffects();
+        try {
+            moodSystem.processMoodEffects();
+        } catch (error) {
+            console.error('[AI模块] 情绪处理失败:', error);
+        }
     }, 60000);
 }
 
