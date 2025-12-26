@@ -107,7 +107,8 @@ function isCommandMessage(e) {
   }
   
   // 额外检查：如果消息很短且看起来像命令，也过滤掉
-  if (trimmedMsg.length <= 4 && /^[\u4e00-\u9fa5a-zA-Z0-9]+$/.test(trimmedMsg)) {
+  // 但要排除榴莲插件指令
+  if (trimmedMsg.length <= 4 && /^[\u4e00-\u9fa5a-zA-Z0-9]+$/.test(trimmedMsg) && !/^#?(榴莲|留恋)/.test(trimmedMsg)) {
     return true;
   }
   
@@ -118,6 +119,14 @@ function isCommandMessage(e) {
 export async function ai(e) {
   // 0. AI服务总开关检查 - 如果AI服务关闭，直接返回，不输出任何日志
   if (!Cfg.get('sys.aits', false)) {
+    return;
+  }
+  
+  // 0.1 榴莲指令检查 - 如果是榴莲插件指令，直接返回，不处理
+  const msg = e.msg || '';
+  const trimmedMsgCheck = msg.trim();
+  if (/^#?(榴莲|留恋)/.test(trimmedMsgCheck)) {
+    console.log('[榴莲AI] 检测到榴莲插件指令，跳过处理');
     return;
   }
   
@@ -141,9 +150,10 @@ export async function ai(e) {
   }
   
   // 2.1 额外检查：如果消息很短或看起来像指令，也跳过
+  // 但要排除榴莲插件指令
   const message = e.msg || '';
   const trimmedMsg = message.trim();
-  if (trimmedMsg.length <= 3 || /^[\W_]/.test(trimmedMsg)) {
+  if ((trimmedMsg.length <= 3 || /^[\W_]/.test(trimmedMsg)) && !/^#?(榴莲|留恋)/.test(trimmedMsg)) {
     console.log('[榴莲AI] 消息过短或包含特殊字符，跳过处理');
     return;
   }
