@@ -1,4 +1,9 @@
-config/
+# 忽略config目录，但允许特定文件
+config/*
+!config/default_config/
+!config/default_config/liulian/
+!config/default_config/liulian/plugininfo.yaml
+
 node_modules/
 IFLOW.md
 
@@ -7,3 +12,6 @@ config/ai.js
 
 # 参考内容文件夹 - 不提交到版本控制
 参考内容/
+
+# 允许跟踪的配置文件
+!config/default_config/liulian/plugininfo.yaml
