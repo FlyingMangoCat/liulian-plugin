@@ -126,7 +126,7 @@ export async function sysCfg (e, { render }) {
       Cfg.set(cfgKey, val);
       
       // 如果是AI开关设置，添加重启提示
-      if (cfgKey === 'sys.aits' && oldValue !== val) {
+      if (cfgKey === 'liulian.ai.enabled' && oldValue !== val) {
         if (val) {
           e.reply('✅ AI功能已开启\n💡 提示：请重启机器人以便加载AI相关数据和组件');
         } else {

@@ -117,8 +117,9 @@ function isCommandMessage(e) {
 
 // 主处理函数
 export async function ai(e) {
-  // 0. AI服务总开关检查 - 如果AI服务关闭，直接返回，不输出任何日志
-  if (!Cfg.get('sys.aits', false)) {
+  // 0. AI服务总开关检查 - liulian.ai.enabled是AI服务总开关，不是购买提示(sys.aits)
+  // 如果AI服务关闭，直接返回，不输出任何日志
+  if (!Cfg.get('liulian.ai.enabled', false)) {
     return;
   }
   

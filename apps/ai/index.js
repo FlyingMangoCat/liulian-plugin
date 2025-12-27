@@ -15,8 +15,8 @@ const modelRouter = new ModelRouter();
 
 // 服务初始化 - 只有AI功能开启时才加载相关组件
 if (!isMiddlewareMode) {
-    // 检查AI功能是否开启
-    const isAIEnabled = Cfg.get('sys.aits', false);
+    // 检查AI功能是否开启 - liulian.ai.enabled是AI服务总开关，不是购买提示(sys.aits)
+    const isAIEnabled = Cfg.get('liulian.ai.enabled', false);
     
     if (isAIEnabled) {
         console.log('[AI模块] AI功能已开启，开始初始化相关组件');
