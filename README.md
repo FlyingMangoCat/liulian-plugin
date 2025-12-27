@@ -43,7 +43,13 @@ pnpm install -P
 
 * 电子邮箱 **fmc@liulian-ai.top**
 
-### **其他**
+### **反馈**
+
+* [liulian-plugin问题反馈](https://pd.qq.com/s/ewii86r08)
+
+* 有建议可以去[Issues](https://gitee.com/huifeidemangguomao/liulian-plugin/issues)里提
+
+* [榴莲插件(liulian-plugin)B站问题反馈专栏](https://b23.tv/GecaEsK)
 
 #### 联系方式🌾 
 
@@ -51,15 +57,7 @@ pnpm install -P
 
 * 电子邮箱 **fmc@liulian-ai.top**
 
-#### [本插件已收录至**云崽纯净插件**](https://gitee.com/huifeidemangguomao/yunzai-one-button/blob/master/include.md)
-
-#### **反馈**
-
-* [liulian-plugin问题反馈](https://pd.qq.com/s/ewii86r08)
-
-* 有建议可以去[Issues](https://gitee.com/huifeidemangguomao/liulian-plugin/issues)里提
-
-* [榴莲插件(liulian-plugin)B站问题反馈专栏](https://b23.tv/GecaEsK)
+* [本插件已收录至**云崽纯净插件**](https://gitee.com/huifeidemangguomao/yunzai-one-button/blob/master/include.md)
  
 <details><summary>⚠️免责声明⚠️</summary>
 
