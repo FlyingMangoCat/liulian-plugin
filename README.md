@@ -1,6 +1,7 @@
 #  **榴莲插件** 
 
-📊 [查看访问统计](https://gitee.com/huifeidemangguomao/liulian-plugin) 
+### 访问数量：
+[![访问量](https://komarev.com/ghpvc/?username=huifeidemangguomao&repository=liulian-plugin)](https://gitee.com/huifeidemangguomao/liulian-plugin) 
 
 
 
