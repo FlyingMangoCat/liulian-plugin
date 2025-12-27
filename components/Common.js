@@ -1,6 +1,7 @@
 import Cfg from './Cfg.js'
 import { currentVersion, yunzaiVersion, isV3 } from './Changelog.js'
 
+// 渲染函数：处理模板渲染和布局
 export const render = async function (path, params, cfg) {
   let paths = path.split('/')
   let { render, e } = cfg
