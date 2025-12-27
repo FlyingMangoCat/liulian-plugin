@@ -15,6 +15,15 @@ if (!logger.warn) logger.warn = console.warn
 if (!logger.trace) logger.trace = console.trace
 
 // 添加一些有用的工具方法
-logger.green = logger.green || ((t) => t)
+if (!logger.green) {
+  // 如果logger对象是只读的，创建一个新的方法引用
+  try {
+    logger.green = (t) => t
+  } catch (e) {
+    // 如果无法赋值，使用全局变量存储
+    global.loggerGreen = (t) => t
+    logger.green = global.loggerGreen
+  }
+}
 
 export { logger }
