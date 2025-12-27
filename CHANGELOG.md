@@ -1,3 +1,7 @@
+# 0.10.6
+
+* 版本号更新至0.10.6
+
 # 0.10.5
 
 * 修复determineIfYouShutUp函数的Redis错误处理问题

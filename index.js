@@ -25,7 +25,7 @@ try {
   console.error('[榴莲插件] 配置文件读取失败，使用默认值:', error)
   plugininfo_default = {
     pluginname: '榴莲（Liulian）',
-    version: '0.10.5',
+    version: '0.10.6',
     author: '会飞的芒果猫&萧枘'
   }
 }
