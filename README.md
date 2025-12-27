@@ -57,8 +57,6 @@ pnpm install -P
 
 * 电子邮箱 **fmc@liulian-ai.top**
 
-* [本插件已收录至**云崽纯净插件**](https://gitee.com/huifeidemangguomao/yunzai-one-button/blob/master/include.md)
- 
 <details><summary>⚠️免责声明⚠️</summary>
 
 * 本插件及云崽禁止**任何形式**的商用和违法用途，仅供小范围使用和学习，如违反相关规定，后果自负
@@ -68,6 +66,8 @@ pnpm install -P
 * 已授权内容需要按照要求标明作者出处等，并禁止任何形式的商业或违法用途，如违反授权相关要求，本插件作者及内容相关作者有权追究责任
 
 * 本插件的图片与其他素材均来自于网络，仅供交流学习使用，如有侵权请联系，会立即删除
+
+* [本插件已收录至**云崽纯净插件**](https://gitee.com/huifeidemangguomao/yunzai-one-button/blob/master/include.md)
 
 </details> 
   
