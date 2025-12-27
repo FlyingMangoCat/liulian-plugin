@@ -1,7 +1,7 @@
 #  **榴莲插件** 
 
 ### 访问数量：
-![访问量](https://gitee.com/huifeidemangguomao/liulian-plugin/badge/fork.svg?theme=dark) ![访问量](https://gitee.com/huifeidemangguomao/liulian-plugin/badge/star.svg?theme=dark)
+![访问量](https://gitee.com/huifeidemangguomao/liulian-plugin/badge/visits.svg?theme=dark)
 
 ### **说明**
 `liulian-plugin`是一个云崽插件，提供原神地下地图、B站推送、插件管理等一些拓展功能，及原神/星铁猜角色、娶群友、榴莲AI、随机表情、星座运势、话痨统计、天气、多群广播消息、群聊闭嘴等群聊功能。其他功能及简介可阅读`说明.txt`了解详情，部分功能可使用`#榴莲设置`命令进行设置
