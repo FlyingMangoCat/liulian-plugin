@@ -1,16 +1,14 @@
 /*
-* V3版Yunzai puppeteer
+* V3版Yunzai puppeteer 截图工具
 * */
 import template from 'art-template'
 import fs from 'fs'
 import lodash from 'lodash'
+import { logger } from '../../components/index.js'
 
 const _path = process.cwd()
 
 let puppeteer = {}
-
-let logger = global.logger || global.Bot?.logger || {}
-logger.green = logger.green || ((t) => t)
 
 class Puppeteer {
   constructor () {
@@ -51,7 +49,7 @@ class Puppeteer {
   }
 
   /**
-   * 初始化chromium
+   * 初始化chromium浏览器
    */
   async browserInit () {
     await this.initXlsx()
@@ -88,7 +86,7 @@ class Puppeteer {
   }
 
   /**
-   * `chromium` 截图
+   * `chromium` 截图功能
    * @param data 模板参数
    * @param data.tplFile 模板路径，必传
    * @param data.saveId  生成html名称，为空name代替
@@ -157,7 +155,7 @@ class Puppeteer {
     return segment.image(buff)
   }
 
-  /** 模板 */
+  /** 模板处理 */
   dealTpl (name, data) {
     let { tplFile, saveId = name } = data
     let savePath = `./data/html/${name}/${saveId}.html`
@@ -189,7 +187,7 @@ class Puppeteer {
     return savePath
   }
 
-  /** 监听配置文件 */
+  /** 监听配置文件变化 */
   watch (tplFile) {
     /*
     if (this.watcher[tplFile]) return
@@ -204,7 +202,7 @@ class Puppeteer {
      */
   }
 
-  /** 重启 */
+  /** 重启浏览器 */
   restart () {
     /** 截图超过重启数时，自动关闭重启浏览器，避免生成速度越来越慢 */
     if (this.renderNum % this.restartNum == 0) {

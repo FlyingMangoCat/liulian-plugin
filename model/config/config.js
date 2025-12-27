@@ -1,43 +1,44 @@
 import fs from 'fs'
 import YAML from 'yaml'
 import chokidar from 'chokidar'
+import { logger } from '../../components/index.js'
 
-/** 配置文件 */
+/** 配置文件管理类 */
 class config {
     constructor() {
-        /** 默认配置 */
+        /** 默认配置路径 */
         this.defCfgPath = './plugins/liulian-plugin/config/default_config/'
         this.default_config = {}
 
-        /** 用户配置 */
+        /** 用户配置路径 */
         this.configPath = './plugins/liulian-plugin/config/config/'
         this.config = {}
 
-        /** 监听文件 */
+        /** 文件监听器 */
         this.watcher = { config: {}, default_config: {} }
 
         this.initconfig()
     }
 
-    /** 获取默认配置 */
+    /** 初始化默认配置 */
     initconfig() {
-        /** 判断存不存在config/config文件夹 */
+        /** 检查config/config文件夹是否存在，不存在则创建 */
         if (!fs.existsSync(this.configPath)) {
             fs.mkdirSync(this.configPath)
         }
 
-        /** 先读取模块文件夹 */
+        /** 读取默认配置模块文件夹 */
         const defCfgfiles = fs.readdirSync(this.defCfgPath)
         for (let defCfgfile of defCfgfiles) {
             if (defCfgfile === 'liulian')
                 continue
             let path = `${this.configPath}${defCfgfile}`
             let defaultpath = `${this.defCfgPath}${defCfgfile}`
-            /** 判断存不存在这个文件夹 */
+            /** 检查模块文件夹是否存在，不存在则创建 */
             if (!fs.existsSync(path)) {
                 fs.mkdirSync(path)
             }
-            /** 再读取这个模块下的yaml文件 */
+            /** 读取模块下的yaml配置文件 */
             const files = fs.readdirSync(defaultpath).filter(file => file.endsWith('.yaml'))
             for (let file of files) {
                 if (!fs.existsSync(`${this.configPath}${defCfgfile}/${file}`)) {
@@ -63,7 +64,7 @@ class config {
         return this.getYaml(app, name, 'default_config')
     }
 
-    /** 监听配置文件 */
+    /** 监听配置文件变化 */
     watch(file, app, name, type = 'default_config') {
         let key = `${app}.${name}`
 
@@ -83,10 +84,10 @@ class config {
     }
 
     /** 
-     * 获取配置yaml
-     * @param app 模块
+     * 获取YAML配置文件
+     * @param app 模块名称
      * @param type 默认配置-default_config 留恋插件配置-config
-     * @param name 配置文件去后缀的名字
+     * @param name 配置文件名（不含后缀）
      */
     getYaml(app, name, type) {
         let file = this.getFilePath(app, name, type)

@@ -4,11 +4,12 @@ import { promisify } from 'util'
 import fetch from 'node-fetch'
 import fs from 'node:fs'
 import path from 'node:path'
+import { logger } from '../components/index.js'
 
 /**
  * 发送私聊消息，仅给好友发送
- * @param user_id qq号
- * @param msg 消息
+ * @param user_id QQ号
+ * @param msg 消息内容
  */
 async function relpyPrivate (userId, msg) {
   userId = Number(userId)
@@ -24,7 +25,7 @@ async function relpyPrivate (userId, msg) {
 
 /**
  * 休眠函数
- * @param ms 毫秒
+ * @param ms 毫秒数
  */
 function sleep (ms) {
   return new Promise((resolve) => setTimeout(resolve, ms))
@@ -32,8 +33,8 @@ function sleep (ms) {
 
 /**
  * 下载保存文件
- * @param fileUrl 下载地址
- * @param savePath 保存路径
+ * @param fileUrl 文件下载地址
+ * @param savePath 文件保存路径
  */
 async function downFile (fileUrl, savePath,param = {}) {
   try {
@@ -63,7 +64,7 @@ function mkdirs (dirname) {
 /**
  * 制作转发消息
  * @param msg 消息数组
- * @param dec 转发描述
+ * @param dec 转发描述内容
  */
 async function makeForwardMsg (e, msg = [], dec = '') {
   let nickname = Bot.nickname
@@ -84,7 +85,7 @@ async function makeForwardMsg (e, msg = [], dec = '') {
     })
   })
 
-  /** 制作转发内容 */
+  /** 制作转发消息内容 */
   if (e.isGroup) {
     forwardMsg = await e.group.makeForwardMsg(forwardMsg)
   } else if (e.friend) {
@@ -94,7 +95,7 @@ async function makeForwardMsg (e, msg = [], dec = '') {
   }
 
   if (dec) {
-    /** 处理描述 */
+    /** 处理转发消息描述 */
     forwardMsg.data = forwardMsg.data
       .replace(/\n/g, '')
       .replace(/<title color="#777777" size="26">(.+?)<\/title>/g, '___')
