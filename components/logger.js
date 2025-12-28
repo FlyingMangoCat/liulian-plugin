@@ -3,33 +3,35 @@
  * 提供统一的日志接口和备用机制
  */
 
-// 初始化logger，提供备用机制
-// 确保logger对象始终存在，避免undefined错误
-let logger = global.logger || global.Bot?.logger || console
-
-// 首先确保logger对象存在
-if (!logger) {
-  logger = console
-}
-
-// 无论logger是什么，都确保所有方法存在
-if (!logger.mark) logger.mark = console.log
-if (!logger.error) logger.error = console.error  
-if (!logger.debug) logger.debug = console.debug
-if (!logger.info) logger.info = console.info
-if (!logger.warn) logger.warn = console.warn
-if (!logger.trace) logger.trace = console.trace
-
-// 添加一些有用的工具方法
-if (!logger.green) {
-  // 如果logger对象是只读的，创建一个新的方法引用
-  try {
-    logger.green = (t) => t
-  } catch (e) {
-    // 如果无法赋值，使用全局变量存储
-    global.loggerGreen = (t) => t
-    logger.green = global.loggerGreen
+// 动态获取logger的函数
+const getLogger = () => {
+  let logger = global.logger || global.Bot?.logger || console
+  
+  // 确保logger对象存在
+  if (!logger) {
+    logger = console
   }
+  
+  // 确保所有方法存在
+  if (!logger.mark) logger.mark = console.log
+  if (!logger.error) logger.error = console.error  
+  if (!logger.debug) logger.debug = console.debug
+  if (!logger.info) logger.info = console.info
+  if (!logger.warn) logger.warn = console.warn
+  if (!logger.trace) logger.trace = console.trace
+  
+  // 添加green方法
+  if (!logger.green) logger.green = (t) => t
+  
+  return logger
 }
+
+// 创建动态logger对象
+const logger = new Proxy({}, {
+  get(target, prop) {
+    const currentLogger = getLogger()
+    return currentLogger[prop] || console[prop] || (() => {})
+  }
+})
 
 export { logger }
