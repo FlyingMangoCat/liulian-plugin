@@ -57,6 +57,5 @@ export async function CeShi(e) {
 		
 	}
 
-
-	return ; //返回true 阻挡消息不再往下
+	return; //不返回，让消息继续传递
 }
