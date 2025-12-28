@@ -18,6 +18,8 @@ import Version from './Version.js'
 import { getBLsid, getUuid } from './ckMaker.js'
 // 日志记录工具
 import { logger } from './logger.js'
+// Bot对象安全访问工具
+import { safeBot } from './BotHelper.js'
 
 // 统一导出所有公共组件
 export { 
@@ -28,5 +30,6 @@ export {
   Version,    // 版本管理
   getBLsid,   // 获取B站Session ID
   getUuid,    // 获取UUID
-  logger      // 日志记录
+  logger,     // 日志记录
+  safeBot     // Bot对象安全访问
 }

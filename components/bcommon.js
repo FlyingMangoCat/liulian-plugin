@@ -1,4 +1,5 @@
 import fs from "fs";
+import { safeBot } from './index.js';
 
 const _path = process.cwd();
 
@@ -30,27 +31,26 @@ export const botConfig = config;
 async function relpyPrivate(user_id, msg, isStranger = false) {
   user_id = parseInt(user_id);
 
-  let friend = Bot.fl.get(user_id);
+  let friend = safeBot.fl.get(user_id);
   if (friend) {
-    Bot.logger.mark(`发送好友消息[${friend.nickname}](${user_id})`);
-    Bot.pickUser(user_id)
+    safeBot.logger.mark(`发送好友消息[${friend.nickname}](${user_id})`);
+    safeBot.pickUser(user_id)
       .sendMsg(msg)
-      .catch((err) => {
-        Bot.logger.mark(err);
-      });
-    redis.incr(`Yunzai:sendMsgNum:${Bot.uin}`);
-    return;
-  } else {
-    //是否给陌生人发消息
-    if (!isStranger) {
-      return;
-    }
-    let key = `Yunzai:group_id:${user_id}`;
-    let group_id = await redis.get(key);
-
-    if (!group_id) {
-      for (let group of Bot.gl) {
-        group[0] = parseInt(group[0]);
+            .catch((err) => {
+              safeBot.logger.mark(err);
+            });
+            redis.incr(`Yunzai:sendMsgNum:${safeBot.uin}`);
+            return;
+          } else {
+            //是否给陌生人发消息
+            if (!isStranger) {
+              return;
+            }
+            let key = `Yunzai:group_id:${user_id}`;
+            let group_id = await redis.get(key);
+      
+            if (!group_id) {
+              for (let group of safeBot.gl) {        group[0] = parseInt(group[0]);
         let MemberInfo = await Bot.getGroupMemberInfo(group[0], user_id).catch(
           (err) => {}
         );

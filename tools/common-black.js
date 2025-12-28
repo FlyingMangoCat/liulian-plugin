@@ -4,7 +4,7 @@ import { promisify } from 'util'
 import fetch from 'node-fetch'
 import fs from 'node:fs'
 import path from 'node:path'
-import { logger } from '../components/index.js'
+import { logger, safeBot } from '../components/index.js'
 
 /**
  * 发送私聊消息，仅给好友发送
@@ -14,10 +14,10 @@ import { logger } from '../components/index.js'
 async function relpyPrivate (userId, msg) {
   userId = Number(userId)
 
-  let friend = Bot.fl.get(userId)
+  let friend = safeBot.fl.get(userId)
   if (friend) {
     logger.mark(`发送好友消息[${friend.nickname}](${userId})`)
-    return await Bot.pickUser(userId).sendMsg(msg).catch((err) => {
+    return await safeBot.pickUser(userId).sendMsg(msg).catch((err) => {
       logger.mark(err)
     })
   }
@@ -67,13 +67,13 @@ function mkdirs (dirname) {
  * @param dec 转发描述内容
  */
 async function makeForwardMsg (e, msg = [], dec = '') {
-  let nickname = Bot.nickname
+  let nickname = safeBot.nickname
   if (e.isGroup) {
-    let info = await Bot.getGroupMemberInfo(e.group_id, Bot.uin)
+    let info = await safeBot.getGroupMemberInfo(e.group_id, safeBot.uin)
     nickname = info.card || info.nickname
   }
   let userInfo = {
-    user_id: Bot.uin,
+    user_id: safeBot.uin,
     nickname
   }
 
