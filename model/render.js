@@ -1,5 +1,6 @@
 import template from "art-template";
 import fs from "fs";
+import { logger } from '../components/index.js'
 import puppeteer from "puppeteer";
 import lodash from "lodash";
 import common from "./rendercommon.js";
@@ -101,9 +102,8 @@ async function doRender (app, type, data, imgType, renderCfg) {
     data._app = app;
     fs.writeFileSync(file, JSON.stringify(data));
 
-    Bot.logger.mark(`${type}-tplFile:${tplFile}`);
-    Bot.logger.mark(`${type}-savePath:${savePath}`);
-  }
+    logger.mark(`${type}-tplFile:${tplFile}`);
+      logger.mark(`${type}-savePath:${savePath}`);  }
 
   if (!html[tplKey] || global.debugView) {
     html[tplKey] = fs.readFileSync(tplFile, "utf8");
@@ -141,14 +141,14 @@ if(imgType == "png"){
 	}
     base64 = await body.screenshot(randData);
     if (!global.debugView) {
-      page.close().catch((err) => Bot.logger.error(err));
+      page.close().catch((err) => logger.error(err));
     }
     shoting.pop();
   } catch (error) {
-    Bot.logger.error(`图片生成失败:${type}:${error}`);
+    logger.error(`图片生成失败:${type}:${error}`);
     //重启浏览器
     if (browser) {
-      await browser.close().catch((err) => Bot.logger.error(err));
+      await browser.close().catch((err) => logger.error(err));
     }
     browser = "";
     base64 = "";
@@ -156,7 +156,7 @@ if(imgType == "png"){
   }
 
   if (!base64) {
-    Bot.logger.error(`图片生成为空:${type}`);
+    logger.error(`图片生成为空:${type}`);
     return false;
   }
 
@@ -175,10 +175,10 @@ if(imgType == "png"){
       restartFn && clearTimeout(restartFn)
       restartFn = setTimeout(async function () {
         browser.removeAllListeners("disconnected");
-        await browser.close().catch((err) => Bot.logger.error(err));
+        await browser.close().catch((err) => logger.error(err));
         browser = "";
         restartCount++;
-        Bot.logger.mark("puppeteer 关闭重启");
+        logger.mark("puppeteer 关闭重启");
       }, 100);
     }
   }
@@ -194,7 +194,7 @@ async function browserInit () {
     return false;
   }
   lock = true;
-  Bot.logger.mark("puppeteer 启动中。。");
+  logger.mark("puppeteer 启动中。。");
   //初始化puppeteer
   browser = await puppeteer
     .launch({
@@ -211,26 +211,26 @@ async function browserInit () {
       ],
     })
     .catch((err) => {
-      Bot.logger.error(err);
+      logger.error(err);
       if (String(err).includes("correct Chromium")) {
-        Bot.logger.error("没有正确安装Chromium，可以尝试执行安装命令：node ./node_modules/puppeteer/install.js");
+        logger.error("没有正确安装Chromium，可以尝试执行安装命令：node ./node_modules/puppeteer/install.js");
       }
     });
 
   lock = false;
 
   if (browser) {
-    Bot.logger.mark("puppeteer 启动成功");
+    logger.mark("puppeteer 启动成功");
 
     //监听Chromium实例是否断开
     browser.on("disconnected", function (e) {
-      Bot.logger.error("Chromium实例关闭或崩溃！");
+      logger.error("Chromium实例关闭或崩溃！");
       browser = "";
     });
 
     return browser;
   } else {
-    Bot.logger.error("puppeteer 启动失败");
+    logger.error("puppeteer 启动失败");
     return false;
   }
 }

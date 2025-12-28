@@ -4,6 +4,7 @@ import puppeteer from "puppeteer";
 import lodash from "lodash";
 import common from "../model/rendercommon.js";
 import { Data } from '#liulian'
+import { logger } from './index.js'
 
 const _path = process.cwd();
 //html模板
@@ -100,9 +101,8 @@ async function doRender (app, type, data, imgType, renderCfg) {
     data._app = app;
     fs.writeFileSync(file, JSON.stringify(data));
 
-    Bot.logger.mark(`${type}-tplFile:${tplFile}`);
-    Bot.logger.mark(`${type}-savePath:${savePath}`);
-  }
+    logger.mark(`${type}-tplFile:${tplFile}`);
+      logger.mark(`${type}-savePath:${savePath}`);  }
 
   if (!html[tplKey] || global.debugView) {
     html[tplKey] = fs.readFileSync(tplFile, "utf8");
@@ -140,7 +140,7 @@ if(imgType == "png"){
 	}
     base64 = await body.screenshot(randData);
     if (!global.debugView) {
-      page.close().catch((err) => Bot.logger.error(err));
+      page.close().catch((err) => logger.error(err));
     }
     shoting.pop();
   } catch (error) {
