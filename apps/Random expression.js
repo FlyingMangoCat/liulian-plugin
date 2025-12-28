@@ -9,7 +9,7 @@ import fs from "fs"
 import path from "path"
 import Cfg from '../components/Cfg.js'
 import co from '../tools/common-black.js'
-import { logger } from '../components/index.js'
+import { logger, safeBot } from '../components/index.js'
 
 // 安全获取segment对象
 const segment = global.segment || global.Bot?.segment || {}
@@ -142,7 +142,7 @@ if (!Cfg.get('sys.bq', false)) {
 	// 如果随机数小于配置概率，则触发表情包
 	if (random_ < gl ) {
 	chuochuo(e);
-  Bot.logger.mark(`liulian-plugin -- 随机表情`);
+  safeBot.logger.mark(`liulian-plugin -- 随机表情`);
 	}
 }
 

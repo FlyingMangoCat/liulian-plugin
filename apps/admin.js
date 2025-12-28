@@ -3,6 +3,7 @@ import Cfg from '../components/Cfg.js'
 import lodash from 'lodash'
 import { exec } from 'child_process'
 import Common from '../components/Common.js'
+import { safeBot } from '../components/index.js'
 
 let cfgMap = {
   渲染: 'sys.scale',
@@ -298,11 +299,11 @@ export async function updateLiulianPlugin (e) {
       exec(command, function (error, stdout, stderr) {
         if (error) {
           e.reply('自动重启失败，请手动重启以应用新版插件。\nError code: ' + error.code + '\n' + error.stack + '\n')
-          Bot.logger.error(`重启失败\n${error.stack}`)
+          safeBot.logger.error(`重启失败\n${error.stack}`)
           return true
         } else if (stdout) {
-          Bot.logger.mark('重启成功，运行已转为后台，查看日志请用命令：npm run log')
-          Bot.logger.mark('停止后台运行命令：npm stop')
+          safeBot.logger.mark('重启成功，运行已转为后台，查看日志请用命令：npm run log')
+          safeBot.logger.mark('停止后台运行命令：npm stop')
           process.exit()
         }
       })
