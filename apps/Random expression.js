@@ -143,6 +143,7 @@ if (!Cfg.get('sys.bq', false)) {
 	if (random_ < gl ) {
 	chuochuo(e);
   safeBot.logger.mark(`liulian-plugin -- 随机表情`);
+	return true; // 返回true阻挡消息继续传递
 	}
 }
 
