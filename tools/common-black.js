@@ -105,4 +105,5 @@ async function makeForwardMsg (e, msg = [], dec = '') {
   return forwardMsg
 }
 
+export { logger, safeBot }
 export default { sleep, relpyPrivate, downFile, makeForwardMsg }
