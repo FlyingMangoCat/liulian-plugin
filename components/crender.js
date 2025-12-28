@@ -9,9 +9,8 @@ import { logger } from './index.js'
 const _path = process.cwd();
 //html模板
 const html = {};
-//浏览器
-let browser = "";
-//截图数达到时重启浏览器 避免生成速度越来越慢
+//浏览�?let browser = "";
+//截图数达到时重启浏览�?避免生成速度越来越慢
 let restartNum = 200;
 //截图次数
 let renderNum = 0;
@@ -19,23 +18,18 @@ let restartCount = 0;
 let restartFn = null;
 //锁住
 let lock = false;
-//截图中
-let shoting = [];
+//截图�?let shoting = [];
 
 /**
- * 渲染生成图片，调试命令 npm run debug，window会直接打开无头浏览器
- *
- * 原始html文件路径：/resources/app/type/type.html，文件夹名要和html名一致
- *
- * 生成html文件路径：/data/html/app/type/save_id.html
+ * 渲染生成图片，调试命�?npm run debug，window会直接打开无头浏览�? *
+ * 原始html文件路径�?resources/app/type/type.html，文件夹名要和html名一�? *
+ * 生成html文件路径�?data/html/app/type/save_id.html
  *
  * 模板生成art-template文档 http://aui.github.io/art-template/zh-cn/docs/
  *
  * @param app 应用名称
- * @param type 方法名
- * @param data 前端参数，必传 data.save_id 用来区分模板
- * @param imgType 图片类型 jpeg，png（清晰一点，大小更大）
- */
+ * @param type 方法�? * @param data 前端参数，必�?data.save_id 用来区分模板
+ * @param imgType 图片类型 jpeg，png（清晰一点，大小更大�? */
 async function render (app = "", type = "", data = {}, imgType = "jpeg") {
   if (lodash.isUndefined(data._res_path)) {
     data._res_path = `../../../../resources/`;
@@ -92,8 +86,7 @@ async function doRender (app, type, data, imgType, renderCfg) {
 
   if (global.debugView === "web-debug") {
     // debug下保存当前页面的渲染数据，方便模板编写与调试
-    // 由于只用于调试，开发者只关注自己当时开发的文件即可，暂不考虑app及plugin的命名冲突
-    let saveDir = _path + "/data/ViewData/";
+    // 由于只用于调试，开发者只关注自己当时开发的文件即可，暂不考虑app及plugin的命名冲�?    let saveDir = _path + "/data/ViewData/";
     if (!fs.existsSync(saveDir)) {
       fs.mkdirSync(saveDir);
     }
@@ -144,10 +137,9 @@ if(imgType == "png"){
     }
     shoting.pop();
   } catch (error) {
-    Bot.logger.error(`图片生成失败:${type}:${error}`);
-    //重启浏览器
-    if (browser) {
-      await browser.close().catch((err) => Bot.logger.error(err));
+    logger.error(`图片生成失败:${type}:${error}`);
+    //重启浏览�?    if (browser) {
+      await browser.close().catch((err) => logger.error(err));
     }
     browser = "";
     base64 = "";
@@ -155,14 +147,14 @@ if(imgType == "png"){
   }
 
   if (!base64) {
-    Bot.logger.error(`图片生成为空:${type}`);
+    logger.error(`图片生成为空:${type}`);
     return false;
   }
 
   renderNum++;
   /** 计算图片大小 */
   let kb = (base64.length / 1024).toFixed(1) + 'kb'
-  Bot.logger.mark(`【图片生成】${app}/${type}.html: 格式:${imgType}, 大小：${kb}，耗时：${Date.now() - start}ms，次数:${renderNum}`);
+  logger.mark(`【图片生成�?{app}/${type}.html: 格式:${imgType}, 大小�?{kb}，耗时�?{Date.now() - start}ms，次�?${renderNum}`);
 
   if (typeof test != "undefined") {
     return `图片base64:${type}`;
@@ -174,10 +166,10 @@ if(imgType == "png"){
       restartFn && clearTimeout(restartFn)
       restartFn = setTimeout(async function () {
         browser.removeAllListeners("disconnected");
-        await browser.close().catch((err) => Bot.logger.error(err));
+        await browser.close().catch((err) => logger.error(err));
         browser = "";
         restartCount++;
-        Bot.logger.mark("puppeteer 关闭重启");
+        logger.mark("puppeteer 关闭重启");
       }, 100);
     }
   }
@@ -193,7 +185,7 @@ async function browserInit () {
     return false;
   }
   lock = true;
-  Bot.logger.mark("puppeteer 启动中。。");
+  logger.mark("puppeteer 启动中。�?);
   //初始化puppeteer
   browser = await puppeteer
     .launch({
@@ -210,26 +202,26 @@ async function browserInit () {
       ],
     })
     .catch((err) => {
-      Bot.logger.error(err);
+      logger.error(err);
       if (String(err).includes("correct Chromium")) {
-        Bot.logger.error("没有正确安装Chromium，可以尝试执行安装命令：node ./node_modules/puppeteer/install.js");
+        logger.error("没有正确安装Chromium，可以尝试执行安装命令：node ./node_modules/puppeteer/install.js");
       }
     });
 
   lock = false;
 
   if (browser) {
-    Bot.logger.mark("puppeteer 启动成功");
+    logger.mark("puppeteer 启动成功");
 
     //监听Chromium实例是否断开
     browser.on("disconnected", function (e) {
-      Bot.logger.error("Chromium实例关闭或崩溃！");
+      logger.error("Chromium实例关闭或崩溃！");
       browser = "";
     });
 
     return browser;
   } else {
-    Bot.logger.error("puppeteer 启动失败");
+    logger.error("puppeteer 启动失败");
     return false;
   }
 }

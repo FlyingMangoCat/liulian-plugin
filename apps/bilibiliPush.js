@@ -5,6 +5,7 @@ import { botConfig } from "../components/bcommon.js"
 import config from "../model/config/config.js"
 import { getBLsid, getUuid } from "#liulian"
 import Cfg from '../components/Cfg.js'
+import { logger } from '../components/index.js'
 
 const _path = process.cwd();
 const cfg = config.getdefault_config('liulian', 'botname', 'config');
@@ -16,17 +17,14 @@ if (!fs.existsSync(`${_path}/data/PushNews/`)) {
 
 let dynamicPushHistory = []; // 历史推送，仅记录推送的消息ID，不记录本体对象，用来防止重复推送的
 let nowDynamicPushList = new Map(); // 本次新增的需要推送的列表信息
-let BilibiliPushConfig = {}; // 推送配置
-let PushBilibiliDynamic = {}; // 推送对象列表
-
-// B站动态类型
-// const DynamicTypeList = {
-//   DYNAMIC_TYPE_AV: { name: "视频动态", type: "DYNAMIC_TYPE_AV" },
-//   DYNAMIC_TYPE_WORD: { name: "文字动态", type: "DYNAMIC_TYPE_WORD" },
-//   DYNAMIC_TYPE_DRAW: { name: "图文动态", type: "DYNAMIC_TYPE_DRAW" },
-//   DYNAMIC_TYPE_ARTICLE: { name: "专栏动态", type: "DYNAMIC_TYPE_ARTICLE" },
-//   DYNAMIC_TYPE_FORWARD: { name: "转发动态", type: "DYNAMIC_TYPE_FORWARD" },
-//   DYNAMIC_TYPE_LIVE_RCMD: { name: "直播动态", type: "DYNAMIC_TYPE_LIVE_RCMD" },
+let BilibiliPushConfig = {}; // 推送配�?let PushBilibiliDynamic = {}; // 推送对象列�?
+// B站动态类�?// const DynamicTypeList = {
+//   DYNAMIC_TYPE_AV: { name: "视频动�?, type: "DYNAMIC_TYPE_AV" },
+//   DYNAMIC_TYPE_WORD: { name: "文字动�?, type: "DYNAMIC_TYPE_WORD" },
+//   DYNAMIC_TYPE_DRAW: { name: "图文动�?, type: "DYNAMIC_TYPE_DRAW" },
+//   DYNAMIC_TYPE_ARTICLE: { name: "专栏动�?, type: "DYNAMIC_TYPE_ARTICLE" },
+//   DYNAMIC_TYPE_FORWARD: { name: "转发动�?, type: "DYNAMIC_TYPE_FORWARD" },
+//   DYNAMIC_TYPE_LIVE_RCMD: { name: "直播动�?, type: "DYNAMIC_TYPE_LIVE_RCMD" },
 // };
 
 const BiliDynamicApiUrl = "https://api.bilibili.com/x/polymer/web-dynamic/v1/feed/space";
@@ -68,21 +66,14 @@ const BiliReqHeaders = {
             'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Safari/537.36'
         }
 
-// 初始化获取B站推送信息
-const BotHaveARest = 500; // 每次发送间隔时间
-const BiliApiRequestTimeInterval = 2000; // B站动态获取api请求间隔，别太快防止被拉黑
-const DynamicPicCountLimit = 3; // 推送动态时，限制发送多少张图片
+// 初始化获取B站推送信�?const BotHaveARest = 500; // 每次发送间隔时�?const BiliApiRequestTimeInterval = 2000; // B站动态获取api请求间隔，别太快防止被拉�?const DynamicPicCountLimit = 3; // 推送动态时，限制发送多少张图片
 const DynamicContentLenLimit = 95; // 推送文字和图文动态时，限制字数是多少
 const DynamicContentLineLimit = 5; // 推送文字和图文动态时，限制多少行文本
 
-let nowPushDate = Date.now(); // 设置当前推送的开始时间
-let pushTimeInterval = 10; // 推送间隔时间，单位：分钟
+let nowPushDate = Date.now(); // 设置当前推送的开始时�?let pushTimeInterval = 10; // 推送间隔时间，单位：分�?
+// 延长过期时间的定�?let DynamicPushTimeInterval = 60 * 60 * 1000; // 过期时间，单位：小时，默认一小时，范围[1,24]
 
-// 延长过期时间的定义
-let DynamicPushTimeInterval = 60 * 60 * 1000; // 过期时间，单位：小时，默认一小时，范围[1,24]
-
-// 初始化获取B站推送信息
-async function getBiliCookie() {
+// 初始化获取B站推送信�?async function getBiliCookie() {
   // 获取 B3 ck
   let url = "https://space.bilibili.com/401742377";
   let response = await fetch(url, { method: "get", headers: BiliReqHeaders });
@@ -107,7 +98,7 @@ async function getBiliCookie() {
   const b4ck = res?.data?.b_4 ?? '';
   cookies.push(`buvid4=${b4ck}`)
   
-  // 获取 b_lsid 和  _uuid
+  // 获取 b_lsid �? _uuid
   cookies.push(getBLsid(), getUuid());
   BiliReqHeaders.cookie = cookies.join('; ')
 }
@@ -122,19 +113,14 @@ async function initBiliPushJson() {
   if (fs.existsSync(_path + "/data/PushNews/BilibiliPushConfig.json")) {
     BilibiliPushConfig = JSON.parse(fs.readFileSync(_path + "/data/PushNews/BilibiliPushConfig.json", "utf8"));
 
-    // 如果设置了过期时间
-    let faultTime = Number(BilibiliPushConfig.dynamicPushFaultTime);
+    // 如果设置了过期时�?    let faultTime = Number(BilibiliPushConfig.dynamicPushFaultTime);
     let temp = DynamicPushTimeInterval;
     if (!isNaN(faultTime)) {
       temp = common.getRightTimeInterval(faultTime);
-      temp = temp < 1 ? 1 : temp; // 兼容旧设置
-      temp = temp > 24 ? 24 : temp; // 兼容旧设置
-      temp = temp * 60 * 60 * 1000;
+      temp = temp < 1 ? 1 : temp; // 兼容旧设�?      temp = temp > 24 ? 24 : temp; // 兼容旧设�?      temp = temp * 60 * 60 * 1000;
     }
-    DynamicPushTimeInterval = temp; // 允许推送多久以前的动态
-
-    // 如果设置了间隔时间
-    let timeInter = Number(BilibiliPushConfig.dynamicPushTimeInterval);
+    DynamicPushTimeInterval = temp; // 允许推送多久以前的动�?
+    // 如果设置了间隔时�?    let timeInter = Number(BilibiliPushConfig.dynamicPushTimeInterval);
     if (!isNaN(timeInter)) {
       pushTimeInterval = common.getRightTimeInterval(timeInter);
     }
@@ -147,10 +133,8 @@ async function initBiliPushJson() {
   }
 }
 
-initBiliPushJson(); // 初始化
-
-// (开启|关闭)B站推送
-export async function changeBilibiliPush(e) {
+initBiliPushJson(); // 初始�?
+// (开启|关闭)B站推�?export async function changeBilibiliPush(e) {
   // 是否允许使用这个功能
   if (!isAllowPushFunc(e)) {
     return false;
@@ -161,8 +145,7 @@ export async function changeBilibiliPush(e) {
     return true;
   }
 
-  // 推送对象记录
-  let pushID = "";
+  // 推送对象记�?  let pushID = "";
   if (e.isGroup) {
     pushID = e.group_id;
   } else {
@@ -172,32 +155,29 @@ export async function changeBilibiliPush(e) {
     return true;
   }
 
-  if (e.msg.includes("开启")) {
+  if (e.msg.includes("开�?)) {
     let info = PushBilibiliDynamic[pushID];
     if (!info) {
       PushBilibiliDynamic[pushID] = {
-        isNewsPush: true, // 是否开启了推送
-        allowPush: true, // 是否允许推送，不允许的话开启了推送也没用呢
-        adminPerm: true, 
+        isNewsPush: true, // 是否开启了推�?        allowPush: true, // 是否允许推送，不允许的话开启了推送也没用�?        adminPerm: true, 
         isGroup: e.isGroup || false,
-        biliUserList: [{ uid: "401742377", name: "原神" }], // 默认推送原神B站
-        pushTarget: pushID,
+        biliUserList: [{ uid: "401742377", name: "原神" }], // 默认推送原神B�?        pushTarget: pushID,
         pushTargetName: e.isGroup ? e.group_name : e.sender?.nickname,
       };
     } else {
       PushBilibiliDynamic[pushID].isNewsPush = true;
     }
     savePushJson();
-    Bot.logger.mark(`开启B站动态推送:${pushID}`);
-    e.reply(`B站动态推送开启了哦~\n每间隔${pushTimeInterval}分钟会自动检测一次有没有新动态\n如果有的话会自动发送动态内容到这里的~`);
+    logger.mark(`开启B站动态推�?${pushID}`);
+    e.reply(`B站动态推送开启了哦~\n每间�?{pushTimeInterval}分钟会自动检测一次有没有新动态\n如果有的话会自动发送动态内容到这里的~`);
   }
 
   if (e.msg.includes("关闭")) {
     if (PushBilibiliDynamic[pushID]) {
       PushBilibiliDynamic[pushID].isNewsPush = false;
       savePushJson();
-      Bot.logger.mark(`关闭B站动态推送:${pushID}`);
-      e.reply(`这里的B站动态推送已经关闭了，${botname}再也不会提醒你动态更新了，哼！`);
+      logger.mark(`关闭B站动态推�?${pushID}`);
+      e.reply(`这里的B站动态推送已经关闭了�?{botname}再也不会提醒你动态更新了，哼！`);
     } else {
       e.reply("你还没有在这里开启过B站动态推送呢");
     }
@@ -206,22 +186,21 @@ export async function changeBilibiliPush(e) {
   return true;
 }
 
-// (开启|关闭|允许|禁止)群B站推送
-export async function changeGroupBilibiliPush(e) {
+// (开启|关闭|允许|禁止)群B站推�?export async function changeGroupBilibiliPush(e) {
   if (!e.isMaster) {
     return false;
   }
 
-  let commands = e.msg.split("群B站推送");
+  let commands = e.msg.split("群B站推�?);
   let command = commands[0];
   let groupID = commands[1].trim();
 
   if (!groupID) {
-    e.reply(`群ID呢？没有群ID我可干不了这活\n示例：${command}群B站推送 254740428`);
+    e.reply(`群ID呢？没有群ID我可干不了这活\n示例�?{command}群B站推�?254740428`);
     return true;
   }
   if (isNaN(Number(groupID))) {
-    e.reply(`${groupID} ←这东西真的是群ID么？\n示例：${command}群B站推送 254740428`);
+    e.reply(`${groupID} ←这东西真的是群ID么？\n示例�?{command}群B站推�?254740428`);
     return true;
   }
 
@@ -230,22 +209,20 @@ export async function changeGroupBilibiliPush(e) {
     e.reply(`${botname}不在这个群哦`);
     return true;
   }
-  // 没有开启过的话，那就给初始化一个
-  if (!PushBilibiliDynamic[groupID]) {
+  // 没有开启过的话，那就给初始化一�?  if (!PushBilibiliDynamic[groupID]) {
     PushBilibiliDynamic[groupID] = {
       isNewsPush: true,
       allowPush: true,
       adminPerm: true,
       isGroup: true,
-      biliUserList: [{ uid: "401742377", name: "原神" }], // 默认推送原神B站
-      pushTarget: groupID,
+      biliUserList: [{ uid: "401742377", name: "原神" }], // 默认推送原神B�?      pushTarget: groupID,
       pushTargetName: group.group_name,
     };
   }
 
   switch (command) {
-    case "开启":
-    case "#开启":
+    case "开�?:
+    case "#开�?:
       PushBilibiliDynamic[groupID].isNewsPush = true;
       break;
     case "关闭":
@@ -263,13 +240,12 @@ export async function changeGroupBilibiliPush(e) {
   }
 
   savePushJson();
-  e.reply(`【${group.group_name}】设置${command}推送成功~`);
+  e.reply(`�?{group.group_name}】设�?{command}推送成功~`);
 
   return true;
 }
 
-// (允许|禁止)B站私聊推送
-export async function changeBiliPushPrivatePermission(e) {
+// (允许|禁止)B站私聊推�?export async function changeBiliPushPrivatePermission(e) {
   if (!e.isMaster) {
     return false;
   }
@@ -281,7 +257,7 @@ export async function changeBiliPushPrivatePermission(e) {
     BilibiliPushConfig.allowPrivate = false;
   }
 
-  e.reply("设置成功！");
+  e.reply("设置成功�?);
   return true;
 }
 
@@ -294,7 +270,7 @@ export async function bilibiliPushPermission(e) {
   let commands = e.msg.split("B站推送群权限");
   let command = commands[0];
   let groupID = commands[1].trim();
-  let commAllList = ["all", "全部", "所有"];
+  let commAllList = ["all", "全部", "所�?];
 
   if (!groupID) {
     e.reply("必须要有群ID的哦");
@@ -304,17 +280,17 @@ export async function bilibiliPushPermission(e) {
   if (commAllList.indexOf(groupID) > -1) {
     for (let key in PushBilibiliDynamic) {
       if (PushBilibiliDynamic[key].isGroup) {
-        PushBilibiliDynamic[key].adminPerm = command === "开启";
+        PushBilibiliDynamic[key].adminPerm = command === "开�?;
       }
     }
 
     await savePushJson();
-    e.reply(`好了，全${command}了(*^▽^*)`);
+    e.reply(`好了，全${command}�?*^▽^*)`);
     return true;
   }
 
   if (isNaN(Number(groupID))) {
-    e.reply(`${groupID} ←这东西真的是群ID么？\n示例：${command}B站推送群权限 254740428`);
+    e.reply(`${groupID} ←这东西真的是群ID么？\n示例�?{command}B站推送群权限 254740428`);
     return true;
   }
 
@@ -330,16 +306,15 @@ export async function bilibiliPushPermission(e) {
       allowPush: true,
       adminPerm: true,
       isGroup: true,
-      biliUserList: [{ uid: "401742377", name: "原神" }], // 默认推送原神B站
-      pushTarget: groupID,
+      biliUserList: [{ uid: "401742377", name: "原神" }], // 默认推送原神B�?      pushTarget: groupID,
       pushTargetName: group.group_name,
     };
   }
 
-  PushBilibiliDynamic[groupID].adminPerm = command === "开启";
+  PushBilibiliDynamic[groupID].adminPerm = command === "开�?;
 
   await savePushJson();
-  e.reply(`【${group.group_name}】已${command}B站推送狗管理权限`);
+  e.reply(`�?{group.group_name}】已${command}B站推送狗管理权限`);
 
   return true;
 }
@@ -356,8 +331,7 @@ export async function updateBilibiliPush(e) {
     return true;
   }
 
-  // 推送对象记录
-  let pushID = "";
+  // 推送对象记�?  let pushID = "";
   if (e.isGroup) {
     pushID = e.group_id;
   } else {
@@ -370,11 +344,11 @@ export async function updateBilibiliPush(e) {
   let temp = PushBilibiliDynamic[pushID];
 
   if (!temp) {
-    e.reply("你特喵的没在这开启过B站动态推送");
+    e.reply("你特喵的没在这开启过B站动态推�?);
     return true;
   }
 
-  let msgList = e.msg.split("B站推送");
+  let msgList = e.msg.split("B站推�?);
   const addComms = ["订阅", "添加", "新增", "增加", "#订阅", "#添加", "#新增", "#增加"];
   const delComms = ["删除", "移除", "去除", "取消", "#删除", "#移除", "#去除", "#取消"];
 
@@ -383,15 +357,14 @@ export async function updateBilibiliPush(e) {
 
   // uid或者用户名可不能缺
   if (!uid) {
-    e.reply(`UID呢？没有UID${botname}可干不了这活\n示例：${operComm}B站推送 609035442`);
+    e.reply(`UID呢？没有UID${botname}可干不了这活\n示例�?{operComm}B站推�?609035442`);
     return true;
   }
 
   let uids = temp.biliUserList.map((item) => item.uid);
   let names = temp.biliUserList.map((item) => item.name);
 
-  // 删除B站推送的时候，可以传UID也可以传用户名
-  if (delComms.indexOf(operComm) > -1) {
+  // 删除B站推送的时候，可以传UID也可以传用户�?  if (delComms.indexOf(operComm) > -1) {
     let isExist = false;
 
     if (uids.indexOf(uid) > -1) {
@@ -409,20 +382,19 @@ export async function updateBilibiliPush(e) {
     }
 
     savePushJson();
-    e.reply("删掉啦~后悔了就再加回来吧");
+    e.reply("删掉啦~后悔了就再加回来�?);
 
     return true;
   }
 
   if (isNaN(Number(uid))) {
-    e.reply(`${uid} <- 这东西不是UID吧？\n示例：${operComm}B站推送 609035442\n⚠️如确认uid正确请尝试将B站ck替换为自己获取的`);
+    e.reply(`${uid} <- 这东西不是UID吧？\n示例�?{operComm}B站推�?609035442\n⚠️如确认uid正确请尝试将B站ck替换为自己获取的`);
     return true;
   }
 
-  // 添加只能是 uid 的方式添加
-  if (addComms.indexOf(operComm) > -1) {
+  // 添加只能�?uid 的方式添�?  if (addComms.indexOf(operComm) > -1) {
     if (uids.indexOf(uid) > -1) {
-      e.reply("嘶，这个UID已经加过了");
+      e.reply("嘶，这个UID已经加过�?);
       return true;
     }
 
@@ -464,20 +436,19 @@ export async function updateBilibiliPush(e) {
 
     PushBilibiliDynamic[pushID].biliUserList.push({ uid, name: data.name });
     savePushJson();
-    e.reply(`${preMsg}添加成功~\n${data.name}：${uid}`);
+    e.reply(`${preMsg}添加成功~\n${data.name}�?{uid}`);
   }
 
   return true;
 }
 
-// 返回当前聊天对象推送的B站用户列表
-export async function getBilibiliPushUserList(e) {
+// 返回当前聊天对象推送的B站用户列�?export async function getBilibiliPushUserList(e) {
   // 是否允许使用这个功能
   if (!isAllowPushFunc(e)) {
     return false;
   }
 
-  if (e.msg.indexOf("群") > -1) {
+  if (e.msg.indexOf("�?) > -1) {
     if (!e.isMaster) {
       return false;
     }
@@ -494,7 +465,7 @@ export async function getBilibiliPushUserList(e) {
         PushBilibiliDynamic[groupID].pushTargetName = groupObj.group_name;
         let tmp = PushBilibiliDynamic[groupID];
         groupList.push(
-          `${groupObj.group_name}(${groupID})：${tmp.isNewsPush ? "已开启" : "已关闭"}，${tmp.adminPerm === false ? "无权限" : "有权限"}，${
+          `${groupObj.group_name}(${groupID})�?{tmp.isNewsPush ? "已开�? : "已关�?}�?{tmp.adminPerm === false ? "无权�? : "有权�?}�?{
             tmp.allowPush === false ? "禁止使用" : "允许使用"
           }`
         );
@@ -506,8 +477,7 @@ export async function getBilibiliPushUserList(e) {
     return true;
   }
 
-  // 推送对象记录
-  let pushID = "";
+  // 推送对象记�?  let pushID = "";
   if (e.isGroup) {
     pushID = e.group_id;
   } else {
@@ -517,18 +487,18 @@ export async function getBilibiliPushUserList(e) {
     return true;
   }
   if (!PushBilibiliDynamic[pushID]) {
-    return e.reply("要开启B站推送才能查哦");
+    return e.reply("要开启B站推送才能查�?);
   }
 
   let push = PushBilibiliDynamic[pushID];
   let info = push.biliUserList
     .map((item) => {
-      return `${item.name}：${item.uid}`;
+      return `${item.name}�?{item.uid}`;
     })
     .join("\n");
-  let status = push.isNewsPush ? "开启" : "关闭";
+  let status = push.isNewsPush ? "开�? : "关闭";
 
-  e.reply(`当前B站推送是【${status}】状态哦\n推送的B站用户有：\n${info}`);
+  e.reply(`当前B站推送是�?{status}】状态哦\n推送的B站用户有：\n${info}`);
 
   return true;
 }
@@ -542,50 +512,47 @@ export async function setBiliPushCookie(e) {
   return true;
 }
 
-// 设置B站推送定时任务时间
-export async function setBiliPushTimeInterval(e) {
+// 设置B站推送定时任务时�?export async function setBiliPushTimeInterval(e) {
   if (!e.isMaster) {
     return false;
   }
 
-  let time = e.msg.split("B站推送时间")[1].trim();
+  let time = e.msg.split("B站推送时�?)[1].trim();
   time = Number(time);
 
   if (time <= 0 || time >= 60) {
-    e.reply("请正确填写时间\n时间单位：分钟，范围[1-60)\n示例：B站推送时间 10");
+    e.reply("请正确填写时间\n时间单位：分钟，范围[1-60)\n示例：B站推送时�?10");
     return true;
   }
 
   BilibiliPushConfig.dynamicPushTimeInterval = time;
   await saveConfigJson();
-  e.reply(`设置间隔时间 ${time}分钟 成功，重启后生效~\n请手动重启或发送#重启`);
+  e.reply(`设置间隔时间 ${time}分钟 成功，重启后生效~\n请手动重启或发�?重启`);
 
   return true;
 }
 
-// 设置B站推送过期时间
-export async function setBiliPushFaultTime(e) {
+// 设置B站推送过期时�?export async function setBiliPushFaultTime(e) {
   if (!e.isMaster) {
     return false;
   }
 
-  let time = e.msg.split("B站推送过期时间")[1].trim();
+  let time = e.msg.split("B站推送过期时�?)[1].trim();
   time = Number(time);
 
   if (time < 1 || time > 24) {
-    e.reply("请正确填写时间\n时间单位：小时，范围[1-24]\n示例：B站推送过期时间 9");
+    e.reply("请正确填写时间\n时间单位：小时，范围[1-24]\n示例：B站推送过期时�?9");
     return true;
   }
 
   BilibiliPushConfig.dynamicPushFaultTime = time;
   await saveConfigJson();
-  e.reply(`设置过期时间 ${time}小时 成功，重启后生效~\n请手动重启或发送#重启`);
+  e.reply(`设置过期时间 ${time}小时 成功，重启后生效~\n请手动重启或发�?重启`);
 
   return true;
 }
 
-// (开启|关闭)B站转发推送
-export async function changeBiliPushTransmit(e) {
+// (开启|关闭)B站转发推�?export async function changeBiliPushTransmit(e) {
   if (!isAllowPushFunc(e)) {
     return false;
   }
@@ -606,13 +573,13 @@ export async function changeBiliPushTransmit(e) {
     return true;
   }
 
-  if (e.msg.indexOf("开启") > -1) {
+  if (e.msg.indexOf("开�?) > -1) {
     PushBilibiliDynamic[pushID].pushTransmit = true;
-    e.reply("设置成功~转发的动态也会推送了哦");
+    e.reply("设置成功~转发的动态也会推送了�?);
   }
   if (e.msg.indexOf("关闭") > -1) {
     PushBilibiliDynamic[pushID].pushTransmit = false;
-    e.reply("好滴~不会推送转发的动态了哦");
+    e.reply("好滴~不会推送转发的动态了�?);
   }
 
   await savePushJson();
@@ -620,7 +587,7 @@ export async function changeBiliPushTransmit(e) {
   return true;
 }
 
-// 设置B站推送(默认|合并|图片)
+// 设置B站推�?默认|合并|图片)
 export async function setBiliPushSendType(e) {
   if (!isAllowPushFunc(e)) {
     return false;
@@ -664,20 +631,18 @@ export async function setBiliPushSendType(e) {
     await savePushJson();
   }
 
-  e.reply(`设置B站推送方式【${type}】成功！`);
+  e.reply(`设置B站推送方式�?{type}】成功！`);
 
   return true;
 }
 
-// 推送定时任务
-export async function pushScheduleJob(e = {}) {
+// 推送定时任�?export async function pushScheduleJob(e = {}) {
   if (e.msg) return false; 
   if (e.msg && !e.isMaster) {
     return false;
   }
   
-  // 没有任何人正在开启B站推送
-  if (Object.keys(PushBilibiliDynamic).length === 0) {
+  // 没有任何人正在开启B站推�?  if (Object.keys(PushBilibiliDynamic).length === 0) {
     return true;
   }
 
@@ -691,10 +656,9 @@ export async function pushScheduleJob(e = {}) {
     }
   }
 
-  Bot.logger.mark("liulian-plugin —— B站动态定时推送");
+  logger.mark("liulian-plugin —�?B站动态定时推�?);
 
-  // 将上一次推送的动态全部合并到历史记录中
-  let hisArr = new Set(dynamicPushHistory);
+  // 将上一次推送的动态全部合并到历史记录�?  let hisArr = new Set(dynamicPushHistory);
   for (let [userId, pushList] of nowDynamicPushList) {
     for (let msg of pushList) {
       hisArr.add(msg.id_str);
@@ -704,8 +668,7 @@ export async function pushScheduleJob(e = {}) {
   await redis.set("liulian:bilipush:history", JSON.stringify(dynamicPushHistory), { EX: 24 * 60 * 60 }); // 仅存储一次，过期时间24小时
 
   nowPushDate = Date.now();
-  nowDynamicPushList = new Map(); // 清空上次的推送列表
-
+  nowDynamicPushList = new Map(); // 清空上次的推送列�?
   let temp = PushBilibiliDynamic;
   for (let user in temp) {
     temp[user].pushTarget = user; // 保存推送QQ对象
@@ -716,8 +679,7 @@ export async function pushScheduleJob(e = {}) {
   }
 }
 
-// 定时任务是否给这个QQ对象推送B站动态
-function isAllowSchedulePush(user) {
+// 定时任务是否给这个QQ对象推送B站动�?function isAllowSchedulePush(user) {
   if (botConfig.masterQQ.includes(Number(user.pushTarget))) return true; // 主人的命令就是一切！
 
   if (!user.isNewsPush) return false; // 不推那当然。。不推咯
@@ -727,17 +689,13 @@ function isAllowSchedulePush(user) {
   return true;
 }
 
-// 动态推送
-async function pushDynamic(pushInfo) {
+// 动态推�?async function pushDynamic(pushInfo) {
   let users = pushInfo.biliUserList;
   for (let i = 0; i < users.length; i++) {
     let biliUID = users[i].uid;
-    // 请求这个B站用户动态之前，先看看刚刚有没有请求过这个B  站用户，有就不需要再请求了
-    let lastPushList = nowDynamicPushList.get(biliUID);
-    // 刚刚请求过了，不再请求
-    if (lastPushList) {
-      // 刚刚请求时候就没有可以推送的内容，跳过
-      if (lastPushList.length === 0) {
+    // 请求这个B站用户动态之前，先看看刚刚有没有请求过这个B  站用户，有就不需要再请求�?    let lastPushList = nowDynamicPushList.get(biliUID);
+    // 刚刚请求过了，不再请�?    if (lastPushList) {
+      // 刚刚请求时候就没有可以推送的内容，跳�?      if (lastPushList.length === 0) {
         continue;
       }
       await sendDynamic(pushInfo, users[i], lastPushList);
@@ -747,40 +705,30 @@ async function pushDynamic(pushInfo) {
     //BiliReqHeaders.cookie = `DedeUserID=${biliUID}`
     const response = await fetch(url, { method: "get", headers: BiliReqHeaders });
     if (!response.ok) {
-      // 请求失败，不记录，跳过，下一个
-      await common.sleep(BiliApiRequestTimeInterval);
+      // 请求失败，不记录，跳过，下一�?      await common.sleep(BiliApiRequestTimeInterval);
       continue;
     }
     const res = await response.json();
     if (res.code != 0) {
-      // 同样请求失败，不记录，跳过，下一个
-      await common.sleep(BiliApiRequestTimeInterval);
+      // 同样请求失败，不记录，跳过，下一�?      await common.sleep(BiliApiRequestTimeInterval);
       continue;
     }
     let data = res?.data?.items || [];
     if (data.length === 0) {
-      // 没有动态，记录一个空数组，跳过，下一个
-      await common.sleep(BiliApiRequestTimeInterval);
+      // 没有动态，记录一个空数组，跳过，下一�?      await common.sleep(BiliApiRequestTimeInterval);
       nowDynamicPushList.set(biliUID, []);
       continue;
     }
-    let pushList = new Set(); // 满足时间要求的可推送动态列表
-    // 获取可以推送的动态列表
-    for (let val of data) {
+    let pushList = new Set(); // 满足时间要求的可推送动态列�?    // 获取可以推送的动态列�?    for (let val of data) {
       let author = val?.modules?.module_author || {};
-      if (!author?.pub_ts) continue; // 没有推送时间，这属于数据有问题。。。跳过，下一个
-      author.pub_ts = author.pub_ts * 1000;
-      // 允许推送多早以前的动态，重要，超过了设定时间则不推
-      if (nowPushDate - author.pub_ts > DynamicPushTimeInterval) {
+      if (!author?.pub_ts) continue; // 没有推送时间，这属于数据有问题。。。跳过，下一�?      author.pub_ts = author.pub_ts * 1000;
+      // 允许推送多早以前的动态，重要，超过了设定时间则不�?      if (nowPushDate - author.pub_ts > DynamicPushTimeInterval) {
         continue;
       }
       pushList.add(val);
     }
-    pushList = rmDuplicatePushList([...pushList]); // 数据去重，确保不会重复推送
-    nowDynamicPushList.set(biliUID, pushList); // 记录本次满足时间要求的可推送动态列表，为空也存，待会再查到就跳过
-    if (pushList.length === 0) {
-      // 没有可以推送的，记录完就跳过，下一个
-      await common.sleep(BiliApiRequestTimeInterval);
+    pushList = rmDuplicatePushList([...pushList]); // 数据去重，确保不会重复推�?    nowDynamicPushList.set(biliUID, pushList); // 记录本次满足时间要求的可推送动态列表，为空也存，待会再查到就跳�?    if (pushList.length === 0) {
+      // 没有可以推送的，记录完就跳过，下一�?      await common.sleep(BiliApiRequestTimeInterval);
       continue;
     }
     await sendDynamic(pushInfo, users[i], pushList);
@@ -789,18 +737,16 @@ async function pushDynamic(pushInfo) {
   return true;
 }
 
-// 历史推送过的动态，这一轮不推
-function rmDuplicatePushList(newList) {
+// 历史推送过的动态，这一轮不�?function rmDuplicatePushList(newList) {
   if (newList && newList.length === 0) return newList;
   return newList.filter((item) => {
     return !dynamicPushHistory.includes(item.id_str);
   });
 }
 
-// 发送动态内容
-async function sendDynamic(info, biliUser, list) {
+// 发送动态内�?async function sendDynamic(info, biliUser, list) {
   let pushID = info.pushTarget;
-  Bot.logger.mark(`B站推送[${pushID}]`);
+  logger.mark(`B站推送[${pushID}]`);
 
   for (let val of list) {
     let msg = buildSendDynamic(biliUser, val, info);
@@ -809,7 +755,7 @@ async function sendDynamic(info, biliUser, list) {
       continue;
     }
     if (!msg) {
-      Bot.logger.mark(`B站动态推送[${pushID}] - [${biliUser.name}]，推送失败，动态信息解析失败`);
+      logger.mark(`B站动态推送[${pushID}] - [${biliUser.name}]，推送失败，动态信息解析失败`);
       continue;
     }
 
@@ -821,47 +767,41 @@ async function sendDynamic(info, biliUser, list) {
     if (info.isGroup) {
       Bot.pickGroup(pushID)
         .sendMsg(msg)
-        .catch((err) => { // 推送失败，可能仅仅是某个群推送失败
-          // dynamicPushFailed.set(pushID, val.id_str);
+        .catch((err) => { // 推送失败，可能仅仅是某个群推送失�?          // dynamicPushFailed.set(pushID, val.id_str);
           pushAgain(pushID, msg);
         });
     } else {
       common.relpyPrivate(pushID, msg);
     }
 
-    await common.sleep(BotHaveARest); // 休息一下，别一口气发一堆
-  }
+    await common.sleep(BotHaveARest); // 休息一下，别一口气发一�?  }
 
   return true;
 }
 
-// 群推送失败了，再推一次，再失败就算球了
-async function pushAgain(groupId, msg) {
+// 群推送失败了，再推一次，再失败就算球�?async function pushAgain(groupId, msg) {
   await common.sleep(BotHaveARest);
 
   Bot.pickGroup(groupId)
   .sendMsg(msg)
   .catch((err) => {
-    Bot.logger.mark(`群[${groupId}]推送失败：${err}`);
+    logger.mark(`群[${groupId}]推送失败：${err}`);
   });
 
   return true;
 }
 
-// 构建动态消息
-function buildSendDynamic(biliUser, dynamic, info) {
+// 构建动态消�?function buildSendDynamic(biliUser, dynamic, info) {
   let desc, msg, pics;
   let title = `${biliUser.name}「动态」推送：\n`;
 
-  // 以下对象结构参考米游社接口，接口在顶部定义了
-  switch (dynamic.type) {
+  // 以下对象结构参考米游社接口，接口在顶部定义�?  switch (dynamic.type) {
     case "DYNAMIC_TYPE_AV":
       desc = dynamic?.modules?.module_dynamic?.major?.archive;
       if (!desc) return;
 
       title = `${biliUser.name}「视频」推送：\n`;
-      // 视频动态仅由标题、封面、链接组成
-      msg = [title, desc.title, segment.image(desc.cover), resetLinkUrl(desc.jump_url)];
+      // 视频动态仅由标题、封面、链接组�?      msg = [title, desc.title, segment.image(desc.cover), resetLinkUrl(desc.jump_url)];
 
       return msg;
     case "DYNAMIC_TYPE_WORD":
@@ -892,9 +832,7 @@ function buildSendDynamic(biliUser, dynamic, info) {
       if (getSendType(info) != "default") {
         msg = [title, `${desc.text}\n`, ...pics, `${BiliDrawDynamicLinkUrl}${dynamic.id_str}`];
       } else {
-        if (pics.length > DynamicPicCountLimit) pics.length = DynamicPicCountLimit; // 最多发DynamicPicCountLimit张图，不然要霸屏了
-        // 图文动态由内容（经过删减避免过长）、图片、链接组成
-        msg = [title, `${dynamicContentLimit(desc.text)}\n`, ...pics, `${BiliDrawDynamicLinkUrl}${dynamic.id_str}`];
+        if (pics.length > DynamicPicCountLimit) pics.length = DynamicPicCountLimit; // 最多发DynamicPicCountLimit张图，不然要霸屏�?        // 图文动态由内容（经过删减避免过长）、图片、链接组�?        msg = [title, `${dynamicContentLimit(desc.text)}\n`, ...pics, `${BiliDrawDynamicLinkUrl}${dynamic.id_str}`];
       }
 
       return msg;
@@ -910,12 +848,10 @@ function buildSendDynamic(biliUser, dynamic, info) {
       }
 
       title = `${biliUser.name}「文章」推送：\n`;
-      // 专栏/文章动态由标题、图片、链接组成
-      msg = [title, desc.title, ...pics, resetLinkUrl(desc.jump_url)];
+      // 专栏/文章动态由标题、图片、链接组�?      msg = [title, desc.title, ...pics, resetLinkUrl(desc.jump_url)];
 
       return msg;
-    case "DYNAMIC_TYPE_FORWARD": // 转发的动态
-      let pushTransmit = info.pushTransmit;
+    case "DYNAMIC_TYPE_FORWARD": // 转发的动�?      let pushTransmit = info.pushTransmit;
       if (!pushTransmit) return "can't push transmit";
 
       desc = dynamic?.modules?.module_dynamic?.desc;
@@ -937,14 +873,14 @@ function buildSendDynamic(biliUser, dynamic, info) {
       if (getSendType(info) != "default") {
         msg = [
           title,
-          `${desc.text}\n---以下为转发内容---\n`,
+          `${desc.text}\n---以下为转发内�?--\n`,
           ...orig,
           `${BiliDrawDynamicLinkUrl}${dynamic.id_str}`,
         ];
       } else {
         msg = [
           title,
-          `${dynamicContentLimit(desc.text, 1, 15)}\n---以下为转发内容---\n`,
+          `${dynamicContentLimit(desc.text, 1, 15)}\n---以下为转发内�?--\n`,
           ...orig,
           `${BiliDrawDynamicLinkUrl}${dynamic.id_str}`,
         ];
@@ -960,18 +896,16 @@ function buildSendDynamic(biliUser, dynamic, info) {
       if (!desc) return;
 
       title = `${biliUser.name}「直播」动态推送：\n`;
-      // 直播动态由标题、封面、链接组成
-      msg = [title, `${desc.title}\n`, segment.image(desc.cover), resetLinkUrl(desc.link)];
+      // 直播动态由标题、封面、链接组�?      msg = [title, `${desc.title}\n`, segment.image(desc.cover), resetLinkUrl(desc.link)];
 
       return msg;
     default:
-      Bot.logger.mark(`未处理的B站推送『${biliUser.name}』：${dynamic.type}`);
+      logger.mark(`未处理的B站推送�?{biliUser.name}』：${dynamic.type}`);
       return false;
   }
 }
 
-// 限制动态字数/行数，避免过长影响观感（霸屏）
-function dynamicContentLimit(content, lineLimit, lenLimit) {
+// 限制动态字�?行数，避免过长影响观感（霸屏�?function dynamicContentLimit(content, lineLimit, lenLimit) {
   content = content.split("\n");
 
   lenLimit = lenLimit || DynamicContentLenLimit;
@@ -979,14 +913,11 @@ function dynamicContentLimit(content, lineLimit, lenLimit) {
 
   if (content.length > lineLimit) content.length = lineLimit;
 
-  let contentLen = 0; // 内容总长度
-  let outLen = false; // 溢出 flag
+  let contentLen = 0; // 内容总长�?  let outLen = false; // 溢出 flag
   for (let i = 0; i < content.length; i++) {
-    let len = lenLimit - contentLen; // 这一段内容允许的最大长度
-
+    let len = lenLimit - contentLen; // 这一段内容允许的最大长�?
     if (outLen) {
-      // 溢出了，后面的直接删掉
-      content.splice(i--, 1);
+      // 溢出了，后面的直接删�?      content.splice(i--, 1);
       continue;
     }
     if (content[i].length > len) {
@@ -1010,16 +941,13 @@ function resetLinkUrl(url) {
   return url;
 }
 
-// 是否被禁用了B站推送功能
-function isAllowPushFunc(e) {
-  if (e.isMaster) return true; // master当然是做什么都可以咯
-
+// 是否被禁用了B站推送功�?function isAllowPushFunc(e) {
+  if (e.isMaster) return true; // master当然是做什么都可以�?
   let pushID = "";
   if (e.isGroup) {
     pushID = e.group_id;
   } else {
-    // 私聊禁止使用哦
-    if (!BilibiliPushConfig.allowPrivate) {
+    // 私聊禁止使用�?    if (!BilibiliPushConfig.allowPrivate) {
       return false;
     }
     pushID = e.user_id;
@@ -1036,8 +964,7 @@ function isAllowPushFunc(e) {
   return info.allowPush !== false;
 }
 
-// 判断当前不是默认推送方式
-function getSendType(info) {
+// 判断当前不是默认推送方�?function getSendType(info) {
   if (BilibiliPushConfig.sendType && BilibiliPushConfig.sendType != "default") return BilibiliPushConfig.sendType;
   if (info.sendType) return info.sendType;
   return "default";
@@ -1048,21 +975,19 @@ function contentFilter(inContent) {
    const cfg = config.getdefault_config('bilibiliPush', 'bilibiliPushFilter', 'config');
   for (const keyword of cfg.FilterKeyword) {
     if (RegExp(keyword).exec(inContent)) {
-      Bot.logger.mark(`B站动态推送拦截关键词: ${keyword}`);
+      logger.mark(`B站动态推送拦截关键词: ${keyword}`);
       return false;
     }
   }
   return true;
 }
 
-// 存储B站推送信息
-async function savePushJson() {
+// 存储B站推送信�?async function savePushJson() {
   let path = _path + "/data/PushNews/PushBilibiliDynamic.json";
   fs.writeFileSync(path, JSON.stringify(PushBilibiliDynamic, "", "\t"));
 }
 
-// 存储B站推送配置信息
-async function saveConfigJson() {
+// 存储B站推送配置信�?async function saveConfigJson() {
   let path = _path + "/data/PushNews/BilibiliPushConfig.json";
   fs.writeFileSync(path, JSON.stringify(BilibiliPushConfig, "", "\t"));
 }
