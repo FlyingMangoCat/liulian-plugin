@@ -10,7 +10,9 @@ import path from "path"
 import Cfg from '../components/Cfg.js'
 import co from '../tools/common-black.js'
 import { logger } from '../components/index.js'
-import { segment } from "oicq"
+
+// 安全获取segment对象
+const segment = global.segment || global.Bot?.segment || {}
 
 const __dirname = path.resolve();
 

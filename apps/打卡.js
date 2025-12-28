@@ -1,7 +1,9 @@
 import fetch from "node-fetch";
 import Cfg from '../components/Cfg.js'
 import config from "../model/config/config.js"
-import { segment } from "oicq"
+
+// 安全获取segment对象
+const segment = global.segment || global.Bot?.segment || {}
 
 const _path = process.cwd();
 

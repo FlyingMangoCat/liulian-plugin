@@ -1,6 +1,8 @@
 import fetch from "node-fetch";
 import lodash from "lodash";
-import { segment } from "oicq"
+
+// 安全获取segment对象
+const segment = global.segment || global.Bot?.segment || {}
 const _path = process.cwd();
 // 改为false可关闭功能
 let ercy = true;     //二次元的我

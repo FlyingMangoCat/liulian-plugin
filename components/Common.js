@@ -1,6 +1,8 @@
 import Cfg from './Cfg.js'
 import { currentVersion, yunzaiVersion, isV3 } from './Changelog.js'
-import { segment } from "oicq"
+
+// 安全获取segment对象
+const segment = global.segment || global.Bot?.segment || {}
 
 // 渲染函数：处理模板渲染和布局
 export const render = async function (path, params, cfg) {

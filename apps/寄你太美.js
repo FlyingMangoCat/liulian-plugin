@@ -4,7 +4,9 @@ import fetch from "node-fetch";
 import path from "path"
 import fs from "fs"
 import co from '../tools/common-black.js'
-import { segment } from "oicq"
+
+// 安全获取segment对象
+const segment = global.segment || global.Bot?.segment || {}
 const __dirname = path.resolve();
 const hmd_userqq = []; //对于某用户黑名单 ,隔开
 const bmd_GroupQQ = [790621765,363475402,849341971,231381173,278546012]; //需要使用的群的白名单 ,隔开

@@ -4,7 +4,9 @@ import path from 'path';
 import moment from 'moment';
 import lodash from "lodash";
 import config from "../model/config/config.js"
-import { segment } from "oicq"
+
+// 安全获取segment对象
+const segment = global.segment || global.Bot?.segment || {}
 const cfg = config.getdefault_config('liulian', 'botname', 'config');
   const botname = cfg.botname
 let godeye = true;
