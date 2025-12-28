@@ -4,15 +4,26 @@
  */
 
 // 初始化logger，提供备用机制
-const logger = global.logger || global.Bot?.logger || {}
+// 确保logger对象始终存在，避免undefined错误
+let logger = global.logger || global.Bot?.logger || console
 
-// 确保所有日志方法都有备用机制
-if (!logger.mark) logger.mark = console.log
-if (!logger.error) logger.error = console.error  
-if (!logger.debug) logger.debug = console.debug
-if (!logger.info) logger.info = console.info
-if (!logger.warn) logger.warn = console.warn
-if (!logger.trace) logger.trace = console.trace
+// 如果logger是console对象，确保它有所有需要的方法
+if (logger === console) {
+  // console对象已经包含所有基础方法，无需额外处理
+} else {
+  // 确保logger对象不为undefined
+  if (!logger) {
+    logger = console
+  }
+  
+  // 确保所有日志方法都有备用机制
+  if (!logger.mark) logger.mark = console.log
+  if (!logger.error) logger.error = console.error  
+  if (!logger.debug) logger.debug = console.debug
+  if (!logger.info) logger.info = console.info
+  if (!logger.warn) logger.warn = console.warn
+  if (!logger.trace) logger.trace = console.trace
+}
 
 // 添加一些有用的工具方法
 if (!logger.green) {
