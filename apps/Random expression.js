@@ -51,7 +51,7 @@ export const rule = {
     // 概率随机发送表情包
 	random: {
     reg: "noCheck", // 不检查正则，匹配所有消息
-    priority: 59,
+    priority: 114514,
     describe: "概率随机发送表情包",  
     },
     // 上传表情包
