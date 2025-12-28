@@ -1,10 +1,14 @@
-# 0.11.0
+# 0.11.1
 
-* 完善更新日志记录
 * **系统优化**相关更新ⁿᵉʷ
-      * 提升系统整体稳定性
-      * 优化插件加载机制
-      * 完善错误处理机制
+      * 彻底解决`cannot read properties of undefined (reading "mark")`错误
+      * 修复logger对象未定义问题，增强初始化逻辑
+      * 修复所有Bot.logger访问问题，统一使用安全logger
+      * 创建BotHelper安全访问工具，提供完整的Bot对象保护
+      * 修复segment对象导入问题，避免直接依赖oicq包
+      * 将logger改为动态获取，确保后备机制始终可用
+      * 修复common-black.js的logger导出问题
+      * 提升插件在各种环境下的兼容性和稳定性
 
 # 0.10.9
 
