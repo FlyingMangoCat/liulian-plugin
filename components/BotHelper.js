@@ -7,22 +7,30 @@
 const Bot = global.Bot || {}
 
 // 安全获取logger对象，优先使用Bot.logger
-const BotLogger = Bot.logger || global.logger || console
+let BotLogger = Bot.logger || global.logger || console
 
-// 确保logger方法存在
+// 确保logger对象存在
+if (!BotLogger) {
+  BotLogger = console
+}
+
+// 无论logger是什么，都确保所有方法存在
 if (!BotLogger.mark) BotLogger.mark = console.log
 if (!BotLogger.error) BotLogger.error = console.error
 if (!BotLogger.debug) BotLogger.debug = console.debug
 if (!BotLogger.info) BotLogger.info = console.info
 if (!BotLogger.warn) BotLogger.warn = console.warn
+if (!BotLogger.trace) BotLogger.trace = console.trace
 
 // 安全访问Bot的常用属性和方法
 const safeBot = {
   // Bot对象本身
   Bot,
   
-  // Logger对象
-  logger: BotLogger,
+  // Logger对象 - 使用getter确保始终获取最新的安全logger
+  get logger() {
+    return BotLogger
+  },
   
   // 安全访问Bot.fl
   get fl() {
