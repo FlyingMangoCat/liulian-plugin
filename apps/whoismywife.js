@@ -1,6 +1,7 @@
 import { segment } from "oicq";
 import fetch from "node-fetch";
 import Cfg from '../components/Cfg.js'
+import { logger } from '../components/index.js'
 //项目路径
 const _path = process.cwd();
 let GayCD = { };
@@ -44,7 +45,7 @@ if (random < 5) {
             `【${randomWife.nickname}】 (${randomWife.user_id}) 哒哒哒！(健康使用要刷屏！)`
         ]
         e.reply(msg);
-        Bot.logger.mark('第一个老婆最后发言时间：'+getMyDate(randomWife.last_sent_time*1000));
+        logger.mark('第一个老婆最后发言时间：'+getMyDate(randomWife.last_sent_time*1000));
         return true; 
     }
     let randomWife2 = arrMember[Math.round(Math.random() * (arrMember.length-1))];
@@ -56,7 +57,7 @@ if (random < 5) {
             `【${randomWife2.nickname}】 (${randomWife2.user_id}) 哒哒哒！快点趁热入洞房吧！(健康使用不要刷屏！)`
         ]
         e.reply(msg);
-        Bot.logger.mark('第二个老婆最后发言时间：'+getMyDate(randomWife2.last_sent_time*1000));
+        logger.mark('第二个老婆最后发言时间：'+getMyDate(randomWife2.last_sent_time*1000));
         return true; 
     }
     let randomWife3 = arrMember[Math.round(Math.random() * (arrMember.length-1))];

@@ -65,12 +65,9 @@ async function relpyPrivate(user_id, msg, isStranger = false) {
     }
 
     if (group_id) {
-      Bot.logger.mark(`发送临时消息[${group_id}]（${user_id}）`);
-
-      let res = await Bot.pickMember(group_id, user_id)
-        .sendMsg(msg)
-        .catch((err) => {
-          Bot.logger.mark(err);
+      logger.mark(`发送临时消息[${group_id}]（${user_id}）`);
+          let res = await Bot.pickMember(group_id, user_id).sendMsg(msg).catch((err) => {
+            logger.mark(err);
         });
 
       if (res) {
@@ -81,7 +78,7 @@ async function relpyPrivate(user_id, msg, isStranger = false) {
 
       redis.incr(`Yunzai:sendMsgNum:${Bot.uin}`);
     } else {
-      Bot.logger.mark(`发送临时消息失败：[${user_id}]`);
+      logger.mark(`发送临时消息失败：[${user_id}]`);
     }
   }
 }
