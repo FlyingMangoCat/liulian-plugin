@@ -1,3 +1,10 @@
+# 0.11.2
+
+* **修复**ⁿᵉʷ
+      * 修复文件编码问题，恢复乱码文件
+      * 从12/28之前的版本恢复 apps/bilibiliPush.js、apps/whoismywife.js、components/crender.js
+      * 解决因编码问题导致的加载错误
+
 # 0.11.1
 
 * **优化**ⁿᵉʷ
