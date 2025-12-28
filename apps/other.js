@@ -1,5 +1,6 @@
 import fetch from "node-fetch";
 import lodash from "lodash";
+import { segment } from "oicq"
 const _path = process.cwd();
 // 改为false可关闭功能
 let ercy = true;     //二次元的我

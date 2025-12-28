@@ -5,6 +5,7 @@ import template from 'art-template'
 import fs from 'fs'
 import lodash from 'lodash'
 import { logger } from '../../components/index.js'
+import { segment } from "oicq"
 
 const _path = process.cwd()
 

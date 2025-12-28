@@ -10,6 +10,7 @@ import path from "path"
 import Cfg from '../components/Cfg.js'
 import co from '../tools/common-black.js'
 import { logger } from '../components/index.js'
+import { segment } from "oicq"
 
 const __dirname = path.resolve();
 
