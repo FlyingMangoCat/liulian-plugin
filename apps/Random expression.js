@@ -7,7 +7,7 @@
 import lodash from "lodash";
 import fs from "fs"
 import path from "path"
-import { logger, liulianSafe } from '#liulian'
+import { Cfg, logger, liulianSafe } from '#liulian'
 import co from '../tools/common-black.js'
 
 // 安全获取segment对象
