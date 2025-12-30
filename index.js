@@ -7,7 +7,7 @@ import crypto from 'crypto'
 // 原始插件信息（用于校验）
 const ORIGINAL_PLUGIN_INFO = {
   pluginname: '榴莲（Liulian）',
-  version: '0.11.5',
+  version: '0.11.6',
   author: '会飞的芒果猫&萧枘'
 };
 
