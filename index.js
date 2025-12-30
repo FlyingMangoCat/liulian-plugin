@@ -25,7 +25,7 @@ try {
   console.error('[榴莲插件] 配置文件读取失败，使用默认值:', error)
   plugininfo_default = {
     pluginname: '榴莲（Liulian）',
-    version: '0.11.3',
+    version: '0.11.4',
     author: '会飞的芒果猫&萧枘'
   }
 }
@@ -40,44 +40,26 @@ try {
     redisAvailable = true
   }
 } catch (error) {
-  console.error('[榴莲插件] Redis不可用，将使用本地配置:', error)
-  redisAvailable = false
+  console.error('[榴莲插件] Redis 初始化失败:', error)
 }
 
-// 获取当前插件信息
-let currentplugininfo
-try {
-  if (redisAvailable) {
-    currentplugininfo = await config.getcurrentplugininfo()
-  } else {
-    // 如果Redis不可用，使用默认配置
-    currentplugininfo = plugininfo_default
-  }
-} catch (error) {
-  console.error('[榴莲插件] 获取插件信息失败，使用默认值:', error)
-  currentplugininfo = plugininfo_default
+// 插件加载成功提示
+const _pluginInfo = {
+  name: plugininfo_default.pluginname,
+  version: plugininfo_default.version,
+  author: plugininfo_default.author
 }
 
-// 确保所有必要的字段都存在
-currentplugininfo = {
-  pluginname: currentplugininfo.pluginname || plugininfo_default.pluginname,
-  version: currentplugininfo.version || plugininfo_default.version,
-  author: currentplugininfo.author || plugininfo_default.author,
-  qq: currentplugininfo.qq || plugininfo_default.qq
+console.log(chalk.cyan(`\n====================`))
+console.log(chalk.cyan(`${_pluginInfo.name} v${_pluginInfo.version}`))
+console.log(chalk.cyan(`作者: ${_pluginInfo.author}`))
+console.log(chalk.cyan(`====================\n`))
+
+if (redisAvailable) {
+  console.log(chalk.green('[榴莲插件] Redis 连接成功'))
+} else {
+  console.log(chalk.yellow('[榴莲插件] Redis 连接失败，部分功能可能受限'))
 }
 
-// 安全的日志输出
-try {
-  if (typeof logger !== 'undefined' && logger) {
-    logger.info(`~~~~~~~~~~~ ^_^ ~~~~~~~~~~~`)
-    logger.info(`~\t${chalk.yellow('欢迎使用' + currentplugininfo.pluginname + '插件')}`)
-    logger.info(`~\t${chalk.green('版本：')}\t${chalk.blue(currentplugininfo.version)}`)
-    logger.info(`~\t${chalk.green('作者：')}${chalk.greenBright(currentplugininfo.author)}`)
-    logger.info(`~~~~~~~~~~~~~~~~~~~~~~~~~~~~~`)
-  }
-} catch (error) {
-  console.error('[榴莲插件] 日志输出失败:', error)
-}
-
-console.log(`\t${chalk.greenBright('榴莲插件' + currentplugininfo.version + '初始化完成')}`)
-console.log(`\t${chalk.yellow('Redis状态：')}${redisAvailable ? chalk.green('可用') : chalk.red('不可用（使用本地配置）')}`)
+// 导出插件信息
+export const pluginInfo = _pluginInfo
