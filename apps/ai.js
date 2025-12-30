@@ -3,7 +3,7 @@
 
 import { AIManager } from './ai/index.js';
 import config from '../config/ai.js';
-import Cfg from '#liulian'
+import { Cfg } from '#liulian'
 
 // 导出中间件模式下的处理函数
 export async function handleMiddlewareRequest(data) {

@@ -5,7 +5,7 @@
 */
 
 import lodash from "lodash";
-import Cfg from '#liulian';
+import { Cfg } from '#liulian';
 import crypto from 'crypto';
 
 // 原始宣传内容（用于校验）

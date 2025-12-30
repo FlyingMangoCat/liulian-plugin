@@ -1,5 +1,5 @@
 import fetch from "node-fetch";
-import Cfg from '#liulian'
+import { Cfg } from '#liulian'
 import config from "../model/config/config.js"
 
 // 安全获取segment对象

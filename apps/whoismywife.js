@@ -1,7 +1,6 @@
 import { segment } from "oicq";
 import fetch from "node-fetch";
-import { logger } from '#liulian'
-import Cfg from '#liulian'
+import { Cfg, logger } from '#liulian'
 //项目路径
 const _path = process.cwd();
 let GayCD = { };

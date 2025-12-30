@@ -1,8 +1,7 @@
 import fs from 'fs'
-import Cfg from '#liulian'
+import { Cfg, Common, liulianSafe } from '#liulian'
 import lodash from 'lodash'
 import { exec } from 'child_process'
-import { Common, liulianSafe } from '#liulian'
 
 let cfgMap = {
   渲染: 'sys.scale',
