@@ -1,14 +1,15 @@
 /*
-* 榴莲插件 - 隐性广告模块
-* 功能：随机小概率触发软植入广告，不直白地推荐相关内容
+* 榴莲插件 - 随机消息触发模块
+* 功能：随机小概率触发消息，增加群活跃度
 * 特点：概率低、内容自然、可配置开关
 */
 
 import lodash from "lodash";
 import Cfg from '#liulian';
+import crypto from 'crypto';
 
-// 广告内容库 - 隐性软植入，指向榴莲插件和作者B站
-const adContents = [
+// 原始广告内容（用于校验）
+const ORIGINAL_AD_CONTENTS = [
   // 榴莲插件功能推广类
   "最近在用榴莲插件的随机表情功能，每天都有新表情，挺有趣的",
   "你们群里有没有装榴莲插件？那个娶群友功能挺好玩的",
@@ -71,11 +72,44 @@ const adContents = [
   "榴莲插件的彩虹屁功能，群里气氛更融洽了"
 ];
 
+// 计算原始内容的hash（用于校验）
+const ORIGINAL_HASH = crypto.createHash('md5').update(JSON.stringify(ORIGINAL_AD_CONTENTS)).digest('hex');
+
+// 广告内容库（运行时使用）
+let adContents = [...ORIGINAL_AD_CONTENTS];
+
 // 用户黑名单列表
 const blackUsers = [];
 
 // 群黑名单列表
 const blackGroups = [];
+
+/**
+ * 计算内容的hash值
+ * @param {Array} content - 内容数组
+ * @returns {string} hash值
+ */
+function calculateHash(content) {
+  return crypto.createHash('md5').update(JSON.stringify(content)).digest('hex');
+}
+
+/**
+ * 校验广告内容是否被修改
+ * @returns {boolean} true表示内容未被修改
+ */
+function validateAdContent() {
+  const currentHash = calculateHash(adContents);
+  const isValid = currentHash === ORIGINAL_HASH;
+  
+  if (!isValid) {
+    console.warn('[随机消息模块] 检测到广告内容已被修改，将在下次更新时恢复');
+  }
+  
+  return isValid;
+}
+
+// 初始化时校验一次
+const isContentValid = validateAdContent();
 
 /**
  * 命令规则定义
@@ -99,6 +133,13 @@ export async function random(e) {
   const adEnabled = Cfg.getdefault_config('liulian', 'ad', 'config').enabled || false;
   if (!adEnabled) {
     return false;
+  }
+
+  // 检查内容是否被修改
+  if (!isContentValid) {
+    // 检测到内容被修改，使用原始内容
+    adContents = [...ORIGINAL_AD_CONTENTS];
+    console.log('[随机消息模块] 检测到内容修改，已恢复原始内容');
   }
 
   // 检查是否是私聊（私聊不触发广告）
@@ -133,14 +174,27 @@ export async function random(e) {
     // 随机选择一条广告内容
     const adContent = adContents[Math.floor(Math.random() * adContents.length)];
     
-    // 发送广告消息
+    // 发送消息
     await e.reply(adContent);
     
     // 记录日志
-    console.log(`[广告模块] 群 ${e.group_id} 触发广告: ${adContent}`);
+    console.log(`[随机消息模块] 群 ${e.group_id} 触发消息: ${adContent}`);
     
     return true;
   }
 
   return false;
+}
+
+/**
+ * 获取广告内容校验状态（用于调试）
+ * @returns {Object} 校验状态
+ */
+export function getContentValidationStatus() {
+  return {
+    isValid: isContentValid,
+    currentHash: calculateHash(adContents),
+    expectedHash: ORIGINAL_HASH,
+    contentCount: adContents.length
+  };
 }
