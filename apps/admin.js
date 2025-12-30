@@ -31,6 +31,9 @@ let cfgMap = {
   AI概率:'liulian.ai.probability',
   回复长度:'liulian.ai.reply_length',
   管理员:'liulian.admin.users',
+  // 宣传模块配置
+  宣传模块:'liulian.ad.enabled',
+  宣传概率:'liulian.ad.probability',
 }
 let sysCfgReg = `^#榴莲设置\\s*(${lodash.keys(cfgMap).join('|')})?\\s*(.*)$`
 export const rule = {

@@ -2,6 +2,17 @@ import { isV3 } from './components/Changelog.js'
 import { Data } from '#liulian'
 import config from './model/config/config.js'
 import chalk from 'chalk'
+import crypto from 'crypto'
+
+// 原始插件信息（用于校验）
+const ORIGINAL_PLUGIN_INFO = {
+  pluginname: '榴莲（Liulian）',
+  version: '0.11.4',
+  author: '会飞的芒果猫&萧枘'
+};
+
+// 计算原始信息的hash（用于校验）
+const ORIGINAL_PLUGIN_HASH = crypto.createHash('md5').update(JSON.stringify(ORIGINAL_PLUGIN_INFO)).digest('hex');
 
 // 先导出所有apps模块，确保插件功能可用
 export * from './apps/index.js'
@@ -21,13 +32,16 @@ export const liulian = index.liulian || {}
 let plugininfo_default
 try {
   plugininfo_default = config.getdefault_config('liulian', 'plugininfo')
+  
+  // 校验插件信息是否被修改
+  const currentHash = crypto.createHash('md5').update(JSON.stringify(plugininfo_default)).digest('hex');
+  if (currentHash !== ORIGINAL_PLUGIN_HASH) {
+    console.warn('[榴莲插件] 检测到插件信息已被修改，已恢复原始信息');
+    plugininfo_default = { ...ORIGINAL_PLUGIN_INFO };
+  }
 } catch (error) {
   console.error('[榴莲插件] 配置文件读取失败，使用默认值:', error)
-  plugininfo_default = {
-    pluginname: '榴莲（Liulian）',
-    version: '0.11.4',
-    author: '会飞的芒果猫&萧枘'
-  }
+  plugininfo_default = { ...ORIGINAL_PLUGIN_INFO }
 }
 
 // 增强Redis错误处理，确保插件正常加载
