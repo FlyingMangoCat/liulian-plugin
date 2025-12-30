@@ -62,6 +62,7 @@ import { forge } from "./伪造信息.js"
 import { fabing } from "./morbidity.js"
 import { biaoQing, biaoQingHelp } from "./makeemoticons.js"
 import { random, chuochuo, 上传 } from "./Random expression.js"
+import { random as adRandom } from "./ad.js"
 import { FuckingChatterbox } from "./chatterboxStat.js"
 import { EndCheck,   
 musicanswerCheck,
@@ -256,6 +257,7 @@ export {
     forge,
     random,
     chuochuo,
+    adRandom,
     FuckingChatterbox,
     guessAvatar,
     guessAvatarCheck,
@@ -915,6 +917,11 @@ yl21: {
        reg: "#*表情帮助$", //匹配消息正则，命令正则
        priority: 100, //优先级，越小优先度越高
        describe: "表情帮助", //【命令】功能说明
+    },
+       ad: {
+       reg: "noCheck", //不检查正则，匹配所有消息
+       priority: 99999, //最低优先级，确保不干扰其他功能
+       describe: "概率随机触发隐性广告", //【命令】功能说明
     },
        fabing: {
        reg: "^#?发病(.*)$", //匹配消息正则，命令正则
