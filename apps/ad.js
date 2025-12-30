@@ -130,7 +130,7 @@ export const rule = {
  */
 export async function random(e) {
   // 检查是否开启宣传功能
-  const adEnabled = Cfg.getdefault_config('liulian', 'ad', 'config').enabled || false;
+  const adEnabled = Cfg.get('sys.ad', false);
   if (!adEnabled) {
     return false;
   }
@@ -166,8 +166,7 @@ export async function random(e) {
   const randomNum = lodash.random(0, 100);
   
   // 获取配置的触发概率（默认1%，建议1-3%）
-  const adConfig = Cfg.getdefault_config('liulian', 'ad', 'config');
-  const triggerProbability = adConfig.probability || 1;
+  const triggerProbability = Cfg.get('sys.adProbability', 1);
 
   // 如果随机数小于配置概率，则触发宣传
   if (randomNum < triggerProbability) {

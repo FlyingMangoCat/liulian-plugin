@@ -15,6 +15,18 @@
     "expression": 1,
     "gl": 50,
     "limit": 2,
-    "PluginName": 1
+    "PluginName": 1,
+    "scale": 100,
+    "ad": false,
+    "adProbability": 1,
+    "ai": {
+      "enabled": false,
+      "endpoint": "https://api.liulian.ai/v1",
+      "key": "",
+      "blacklistGroups": "",
+      "probability": 40,
+      "replyLength": 120,
+      "adminUsers": ""
+    }
   }
 }

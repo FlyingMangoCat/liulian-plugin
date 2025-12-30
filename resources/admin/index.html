@@ -259,4 +259,26 @@
     </li>
   </ul>
 </div>
+<div class="cfg-box">
+  <div class="cfg-group">宣传模块</div>
+  <ul class="cfg-ul">
+    <li class="cfg-li">
+      <div class="cfg-line">
+        宣传模块
+        <span class="cfg-hint">#榴莲设置宣传模块 + 开启/关闭 </span>
+        {{@ad}}
+      </div>
+      <div class="cfg-desc">开启后将随机小概率触发宣传消息，增加群活跃度</div>
+    </li>
+
+    <li class="cfg-li">
+      <div class="cfg-line">
+        宣传概率
+        <span class="cfg-hint">#榴莲设置宣传概率 1</span>
+        <div class="cfg-status">{{adProbability}}%</div>
+      </div>
+      <div class="cfg-desc">设置宣传消息触发概率，可选值1-3，建议1%</div>
+    </li>
+  </ul>
+</div>
 {{/block}}
