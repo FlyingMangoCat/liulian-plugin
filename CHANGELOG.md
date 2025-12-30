@@ -1,3 +1,12 @@
+# 0.11.3
+
+* **重构**ⁿᵉʷ
+      * 统一使用别名 `#liulian` 替代相对路径，简化模块导入
+      * 将 `BotHelper.js` 重命名为 `liulianSafe.js`，命名更符合项目规范
+      * 将 `safeBot` 改名为 `liulianSafe`，API 命名更清晰明确
+      * 修复 `updatecard.js` 的 `setCard` 调用错误，兼容不同适配器
+      * 所有 Bot 对象访问统一使用安全工具，提升兼容性和稳定性
+
 # 0.11.2
 
 * **修复**ⁿᵉʷ
