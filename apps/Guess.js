@@ -6,7 +6,7 @@ import fetch from "node-fetch";
 import sizeOf from 'image-size';
 import { roleIdToName, starroleIdToName } from "../components/mysInfo.js";
 import { getPluginRender } from '../model/render.js';
-import { Data } from "../components/index.js";
+import { Data } from "#liulian";
 const GAME_TIME_OUT = 30//游戏时长(秒)
 const _path = process.cwd();
 let music = [7351920257]; //这里改网易云的歌单id

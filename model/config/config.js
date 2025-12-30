@@ -1,7 +1,7 @@
 import fs from 'fs'
 import YAML from 'yaml'
 import chokidar from 'chokidar'
-import { logger } from '../../components/index.js'
+import { logger } from '#liulian'
 
 /** 配置文件管理类 */
 class config {

@@ -3,6 +3,7 @@ import fs from 'fs';
 import path from 'path';
 import moment from 'moment';
 import lodash from "lodash";
+import { liulianSafe } from '#liulian'
 import config from "../model/config/config.js"
 
 // 安全获取segment对象
@@ -395,7 +396,7 @@ export async function godEyesFUN(e) {
     name = e.sender.card;
   } else if (e.at) {
     qq = e.at * 1
-    let member = await Bot.getGroupMemberInfo(e.group_id, e.at).catch((err) => { })
+    let member = await liulianSafe.getGroupMemberInfo(e.group_id, e.at).catch((err) => { })
     name = member.nickname
   } else return true;
   let type = qq % 7;

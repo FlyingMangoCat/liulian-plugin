@@ -1,6 +1,6 @@
 import fs from "fs";
 import lodash from 'lodash';
-import { Cfg, Common } from '../components/index.js';
+import { Cfg, Common } from '#liulian';
 
 const _path = process.cwd();
 const helpPath = `${_path}/plugins/liulian-plugin/resources/pluginhelp`;

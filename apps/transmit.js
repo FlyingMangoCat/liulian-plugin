@@ -1,6 +1,7 @@
 import fetch from "node-fetch";
 import path from 'path';
 import fs from 'fs';
+import { liulianSafe } from '#liulian';
 
 /**
  * 带话给主人 支持文字、图片、以及表情
@@ -67,21 +68,21 @@ var msg = e.msg.replace("带话", "");
 		EX: parseInt(60 * time)
 	});
 	data_msg.unshift(`群${e.group_name}(${e.group_id}),用户： ${e.sender.nickname}(${e.user_id})给主人带话>`)
-	if (!data_msg) { 
+	if (!data_msg) {
 		return false
 	}
-	if (qq_.length == 0) { 
-		Bot.pickUser(BotConfig.masterQQ[0]).sendMsg(data_msg) //指定给单个人带话
+	if (qq_.length == 0) {
+		liulianSafe.pickUser(BotConfig.masterQQ[0]).sendMsg(data_msg) //指定给单个人带话
 	} else {
-		for (let i of qq_) { 
+		for (let i of qq_) {
 			let userId = i
-			Bot.pickUser(userId).sendMsg(data_msg)
+			liulianSafe.pickUser(userId).sendMsg(data_msg)
 		}
 	}
 
 	 for (let i of BotConfig.masterQQ) { //这里定义发送给所有主人
 	 	let userId = i
-	 	Bot.pickUser(userId).sendMsg(data_msg)
+	 	liulianSafe.pickUser(userId).sendMsg(data_msg)
 	 }
 
 	e.reply("已经带话给主人~")
@@ -126,7 +127,7 @@ async function sendMsg(qq, msg) {
 	count++;  //这行代码放在方法结尾第一次是秒触发 放方法开头是指定时间
 	// console.log(count)
 	setTimeout(() => { //间隔多久推送一次消息
-		Bot.pickGroup(Number(qq)).sendMsg(msg)
+		liulianSafe.pickGroup(Number(qq)).sendMsg(msg)
 	}, 10000 * count) //定时多少分钟执行 这里的单位是毫秒1000*60=1分钟 count是代表第几个群请勿删除
 }
 

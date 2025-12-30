@@ -1,6 +1,6 @@
 import os from 'os';
 import schedule from "node-schedule";
-import Cfg from '../components/Cfg.js'
+import Cfg from '#liulian'
 
 let botname = ''//这里改成bot的名字
 
@@ -13,8 +13,8 @@ schedule.scheduleJob("0 0/10 * * * ?", async () =>{
     const freeMen =os.freemem();
     let persent = (totalMem-freeMen)/totalMem*100;
     console.log(persent.toFixed(2));
-    for(let group of Bot.gl){
-        await Bot.pickGroup(group[0]).setCard(Bot.uin, `${botname || Bot.nickname}｜系统占用${persent.toFixed(2)}%`);
+    for(let group of liulianSafe.gl){
+        await liulianSafe.pickGroup(group[0]).setCard(liulianSafe.uin, `${botname || liulianSafe.nickname}｜系统占用${persent.toFixed(2)}%`);
     }
     return true;
 })
@@ -40,8 +40,8 @@ if (!/榴莲/.test(e.msg) && !Cfg.get('sys.qmp', false))  {
 
     console.log(persent.toFixed(2));
 
-    for(let group of Bot.gl){
-        await Bot.pickGroup(group[0]).setCard(Bot.uin, `${botname}|系统占用${persent.toFixed(2)}%`);
+    for(let group of liulianSafe.gl){
+        await liulianSafe.pickGroup(group[0]).setCard(liulianSafe.uin, `${botname}|系统占用${persent.toFixed(2)}%`);
     }
     return true;
 }

@@ -1,5 +1,5 @@
 import fs from "fs";
-import { safeBot } from './index.js';
+import { liulianSafe } from './index.js';
 
 const _path = process.cwd();
 
@@ -31,16 +31,23 @@ export const botConfig = config;
 async function relpyPrivate(user_id, msg, isStranger = false) {
   user_id = parseInt(user_id);
 
-  let friend = safeBot.fl.get(user_id);
-  if (friend) {
-    safeBot.logger.mark(`发送好友消息[${friend.nickname}](${user_id})`);
-    safeBot.pickUser(user_id)
-      .sendMsg(msg)
-            .catch((err) => {
-              safeBot.logger.mark(err);
-            });
-            redis.incr(`Yunzai:sendMsgNum:${safeBot.uin}`);
-            return;
+  let friend = liulianSafe.fl.get(user_id);
+
+    if (friend) {
+
+      liulianSafe.logger.mark(`发送好友消息[${friend.nickname}](${user_id})`);
+
+      liulianSafe.pickUser(user_id)
+
+        .sendMsg(msg)
+
+        .catch((err) => {
+
+          liulianSafe.logger.mark(err);
+
+        });
+
+      redis.incr(`Yunzai:sendMsgNum:${liulianSafe.uin}`);            return;
           } else {
             //是否给陌生人发消息
             if (!isStranger) {
@@ -50,8 +57,8 @@ async function relpyPrivate(user_id, msg, isStranger = false) {
             let group_id = await redis.get(key);
       
             if (!group_id) {
-              for (let group of safeBot.gl) {        group[0] = parseInt(group[0]);
-        let MemberInfo = await Bot.getGroupMemberInfo(group[0], user_id).catch(
+              for (let group of liulianSafe.gl) {        group[0] = parseInt(group[0]);
+        let MemberInfo = await liulianSafe.getGroupMemberInfo(group[0], user_id).catch(
           (err) => {}
         );
         if (MemberInfo) {
@@ -66,18 +73,17 @@ async function relpyPrivate(user_id, msg, isStranger = false) {
 
     if (group_id) {
       logger.mark(`发送临时消息[${group_id}]（${user_id}）`);
-          let res = await Bot.pickMember(group_id, user_id).sendMsg(msg).catch((err) => {
-            logger.mark(err);
-        });
-
-      if (res) {
-        redis.expire(key, 86400 * 15);
-      } else {
-        return;
-      }
-
-      redis.incr(`Yunzai:sendMsgNum:${Bot.uin}`);
-    } else {
+          let res = await liulianSafe.pickMember(group_id, user_id).sendMsg(msg).catch((err) => {
+                      logger.mark(err);
+                });
+          
+                if (res) {
+                  redis.expire(key, 86400 * 15);
+                } else {
+                  return;
+                }
+          
+                redis.incr(`Yunzai:sendMsgNum:${liulianSafe.uin}`);    } else {
       logger.mark(`发送临时消息失败：[${user_id}]`);
     }
   }
@@ -90,7 +96,7 @@ async function relpyPrivate(user_id, msg, isStranger = false) {
  * @param {String} title 标题
  */
 async function replyMake(messages, isGroup, title) {
-  let nickname = Bot.nickname;
+  let nickname = liulianSafe.nickname;
 
   // 组装消息
   let msgList = [];
@@ -98,11 +104,11 @@ async function replyMake(messages, isGroup, title) {
     msgList.push({
       message: msg, // 合并消息中的每一个单项消息
       nickname: nickname, // 机器人名字
-      user_id: Bot.uin, // 机器人的QQ号
+      user_id: liulianSafe.uin, // 机器人的QQ号
     });
   });
 
-  let forwardMsg = await Bot.makeForwardMsg(msgList, !isGroup);
+  let forwardMsg = await liulianSafe.makeForwardMsg(msgList, !isGroup);
 
   if (title) {
     // 处理合并消息在点开前看到的描述

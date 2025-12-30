@@ -4,7 +4,7 @@
 import template from 'art-template'
 import fs from 'fs'
 import lodash from 'lodash'
-import { logger } from '../../components/index.js'
+import { logger } from '#liulian'
 
 // 安全获取segment对象
 const segment = global.segment || global.Bot?.segment || {}

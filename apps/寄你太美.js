@@ -1,5 +1,5 @@
 import lodash from "lodash";
-import { Cfg } from '../components/index.js';
+import { Cfg } from '#liulian';
 import fetch from "node-fetch";
 import path from "path"
 import fs from "fs"

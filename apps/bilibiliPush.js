@@ -1,10 +1,8 @@
 import fs from "fs";
 import fetch from "node-fetch";
-import common from "../components/bcommon.js";
 import { botConfig } from "../components/bcommon.js"
 import config from "../model/config/config.js"
-import { getBLsid, getUuid } from "#liulian"
-import Cfg from '../components/Cfg.js'
+import { logger, liulianSafe, Cfg } from '#liulian'
 
 const _path = process.cwd();
 const cfg = config.getdefault_config('liulian', 'botname', 'config');
@@ -188,7 +186,7 @@ export async function changeBilibiliPush(e) {
       PushBilibiliDynamic[pushID].isNewsPush = true;
     }
     savePushJson();
-    Bot.logger.mark(`开启B站动态推送:${pushID}`);
+    logger.mark(`开启B站动态推送:${pushID}`);
     e.reply(`B站动态推送开启了哦~\n每间隔${pushTimeInterval}分钟会自动检测一次有没有新动态\n如果有的话会自动发送动态内容到这里的~`);
   }
 
@@ -196,7 +194,7 @@ export async function changeBilibiliPush(e) {
     if (PushBilibiliDynamic[pushID]) {
       PushBilibiliDynamic[pushID].isNewsPush = false;
       savePushJson();
-      Bot.logger.mark(`关闭B站动态推送:${pushID}`);
+      logger.mark(`关闭B站动态推送:${pushID}`);
       e.reply(`这里的B站动态推送已经关闭了，${botname}再也不会提醒你动态更新了，哼！`);
     } else {
       e.reply("你还没有在这里开启过B站动态推送呢");
@@ -225,7 +223,7 @@ export async function changeGroupBilibiliPush(e) {
     return true;
   }
 
-  let group = Bot.gl.get(Number(groupID));
+  let group = liulianSafe.gl.get(Number(groupID));
   if (!group) {
     e.reply(`${botname}不在这个群哦`);
     return true;
@@ -318,7 +316,7 @@ export async function bilibiliPushPermission(e) {
     return true;
   }
 
-  let group = Bot.gl.get(Number(groupID));
+  let group = liulianSafe.gl.get(Number(groupID));
   if (!group) {
     e.reply(`${botname}不在这个群哦`);
     return true;
@@ -482,7 +480,7 @@ export async function getBilibiliPushUserList(e) {
       return false;
     }
 
-    let groupMap = Bot.gl;
+    let groupMap = liulianSafe.gl;
     let groupList = [];
 
     for (let [groupID, groupObj] of groupMap) {
@@ -691,7 +689,7 @@ export async function pushScheduleJob(e = {}) {
     }
   }
 
-  Bot.logger.mark("liulian-plugin —— B站动态定时推送");
+  logger.mark("liulian-plugin —— B站动态定时推送");
 
   // 将上一次推送的动态全部合并到历史记录中
   let hisArr = new Set(dynamicPushHistory);
@@ -800,7 +798,7 @@ function rmDuplicatePushList(newList) {
 // 发送动态内容
 async function sendDynamic(info, biliUser, list) {
   let pushID = info.pushTarget;
-  Bot.logger.mark(`B站推送[${pushID}]`);
+  logger.mark(`B站推送[${pushID}]`);
 
   for (let val of list) {
     let msg = buildSendDynamic(biliUser, val, info);
@@ -809,7 +807,7 @@ async function sendDynamic(info, biliUser, list) {
       continue;
     }
     if (!msg) {
-      Bot.logger.mark(`B站动态推送[${pushID}] - [${biliUser.name}]，推送失败，动态信息解析失败`);
+      logger.mark(`B站动态推送[${pushID}] - [${biliUser.name}]，推送失败，动态信息解析失败`);
       continue;
     }
 
@@ -819,7 +817,7 @@ async function sendDynamic(info, biliUser, list) {
     }
 
     if (info.isGroup) {
-      Bot.pickGroup(pushID)
+      liulianSafe.pickGroup(pushID)
         .sendMsg(msg)
         .catch((err) => { // 推送失败，可能仅仅是某个群推送失败
           // dynamicPushFailed.set(pushID, val.id_str);
@@ -839,10 +837,10 @@ async function sendDynamic(info, biliUser, list) {
 async function pushAgain(groupId, msg) {
   await common.sleep(BotHaveARest);
 
-  Bot.pickGroup(groupId)
+  liulianSafe.pickGroup(groupId)
   .sendMsg(msg)
   .catch((err) => {
-    Bot.logger.mark(`群[${groupId}]推送失败：${err}`);
+    logger.mark(`群[${groupId}]推送失败：${err}`);
   });
 
   return true;
@@ -965,7 +963,7 @@ function buildSendDynamic(biliUser, dynamic, info) {
 
       return msg;
     default:
-      Bot.logger.mark(`未处理的B站推送『${biliUser.name}』：${dynamic.type}`);
+      logger.mark(`未处理的B站推送『${biliUser.name}』：${dynamic.type}`);
       return false;
   }
 }
@@ -1048,7 +1046,7 @@ function contentFilter(inContent) {
    const cfg = config.getdefault_config('bilibiliPush', 'bilibiliPushFilter', 'config');
   for (const keyword of cfg.FilterKeyword) {
     if (RegExp(keyword).exec(inContent)) {
-      Bot.logger.mark(`B站动态推送拦截关键词: ${keyword}`);
+      logger.mark(`B站动态推送拦截关键词: ${keyword}`);
       return false;
     }
   }

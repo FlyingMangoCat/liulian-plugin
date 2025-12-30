@@ -1,4 +1,4 @@
-import Cfg from '../components/Cfg.js'
+import Cfg from '#liulian'
 
 const _path = process.cwd();
 export const rule = {

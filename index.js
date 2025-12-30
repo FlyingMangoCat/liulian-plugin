@@ -1,5 +1,5 @@
 import { isV3 } from './components/Changelog.js'
-import Data from './components/Data.js'
+import { Data } from '#liulian'
 import config from './model/config/config.js'
 import chalk from 'chalk'
 

@@ -4,7 +4,7 @@ import { promisify } from 'util'
 import fetch from 'node-fetch'
 import fs from 'node:fs'
 import path from 'node:path'
-import { logger, safeBot } from '../components/index.js'
+import { logger, liulianSafe } from '#liulian'
 
 /**
  * 发送私聊消息，仅给好友发送
@@ -14,10 +14,10 @@ import { logger, safeBot } from '../components/index.js'
 async function relpyPrivate (userId, msg) {
   userId = Number(userId)
 
-  let friend = safeBot.fl.get(userId)
+  let friend = liulianSafe.fl.get(userId)
   if (friend) {
     logger.mark(`发送好友消息[${friend.nickname}](${userId})`)
-    return await safeBot.pickUser(userId).sendMsg(msg).catch((err) => {
+    return await liulianSafe.pickUser(userId).sendMsg(msg).catch((err) => {
       logger.mark(err)
     })
   }
@@ -67,13 +67,13 @@ function mkdirs (dirname) {
  * @param dec 转发描述内容
  */
 async function makeForwardMsg (e, msg = [], dec = '') {
-  let nickname = safeBot.nickname
+  let nickname = liulianSafe.nickname
   if (e.isGroup) {
-    let info = await safeBot.getGroupMemberInfo(e.group_id, safeBot.uin)
+    let info = await liulianSafe.getGroupMemberInfo(e.group_id, liulianSafe.uin)
     nickname = info.card || info.nickname
   }
   let userInfo = {
-    user_id: safeBot.uin,
+    user_id: liulianSafe.uin,
     nickname
   }
 
@@ -105,5 +105,5 @@ async function makeForwardMsg (e, msg = [], dec = '') {
   return forwardMsg
 }
 
-export { logger, safeBot }
+export { logger, liulianSafe }
 export default { sleep, relpyPrivate, downFile, makeForwardMsg }

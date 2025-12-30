@@ -1,7 +1,7 @@
 import { segment } from "oicq";
 import fetch from "node-fetch";
-import Cfg from '../components/Cfg.js'
-import { logger } from '../components/index.js'
+import { logger } from '#liulian'
+import Cfg from '#liulian'
 //项目路径
 const _path = process.cwd();
 let GayCD = { };
@@ -69,7 +69,7 @@ if (random < 5) {
             `【${randomWife3.nickname}】 (${randomWife3.user_id}) 哒哒哒！(健康使用不要刷屏！)`
         ]
         e.reply(msg);
-        Bot.logger.mark('第三个老婆最后发言时间：'+getMyDate(randomWife3.last_sent_time*1000));
+        logger.mark('第三个老婆最后发言时间：'+getMyDate(randomWife3.last_sent_time*1000));
         return true;
     }
     let randomWife4 = arrMember[Math.round(Math.random() * (arrMember.length-1))];
@@ -81,7 +81,7 @@ if (random < 5) {
             `【${randomWife4.nickname}】 (${randomWife4.user_id}) 啦啦啦！(健康使用不要刷屏！)`
         ]
         e.reply(msg);
-        Bot.logger.mark('第四个老婆最后发言时间：'+getMyDate(randomWife4.last_sent_time*1000));
+        logger.mark('第四个老婆最后发言时间：'+getMyDate(randomWife4.last_sent_time*1000));
         return true;
     }
     let randomWife5 = arrMember[Math.round(Math.random() * (arrMember.length-1))];
@@ -93,7 +93,7 @@ if (random < 5) {
             `【${randomWife5.nickname}】 (${randomWife5.user_id}) 啦啦啦！(健康使用不要刷屏！)`
         ]
         e.reply(msg);
-        Bot.logger.mark('第五个老婆最后发言时间：'+getMyDate(randomWife5.last_sent_time*1000));
+        logger.mark('第五个老婆最后发言时间：'+getMyDate(randomWife5.last_sent_time*1000));
         return true;
     }
     let randomWife6 = arrMember[Math.round(Math.random() * (arrMember.length-1))];
@@ -105,7 +105,7 @@ if (random < 5) {
             `【${randomWife6.nickname}】 (${randomWife6.user_id}) 啦啦啦！(健康使用不要刷屏！)`
         ]
         e.reply(msg);
-        Bot.logger.mark('第六个老婆最后发言时间：'+getMyDate(randomWife6.last_sent_time*1000));
+        logger.mark('第六个老婆最后发言时间：'+getMyDate(randomWife6.last_sent_time*1000));
         return true;
     }
     let randomWife7 = arrMember[Math.round(Math.random() * (arrMember.length-1))];
@@ -117,7 +117,7 @@ if (random < 5) {
             `【${randomWife7.nickname}】 (${randomWife7.user_id}) 啦啦啦！(健康使用不要刷屏！)`
         ]
         e.reply(msg);
-        Bot.logger.mark('第七个老婆最后发言时间：'+getMyDate(randomWife7.last_sent_time*1000));
+        logger.mark('第七个老婆最后发言时间：'+getMyDate(randomWife7.last_sent_time*1000));
         return true;
     }
     let randomWife8 = arrMember[Math.round(Math.random() * (arrMember.length-1))];
@@ -129,7 +129,7 @@ if (random < 5) {
             `【${randomWife8.nickname}】 (${randomWife8.user_id}) 啦啦啦！(健康使用不要刷屏！)`
         ]
         e.reply(msg);
-        Bot.logger.mark('第八个老婆最后发言时间：'+getMyDate(randomWife8.last_sent_time*1000));
+        logger.mark('第八个老婆最后发言时间：'+getMyDate(randomWife8.last_sent_time*1000));
         return true;
     }
 }

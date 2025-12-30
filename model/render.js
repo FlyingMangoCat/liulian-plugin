@@ -1,11 +1,11 @@
 import template from "art-template";
 import fs from "fs";
-import { logger } from '../components/index.js'
+import { logger } from '#liulian'
 import puppeteer from "puppeteer";
 import lodash from "lodash";
 import common from "./rendercommon.js";
 
-import { Data } from "../components/index.js";
+import { Data } from '#liulian';
 
 const _path = process.cwd();
 //html模板
@@ -163,7 +163,7 @@ if(imgType == "png"){
   renderNum++;
   /** 计算图片大小 */
   let kb = (base64.length / 1024).toFixed(1) + 'kb'
-  Bot.logger.mark(`【图片生成】${app}/${type}.html: 格式:${imgType}, 大小：${kb}，耗时：${Date.now() - start}ms，次数:${renderNum}`);
+  logger.mark(`【图片生成】${app}/${type}.html: 格式:${imgType}, 大小：${kb}，耗时：${Date.now() - start}ms，次数:${renderNum}`);
 
   if (typeof test != "undefined") {
     return `图片base64:${type}`;

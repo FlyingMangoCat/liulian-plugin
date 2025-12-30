@@ -1,4 +1,4 @@
-import Cfg from '../components/Cfg.js'
+import Cfg from '#liulian'
 import config from "../model/config/config.js"
 const cfg = config.getdefault_config('liulian', 'botname', 'config');
   const botname = cfg.botname

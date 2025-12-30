@@ -1,6 +1,6 @@
 
 import fs from 'fs'
-import { logger } from '../components/index.js'
+import { logger, liulianSafe } from '#liulian'
 
 const _path = process.cwd();
 
@@ -32,13 +32,13 @@ export const botConfig = config;
 async function relpyPrivate(user_id, msg ,isStranger = false) {
   user_id = parseInt(user_id);
 
-  let friend = Bot.fl.get(user_id);
+  let friend = liulianSafe.fl.get(user_id);
   if (friend) {
     logger.mark(`发送好友消息[${friend.nickname}](${user_id})`);
-    Bot.pickUser(user_id).sendMsg(msg).catch((err) => {
+    liulianSafe.pickUser(user_id).sendMsg(msg).catch((err) => {
       logger.mark(err);
     });
-    redis.incr(`Yunzai:sendMsgNum:${Bot.uin}`);
+    redis.incr(`Yunzai:sendMsgNum:${liulianSafe.uin}`);
     return;
   }
   else {
@@ -50,9 +50,9 @@ async function relpyPrivate(user_id, msg ,isStranger = false) {
     let group_id = await redis.get(key);
 
     if (!group_id) {
-      for (let group of Bot.gl) {
+      for (let group of liulianSafe.gl) {
         group[0] = parseInt(group[0])
-        let MemberInfo = await Bot.getGroupMemberInfo(group[0], user_id).catch((err)=>{});
+        let MemberInfo = await liulianSafe.getGroupMemberInfo(group[0], user_id).catch((err)=>{});
         if (MemberInfo) {
           group_id = group[0];
           redis.set(key, group_id.toString(), { EX: 1209600 });
@@ -67,18 +67,27 @@ async function relpyPrivate(user_id, msg ,isStranger = false) {
 
       logger.mark(`发送临时消息[${group_id}]（${user_id}）`);
 
-          let res = await Bot.pickMember(group_id, user_id).sendMsg(msg).catch((err) => {
+          let res = await liulianSafe.pickMember(group_id, user_id).sendMsg(msg).catch((err) => {
 
-            logger.mark(err);
-      });
+                      logger.mark(err);
 
-      if (res) {
-        redis.expire(key, 86400 * 15);
-      } else {
-        return;
-      }
+                });
 
-      redis.incr(`Yunzai:sendMsgNum:${Bot.uin}`);
+          
+
+                if (res) {
+
+                  redis.expire(key, 86400 * 15);
+
+                } else {
+
+                  return;
+
+                }
+
+          
+
+                redis.incr(`Yunzai:sendMsgNum:${liulianSafe.uin}`);
     } else {
       logger.mark(`发送临时消息失败：[${user_id}]`);
     }
