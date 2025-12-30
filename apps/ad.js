@@ -1,6 +1,6 @@
 /*
-* 榴莲插件 - 随机消息触发模块
-* 功能：随机小概率触发消息，增加群活跃度
+* 榴莲插件 - 宣传模块
+* 功能：随机小概率触发宣传消息，增加群活跃度
 * 特点：概率低、内容自然、可配置开关
 */
 
@@ -8,7 +8,7 @@ import lodash from "lodash";
 import Cfg from '#liulian';
 import crypto from 'crypto';
 
-// 原始广告内容（用于校验）
+// 原始宣传内容（用于校验）
 const ORIGINAL_AD_CONTENTS = [
   // 榴莲插件功能推广类
   "最近在用榴莲插件的随机表情功能，每天都有新表情，挺有趣的",
@@ -75,7 +75,7 @@ const ORIGINAL_AD_CONTENTS = [
 // 计算原始内容的hash（用于校验）
 const ORIGINAL_HASH = crypto.createHash('md5').update(JSON.stringify(ORIGINAL_AD_CONTENTS)).digest('hex');
 
-// 广告内容库（运行时使用）
+// 宣传内容库（运行时使用）
 let adContents = [...ORIGINAL_AD_CONTENTS];
 
 // 用户黑名单列表
@@ -94,7 +94,7 @@ function calculateHash(content) {
 }
 
 /**
- * 校验广告内容是否被修改
+ * 校验宣传内容是否被修改
  * @returns {boolean} true表示内容未被修改
  */
 function validateAdContent() {
@@ -102,7 +102,7 @@ function validateAdContent() {
   const isValid = currentHash === ORIGINAL_HASH;
   
   if (!isValid) {
-    console.warn('[随机消息模块] 检测到广告内容已被修改，将在下次更新时恢复');
+    console.warn('[宣传模块] 检测到宣传内容已被修改，将在下次更新时恢复');
   }
   
   return isValid;
@@ -115,21 +115,21 @@ const isContentValid = validateAdContent();
  * 命令规则定义
  */
 export const rule = {
-  // 概率随机触发广告
+  // 概率随机触发宣传
   random: {
     reg: "noCheck", // 不检查正则，匹配所有消息
     priority: 99999, // 最低优先级，确保不干扰其他功能
-    describe: "概率随机触发隐性广告",
+    describe: "概率随机触发宣传消息",
   },
 };
 
 /**
- * 随机广告触发函数
+ * 随机宣传触发函数
  * @param {Object} e - 事件对象
  * @returns {boolean} - 返回true表示成功执行
  */
 export async function random(e) {
-  // 检查是否开启广告功能
+  // 检查是否开启宣传功能
   const adEnabled = Cfg.getdefault_config('liulian', 'ad', 'config').enabled || false;
   if (!adEnabled) {
     return false;
@@ -139,10 +139,10 @@ export async function random(e) {
   if (!isContentValid) {
     // 检测到内容被修改，使用原始内容
     adContents = [...ORIGINAL_AD_CONTENTS];
-    console.log('[随机消息模块] 检测到内容修改，已恢复原始内容');
+    console.log('[宣传模块] 检测到内容修改，已恢复原始内容');
   }
 
-  // 检查是否是私聊（私聊不触发广告）
+  // 检查是否是私聊（私聊不触发宣传）
   if (e.isPrivate) {
     return false;
   }
@@ -169,16 +169,16 @@ export async function random(e) {
   const adConfig = Cfg.getdefault_config('liulian', 'ad', 'config');
   const triggerProbability = adConfig.probability || 1;
 
-  // 如果随机数小于配置概率，则触发广告
+  // 如果随机数小于配置概率，则触发宣传
   if (randomNum < triggerProbability) {
-    // 随机选择一条广告内容
+    // 随机选择一条宣传内容
     const adContent = adContents[Math.floor(Math.random() * adContents.length)];
     
     // 发送消息
     await e.reply(adContent);
     
     // 记录日志
-    console.log(`[随机消息模块] 群 ${e.group_id} 触发消息: ${adContent}`);
+    console.log(`[宣传模块] 群 ${e.group_id} 触发消息: ${adContent}`);
     
     return true;
   }
@@ -187,7 +187,7 @@ export async function random(e) {
 }
 
 /**
- * 获取广告内容校验状态（用于调试）
+ * 获取宣传内容校验状态（用于调试）
  * @returns {Object} 校验状态
  */
 export function getContentValidationStatus() {
