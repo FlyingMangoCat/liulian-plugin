@@ -33,3 +33,16 @@ export {
   logger,      // 日志记录
   liulianSafe  // Bot对象安全访问
 }
+
+// 默认导出，兼容 import Cfg from '#liulian' 的用法
+export default {
+  Cfg,
+  Common,
+  Data,
+  Data2,
+  Version,
+  getBLsid,
+  getUuid,
+  logger,
+  liulianSafe
+}
