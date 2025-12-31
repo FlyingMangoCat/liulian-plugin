@@ -34,43 +34,43 @@ async function updateGroupCard(groupId, cardName) {
   }
 }
 
-// 定时任务 - 使用 Promise.allSettled 并发执行，不阻塞主线程
-schedule.scheduleJob("0 0/10 * * * ?", async () =>{
-  try {
-    if (!Cfg.get('sys.qmp', false)) {
-      return false
-    }
-
-    const totalMem = os.totalmem();
-    const freeMen = os.freemem();
-    let persent = (totalMem - freeMen) / totalMem * 100;
-
-    console.log(`[更新群名片] 定时任务开始，系统占用: ${persent.toFixed(2)}%`)
-
-    const cardName = `${botname || liulianSafe.nickname}｜系统占用${persent.toFixed(2)}%`
-    const groups = Array.from(liulianSafe.gl.keys())
-
-    if (groups.length === 0) {
-      console.log(`[更新群名片] 没有群需要更新`)
-      return true
-    }
-
-    console.log(`[更新群名片] 准备更新 ${groups.length} 个群的名片`)
-
-    // 使用 Promise.allSettled 并发执行，避免阻塞
-    const promises = groups.map(groupId => updateGroupCard(groupId, cardName))
-    const results = await Promise.allSettled(promises)
-
-    const successCount = results.filter(r => r.status === 'fulfilled' && r.value.success).length
-    const failCount = results.length - successCount
-
-    console.log(`[更新群名片] 定时任务完成，成功: ${successCount}, 失败: ${failCount}`)
-    return true
-  } catch (e) {
-    console.error(`[更新群名片] 定时任务执行失败:`, e)
-    return false
-  }
-})
+// 定时任务 - 暂时禁用，避免影响其他指令
+// schedule.scheduleJob("0 0/10 * * * ?", async () =>{
+//   try {
+//     if (!Cfg.get('sys.qmp', false)) {
+//       return false
+//     }
+//
+//     const totalMem = os.totalmem();
+//     const freeMen = os.freemem();
+//     let persent = (totalMem - freeMen) / totalMem * 100;
+//
+//     console.log(`[更新群名片] 定时任务开始，系统占用: ${persent.toFixed(2)}%`)
+//
+//     const cardName = `${botname || liulianSafe.nickname}｜系统占用${persent.toFixed(2)}%`
+//     const groups = Array.from(liulianSafe.gl.keys())
+//
+//     if (groups.length === 0) {
+//       console.log(`[更新群名片] 没有群需要更新`)
+//       return true
+//     }
+//
+//     console.log(`[更新群名片] 准备更新 ${groups.length} 个群的名片`)
+//
+//     // 使用 Promise.allSettled 并发执行，避免阻塞
+//     const promises = groups.map(groupId => updateGroupCard(groupId, cardName))
+//     const results = await Promise.allSettled(promises)
+//
+//     const successCount = results.filter(r => r.status === 'fulfilled' && r.value.success).length
+//     const failCount = results.length - successCount
+//
+//     console.log(`[更新群名片] 定时任务完成，成功: ${successCount}, 失败: ${failCount}`)
+//     return true
+//   } catch (e) {
+//     console.error(`[更新群名片] 定时任务执行失败:`, e)
+//     return false
+//   }
+// })
 
 export const rule = {
   qmp : {
