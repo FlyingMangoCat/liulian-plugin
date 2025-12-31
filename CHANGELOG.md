@@ -1,3 +1,20 @@
+# 0.11.9
+
+* **新年祝福**ⁿᵉʷ
+      * 🎉 2026元旦快乐！祝大家新年新气象，万事如意！
+      * 感谢大家一直以来对榴莲插件的支持和使用
+* **修复V3版本兼容性**ⁿᵉʷ
+      * 创建LiulianV3类，将rule对象转换为V3插件类
+      * 将所有导出函数添加到LiulianV3类原型上
+      * 简化adapter/index.js，直接继承LiulianV3类
+      * 解决规则和执行函数分离导致的加载问题
+      * 不再依赖miao-plugin的插件加载器
+* **修复渲染功能**ⁿᵉʷ
+      * 修复render函数未定义错误
+      - 在apps/index.js中直接导入render函数
+      - 将render函数传递给所有导出函数
+      - 确保Common.render能够正确调用adapter/render.js
+
 # 0.11.8
 
 * **Bug修复**ⁿᵉʷ
