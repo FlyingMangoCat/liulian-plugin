@@ -48,7 +48,8 @@ export const rule = {
 };
 
 // 暂时禁用定时任务，避免导入时阻塞
-// schedule.scheduleJob('0 0 0 * * *', function () {//每天凌晨0点执行
+/*
+schedule.scheduleJob('0 0 0 * * *', function () {//每天凌晨0点执行
   if (filename.indexOf(".json") == -1) {//如果文件名不包含.json
     filename = filename + ".json";//添加.json
   }
@@ -70,8 +71,8 @@ export const rule = {
     }
     fs.writeFileSync(dirpath + "/" + filename, JSON.stringify(json,null,"\t"));//写入文件
   }
-);
-// });
+});
+*/
 
 export async function Robacat(e) {
   if (filename.indexOf(".json") == -1) {//如果文件名不包含.json
