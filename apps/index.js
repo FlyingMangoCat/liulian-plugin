@@ -1207,7 +1207,8 @@ async function initPushConfig() {
     pushConfig = JSON.parse(fs.readFileSync("./data/PushNews/BilibiliPushConfig.json", "utf8"));
   }
 }
-initPushConfig();
+// 暂时禁用导入时初始化，避免阻塞
+// initPushConfig();
 
 // 定时任务
 async function task() {
@@ -1227,7 +1228,7 @@ async function task() {
   // B站动态推送
   schedule.scheduleJob(scheduleConfig, () => pushScheduleJob());
 }
-
-task();
+// 暂时禁用导入时启动定时任务，避免阻塞
+// task();
 
 export { rule };
