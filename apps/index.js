@@ -1228,6 +1228,7 @@ async function task() {
   schedule.scheduleJob(scheduleConfig, () => pushScheduleJob());
 }
 
-task();
+// 暂时禁用定时任务，避免导入时阻塞
+// task();
 
 export { rule };
