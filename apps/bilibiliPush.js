@@ -145,7 +145,8 @@ async function initBiliPushJson() {
   }
 }
 
-initBiliPushJson(); // 初始化
+// 暂时禁用导入时初始化，避免阻塞插件加载
+// initBiliPushJson(); // 初始化
 
 // (开启|关闭)B站推送
 export async function changeBilibiliPush(e) {
