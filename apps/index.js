@@ -1230,4 +1230,72 @@ async function task() {
 
 task();
 
-export { rule };
+// V3支持：将rule对象转换为V3插件类
+import plugin from '../adapter/lib/plugin.js'
+
+class LiulianV3 extends plugin {
+  constructor() {
+    let rules = []
+    
+    // 将rule对象转换为V3规则数组
+    for (let key in rule) {
+      let cfg = rule[key]
+      rules.push({
+        reg: cfg.reg,
+        fnc: key,
+        priority: cfg.priority || 5000
+      })
+    }
+    
+    super({
+      name: 'liulian-plugin',
+      desc: '榴莲插件',
+      event: 'message',
+      priority: 50,
+      rule: rules
+    })
+  }
+}
+
+// 将所有导出的函数添加到LiulianV3类中
+const exportedFunctions = {
+    help, maphelp, pluginhelp, 修仙help, sysCfg, 哪个群友是我老婆,
+    chumeng, randomQA, answerCheck, updateLiulianPlugin,
+    JsPlugins, PluginsList, WarehPluginsList, RemovePlugins,
+    LoadPlugins, DeletePlugins, HelpMenu, v3JsPlugins,
+    v3PluginsList, v3WarehPluginsList, v3RemovePlugins,
+    v3LoadPlugins, v3DeletePlugins, v3HelpMenu, miku,
+    kt1, jtm, mr, ys, bh3, blhx, wl, fgo, y7d, sn,
+    gz, se, kt2, versionInfo, yl总, yl1, yl2, yl3, yl4,
+    yl5, yl6, yl7, yl8, yl9, yl10, yl11, yl12, yl13,
+    yl14, yl15, yl16, yl17, yl18, yl19, yl20, sm总,
+    sm1, sm2, sm3, sm4, sm5, sm6, sm7, sm8, sm9, sm10,
+    sm11, sm12, sm13, sm14, sm15, sm16, sm17, sm18, sm19,
+    sm20, sm21, sm22, sm23, forge, random, chuochuo,
+    adRandom, FuckingChatterbox, guessAvatar, guessAvatarCheck,
+    bbguessAvatar, bbguessAvatarCheck, examples, godEyesFUN,
+    headPortraitFUN, qmp, biaoQing, biaoQingHelp, fabing,
+    lp, setu, dailyword, sentence, HitMe, CeShi, dutang,
+    caihongpi, saylove, joke, 早报, xzys, ercyFUN,
+    chengfenFUN, daanFUN, qiuqianFUN, changeBilibiliPush,
+    changeGroupBilibiliPush, changeBiliPushPrivatePermission,
+    bilibiliPushPermission, updateBilibiliPush,
+    getBilibiliPushUserList, setBiliPushTimeInterval,
+    setBiliPushCookie, setBiliPushFaultTime, changeBiliPushTransmit,
+    setBiliPushSendType, pushScheduleJob, weather, dog,
+    bilibilihelp, YZversionInfo, EndCheck, musicanswerCheck,
+    guessmusic, 运势, 小黑子, updateRes, cj, Robacat,
+    Loseacat, Resetcat, Bouncecat, mapnumber, 上传, ai,
+    ai_reset_memory, daihua, guangbo, guangboHelp,
+    starguessAvatar, starguessAvatarCheck, toShutUp,
+    determineIfYouShutUp, openYourMouth, replace, sjclassic,
+    zdclassic, liulian_status
+}
+
+for (let fnName in exportedFunctions) {
+  LiulianV3.prototype[fnName] = async function(e) {
+    return await exportedFunctions[fnName](e, { render: null })
+  }
+}
+
+export { rule, LiulianV3 };
