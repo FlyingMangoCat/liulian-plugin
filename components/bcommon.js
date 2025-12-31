@@ -17,7 +17,15 @@ if (isV3) {
 
   config = { other, group, masterQQ: other.masterQQ };
 } else {
-  config = BotConfig;
+  // 尝试获取 BotConfig，如果不存在则使用默认配置
+  config = typeof BotConfig !== 'undefined' ? BotConfig : {
+    other: {},
+    group: {},
+    masterQQ: []
+  };
+  if (typeof BotConfig === 'undefined') {
+    console.warn('[bcommon] BotConfig 未定义，使用默认配置');
+  }
 }
 
 export const botConfig = config;
@@ -33,37 +41,49 @@ async function relpyPrivate(user_id, msg, isStranger = false) {
 
   let friend = liulianSafe.fl.get(user_id);
 
-    if (friend) {
+  if (friend) {
+    liulianSafe.logger.mark(`发送好友消息[${friend.nickname}](${user_id})`);
 
-      liulianSafe.logger.mark(`发送好友消息[${friend.nickname}](${user_id})`);
+    liulianSafe.pickUser(user_id)
+      .sendMsg(msg)
+      .catch((err) => {
+        liulianSafe.logger.mark(err);
+      });
 
-      liulianSafe.pickUser(user_id)
-
-        .sendMsg(msg)
-
-        .catch((err) => {
-
-          liulianSafe.logger.mark(err);
-
-        });
-
-      redis.incr(`Yunzai:sendMsgNum:${liulianSafe.uin}`);            return;
-          } else {
-            //是否给陌生人发消息
-            if (!isStranger) {
-              return;
-            }
-            let key = `Yunzai:group_id:${user_id}`;
-            let group_id = await redis.get(key);
-      
-            if (!group_id) {
-              for (let group of liulianSafe.gl) {        group[0] = parseInt(group[0]);
+    // redis.incr(`Yunzai:sendMsgNum:${liulianSafe.uin}`);
+    return;
+  } else {
+    //是否给陌生人发消息
+    if (!isStranger) {
+      return;
+    }
+    let key = `Yunzai:group_id:${user_id}`;
+    let group_id = null;
+    
+    // 尝试获取 redis
+    if (typeof redis !== 'undefined') {
+      try {
+        group_id = await redis.get(key);
+      } catch (e) {
+        console.warn('[bcommon] redis.get 失败:', e);
+      }
+    }
+    
+    if (!group_id) {
+      for (let group of liulianSafe.gl) {
+        group[0] = parseInt(group[0]);
         let MemberInfo = await liulianSafe.getGroupMemberInfo(group[0], user_id).catch(
           (err) => {}
         );
         if (MemberInfo) {
           group_id = group[0];
-          redis.set(key, group_id.toString(), { EX: 1209600 });
+          if (typeof redis !== 'undefined') {
+            try {
+              redis.set(key, group_id.toString(), { EX: 1209600 });
+            } catch (e) {
+              console.warn('[bcommon] redis.set 失败:', e);
+            }
+          }
           break;
         }
       }
@@ -72,19 +92,26 @@ async function relpyPrivate(user_id, msg, isStranger = false) {
     }
 
     if (group_id) {
-      logger.mark(`发送临时消息[${group_id}]（${user_id}）`);
-          let res = await liulianSafe.pickMember(group_id, user_id).sendMsg(msg).catch((err) => {
-                      logger.mark(err);
-                });
-          
-                if (res) {
-                  redis.expire(key, 86400 * 15);
-                } else {
-                  return;
-                }
-          
-                redis.incr(`Yunzai:sendMsgNum:${liulianSafe.uin}`);    } else {
-      logger.mark(`发送临时消息失败：[${user_id}]`);
+      liulianSafe.logger.mark(`发送临时消息[${group_id}]（${user_id})`);
+      let res = await liulianSafe.pickMember(group_id, user_id).sendMsg(msg).catch((err) => {
+        liulianSafe.logger.mark(err);
+      });
+      
+      if (res) {
+        if (typeof redis !== 'undefined') {
+          try {
+            redis.expire(key, 86400 * 15);
+          } catch (e) {
+            console.warn('[bcommon] redis.expire 失败:', e);
+          }
+        }
+      } else {
+        return;
+      }
+      
+      // redis.incr(`Yunzai:sendMsgNum:${liulianSafe.uin}`);
+    } else {
+      liulianSafe.logger.mark(`发送临时消息失败：[${user_id}]`);
     }
   }
 }
