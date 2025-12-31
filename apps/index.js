@@ -18,6 +18,7 @@ import { 运势 } from "./lucktendency.js"
 import { maphelp, mapnumber } from "./maphelp.js"
 import {	currentVersion } from "../components/Changelog.js";
 import { pluginhelp } from "./pluginhelp.js"
+import { render } from "../adapter/render.js"
 import { 修仙help } from "./修仙help.js"
 import { ercyFUN,
 chengfenFUN,
@@ -1294,7 +1295,6 @@ const exportedFunctions = {
 
 for (let fnName in exportedFunctions) {
   LiulianV3.prototype[fnName] = async function(e) {
-    const render = this.render || null
     return await exportedFunctions[fnName](e, { render })
   }
 }
