@@ -2,15 +2,12 @@
 * 请注意！！！！
 * 【请勿直接修改此文件，可能会导致后续更新冲突】
 * 【请勿直接修改此文件，可能会导致后续更新冲突】
-*
-* 如需自定义可将文件【复制】一份，并重命名为 help-cfg.js 或 help-list.js 后编辑
-*
 * */
 
 // 帮助配置
 export const helpCfg = {
   title: "榴莲帮助",  // 帮助标题
-  subTitle: "Yunzai-Bot & Liulian-Plugin" // 帮助副标题
+  subTitle: "Yunzai-Bot & Liulian-Plugin & 会飞的芒果猫" // 帮助副标题
 };
 
 // 帮助菜单内容
@@ -92,6 +89,10 @@ export const helpList = [{
     icon: 100,
     title: "#城市+天气",
     desc: "查看指定城市当日天气"
+  },{
+    icon: 59,
+    title: "随机表情(默认关闭）",
+    desc: "群聊/私聊均可用，内容/触发都为随机"
   }]
 }, {
   group: "其他指令/功能",
@@ -102,14 +103,14 @@ export const helpList = [{
   }, {
     icon: 78,
     title: "#猜角色",
-    desc: "可以选择难度简单，困难，地狱等"
+    desc: "目前支持原神/星铁"
   }, {
     icon: 71,
     title: "#芒果问答",
     desc: "原神知识问答"
   }, {
     icon: 79,
-    title: "#帮助 #版本 #留恋版本",
+    title: "#帮助 #版本 #榴莲版本",
     desc: "查看留恋帮助/版本"
   }, {
     icon: 93,
@@ -117,12 +118,8 @@ export const helpList = [{
     desc: "查看今日运势"
   }, {
     icon: 100,
-    title: "留恋+内容",
-    desc: "ai(当前不可用，如有需要联系芒果猫)"
-  },{
-    icon: 59,
-    title: "自动发送表情(默认关闭）",
-    desc: "群聊/私聊均可用，内容/触发都为随机"
+    title: "榴莲ai",
+    desc: "@机器人或随机触发(当前不可用，如有需要联系芒果猫)"
   }]
 }, {
   group: "其他帮助（部分功能帮助为独立帮助，榴莲帮助内不包括）",
@@ -144,15 +141,15 @@ export const helpList = [{
   auth: "master",
   list: [{
     icon: 29,
-    title: "#留恋更新+插件名",
+    title: "#榴莲更新+插件名",
     desc: "更新指定插件，例：#榴莲更新芒果插件"
   },{   
     icon: 97,
-    title: "#留恋更新/留恋强制更新",
-    desc: "更新留恋插件"
+    title: "#榴莲更新/榴莲强制更新",
+    desc: "更新榴莲插件"
   },{   
     icon: 32,
-    title: "#留恋设置",
-    desc: "配置留恋功能"
+    title: "#榴莲设置",
+    desc: "配置榴莲功能"
   }]
 }];

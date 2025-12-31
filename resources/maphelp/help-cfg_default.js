@@ -10,7 +10,7 @@
 // 帮助配置
 export const helpCfg = {
   title: "地下地图帮助",  // 帮助标题
-  subTitle: "Yunzai-Bot & Liulian-Plugin & 会飞的芒果猫 & 提瓦特图研社" // 帮助副标题
+  subTitle: "Liulian-Plugin & 会飞的芒果猫 & 提瓦特图研社" // 帮助副标题
 };
 
 // 帮助菜单内容

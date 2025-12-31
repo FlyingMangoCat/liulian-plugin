@@ -10,7 +10,7 @@
 // 帮助配置
 export const helpCfg = {
   title: "B站推送帮助",  // 帮助标题
-  subTitle: "Yunzai-Bot & Liulian-Plugin" // 帮助副标题
+  subTitle: "Liulian-Plugin & 会飞的芒果猫" // 帮助副标题
 };
 
 // 帮助菜单内容
@@ -73,10 +73,6 @@ export const helpList = [{
     icon: 100,
     title: "汤圆帮助",
     desc: "查看汤圆帮助"
-  }, {
-    icon: 54,
-    title: "修仙使用帮助(芒果猫专享，不开放公开使用)",
-    desc: "修仙插件部分使用帮助+活动"
   }, {
     icon: 79,
     title: "插件管理帮助/help",
