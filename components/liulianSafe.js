@@ -66,38 +66,46 @@ const liulianSafe = {
   // 安全访问Bot.pickGroup
   pickGroup(groupId) {
     const group = this.Bot.pickGroup?.(groupId)
-    if (group) {
-      // 检查 group 对象是否有 setCard 方法
-      if (typeof group.setCard === 'function') {
-        return group
-      } else {
-        console.warn(`[liulianSafe] pickGroup(${groupId}) 返回的对象没有 setCard 方法`)
-        // 包装对象，添加 setCard 方法
-        return {
-          ...group,
-          setCard: async (userId, cardName) => {
-            console.warn(`[liulianSafe] setCard 方法不可用，尝试使用 Bot.setGroupCard`)
-            try {
-              // 尝试使用 Bot 的其他方法
-              if (typeof this.Bot.setGroupCard === 'function') {
-                return await this.Bot.setGroupCard(groupId, userId, cardName)
-              }
-              return false
-            } catch (e) {
-              console.error(`[liulianSafe] setCard 调用失败:`, e)
-              return false
-            }
-          }
+
+    if (!group) {
+      // 返回带有 setCard 方法的模拟对象
+      return {
+        setCard: async (userId, cardName) => {
+          console.warn(`[liulianSafe] pickGroup(${groupId}) 返回空对象，setCard 调用失败`)
+          return false
         }
       }
     }
-    // 返回带有 setCard 方法的模拟对象
-    return {
-      setCard: async (userId, cardName) => {
-        console.warn(`[liulianSafe] pickGroup(${groupId}) 返回空对象，setCard 调用失败`)
+
+    // 检查 group 对象是否有 setCard 方法
+    if (typeof group.setCard === 'function') {
+      return group
+    }
+
+    // 如果没有 setCard 方法，直接在对象上添加
+    console.warn(`[liulianSafe] pickGroup(${groupId}) 返回的对象没有 setCard 方法，正在添加`)
+    group.setCard = async (userId, cardName) => {
+      try {
+        // 尝试使用 Bot 的其他方法
+        if (typeof this.Bot.setGroupCard === 'function') {
+          console.log(`[liulianSafe] 使用 Bot.setGroupCard(${groupId}, ${userId}, ${cardName})`)
+          return await this.Bot.setGroupCard(groupId, userId, cardName)
+        }
+        // 尝试使用 Bot.pickMember 获取成员对象
+        const member = this.Bot.pickMember?.(groupId, userId)
+        if (member && typeof member.setCard === 'function') {
+          console.log(`[liulianSafe] 使用 pickMember(${groupId}, ${userId}).setCard(${cardName})`)
+          return await member.setCard(cardName)
+        }
+        console.error(`[liulianSafe] 无法找到可用的 setCard 方法`)
+        return false
+      } catch (e) {
+        console.error(`[liulianSafe] setCard 调用失败:`, e)
         return false
       }
     }
+
+    return group
   },
 
   // 安全访问Bot.pickMember
