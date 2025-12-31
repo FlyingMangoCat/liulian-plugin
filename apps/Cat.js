@@ -63,12 +63,11 @@ schedule.scheduleJob('0 0 0 * * *', function () {//每天凌晨0点执行
     }));
   }
   var json = JSON.parse(fs.readFileSync(dirpath + "/" + filename));//读取文件
-    for (let key in json) {//遍历json
-      json[key].Catprotection = false;//把猫猫保护属性设置为false
-      json.EveryDay.Remainingcats = Defaultnumberofcats;//每日可以抱走猫猫数量重置
-    }
-    fs.writeFileSync(dirpath + "/" + filename, JSON.stringify(json,null,"\t"));//写入文件
+  for (let key in json) {//遍历json
+    json[key].Catprotection = false;//把猫猫保护属性设置为false
+    json.EveryDay.Remainingcats = Defaultnumberofcats;//每日可以抱走猫猫数量重置
   }
+  fs.writeFileSync(dirpath + "/" + filename, JSON.stringify(json,null,"\t"));//写入文件
 });
 
 export async function Robacat(e) {
