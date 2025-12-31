@@ -68,8 +68,7 @@ const templateVersion = '2.0';
 const templateName = `guessAvatar_${templateVersion}`;
 const pluginName = 'games-template-plugin-zolay-liulian';
 const render = getPluginRender(pluginName);
-// 暂时禁用导入时初始化，避免阻塞插件加载
-// init();
+init();
 const guessConfigMap = new Map();
 function getGuessConfig(e) {
   let key = e.message_type + e[e.isGroup ? 'group_id' : 'user_id'];
