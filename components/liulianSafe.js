@@ -65,7 +65,17 @@ const liulianSafe = {
 
   // 安全访问Bot.pickGroup
   pickGroup(groupId) {
-    return this.Bot.pickGroup?.(groupId) || { setCard: async () => false }
+    const group = this.Bot.pickGroup?.(groupId)
+    if (group) {
+      return group
+    }
+    // 返回带有 setCard 方法的模拟对象
+    return {
+      setCard: async (userId, cardName) => {
+        console.warn(`[liulianSafe] pickGroup(${groupId}) 返回空对象，setCard 调用失败`)
+        return false
+      }
+    }
   },
 
   // 安全访问Bot.pickMember
