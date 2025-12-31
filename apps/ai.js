@@ -5,6 +5,16 @@ import { AIManager } from './ai/index.js';
 import config from '../config/ai.js';
 import { Cfg } from '#liulian'
 
+// 延迟初始化函数
+async function ensureInitialized() {
+  try {
+    const { initializeServices } = await import('./ai/index.js');
+    await initializeServices();
+  } catch (error) {
+    console.error('[AI模块] 初始化失败:', error);
+  }
+}
+
 // 导出中间件模式下的处理函数
 export async function handleMiddlewareRequest(data) {
     const { message, user_id, message_type = 'text' } = data;
@@ -117,6 +127,9 @@ function isCommandMessage(e) {
 
 // 主处理函数
 export async function ai(e) {
+  // 确保初始化（延迟到第一次使用）
+  await ensureInitialized();
+
   // 0. AI服务总开关检查 - liulian.ai.enabled是AI服务总开关，不是购买提示(sys.aits)
   // 如果AI服务关闭，直接返回，不输出任何日志
   if (!Cfg.get('liulian.ai.enabled', false)) {
