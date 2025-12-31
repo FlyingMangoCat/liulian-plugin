@@ -67,7 +67,29 @@ const liulianSafe = {
   pickGroup(groupId) {
     const group = this.Bot.pickGroup?.(groupId)
     if (group) {
-      return group
+      // 检查 group 对象是否有 setCard 方法
+      if (typeof group.setCard === 'function') {
+        return group
+      } else {
+        console.warn(`[liulianSafe] pickGroup(${groupId}) 返回的对象没有 setCard 方法`)
+        // 包装对象，添加 setCard 方法
+        return {
+          ...group,
+          setCard: async (userId, cardName) => {
+            console.warn(`[liulianSafe] setCard 方法不可用，尝试使用 Bot.setGroupCard`)
+            try {
+              // 尝试使用 Bot 的其他方法
+              if (typeof this.Bot.setGroupCard === 'function') {
+                return await this.Bot.setGroupCard(groupId, userId, cardName)
+              }
+              return false
+            } catch (e) {
+              console.error(`[liulianSafe] setCard 调用失败:`, e)
+              return false
+            }
+          }
+        }
+      }
     }
     // 返回带有 setCard 方法的模拟对象
     return {
