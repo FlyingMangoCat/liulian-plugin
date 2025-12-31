@@ -287,15 +287,19 @@ export async function updateLiulianPlugin (e) {
       return true
     }
     e.reply('插件更新成功，正在尝试重新启动Yunzai以应用更新...')
+    e.reply('提示：如果更新后出现报错，请在插件目录下执行 pnpm install -P 安装依赖')
     timer && clearTimeout(timer)
     redis.set('liulian:restart-msg', JSON.stringify({
       msg: '重启成功，新版插件已经生效',
       qq: e.user_id
     }), { EX: 30 })
     timer = setTimeout(function () {
-      let command = 'npm run start'
+      // 检测使用pnpm还是npm
+      const usePnpm = fs.existsSync(`${_path}/pnpm-lock.yaml`)
+      const pkgManager = usePnpm ? 'pnpm' : 'npm'
+      let command = `${pkgManager} run start`
       if (process.argv[1].includes('pm2')) {
-        command = 'npm run restart'
+        command = `${pkgManager} run restart`
       }
       exec(command, function (error, stdout, stderr) {
         if (error) {
@@ -303,8 +307,8 @@ export async function updateLiulianPlugin (e) {
           liulianSafe.logger.error(`重启失败\n${error.stack}`)
           return true
         } else if (stdout) {
-          liulianSafe.logger.mark('重启成功，运行已转为后台，查看日志请用命令：npm run log')
-          liulianSafe.logger.mark('停止后台运行命令：npm stop')
+          liulianSafe.logger.mark('重启成功，运行已转为后台，查看日志请用命令：' + pkgManager + ' run log')
+          liulianSafe.logger.mark('停止后台运行命令：' + pkgManager + ' stop')
           process.exit()
         }
       })
