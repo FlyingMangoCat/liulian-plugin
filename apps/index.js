@@ -120,20 +120,21 @@ sm21,
 sm22,
 sm23,
 } from "./XMmap.js"
-import {
-  changeBilibiliPush,
-  changeGroupBilibiliPush,
-  changeBiliPushPrivatePermission,
-  bilibiliPushPermission,
-  updateBilibiliPush,
-  getBilibiliPushUserList,
-  setBiliPushTimeInterval,
-  setBiliPushCookie,
-  setBiliPushFaultTime,
-  changeBiliPushTransmit,
-  setBiliPushSendType,
-  pushScheduleJob,
-} from "./bilibiliPush.js";
+// 暂时禁用 bilibiliPush.js 导入，避免阻塞插件加载
+// import {
+//   changeBilibiliPush,
+//   changeGroupBilibiliPush,
+//   changeBiliPushPrivatePermission,
+//   bilibiliPushPermission,
+//   updateBilibiliPush,
+//   getBilibiliPushUserList,
+//   setBiliPushTimeInterval,
+//   setBiliPushCookie,
+//   setBiliPushFaultTime,
+//   changeBiliPushTransmit,
+//   setBiliPushSendType,
+//   pushScheduleJob,
+// } from "./bilibiliPush.js";
 import { bilibilihelp, YZversionInfo } from "./bilibilihelp.js"
 import { JsPlugins,
 PluginsList,
