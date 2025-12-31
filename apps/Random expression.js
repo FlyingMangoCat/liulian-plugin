@@ -145,8 +145,9 @@ if (!Cfg.get('sys.bq', false)) {
 	}
 }
 
-// 戳一戳触发事件监听器
-Bot.on("notice.group.poke", async (e)=> {
+// 戳一戳触发事件监听器 - 暂时禁用，避免导入时访问未定义的 Bot 对象
+// if (typeof Bot !== 'undefined') {
+//   Bot.on("notice.group.poke", async (e)=> {
 	// 检查YunzaiApps是否存在
 	if (typeof YunzaiApps == "undefined") {
     return;
@@ -198,7 +199,8 @@ Bot.on("notice.group.poke", async (e)=> {
   // 触发戳一戳表情包
   await chuochuo(e);
   return;
-})
+});
+// }
 
 /**
  * 上传表情包函数
