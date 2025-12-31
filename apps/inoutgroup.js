@@ -6,11 +6,11 @@ let tui = true //开启主动退群提示
 let ti = true  //开启管理员踢人提示
 
 // 暂时禁用事件监听，避免导入时访问未定义的 Bot 对象
-// if (typeof Bot !== 'undefined') {
-//   Bot.on("notice.group", (e) => {
-//     CeShi(e);
-//   });
-// }
+if (typeof Bot !== 'undefined') {
+  Bot.on("notice.group", (e) => {
+    CeShi(e);
+  });
+}
 
 //1.定义命令规则
 export const rule = {
