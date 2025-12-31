@@ -31,8 +31,8 @@ let cfgMap = {
   回复长度:'liulian.ai.reply_length',
   管理员:'liulian.admin.users',
   // 宣传模块配置
-  宣传模块:'liulian.ad.enabled',
-  宣传概率:'liulian.ad.probability',
+  宣传模块:'sys.ad',
+  宣传概率:'sys.adProbability',
 }
 let sysCfgReg = `^#榴莲设置\\s*(${lodash.keys(cfgMap).join('|')})?\\s*(.*)$`
 export const rule = {
@@ -101,6 +101,8 @@ export async function sysCfg (e, { render }) {
 			val= Math.min(100,Math.max(val,0));
 		} else if(cfgKey === "liulian.ai.reply_length"){
 			val= Math.min(500,Math.max(val,50));
+		} else if(cfgKey === "sys.adProbability"){
+			val= Math.min(10,Math.max(val,0));
 		} else if(cfgKey === "liulian.blacklist.groups"){
       // 处理黑名单群组，支持逗号分隔的多个群号
       if (val.includes(',')) {
@@ -157,15 +159,18 @@ export async function sysCfg (e, { render }) {
     shutup: getStatus('sys.shutup', false),
     PluginName: Cfg.get('sys.PluginName', 1),
     aits: getStatus('sys.aits', true),
+    // 宣传模块配置显示
+    ad: getStatus('sys.ad', false),
+    adProbability: Cfg.get('sys.adProbability', 1),
     // 榴莲AI配置显示
     aiEnabled: getStatus('liulian.ai.enabled', false),
     apiEndpoint: Cfg.get('liulian.api.endpoint', 'https://api.liulian.ai/v1'),
     apiKey: Cfg.get('liulian.api.key', '') ? '已设置' : '未设置',
-    blacklistGroups: Cfg.get('liulian.blacklist.groups', []).length > 0 ? 
+    blacklistGroups: Cfg.get('liulian.blacklist.groups', []).length > 0 ?
       `${Cfg.get('liulian.blacklist.groups', []).length}个群组` : '无',
     aiProbability: Cfg.get('liulian.ai.probability', 40),
     replyLength: Cfg.get('liulian.ai.reply_length', 120),
-    adminUsers: Cfg.get('liulian.admin.users', []).length > 0 ? 
+    adminUsers: Cfg.get('liulian.admin.users', []).length > 0 ?
       `${Cfg.get('liulian.admin.users', []).length}个管理员` : '无',
   }
 
