@@ -1294,7 +1294,8 @@ const exportedFunctions = {
 
 for (let fnName in exportedFunctions) {
   LiulianV3.prototype[fnName] = async function(e) {
-    return await exportedFunctions[fnName](e, { render: null })
+    const render = this.render || null
+    return await exportedFunctions[fnName](e, { render })
   }
 }
 
