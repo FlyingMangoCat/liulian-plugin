@@ -29,44 +29,30 @@ let PushBilibiliDynamic = {}; // 推送对象列表
 //   DYNAMIC_TYPE_LIVE_RCMD: { name: "直播动态", type: "DYNAMIC_TYPE_LIVE_RCMD" },
 // };
 
+// B站 API 端点（使用新版 API）
 const BiliDynamicApiUrl = "https://api.bilibili.com/x/polymer/web-dynamic/v1/feed/space";
 const BiliDrawDynamicLinkUrl = "https://m.bilibili.com/dynamic/"; // 图文动态链接地址
+const BiliUserInfoUrl = "https://api.bilibili.com/x/space/acc/info"; // 用户信息 API
+const BiliLoginQrcodeUrl = "https://passport.bilibili.com/x/passport-login/web/qrcode/generate"; // 获取登录二维码
+const BiliLoginInfoUrl = "https://passport.bilibili.com/x/passport-login/web/qrcode/poll"; // 查询登录状态
 
-// B站推送需要用到的CK
-// const CK_LIST = ['buvid3', 'b_nut', 'b_lsid', '_uuid', 'buvid_fp', 'buvid4']
-// document.cookie.split(';').filter(a => { var b = ['buvid3', 'b_nut', 'b_lsid', '_uuid', 'buvid_fp', 'buvid4']; for (let i = 0; i < b.length; i++) if (a.includes(b[i])) return true; return false; }).join(';');
-
-const BiliReqHeaders_1 = {
-  'cookie': '',
-  'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
-  'accept-encoding': 'gzip, deflate, br',
-  'accept-language': 'zh-CN,zh;q=0.9',
-  'cache-control': 'max-age=0',
-  'sec-ch-ua': '"Microsoft Edge";v="113", "Chromium";v="113", "Not-A.Brand";v="24"',
+// B站请求头配置
+const BiliReqHeaders = {
+  'accept': 'application/json, text/plain, */*',
+  'accept-language': 'zh-CN,zh;q=0.9,en;q=0.8',
+  'origin': 'https://t.bilibili.com',
+  'referer': 'https://t.bilibili.com/',
+  'sec-ch-ua': '"Chromium";v="120", "Not=A?Brand";v="99", "Google Chrome";v="120"',
   'sec-ch-ua-mobile': '?0',
-  'sec-ch-ua-platform': "Windows",
-  'sec-fetch-dest': 'document',
-  'sec-fetch-mode': 'navigate',
-  'sec-fetch-site': 'none',
-  'sec-fetch-user': '?1',
-  'upgrade-insecure-requests': '1',
-  'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/113.0.0.0 Safari/537.36 Edg/113.0.1774.50',
+  'sec-ch-ua-platform': '"Windows"',
+  'sec-fetch-dest': 'empty',
+  'sec-fetch-mode': 'cors',
+  'sec-fetch-site': 'same-site',
+  'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
 }
 
-const BiliReqHeaders = {
-            'authority': 'api.bilibili.com',
-            'accept': 'application/json, text/plain, */*',
-            'accept-language': 'zh-CN,zh;q=0.9',
-            'cookie': '',
-            'origin': 'https://space.bilibili.com',
-            'sec-ch-ua': '"Chromium";v="118", "Google Chrome";v="118", "Not=A?Brand";v="99"',
-            'sec-ch-ua-mobile': '?0',
-            'sec-ch-ua-platform': '"Windows"',
-            'sec-fetch-dest': 'empty',
-            'sec-fetch-mode': 'cors',
-            'sec-fetch-site': 'same-site',
-            'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Safari/537.36'
-        }
+// B站 Cookie（从配置文件读取或自动生成）
+let BiliCookie = '';
 
 // 初始化获取B站推送信息
 const BotHaveARest = 500; // 每次发送间隔时间
@@ -80,34 +66,257 @@ let pushTimeInterval = 10; // 推送间隔时间，单位：分钟
 // 延长过期时间的定义
 let DynamicPushTimeInterval = 60 * 60 * 1000; // 过期时间，单位：小时，默认一小时，范围[1,24]
 
-// 初始化获取B站推送信息
-async function getBiliCookie() {
-  // 获取 B3 ck
-  let url = "https://space.bilibili.com/401742377";
-  let response = await fetch(url, { method: "get", headers: BiliReqHeaders });
-  if (!response.ok) {
-    return true;
+// 初始化 B站 Cookie
+async function initBiliCookie() {
+  // 尝试从配置文件读取 Cookie
+  try {
+    const cfg = config.getdefault_config('bilibiliPush', 'bilibiliCookie', 'config');
+    if (cfg && cfg.cookie) {
+      BiliCookie = cfg.cookie;
+      BiliReqHeaders.cookie = BiliCookie;
+      Bot.logger.mark('B站推送：使用配置文件中的 Cookie');
+      return true;
+    }
+  } catch (err) {
+    Bot.logger.warn(`B站推送：读取配置文件 Cookie 失败: ${err.message}`);
   }
-  let cookies = response?.headers?.raw()?.['set-cookie'] ?? [];
-  cookies = cookies.map(item => {
-    return item.split(';')[0]
-  })
-  BiliReqHeaders.cookie = cookies.join('; ')
-  
-  // 获取 B4 ck
-  url = "https://api.bilibili.com/x/frontend/finger/spi";
-  response = await fetch(url, { method: "get", headers: BiliReqHeaders });
-  if (!response.ok) {
+
+  // 如果没有配置 Cookie，生成基础 Cookie
+  BiliCookie = `buvid3=${generateRandomId()}; b_nut=${generateRandomId()}; _uuid=${getUuid()}; b_lsid=${getBLsid()}`;
+  BiliReqHeaders.cookie = BiliCookie;
+  Bot.logger.mark('B站推送：使用自动生成的 Cookie');
+  return true;
+}
+
+// 生成随机 ID（用于 buvid3 和 b_nut）
+function generateRandomId() {
+  return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+}
+
+// 获取用户信息
+async function getUserInfo(uid) {
+  try {
+    const url = `${BiliUserInfoUrl}?mid=${uid}`;
+    const response = await fetch(url, {
+      method: "get",
+      headers: BiliReqHeaders
+    });
+
+    if (!response.ok) {
+      Bot.logger.warn(`B站推送：获取用户信息失败，HTTP状态码: ${response.status}`);
+      return null;
+    }
+
+    const res = await response.json();
+
+    if (res.code === -352) {
+      Bot.logger.warn('B站推送：Cookie 已过期或无效');
+      return null;
+    }
+
+    if (res.code !== 0) {
+      Bot.logger.warn(`B站推送：获取用户信息失败，错误码: ${res.code}, 消息: ${res.message}`);
+      return null;
+    }
+
+    const data = res?.data;
+    if (!data) {
+      Bot.logger.warn('B站推送：用户信息数据为空');
+      return null;
+    }
+
+    return {
+      name: data.name || uid,
+      face: data.face || '',
+      sign: data.sign || ''
+    };
+  } catch (err) {
+    Bot.logger.error(`B站推送：获取用户信息异常: ${err.message}`);
+    return null;
+  }
+}
+
+// B站扫码登录
+export async function biliLogin(e) {
+  if (!e.isMaster) {
+    e.reply("只有主人可以使用扫码登录功能哦");
     return true;
   }
 
-  const res = await response.json();
-  const b4ck = res?.data?.b_4 ?? '';
-  cookies.push(`buvid4=${b4ck}`)
-  
-  // 获取 b_lsid 和  _uuid
-  cookies.push(getBLsid(), getUuid());
-  BiliReqHeaders.cookie = cookies.join('; ')
+  try {
+    // 获取登录二维码
+    const response = await fetch(BiliLoginQrcodeUrl, {
+      method: "get",
+      headers: BiliReqHeaders
+    });
+
+    if (!response.ok) {
+      e.reply("获取登录二维码失败，请稍后重试");
+      return true;
+    }
+
+    const res = await response.json();
+
+    if (res.code !== 0) {
+      e.reply(`获取登录二维码失败：${res.message}`);
+      return true;
+    }
+
+    const qrcodeData = res?.data;
+    if (!qrcodeData || !qrcodeData.url || !qrcodeData.qrcode_key) {
+      e.reply("登录二维码数据异常");
+      return true;
+    }
+
+    // 生成二维码图片
+    const qrCodeUrl = qrcodeData.url;
+    const qrcodeKey = qrcodeData.qrcode_key;
+
+    // 使用 qrcode 库生成二维码
+    let qrImage;
+    try {
+      const QRCode = (await import('qrcode')).default;
+      qrImage = await QRCode.toBuffer(qrCodeUrl, {
+        width: 300,
+        margin: 2,
+        color: {
+          dark: '#000000',
+          light: '#FFFFFF'
+        }
+      });
+    } catch (err) {
+      Bot.logger.error(`B站推送：生成二维码失败: ${err.message}`);
+      e.reply("生成二维码失败，请检查是否安装了 qrcode 依赖");
+      return true;
+    }
+
+    // 发送二维码图片
+    if (e.isGroup) {
+      await e.group.sendMsg(segment.image(qrImage));
+    } else {
+      await e.reply(segment.image(qrImage));
+    }
+
+    e.reply("请使用 B站手机 APP 扫码登录\n二维码有效期 3 分钟");
+
+    // 轮询登录状态
+    const maxAttempts = 60; // 最多轮询 60 次（3分钟）
+    let attempts = 0;
+
+    const pollInterval = setInterval(async () => {
+      attempts++;
+
+      if (attempts > maxAttempts) {
+        clearInterval(pollInterval);
+        e.reply("登录超时，请重新扫码");
+        return;
+      }
+
+      try {
+        const pollResponse = await fetch(`${BiliLoginInfoUrl}?qrcode_key=${qrcodeKey}`, {
+          method: "get",
+          headers: BiliReqHeaders
+        });
+
+        if (!pollResponse.ok) {
+          return;
+        }
+
+        const pollRes = await pollResponse.json();
+
+        if (pollRes.code === 0 && pollRes.data?.code === 0) {
+          // 登录成功
+          clearInterval(pollInterval);
+
+          const url = pollRes.data.url;
+          if (!url) {
+            e.reply("登录成功但获取 Cookie 失败");
+            return;
+          }
+
+          // 从 URL 中提取 Cookie
+          const cookie = extractCookieFromUrl(url);
+
+          if (!cookie) {
+            e.reply("登录成功但提取 Cookie 失败");
+            return;
+          }
+
+          // 保存 Cookie
+          BiliCookie = cookie;
+          BiliReqHeaders.cookie = cookie;
+
+          // 保存到配置文件
+          try {
+            const configPath = `${_path}/plugins/liulian-plugin/config/config/bilibiliPush/bilibiliCookie.yaml`;
+            const yamlContent = `# B站推送 Cookie 配置
+# 获取方式：
+# 1. 登录 B站网页版 (https://www.bilibili.com)
+# 2. 按 F12 打开开发者工具
+# 3. 切换到 Network (网络) 标签
+# 4. 刷新页面
+# 5. 找到任意请求，查看 Request Headers 中的 Cookie
+# 6. 复制完整的 Cookie 内容到下方
+
+# Cookie 内容（留空则使用自动生成的 Cookie，但功能可能受限）
+cookie: '${cookie}'
+
+# 注意：
+# - 建议配置有效的 Cookie 以获得更好的推送效果
+# - Cookie 包含敏感信息，请勿泄露给他人
+# - Cookie 可能会过期，如遇推送失败可尝试更新 Cookie
+`;
+
+            fs.writeFileSync(configPath, yamlContent, 'utf8');
+            Bot.logger.mark('B站推送：Cookie 已保存到配置文件');
+          } catch (err) {
+            Bot.logger.error(`B站推送：保存 Cookie 失败: ${err.message}`);
+          }
+
+          e.reply("✅ 登录成功！Cookie 已保存");
+          Bot.logger.mark('B站推送：扫码登录成功');
+        } else if (pollRes.data?.code === 86038) {
+          // 二维码已过期
+          clearInterval(pollInterval);
+          e.reply("二维码已过期，请重新扫码");
+        } else if (pollRes.data?.code === 86090) {
+          // 等待扫码
+          // 继续轮询
+        }
+      } catch (err) {
+        Bot.logger.error(`B站推送：查询登录状态异常: ${err.message}`);
+      }
+    }, 3000); // 每 3 秒查询一次
+
+  } catch (err) {
+    Bot.logger.error(`B站推送：扫码登录异常: ${err.message}`);
+    e.reply(`扫码登录失败：${err.message}`);
+  }
+
+  return true;
+}
+
+// 从登录 URL 中提取 Cookie
+function extractCookieFromUrl(url) {
+  try {
+    const urlObj = new URL(url);
+    const params = urlObj.searchParams;
+
+    let cookie = '';
+    const cookieKeys = ['SESSDATA', 'bili_jct', 'DedeUserID'];
+
+    cookieKeys.forEach(key => {
+      const value = params.get(key);
+      if (value) {
+        cookie += `${key}=${value}; `;
+      }
+    });
+
+    return cookie.trim();
+  } catch (err) {
+    Bot.logger.error(`B站推送：提取 Cookie 失败: ${err.message}`);
+    return null;
+  }
 }
 
 async function initBiliPushJson() {
@@ -145,7 +354,8 @@ async function initBiliPushJson() {
   }
 }
 
-initBiliPushJson(); // 初始化
+initBiliPushJson(); // 初始化配置
+initBiliCookie(); // 初始化 Cookie
 
 // (开启|关闭)B站推送
 export async function changeBilibiliPush(e) {
@@ -416,44 +626,16 @@ export async function updateBilibiliPush(e) {
       return true;
     }
 
-    let url = `${BiliDynamicApiUrl}?host_mid=${uid}`;
-    BiliReqHeaders.cookie = `DedeUserID=${uid}`
-    const response = await fetch(url, { method: "get", headers: BiliReqHeaders });
-    if (!response.ok) {
-      e.reply("啊这，出了点问题，可能是网络不好也可能是B站出问题了，等会再试试吧~");
+    // 先获取用户信息
+    let userInfo = await getUserInfo(uid);
+    if (!userInfo) {
+      e.reply("⚠️无法获取用户信息，可能是UID错误或B站接口限制\n提示：建议在配置文件中配置有效的 B站 Cookie");
       return true;
     }
 
-    const res = await response.json();
-    
-     if (res.code == '-352') {
-     e.reply("⚠️B站ck已过期，可尝试执行命令\n#B站推送ck +你的ck\n来替换过期的ck");
-     return true;
-    }
-
-    if (res.code != 0) {
-      e.reply("这东西不是UID吧？\n⚠️如确认uid正确请尝试将B站ck替换为自己获取的");
-      return true;
-    }
-
-    let data = res?.data || null;
-    if (!data) {
-      e.reply("这东西不是UID吧？\n⚠️如确认uid正确请尝试将B站ck替换为自己获取的");
-      return true;
-    }
-
-    data = res?.data?.items || [];
-    let preMsg = '';
-    if (data.length === 0) {
-      data.name = uid;
-    } else {
-      let dynamic = data[0];
-      data.name = dynamic?.modules?.module_author?.name || uid;
-    }
-
-    PushBilibiliDynamic[pushID].biliUserList.push({ uid, name: data.name });
+    PushBilibiliDynamic[pushID].biliUserList.push({ uid, name: userInfo.name });
     savePushJson();
-    e.reply(`${preMsg}添加成功~\n${data.name}：${uid}`);
+    e.reply(`添加成功~\n${userInfo.name}：${uid}`);
   }
 
   return true;
@@ -706,59 +888,90 @@ async function pushDynamic(pushInfo) {
   let users = pushInfo.biliUserList;
   for (let i = 0; i < users.length; i++) {
     let biliUID = users[i].uid;
-    // 请求这个B站用户动态之前，先看看刚刚有没有请求过这个B 站用户，有就不需要再请求了
+
+    // 检查是否已经请求过这个用户的动态
     let lastPushList = nowDynamicPushList.get(biliUID);
-    // 刚刚请求过了，不再请求
     if (lastPushList) {
-      // 刚刚请求时候就没有可以推送的内容，跳过
       if (lastPushList.length === 0) {
         continue;
       }
       await sendDynamic(pushInfo, users[i], lastPushList);
       continue;
     }
-    let url = `${BiliDynamicApiUrl}?host_mid=${biliUID}`;
-    //BiliReqHeaders.cookie = `DedeUserID=${biliUID}`
-    const response = await fetch(url, { method: "get", headers: BiliReqHeaders });
-    if (!response.ok) {
-      // 请求失败，不记录，跳过，下一个
-      await common.sleep(BiliApiRequestTimeInterval);
-      continue;
-    }
-    const res = await response.json();
-    if (res.code != 0) {
-      // 同样请求失败，不记录，跳过，下一个
-      await common.sleep(BiliApiRequestTimeInterval);
-      continue;
-    }
-    let data = res?.data?.items || [];
-    if (data.length === 0) {
-      // 没有动态，记录一个空数组，跳过，下一个
-      await common.sleep(BiliApiRequestTimeInterval);
-      nowDynamicPushList.set(biliUID, []);
-      continue;
-    }
-    let pushList = new Set(); // 满足时间要求的可推送动态列表
-    // 获取可以推送的动态列表
-    for (let val of data) {
-      let author = val?.modules?.module_author || {};
-      if (!author?.pub_ts) continue; // 没有推送时间，这属于数据有问题。。。跳过，下一个
-      author.pub_ts = author.pub_ts * 1000;
-      // 允许推送多早以前的动态，重要，超过了设定时间则不推
-      if (nowPushDate - author.pub_ts > DynamicPushTimeInterval) {
+
+    // 请求用户动态
+    let url = `${BiliDynamicApiUrl}?host_mid=${biliUID}&timezone_offset=-480&features=itemOpusStyle`;
+    let pushList = [];
+
+    try {
+      const response = await fetch(url, {
+        method: "get",
+        headers: BiliReqHeaders
+      });
+
+      if (!response.ok) {
+        Bot.logger.warn(`B站推送：获取用户[${biliUID}]动态失败，HTTP状态码: ${response.status}`);
+        await common.sleep(BiliApiRequestTimeInterval);
+        nowDynamicPushList.set(biliUID, []);
         continue;
       }
-      pushList.add(val);
-    }
-    pushList = rmDuplicatePushList([...pushList]); // 数据去重，确保不会重复推送
-    nowDynamicPushList.set(biliUID, pushList); // 记录本次满足时间要求的可推送动态列表，为空也存，待会再查到就跳过
-    if (pushList.length === 0) {
-      // 没有可以推送的，记录完就跳过，下一个
+
+      const res = await response.json();
+
+      if (res.code === -352) {
+        Bot.logger.warn('B站推送：Cookie 已过期或无效');
+        await common.sleep(BiliApiRequestTimeInterval);
+        nowDynamicPushList.set(biliUID, []);
+        continue;
+      }
+
+      if (res.code !== 0) {
+        Bot.logger.warn(`B站推送：获取用户[${biliUID}]动态失败，错误码: ${res.code}, 消息: ${res.message}`);
+        await common.sleep(BiliApiRequestTimeInterval);
+        nowDynamicPushList.set(biliUID, []);
+        continue;
+      }
+
+      let data = res?.data?.items || [];
+      if (data.length === 0) {
+        Bot.logger.mark(`B站推送：用户[${biliUID}]暂无新动态`);
+        await common.sleep(BiliApiRequestTimeInterval);
+        nowDynamicPushList.set(biliUID, []);
+        continue;
+      }
+
+      // 筛选需要推送的动态
+      for (let val of data) {
+        let author = val?.modules?.module_author || {};
+        if (!author?.pub_ts) continue;
+
+        let pubTime = author.pub_ts * 1000;
+        // 检查是否在允许推送的时间范围内
+        if (nowPushDate - pubTime > DynamicPushTimeInterval) {
+          continue;
+        }
+        pushList.push(val);
+      }
+
+      // 去重
+      pushList = rmDuplicatePushList(pushList);
+      nowDynamicPushList.set(biliUID, pushList);
+
+      if (pushList.length === 0) {
+        Bot.logger.mark(`B站推送：用户[${biliUID}]没有需要推送的新动态`);
+        await common.sleep(BiliApiRequestTimeInterval);
+        continue;
+      }
+
+      Bot.logger.mark(`B站推送：用户[${biliUID}]有 ${pushList.length} 条新动态待推送`);
+      await sendDynamic(pushInfo, users[i], pushList);
       await common.sleep(BiliApiRequestTimeInterval);
-      continue;
+
+    } catch (err) {
+      Bot.logger.error(`B站推送：获取用户[${biliUID}]动态异常: ${err.message}`);
+      await common.sleep(BiliApiRequestTimeInterval);
+      nowDynamicPushList.set(biliUID, []);
     }
-    await sendDynamic(pushInfo, users[i], pushList);
-    await common.sleep(BiliApiRequestTimeInterval);
   }
   return true;
 }
@@ -774,157 +987,222 @@ function rmDuplicatePushList(newList) {
 // 发送动态内容
 async function sendDynamic(info, biliUser, list) {
   let pushID = info.pushTarget;
-  Bot.logger.mark(`B站推送[${pushID}]`);
+  Bot.logger.mark(`B站推送[${pushID}] - 用户[${biliUser.name}]`);
+
   for (let val of list) {
-    let msg = buildSendDynamic(biliUser, val, info);
-    if (msg === "can't push transmit") {
-      // 这不好在前边判断，只能放到这里了
-      continue;
-    }
-    if (!msg) {
-      Bot.logger.mark(`B站动态推送[${pushID}] - [${biliUser.name}]，推送失败，动态信息解析失败`);
-      continue;
-    }
+    try {
+      let msg = buildSendDynamic(biliUser, val, info);
 
-    let sendType = getSendType(info);
-    if (sendType === "merge") {
-      msg = await common.replyMake(msg, info.isGroup, msg[0]);
-    }
-    if (info.isGroup) {
-      Bot.pickGroup(pushID)
-        .sendMsg(msg)
-        .catch((err) => { // 推送失败，可能仅仅是某个群推送失败
-          // dynamicPushFailed.set(pushID, val.id_str);
-          pushAgain(pushID, msg);
-        });
-    } else {
-      common.relpyPrivate(pushID, msg);
-    }
+      if (msg === "can't push transmit") {
+        Bot.logger.mark(`B站推送：跳过转发动态 [${val.id_str}]`);
+        continue;
+      }
 
-    await common.sleep(BotHaveARest); // 休息一下，别一口气发一堆
+      if (!msg) {
+        Bot.logger.warn(`B站推送：动态信息解析失败 [${val.id_str}]`);
+        continue;
+      }
+
+      let sendType = getSendType(info);
+      if (sendType === "merge") {
+        msg = await common.replyMake(msg, info.isGroup, msg[0]);
+      }
+
+      if (info.isGroup) {
+        await Bot.pickGroup(pushID)
+          .sendMsg(msg)
+          .catch((err) => {
+            Bot.logger.error(`B站推送：群[${pushID}]推送失败: ${err.message}`);
+            return pushAgain(pushID, msg);
+          });
+      } else {
+        await common.relpyPrivate(pushID, msg);
+      }
+
+      Bot.logger.mark(`B站推送：成功推送动态 [${val.id_str}]`);
+      await common.sleep(BotHaveARest);
+
+    } catch (err) {
+      Bot.logger.error(`B站推送：发送动态异常 [${val.id_str}]: ${err.message}`);
+    }
   }
 
   return true;
 }
 
 // 群推送失败了，再推一次，再失败就算球了
-async function pushAgain(groupId, msg) {
-  await common.sleep(BotHaveARest);
-  Bot.pickGroup(groupId)
-    .sendMsg(msg)
-    .catch((err) => {
-      Bot.logger.mark(`群[${groupId}]推送失败：${err}`);
-    });
-  return true;
+async function pushAgain(groupId, msg, retryCount = 0) {
+  const maxRetries = 2; // 最多重试 2 次
+
+  if (retryCount >= maxRetries) {
+    Bot.logger.error(`B站推送：群[${groupId}]推送失败，已达最大重试次数`);
+    return false;
+  }
+
+  await common.sleep(BotHaveARest * (retryCount + 1)); // 重试时延迟递增
+
+  try {
+    await Bot.pickGroup(groupId).sendMsg(msg);
+    Bot.logger.mark(`B站推送：群[${groupId}]重试推送成功 (第${retryCount + 1}次)`);
+    return true;
+  } catch (err) {
+    Bot.logger.warn(`B站推送：群[${groupId}]重试推送失败 (第${retryCount + 1}次): ${err.message}`);
+    return pushAgain(groupId, msg, retryCount + 1);
+  }
 }
 
 // 构建动态消息
 function buildSendDynamic(biliUser, dynamic, info) {
-  let desc, msg, pics;
-  let title = `${biliUser.name}「动态」推送：\n`;
+  try {
+    let desc, msg, pics;
+    let title = `${biliUser.name}「动态」推送：\n`;
 
-  // 以下对象结构参考米游社接口，接口在顶部定义了
-  switch (dynamic.type) {
-    case "DYNAMIC_TYPE_AV":
-      desc = dynamic?.modules?.module_dynamic?.major?.archive;
-      if (!desc) return;
-      title = `${biliUser.name}「视频」推送：\n`;
-      // 视频动态仅由标题、封面、链接组成
-      msg = [title, desc.title, segment.image(desc.cover), resetLinkUrl(desc.jump_url)];
-      return msg;
-    case "DYNAMIC_TYPE_WORD":
-      desc = dynamic?.modules?.module_dynamic?.desc;
-      if (!desc) return;
-      if (!contentFilter(desc.text)) return;
-      title = `${biliUser.name}「动态」推送：\n`;
-      if (getSendType(info) != "default") {
-        msg = [title, `${desc.text}\n`, `${BiliDrawDynamicLinkUrl}${dynamic.id_str}`];
-      } else {
-        msg = [title, `${dynamicContentLimit(desc.text)}\n`, `${BiliDrawDynamicLinkUrl}${dynamic.id_str}`];
-      }
+    // 以下对象结构参考新版 API 接口
+    switch (dynamic.type) {
+      case "DYNAMIC_TYPE_AV":
+        desc = dynamic?.modules?.module_dynamic?.major?.archive;
+        if (!desc) {
+          Bot.logger.warn(`B站推送：视频动态数据不完整 [${dynamic.id_str}]`);
+          return null;
+        }
+        title = `${biliUser.name}「视频」推送：\n`;
+        msg = [title, desc.title, segment.image(desc.cover), resetLinkUrl(desc.jump_url)];
+        return msg;
 
-      return msg;
-    case "DYNAMIC_TYPE_DRAW":
-      desc = dynamic?.modules?.module_dynamic?.desc;
-      pics = dynamic?.modules?.module_dynamic?.major?.draw?.items;
-      if (!desc && !pics) return;
-      if (!contentFilter(desc.text)) return;
-      pics = pics.map((item) => {
-        return segment.image(item.src);
-      });
-      title = `${biliUser.name}「图文」推送：\n`;
-      
-      if (getSendType(info) != "default") {
-        msg = [title, `${desc.text}\n`, ...pics, `${BiliDrawDynamicLinkUrl}${dynamic.id_str}`];
-      } else {
-        if (pics.length > DynamicPicCountLimit) pics.length = DynamicPicCountLimit; // 最多发DynamicPicCountLimit张图，不然要霸屏了
-        // 图文动态由内容（经过删减避免过长）、图片、链接组成
-        msg = [title, `${dynamicContentLimit(desc.text)}\n`, ...pics, `${BiliDrawDynamicLinkUrl}${dynamic.id_str}`];
-      }
+      case "DYNAMIC_TYPE_WORD":
+        desc = dynamic?.modules?.module_dynamic?.desc;
+        if (!desc) {
+          Bot.logger.warn(`B站推送：文字动态数据不完整 [${dynamic.id_str}]`);
+          return null;
+        }
+        if (!contentFilter(desc.text)) return null;
+        title = `${biliUser.name}「动态」推送：\n`;
+        if (getSendType(info) != "default") {
+          msg = [title, `${desc.text}\n`, `${BiliDrawDynamicLinkUrl}${dynamic.id_str}`];
+        } else {
+          msg = [title, `${dynamicContentLimit(desc.text)}\n`, `${BiliDrawDynamicLinkUrl}${dynamic.id_str}`];
+        }
+        return msg;
 
-      return msg;
-    case "DYNAMIC_TYPE_ARTICLE":
-      desc = dynamic?.modules?.module_dynamic?.major?.article;
-      if (!desc) return;
-      pics = [];
-      if (desc.covers && desc.covers.length) {
-        pics = desc.covers.map((item) => {
-          return segment.image(item);
-        });
-      }
+      case "DYNAMIC_TYPE_DRAW":
+        desc = dynamic?.modules?.module_dynamic?.desc;
+        pics = dynamic?.modules?.module_dynamic?.major?.draw?.items;
+        if (!desc && !pics) {
+          Bot.logger.warn(`B站推送：图文动态数据不完整 [${dynamic.id_str}]`);
+          return null;
+        }
+        if (desc && !contentFilter(desc.text)) return null;
 
-      title = `${biliUser.name}「文章」推送：\n`;
-      // 专栏/文章动态由标题、图片、链接组成
-      msg = [title, desc.title, ...pics, resetLinkUrl(desc.jump_url)];
-      return msg;
-    case "DYNAMIC_TYPE_FORWARD": // 转发的动态
-      let pushTransmit = info.pushTransmit;
-      if (!pushTransmit) return "can't push transmit";
-      desc = dynamic?.modules?.module_dynamic?.desc;
-      if (!desc) return;
-      if (!dynamic.orig) return;
-      if (!contentFilter(desc)) return;
-      let orig = buildSendDynamic(biliUser, dynamic.orig, info);
-      if (orig && orig.length) {
-        // 提头去尾
-        orig.shift();
-        orig.pop();
-      } else {
-        return false;
-      }
+        if (pics && pics.length > 0) {
+          pics = pics.map((item) => {
+            return segment.image(item.src);
+          });
+        } else {
+          pics = [];
+        }
 
-      title = `${biliUser.name}「转发」推送：\n`;
-      
-      if (getSendType(info) != "default") {
-        msg = [
-          title,
-          `${desc.text}\n---以下为转发内容---\n`,
-          ...orig,
-          `${BiliDrawDynamicLinkUrl}${dynamic.id_str}`,
-        ];
-      } else {
-        msg = [
-          title,
-          `${dynamicContentLimit(desc.text, 1, 15)}\n---以下为转发内容---\n`,
-          ...orig,
-          `${BiliDrawDynamicLinkUrl}${dynamic.id_str}`,
-        ];
-      }
+        title = `${biliUser.name}「图文」推送：\n`;
 
-      return msg;
-    case "DYNAMIC_TYPE_LIVE_RCMD":
-      desc = dynamic?.modules?.module_dynamic?.major?.live_rcmd?.content;
-      if (!desc) return;
-      desc = JSON.parse(desc);
-      desc = desc?.live_play_info;
-      if (!desc) return;
-      title = `${biliUser.name}「直播」动态推送：\n`;
-      // 直播动态由标题、封面、链接组成
-      msg = [title, `${desc.title}\n`, segment.image(desc.cover), resetLinkUrl(desc.link)];
-      return msg;
-    default:
-      Bot.logger.mark(`未处理的B站推送『${biliUser.name}』：${dynamic.type}`);
-      return false;
+        if (getSendType(info) != "default") {
+          msg = [title, desc ? `${desc.text}\n` : '', ...pics, `${BiliDrawDynamicLinkUrl}${dynamic.id_str}`];
+        } else {
+          if (pics.length > DynamicPicCountLimit) pics.length = DynamicPicCountLimit;
+          msg = [title, desc ? `${dynamicContentLimit(desc.text)}\n` : '', ...pics, `${BiliDrawDynamicLinkUrl}${dynamic.id_str}`];
+        }
+        return msg;
+
+      case "DYNAMIC_TYPE_ARTICLE":
+        desc = dynamic?.modules?.module_dynamic?.major?.article;
+        if (!desc) {
+          Bot.logger.warn(`B站推送：文章动态数据不完整 [${dynamic.id_str}]`);
+          return null;
+        }
+        pics = [];
+        if (desc.covers && desc.covers.length) {
+          pics = desc.covers.map((item) => {
+            return segment.image(item);
+          });
+        }
+
+        title = `${biliUser.name}「文章」推送：\n`;
+        msg = [title, desc.title, ...pics, resetLinkUrl(desc.jump_url)];
+        return msg;
+
+      case "DYNAMIC_TYPE_FORWARD":
+        let pushTransmit = info.pushTransmit;
+        if (!pushTransmit) return "can't push transmit";
+
+        desc = dynamic?.modules?.module_dynamic?.desc;
+        if (!desc) {
+          Bot.logger.warn(`B站推送：转发动态数据不完整 [${dynamic.id_str}]`);
+          return null;
+        }
+
+        if (!dynamic.orig) {
+          Bot.logger.warn(`B站推送：转发动态缺少原始内容 [${dynamic.id_str}]`);
+          return null;
+        }
+
+        if (!contentFilter(desc.text)) return null;
+
+        let orig = buildSendDynamic(biliUser, dynamic.orig, info);
+        if (orig && orig.length) {
+          orig.shift();
+          orig.pop();
+        } else {
+          Bot.logger.warn(`B站推送：转发动态原始内容解析失败 [${dynamic.id_str}]`);
+          return null;
+        }
+
+        title = `${biliUser.name}「转发」推送：\n`;
+
+        if (getSendType(info) != "default") {
+          msg = [
+            title,
+            `${desc.text}\n---以下为转发内容---\n`,
+            ...orig,
+            `${BiliDrawDynamicLinkUrl}${dynamic.id_str}`,
+          ];
+        } else {
+          msg = [
+            title,
+            `${dynamicContentLimit(desc.text, 1, 15)}\n---以下为转发内容---\n`,
+            ...orig,
+            `${BiliDrawDynamicLinkUrl}${dynamic.id_str}`,
+          ];
+        }
+        return msg;
+
+      case "DYNAMIC_TYPE_LIVE_RCMD":
+        desc = dynamic?.modules?.module_dynamic?.major?.live_rcmd?.content;
+        if (!desc) {
+          Bot.logger.warn(`B站推送：直播动态数据不完整 [${dynamic.id_str}]`);
+          return null;
+        }
+        try {
+          desc = JSON.parse(desc);
+          desc = desc?.live_play_info;
+        } catch (e) {
+          Bot.logger.warn(`B站推送：直播动态数据解析失败 [${dynamic.id_str}]`);
+          return null;
+        }
+
+        if (!desc) {
+          Bot.logger.warn(`B站推送：直播动态播放信息不完整 [${dynamic.id_str}]`);
+          return null;
+        }
+
+        title = `${biliUser.name}「直播」动态推送：\n`;
+        msg = [title, `${desc.title}\n`, segment.image(desc.cover), resetLinkUrl(desc.link)];
+        return msg;
+
+      default:
+        Bot.logger.warn(`B站推送：未处理的动态类型 [${dynamic.type}] [${dynamic.id_str}]`);
+        return null;
+    }
+  } catch (err) {
+    Bot.logger.error(`B站推送：构建动态消息异常 [${dynamic.id_str}]: ${err.message}`);
+    return null;
   }
 }
 

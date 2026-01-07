@@ -134,6 +134,7 @@ import {
   changeBiliPushTransmit,
   setBiliPushSendType,
   pushScheduleJob,
+  biliLogin,
 } from "./bilibiliPush.js";
 import { bilibilihelp, YZversionInfo } from "./bilibilihelp.js"
 import { JsPlugins,
@@ -299,6 +300,7 @@ export {
     changeBiliPushTransmit,
     setBiliPushSendType,
     pushScheduleJob,
+    biliLogin,
     weather,
     dog,
     bilibilihelp,
@@ -1079,6 +1081,11 @@ yl21: {
        priority: 500,
        describe: "",
   },
+       biliLogin: {
+       reg: "^#*B站扫码登录$",
+       priority: 500,
+       describe: "B站扫码登录获取Cookie",
+  },
        guessmusic: {
        reg: "^#?猜歌名$", //匹配消息正则，命令正则
        priority: 100, //优先级，越小优先度越高
@@ -1283,7 +1290,7 @@ const exportedFunctions = {
     bilibiliPushPermission, updateBilibiliPush,
     getBilibiliPushUserList, setBiliPushTimeInterval,
     setBiliPushCookie, setBiliPushFaultTime, changeBiliPushTransmit,
-    setBiliPushSendType, pushScheduleJob, weather, dog,
+    setBiliPushSendType, pushScheduleJob, biliLogin, weather, dog,
     bilibilihelp, YZversionInfo, EndCheck, musicanswerCheck,
     guessmusic, 运势, 小黑子, updateRes, cj, Robacat,
     Loseacat, Resetcat, Bouncecat, mapnumber, 上传, ai,

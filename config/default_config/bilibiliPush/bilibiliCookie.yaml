@@ -1,0 +1,16 @@
+# B站推送 Cookie 配置
+# 获取方式：
+# 1. 登录 B站网页版 (https://www.bilibili.com)
+# 2. 按 F12 打开开发者工具
+# 3. 切换到 Network (网络) 标签
+# 4. 刷新页面
+# 5. 找到任意请求，查看 Request Headers 中的 Cookie
+# 6. 复制完整的 Cookie 内容到下方
+
+# Cookie 内容（留空则使用自动生成的 Cookie，但功能可能受限）
+cookie: ''
+
+# 注意：
+# - 建议配置有效的 Cookie 以获得更好的推送效果
+# - Cookie 包含敏感信息，请勿泄露给他人
+# - Cookie 可能会过期，如遇推送失败可尝试更新 Cookie
