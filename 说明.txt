@@ -121,7 +121,7 @@ import Cfg from '#liulian'
 - 欢迎提交 Issue 和 Pull Request
 
 ### 联系方式
-- QQ群: 806760403
+- Q群: 806760403
 - Issues: https://gitee.com/huifeidemangguomao/liulian-plugin/issues
 - B站专栏: https://b23.tv/GecaEsK
 
@@ -132,5 +132,5 @@ import Cfg from '#liulian'
 ---
 
 **项目维护**: 活跃开发中，持续更新功能和优化性能  
-**社区支持**: QQ群 806760403，Issues 反馈，B站专栏  
+**社区支持**: Q群 806760403，Issues 反馈，B站专栏  
 **开源协议**: 本项目开源，禁止商业用途，仅供学习交流使用
