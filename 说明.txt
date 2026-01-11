@@ -85,23 +85,6 @@ liulian-plugin/
 - 插件加载、卸载、列表查看
 - V3云崽支持
 
-## 🔧 开发约定
-
-### 代码规范
-- 使用 UTF-8 编码
-- 添加准确的中文注释
-- 使用别名 `#liulian` 导入公共组件
-- 遵守 ESM 模块规范
-
-### 模块导入
-```javascript
-// 推荐使用别名
-import { Cfg, logger, liulianSafe } from '#liulian'
-
-// 也支持默认导入（兼容性）
-import Cfg from '#liulian'
-```
-
 ## 📝 常用命令
 
 ### 帮助与状态
