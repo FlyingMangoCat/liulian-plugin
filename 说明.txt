@@ -19,7 +19,6 @@ Liulian-Plugin 是一个功能丰富的 Yunzai-Bot 插件，提供原神地下�
 3. 重启 Yunzai-Bot 即可使用
 
 ### ⚠️ 特别说明
-- **TRSS版云崽用户**: 如插件载入时报错，请在 `config\config` 下创建 `qq.yaml`，模板路径 `liulian-plugin/config/qq.yaml`，根据ICQQ-plugin下config.yaml中的配置填写后即可正常使用
 - **AI功能**: 榴莲AI已正式上线（目前可在往生堂业务群/榴莲官方群体验）
 
 ## 📊 项目概览
