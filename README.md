@@ -56,6 +56,8 @@ pnpm install -P
 
 * 电子邮箱 **fmc@liulian-ai.top**
 
+* [官网](http://liulian-ai.top)
+
 <details><summary>⚠️免责声明⚠️</summary>
 
 * 本插件及云崽禁止**任何形式**的商用和违法用途，仅供小范围使用和学习，如违反相关规定，后果自负
