@@ -1,6 +1,7 @@
 import fs from "fs";
 import schedule from "node-schedule";
 import config from "../model/config/config.js"
+import { Cfg } from '#liulian'
 import { versionInfo, help } from "./help.js"
 import { wjc } from "./wjc.js"
 import { ai, ai_reset_memory } from "./ai.js"
@@ -337,8 +338,11 @@ export {
 const cfg = config.getdefault_config('liulian', 'botname', 'config');
   const botname = cfg.botname
 
+// 检查 AI 服务是否启用，只有启用时才注册 AI 相关规则
+const aiEnabled = Cfg.get('ai.enabled', false);
+
 let rule = {
- 
+
         help: {
         reg: "^#?(榴莲|留恋)(帮助|help)$",
         priority: 1,
@@ -1137,19 +1141,9 @@ yl21: {
       describe: "【#设置猫猫反弹】设置今日不被猫猫袭击",
   },
        上传: {
-       reg: "^#?上传(随机表情|表情包)$", 
-       priority: 100, 
-       describe: "", 
-    },
-  ai: {
-    reg: "(.*)", // 匹配所有消息
-    priority: 99999, // 极低优先级，确保所有其他指令优先处理
-    describe: "AI自动回复", // 功能说明
-  },
-   ai_reset_memory: {
-        reg: "^#榴莲重置记忆\\s*@?(\\d+)", // 匹配 #榴莲重置记忆@123456 或 #榴莲重置记忆 123456
-        priority: 99, // 高优先级
-        describe: "重置用户记忆（管理员功能）"
+       reg: "^#?上传(随机表情|表情包)$",
+       priority: 100,
+       describe: "",
     },
     daihua: {
 		reg: "^带话(.*)$", //匹配消息正则，命令正则
@@ -1202,6 +1196,20 @@ yl21: {
     describe: "查看榴莲插件状态"
     },
 };
+
+// 只有当 AI 服务启用时才注册 AI 相关规则
+if (aiEnabled) {
+  rule.ai = {
+    reg: "(.*)", // 匹配所有消息
+    priority: 99999, // 极低优先级，确保所有其他指令优先处理
+    describe: "AI自动回复", // 功能说明
+  };
+  rule.ai_reset_memory = {
+    reg: "^#榴莲重置记忆\\s*@?(\\d+)", // 匹配 #榴莲重置记忆@123456 或 #榴莲重置记忆 123456
+    priority: 99, // 高优先级
+    describe: "重置用户记忆（管理员功能）"
+  };
+}
 
 // lodash.forEach(rule, (r) => {
 //     r.priority = r.priority || 50;
