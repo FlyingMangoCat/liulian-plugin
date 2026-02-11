@@ -162,7 +162,7 @@ export async function sysCfg (e, { render }) {
     PluginName: Cfg.get('sys.PluginName', 1),
     aits: getStatus('sys.aits', true),
     // 宣传模块配置显示
-    ad: getStatus('sys.ad', false),
+    ad: getStatus('sys.ad', true),
     adProbability: Cfg.get('sys.adProbability', 1),
     // 榴莲AI配置显示
     aiEnabled: getStatus('liulian.ai.enabled', false),

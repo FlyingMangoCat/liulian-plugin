@@ -17,7 +17,7 @@
     "limit": 2,
     "PluginName": 1,
     "scale": 100,
-    "ad": false,
+    "ad": true,
     "adProbability": 1,
     "ai": {
       "enabled": false,
