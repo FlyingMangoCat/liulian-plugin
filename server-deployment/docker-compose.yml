@@ -37,6 +37,33 @@ services:
       timeout: 10s
       retries: 3
 
+  # OpenMemory云端服务（付费用户专用）
+  # 注意：此服务仅用于云端记忆存储，不在Gitee公开
+  openmemory-cloud:
+    image: caviraoss/openmemory:latest
+    container_name: liulian-openmemory-cloud
+    environment:
+      OPENMEMORY_MODE: server
+      OPENMEMORY_PORT: 8080
+      OPENMEMORY_HOST: 0.0.0.0
+      # API认证密钥（生产环境请使用强密码）
+      OPENMEMORY_AUTH_SECRET: ${OPENMEMORY_AUTH_SECRET:-your_auth_secret_change_this}
+      # 日志级别
+      OPENMEMORY_LOG_LEVEL: info
+    volumes:
+      - openmemory_data:/app/data
+      - ./logs/openmemory:/app/logs
+    ports:
+      - "8081:8080"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - liulian-network
+
   # 榴莲API服务
   liulian-api:
     build:
@@ -57,6 +84,8 @@ services:
       GENERAL_MODEL: ${GENERAL_MODEL:-deepseek-llm:7b}
       VISION_MODEL: ${VISION_MODEL:-moondream:latest}
       FAST_MODEL: ${FAST_MODEL:-qwen:7b-chat}
+      # OpenMemory云端服务地址
+      MEMORY_CLOUD_URL: http://openmemory-cloud:8080
     ports:
       - "8080:8080"
     depends_on:
@@ -64,21 +93,28 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
+      openmemory-cloud:
+        condition: service_healthy
     restart: unless-stopped
     volumes:
       - ./logs:/app/logs
+      - ./data/memory:/app/data/memory
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/api/health"]
       interval: 30s
       timeout: 10s
       retries: 3
+    networks:
+      - liulian-network
 
 volumes:
   postgres_data:
     driver: local
   redis_data:
     driver: local
+  openmemory_data:
+    driver: local
 
 networks:
-  default:
-    name: liulian-network
+  liulian-network:
+    driver: bridge

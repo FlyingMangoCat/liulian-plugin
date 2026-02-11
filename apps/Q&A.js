@@ -26,11 +26,10 @@ export const rule = {
     describe: "【#竞猜】「派蒙的十万个为什么」题库", //【命令】功能说明
   },
   answerCheck: {
-    reg: "noCheck",
-    priority: 5,
-    describe: "",
-  },
-};
+      reg: "^(?!#).*",  // 匹配所有非命令消息
+      priority: 5,
+      describe: "",
+  },};
 
 //2.编写功能方法
 //方法名字与rule中的examples保持一致
@@ -161,10 +160,19 @@ export async function answerCheck(e) {
     let guessConfig = getGuessConfig(e);
     
     let { gameing, current } = guessConfig;
-    if (gameing && current.indexOf(e.msg) != -1) {
+    
+    // 如果游戏未开始，直接返回，不处理
+    if (!gameing) {
+      return false;
+    }
+    
+    // 检查用户答案是否正确
+    if (current.indexOf(e.msg) != -1) {
       e.reply(['恭喜你答对了！'], true);
       guessConfig.gameing = false;
       clearTimeout(guessConfig.timer)
       return true;
     }
+    
+    return false;
   }

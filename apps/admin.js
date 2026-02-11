@@ -30,6 +30,8 @@ let cfgMap = {
   AI概率:'liulian.ai.probability',
   回复长度:'liulian.ai.reply_length',
   管理员:'liulian.admin.users',
+  // 记忆系统配置
+  云端记忆:'liulian.memory.cloud',
   // 宣传模块配置
   宣传模块:'sys.ad',
   宣传概率:'sys.adProbability',
@@ -172,6 +174,8 @@ export async function sysCfg (e, { render }) {
     replyLength: Cfg.get('liulian.ai.reply_length', 120),
     adminUsers: Cfg.get('liulian.admin.users', []).length > 0 ?
       `${Cfg.get('liulian.admin.users', []).length}个管理员` : '无',
+    // 记忆系统配置显示
+    cloudMemory: getStatus('liulian.memory.cloud', false),
   }
 
   // 渲染图像

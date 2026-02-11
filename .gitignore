@@ -15,3 +15,10 @@ config/ai.js
 
 # 允许跟踪的配置文件
 !config/default_config/liulian/plugininfo.yaml
+
+# 记忆系统数据（本地用户记忆）
+data/memory/
+*.db
+
+# 服务端部署相关（仅服务端使用，客户端不需要）
+server-deployment/
