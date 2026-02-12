@@ -130,16 +130,20 @@ export async function FuckingChatterbox(e) {
     console.log(CharArray);
     CharArray = CharArray.slice(0, 10);
     
-    // 计算放大倍数
+    // 计算最终总数和放大倍数
     let actualCount = scanProcessed.size;
     let scaleRatio = estimatedCount / actualCount;
     
+    // 如果预估比实际少，采用实际总数；放大倍数至少为1（不缩小）
+    let finalCount = Math.max(estimatedCount, actualCount);
+    let finalScaleRatio = Math.max(1, scaleRatio);
+    
     // 生成结果
-    let res = `一共检测到聊天记录 ${estimatedCount} 句话，其中：\n`;
+    let res = `一共检测到聊天记录 ${finalCount} 句话，其中：\n`;
     let itemp = 0;
     for (let v of CharArray) {
-        let scaledTimes = Math.floor(v.times * scaleRatio);
-        res += `${v.uname}  水了${scaledTimes}句话，占比${(scaledTimes/estimatedCount*100).toFixed(2)}% `;
+        let scaledTimes = Math.floor(v.times * finalScaleRatio);
+        res += `${v.uname}  水了${scaledTimes}句话，占比${(scaledTimes/finalCount*100).toFixed(2)}% `;
         if(!itemp){
             res += " （这人水是真滴多 ！）";
         }
