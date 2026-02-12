@@ -22,7 +22,32 @@ export async function FuckingChatterbox(e) {
         return true;
     }
     let seq = CharHistory[0]?.message_seq || 0;
-    e.reply(`正在分析聊天记录，预计需要几分钟，请耐心等待...`);
+    e.reply(`正在分析聊天记录，寻找本群大水逼，请等一等！`);
+
+    // 快速扫描，估算消息数量
+    let scanCount = 0;
+    let scanSeq = seq;
+    let scanProcessed = new Set([seq]);
+    console.log("开始快速扫描估算消息数量...");
+    while (scanCount < 100) { // 最多扫描100次，避免耗时太长
+        let temp = await e.group.getChatHistory(scanSeq, 20);
+        if (!temp || temp.length == 0) break;
+        let hasNew = false;
+        for (const key in temp) {
+            if (!temp[key] || Object.keys(temp[key]).length === 0) continue;
+            let msgSeq = temp[key].message_seq;
+            if (scanProcessed.has(msgSeq)) continue;
+            scanProcessed.add(msgSeq);
+            hasNew = true;
+            if (msgSeq < scanSeq) scanSeq = msgSeq;
+        }
+        if (!hasNew) break;
+        scanCount++;
+    }
+    let estimatedMsgCount = scanProcessed.size;
+    let estimatedTime = (estimatedMsgCount / 20 / 4 / 60).toFixed(2);
+    e.reply(`大概有${estimatedMsgCount}条记录需要分析，预计需要${estimatedTime}分钟`);
+
     let CharList = {};
     let allcount = 0;
     let lastSeq = seq;
