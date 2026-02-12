@@ -15,7 +15,21 @@ export async function FuckingChatterbox(e) {
     }
     ing[e.group_id] = 1;
     e.reply("正在分析聊天记录，寻找本群大水逼，请等一等！");
+    // 尝试不同参数获取最新消息
     let CharHistory = await e.group.getChatHistory(0, 1);
+    console.log("getChatHistory(0, 1) 结果:", JSON.stringify(CharHistory));
+
+    if (!CharHistory || CharHistory.length === 0) {
+        // 尝试用 null 或 undefined 获取最新消息
+        CharHistory = await e.group.getChatHistory(null, 1);
+        console.log("getChatHistory(null, 1) 结果:", JSON.stringify(CharHistory));
+    }
+    if (!CharHistory || CharHistory.length === 0) {
+        // 尝试用 undefined 获取最新消息
+        CharHistory = await e.group.getChatHistory(undefined, 1);
+        console.log("getChatHistory(undefined, 1) 结果:", JSON.stringify(CharHistory));
+    }
+
     if (!CharHistory || CharHistory.length === 0) {
         e.reply("无法获取聊天记录，请稍后再试");
         ing[e.group_id] = 0;
