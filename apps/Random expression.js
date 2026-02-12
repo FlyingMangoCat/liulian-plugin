@@ -128,21 +128,23 @@ if (!Cfg.get('sys.bq', false)) {
   }
   // 检查群是否在黑名单中
   if (bmd_GroupQQ.includes(e.group_id)) {
-		return;
+		return false;
   }
   // 检查用户是否在黑名单中
   if (hmd_userqq.includes(e.user_id)) {
-		return;
+		return false;
   }
 	// 生成0-100的随机数作为触发概率
-	let random_ = lodash.random(0, 100); 
+	let random_ = lodash.random(0, 100);
   // 获取配置的触发概率
   let gl= Cfg.get('sys.gl')
 	// 如果随机数小于配置概率，则触发表情包
 	if (random_ < gl ) {
 	chuochuo(e);
   liulianSafe.logger.mark(`liulian-plugin -- 随机表情`);
+  return true;
 	}
+	return false;
 }
 
 // 戳一戳触发事件监听器 - 暂时禁用，避免导入时访问未定义的 Bot 对象
