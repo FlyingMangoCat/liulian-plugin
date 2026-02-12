@@ -48,16 +48,6 @@ export async function FuckingChatterbox(e) {
         if (!temp || temp.length == 0) break;
         let hasNew = false;
         let currentBatchSeqs = [];
-        for (const key in temp) {
-            if (!temp[key] || Object.keys(temp[key]).length === 0) continue;
-            let msgSeq = temp[key].message_seq;
-            // 跳过 message_seq 为 null 的消息
-            if (!msgSeq) continue;
-            currentBatchSeqs.push(msgSeq);
-            if (scanProcessed.has(msgSeq)) continue;
-            scanProcessed.add(msgSeq);
-            hasNew = true;
-        }
         let firstSeq = null;
         for (const key in temp) {
             if (!temp[key] || Object.keys(temp[key]).length === 0) continue;
@@ -75,7 +65,7 @@ export async function FuckingChatterbox(e) {
         if (firstSeq !== null) {
             scanSeq = firstSeq;
         }
-        console.log(`本批次 message_seq 列表: ${currentBatchSeq.join(', ')}`);
+        console.log(`本批次 message_seq 列表: ${currentBatchSeqs.join(', ')}`);
         console.log(`hasNew: ${hasNew}, 新 scanSeq: ${scanSeq}, 已处理总数: ${scanProcessed.size}`);
         if (!hasNew) break;
     }
@@ -97,13 +87,15 @@ export async function FuckingChatterbox(e) {
             break;
         }
         let hasNewData = false;
-        let minSeq = lastSeq;
+        let firstSeq = null;
 
         for (const key in CharTemp) {
             if (!CharTemp[key] || Object.keys(CharTemp[key]).length === 0) {
                 continue;
             }
             let msgSeq = CharTemp[key].message_seq;
+            // 跳过 message_seq 为 null 的消息
+            if (!msgSeq) continue;
 
             if (processedSeqs.has(msgSeq)) {
                 continue;
@@ -121,14 +113,16 @@ export async function FuckingChatterbox(e) {
                     uname: CharTemp[key].sender.card ? CharTemp[key].sender.card : CharTemp[key].sender.nickname
                 };
             }
-            if (msgSeq && msgSeq < minSeq) {
-                minSeq = msgSeq;
-            }
+            // 记录第一条有效消息的 seq
+            if (firstSeq === null) firstSeq = msgSeq;
         }
         if (!hasNewData) {
             break;
         }
-        lastSeq = minSeq;
+        // 用第一条消息的 seq 作为下一次的参数
+        if (firstSeq !== null) {
+            lastSeq = firstSeq;
+        }
     }
     let CharArray = [];
     for (const key in CharList) {
