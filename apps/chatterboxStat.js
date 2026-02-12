@@ -23,30 +23,32 @@ export async function FuckingChatterbox(e) {
         return true;
     }
     let seq = CharHistory[0]?.message_seq || 0;
+    let msgId = CharHistory[0]?.message_id || 0;
+    console.log(`message_seq: ${seq}, message_id: ${msgId}`);
 
-    // 快速扫描，估算消息数量
-    let scanSeq = seq;
-    let scanProcessed = new Set([seq]);
+    // 快速扫描，估算消息数量 - 尝试用 message_id 而不是 message_seq
+    let scanId = msgId;
+    let scanProcessed = new Set([msgId]);
     console.log("开始快速扫描估算消息数量...");
-    console.log(`初始 seq: ${seq}`);
+    console.log(`初始 message_id: ${msgId}`);
     while (true) {
-        console.log(`快速扫描 - 当前 scanSeq: ${scanSeq}`);
-        let temp = await e.group.getChatHistory(scanSeq, 20);
-        console.log(`getChatHistory(${scanSeq}, 20) 返回: ${temp ? temp.length : 0} 条消息`);
+        console.log(`快速扫描 - 当前 scanId: ${scanId}`);
+        let temp = await e.group.getChatHistory(scanId, 20);
+        console.log(`getChatHistory(${scanId}, 20) 返回: ${temp ? temp.length : 0} 条消息`);
         if (!temp || temp.length == 0) break;
         let hasNew = false;
-        let currentBatchSeqs = [];
+        let currentBatchIds = [];
         for (const key in temp) {
             if (!temp[key] || Object.keys(temp[key]).length === 0) continue;
-            let msgSeq = temp[key].message_seq;
-            currentBatchSeqs.push(msgSeq);
-            if (scanProcessed.has(msgSeq)) continue;
-            scanProcessed.add(msgSeq);
+            let currentMsgId = temp[key].message_id;
+            currentBatchIds.push(currentMsgId);
+            if (scanProcessed.has(currentMsgId)) continue;
+            scanProcessed.add(currentMsgId);
             hasNew = true;
-            if (msgSeq < scanSeq) scanSeq = msgSeq;
+            if (currentMsgId && currentMsgId < scanId) scanId = currentMsgId;
         }
-        console.log(`本批次 seq 列表: ${currentBatchSeqs.join(', ')}`);
-        console.log(`hasNew: ${hasNew}, 新 scanSeq: ${scanSeq}, 已处理总数: ${scanProcessed.size}`);
+        console.log(`本批次 message_id 列表: ${currentBatchIds.join(', ')}`);
+        console.log(`hasNew: ${hasNew}, 新 scanId: ${scanId}, 已处理总数: ${scanProcessed.size}`);
         if (!hasNew) break;
     }
     let estimatedMsgCount = scanProcessed.size;
