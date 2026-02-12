@@ -422,10 +422,10 @@ let rule = {
         priority: 10,
         describe: '更新'
     },        
-        JsPlugins: {        
-        reg: "",       
-        priority: 450,        
-        describe: "生成js文件自动放到插件目录下面",    
+        JsPlugins: {
+        reg: "(.*)",
+        priority: 99999,
+        describe: "生成js文件自动放到插件目录下面",
     },        
         PluginsList: {        
         reg: "^#v2插件列表$", 
@@ -458,8 +458,8 @@ let rule = {
         describe: "帮助菜单",   
     },        
         v3JsPlugins: {
-        reg: "",
-        priority: 450,
+        reg: "(.*)",
+        priority: 99999,
         describe: "生成js文件自动放到插件目录下面",
     },        
         v3PluginsList: {        
@@ -850,8 +850,8 @@ yl21: {
         describe: "【#伪造信息@群成员 信息】", 
     },
         random: {
-        reg: "",
-        priority: 114514,
+        reg: "(.*)",
+        priority: 99999,
         describe: "概率随机发送表情包",  //聊天中概率回复表情包
     },
         chuochuo: {
@@ -1251,7 +1251,7 @@ import plugin from '../adapter/lib/plugin.js'
 class LiulianV3 extends plugin {
   constructor() {
     let rules = []
-    
+
     // 将rule对象转换为V3规则数组
     for (let key in rule) {
       let cfg = rule[key]
@@ -1261,7 +1261,7 @@ class LiulianV3 extends plugin {
         priority: cfg.priority || 5000
       })
     }
-    
+
     super({
       name: 'liulian-plugin',
       desc: '榴莲插件',
