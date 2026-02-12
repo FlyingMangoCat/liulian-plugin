@@ -29,11 +29,21 @@ export async function FuckingChatterbox(e) {
     let scanProcessed = new Set([seq]);
     console.log("开始快速扫描估算消息数量...");
     console.log(`初始 seq: ${seq}`);
-    while (true) {
-        console.log(`快速扫描 - 当前 scanSeq: ${scanSeq}`);
-        // 尝试用 0 来获取历史消息，而不是用 seq
-        let temp = await e.group.getChatHistory(0, 20);
-        console.log(`getChatHistory(0, 20) 返回: ${temp ? temp.length : 0} 条消息`);
+    
+    // 测试不同的参数来理解 API 行为
+    let test1 = await e.group.getChatHistory(null, 5);
+    console.log(`getChatHistory(null, 5) 返回: ${test1 ? test1.length : 0} 条`);
+    if (test1 && test1.length > 0) {
+        console.log(`第一条消息 seq: ${test1[0].message_seq}`);
+    }
+    
+    let test2 = await e.group.getChatHistory(-1, 5);
+    console.log(`getChatHistory(-1, 5) 返回: ${test2 ? test2.length : 0} 条`);
+    if (test2 && test2.length > 0) {
+        console.log(`第一条消息 seq: ${test2[0].message_seq}`);
+    }
+    
+    let scanSeq = seq;
         if (!temp || temp.length == 0) break;
         let hasNew = false;
         let currentBatchSeqs = [];
