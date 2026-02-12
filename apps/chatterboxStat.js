@@ -29,7 +29,7 @@ export async function FuckingChatterbox(e) {
     let scanSeq = seq;
     let scanProcessed = new Set([seq]);
     console.log("开始快速扫描估算消息数量...");
-    while (scanCount < 100) { // 最多扫描100次，避免耗时太长
+    while (scanCount < 500) { // 最多扫描500次，获取更多数据用于估算
         let temp = await e.group.getChatHistory(scanSeq, 20);
         if (!temp || temp.length == 0) break;
         let hasNew = false;
