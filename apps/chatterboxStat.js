@@ -10,103 +10,131 @@ export const rule = {
 };
 export async function FuckingChatterbox(e) {
     if(ing[e.group_id]){
-        e.reply("在找了，在找了，已经在找了，很慢，请再等等！");
+        e.reply("在找了，在找了，已经在找了，很慢，请再等等！\n");
         return true;
     }
     ing[e.group_id] = 1;
-    e.reply("正在分析聊天记录，寻找本群大水逼，请等一等！");
+    e.reply("正在分析聊天记录，寻找本群大水逼，请等一等！\n");
 
     let CharHistory = await e.group.getChatHistory(0, 1);
     if (!CharHistory || CharHistory.length === 0) {
-        e.reply("无法获取聊天记录，请稍后再试");
+        e.reply("无法获取聊天记录，请稍后再试\n");
         ing[e.group_id] = 0;
         return true;
     }
     let seq = CharHistory[0]?.message_seq || 0;
     console.log(`初始 message_seq: ${seq}, message_id: ${CharHistory[0]?.message_id}`);
 
-    // 一次性统计：边扫描边统计
-    let CharList = {};
-    let allcount = 0;
-    let scanSeq = seq;
-    let scanProcessed = new Set([seq]);
-    let estimatedMsgCount = 0;
-    let hasEstimated = false;
+    // 两个并行任务：快速预估 + 实际统计
+    let quickEstimatePromise = (async () => {
+        let scanSeq = seq;
+        let scanProcessed = new Set([seq]);
+        console.log("快速预估开始...");
 
-    console.log("开始扫描并统计消息...");
-    console.log(`初始 seq: ${seq}`);
-
-    while (true) {
-        console.log(`当前 scanSeq: ${scanSeq}, 已处理: ${scanProcessed.size}`);
-        let temp = null;
-        try {
-            temp = await e.group.getChatHistory(scanSeq, 20);
-        } catch (err) {
-            console.log(`getChatHistory(${scanSeq}, 20) 失败: ${err.message}`);
-            break;
-        }
-        if (!temp || temp.length == 0) {
-            console.log(`getChatHistory(${scanSeq}, 20) 返回空，扫描结束`);
-            break;
-        }
-        console.log(`getChatHistory(${scanSeq}, 20) 返回: ${temp.length} 条消息`);
-        let hasNew = false;
-        let candidateSeqs = [];
-        for (const key in temp) {
-            if (!temp[key] || Object.keys(temp[key]).length === 0) continue;
-            let msgSeq = temp[key].message_seq;
-            if (!msgSeq) continue;
-            candidateSeqs.push(msgSeq);
-            if (scanProcessed.has(msgSeq)) continue;
-            scanProcessed.add(msgSeq);
-            hasNew = true;
-
-            // 直接统计消息
-            allcount++;
-            if (CharList[temp[key].user_id]) {
-                CharList[temp[key].user_id].times += 1;
-                CharList[temp[key].user_id].uname = temp[key].sender.card ? temp[key].sender.card : temp[key].sender.nickname;
-            } else {
-                CharList[temp[key].user_id] = {
-                    times: 1,
-                    user_id: temp[key].user_id,
-                    uname: temp[key].sender.card ? temp[key].sender.card : temp[key].sender.nickname
-                };
+        while (true) {
+            let temp = null;
+            try {
+                temp = await e.group.getChatHistory(scanSeq, 20);
+            } catch (err) {
+                console.log(`快速预估失败: ${err.message}`);
+                break;
             }
-        }
-        // 试错机制：并行测试多个seq
-        let nextSeqFound = false;
-        let testPromises = candidateSeqs.map(seq => {
-            return e.group.getChatHistory(seq, 1)
-                .then(result => ({ seq, result }))
-                .catch(err => ({ seq, error: err }));
-        });
-        let testResults = await Promise.all(testPromises);
-        for (let i = 0; i < testResults.length; i++) {
-            let { seq, result, error } = testResults[i];
-            if (!error && result && result.length > 0) {
-                scanSeq = seq;
-                nextSeqFound = true;
-                console.log(`试错成功：使用 seq ${scanSeq}`);
+            if (!temp || temp.length == 0) break;
+
+            for (const key in temp) {
+                if (!temp[key] || Object.keys(temp[key]).length === 0) continue;
+                let msgSeq = temp[key].message_seq;
+                if (!msgSeq) continue;
+                if (scanProcessed.has(msgSeq)) continue;
+                scanProcessed.add(msgSeq);
+            }
+
+            // 快速预估：直接用第一条seq，不试错
+            if (temp.length > 0 && temp[0]?.message_seq) {
+                scanSeq = temp[0].message_seq;
+            } else {
+                break;
+            }
+
+            // 快速预估最多跑100次
+            if (scanProcessed.size >= 2000) {
+                console.log(`快速预估完成，扫描了${scanProcessed.size}条`);
                 break;
             }
         }
-        if (!nextSeqFound) {
-            console.log(`所有候选 seq 都不可用，扫描结束`);
-            break;
-        }
-        console.log(`已处理总数: ${scanProcessed.size}, 已统计: ${allcount}`);
-        if (!hasNew) break;
+        return scanProcessed.size;
+    })();
 
-        // 在处理到2000条时发一次预估
-        if (!hasEstimated && scanProcessed.size >= 2000) {
-            estimatedMsgCount = scanProcessed.size;
-            let estimatedTime = (estimatedMsgCount / 20 / 4 / 60).toFixed(2);
-            e.reply(`已扫描${estimatedMsgCount}条，预计需要${estimatedTime}分钟`);
-            hasEstimated = true;
+    let actualStatPromise = (async () => {
+        let CharList = {};
+        let allcount = 0;
+        let lastSeq = seq;
+        let processedSeqs = new Set();
+        console.log("实际统计开始...");
+
+        while (true) {
+            let CharTemp = null;
+            try {
+                CharTemp = await e.group.getChatHistory(lastSeq, 20);
+            } catch (err) {
+                console.log(`实际统计失败: ${err.message}`);
+                break;
+            }
+            if (!CharTemp || CharTemp.length == 0) break;
+
+            let hasNewData = false;
+            let candidateSeqs = [];
+            for (const key in CharTemp) {
+                if (!CharTemp[key] || Object.keys(CharTemp[key]).length === 0) continue;
+                let msgSeq = CharTemp[key].message_seq;
+                if (!msgSeq) continue;
+                candidateSeqs.push(msgSeq);
+                if (processedSeqs.has(msgSeq)) continue;
+                processedSeqs.add(msgSeq);
+                hasNewData = true;
+                allcount++;
+                if (CharList[CharTemp[key].user_id]) {
+                    CharList[CharTemp[key].user_id].times += 1;
+                    CharList[CharTemp[key].user_id].uname = CharTemp[key].sender.card ? CharTemp[key].sender.card : CharTemp[key].sender.nickname;
+                } else {
+                    CharList[CharTemp[key].user_id] = {
+                        times: 1,
+                        user_id: CharTemp[key].user_id,
+                        uname: CharTemp[key].sender.card ? CharTemp[key].sender.card : CharTemp[key].sender.nickname
+                    };
+                }
+            }
+            if (!hasNewData) break;
+
+            // 试错机制：并行测试
+            let testPromises = candidateSeqs.map(seq => {
+                return e.group.getChatHistory(seq, 1)
+                    .then(result => ({ seq, result }))
+                    .catch(err => ({ seq, error: err }));
+            });
+            let testResults = await Promise.all(testPromises);
+            let nextSeqFound = false;
+            for (let i = 0; i < testResults.length; i++) {
+                let { seq, result, error } = testResults[i];
+                if (!error && result && result.length > 0) {
+                    lastSeq = seq;
+                    nextSeqFound = true;
+                    break;
+                }
+            }
+            if (!nextSeqFound) break;
         }
-    }
-    console.log(`扫描完成，共统计 ${allcount} 条消息`);
+        console.log(`实际统计完成，共${allcount}条消息`);
+        return { CharList, allcount };
+    })();
+
+    // 等待快速预估完成，发送预估消息
+    let estimatedCount = await quickEstimatePromise;
+    let estimatedTime = (estimatedCount * 1.5 / 20 / 4 / 60).toFixed(2);
+    e.reply(`大概有${Math.round(estimatedCount * 1.5)}条记录需要分析，预计需要${estimatedTime}分钟`);
+
+    // 等待实际统计完成
+    let { CharList, allcount } = await actualStatPromise;
 
     let CharArray = [];
     for (const key in CharList) {
@@ -115,7 +143,6 @@ export async function FuckingChatterbox(e) {
     CharArray.sort((a, b) => {
         return b.times - a.times
     })
-    console.log(CharArray);
     CharArray = CharArray.slice(0, 10);
     let res = `一共检测到聊天记录 ${allcount} 句话，其中：\n`;
     let itemp = 0;
