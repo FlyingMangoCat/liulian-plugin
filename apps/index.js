@@ -69,12 +69,15 @@ import { FuckingChatterbox } from "./chatterboxStat.js"
 import { EndCheck,   
 musicanswerCheck,
 guessmusic,
-guessAvatarCheck,
 guessAvatar,
+guessAvatarCheck,
 starguessAvatar,
 starguessAvatarCheck,
 bbguessAvatar,
-bbguessAvatarCheck
+bbguessAvatarCheck,
+checkGuessAvatar,
+checkStarguessAvatar,
+checkBbguessAvatar
 } from "./Guess.js"
 import{ yl总,
 yl1,
@@ -874,7 +877,7 @@ yl21: {
         reg: "(.*)",
         priority: 98,
         describe: '',
-        check: require('./Guess.js').checkGuessAvatar
+        check: checkGuessAvatar
     },
         starguessAvatar: {
         reg: '^#(星铁)?猜(角色|角色星铁)(普通|困难|地狱)?(模式)?',
@@ -885,7 +888,7 @@ yl21: {
         reg: "(.*)",
         priority: 98,
         describe: '',
-        check: require('./Guess.js').checkStarguessAvatar
+        check: checkStarguessAvatar
     },
         bbAvatar: {
         reg: '^#(邦布)?猜(邦布|绝区零邦布)(普通|困难|地狱)?(模式)?',
@@ -896,7 +899,7 @@ yl21: {
         reg: "(.*)",
         priority: 98,
         describe: '',
-        check: require('./Guess.js').checkBbguessAvatar
+        check: checkBbguessAvatar
     },
        examples: {
        reg: "^#?我要休息[\s\S]*", //匹配消息正则，命令正则
@@ -1308,8 +1311,7 @@ class LiulianV3 extends plugin {
   // 检查猜角色游戏是否正在进行
   checkGuessAvatar(e) {
     try {
-      let checkFn = require('./Guess.js').checkGuessAvatar;
-      return checkFn ? checkFn(e) : false;
+      return checkGuessAvatar ? checkGuessAvatar(e) : false;
     } catch (err) {
       return false;
     }
@@ -1318,8 +1320,7 @@ class LiulianV3 extends plugin {
   // 检查星铁猜角色游戏是否正在进行
   checkStarguessAvatar(e) {
     try {
-      let checkFn = require('./Guess.js').checkStarguessAvatar;
-      return checkFn ? checkFn(e) : false;
+      return checkStarguessAvatar ? checkStarguessAvatar(e) : false;
     } catch (err) {
       return false;
     }
@@ -1328,8 +1329,7 @@ class LiulianV3 extends plugin {
   // 检查猜邦布游戏是否正在进行
   checkBbguessAvatar(e) {
     try {
-      let checkFn = require('./Guess.js').checkBbguessAvatar;
-      return checkFn ? checkFn(e) : false;
+      return checkBbguessAvatar ? checkBbguessAvatar(e) : false;
     } catch (err) {
       return false;
     }
