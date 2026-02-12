@@ -22,22 +22,29 @@ export async function FuckingChatterbox(e) {
         return true;
     }
     let seq = CharHistory[0]?.message_seq || 0;
-    e.reply("正在分析聊天记录，寻找本群大水逼，请等一等！");
     let CharList = {};
     let allcount = 0;
     let lastSeq = seq;
-    let loopCount = 0;
-    // 最多循环1000次，每次20条，最多2万条消息，避免无限循环
-    while (loopCount < 1000) {
+    let processedSeqs = new Set([seq]);
+
+    while (true) {
         let CharTemp = await e.group.getChatHistory(lastSeq, 20);
         if (!CharTemp || CharTemp.length == 0) {
             break;
         }
         let hasNewData = false;
+        let minSeq = lastSeq;
+
         for (const key in CharTemp) {
             if (!CharTemp[key] || Object.keys(CharTemp[key]).length === 0) {
                 continue;
             }
+            let msgSeq = CharTemp[key].message_seq;
+
+            if (processedSeqs.has(msgSeq)) {
+                continue;
+            }
+            processedSeqs.add(msgSeq);
             hasNewData = true;
             allcount ++;
             if (CharList[CharTemp[key].user_id]) {
@@ -47,18 +54,17 @@ export async function FuckingChatterbox(e) {
                 CharList[CharTemp[key].user_id] = {
                     times: 1,
                     user_id: CharTemp[key].user_id,
-                    uname: CharTemp[key].sender.card ? CharTemp[key].sender.card : CharTemp[key].sender.nickname
+                    uname = CharTemp[key].sender.card ? CharTemp[key].sender.card : CharTemp[key].sender.nickname
                 };
             }
-            // 更新最后一个消息的seq
-            if (CharTemp[key].message_seq) {
-                lastSeq = CharTemp[key].message_seq;
+            if (msgSeq && msgSeq < minSeq) {
+                minSeq = msgSeq;
             }
         }
         if (!hasNewData) {
             break;
         }
-        loopCount++;
+        lastSeq = minSeq;
     }
     let CharArray = [];
     for (const key in CharList) {
