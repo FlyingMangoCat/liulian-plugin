@@ -32,6 +32,7 @@ export async function FuckingChatterbox(e) {
     console.log("第一阶段：快速扫描估算消息数量...");
     console.log(`初始 seq: ${seq}`);
 
+    // 快速扫描：只试错前3个seq，不全部测试
     while (true) {
         console.log(`快速扫描 - 当前 scanSeq: ${scanSeq}`);
         let temp = null;
@@ -57,9 +58,10 @@ export async function FuckingChatterbox(e) {
             scanProcessed.add(msgSeq);
             hasNew = true;
         }
-        // 试错机制：从候选 seq 中逐个尝试
+        // 快速扫描只试错前3个seq，提高速度
         let nextSeqFound = false;
-        for (let i = 0; i < candidateSeqs.length; i++) {
+        let testCount = Math.min(3, candidateSeqs.length);
+        for (let i = 0; i < testCount; i++) {
             try {
                 let testResult = await e.group.getChatHistory(candidateSeqs[i], 1);
                 if (testResult && testResult.length > 0) {
@@ -69,19 +71,26 @@ export async function FuckingChatterbox(e) {
                     break;
                 }
             } catch (err) {
-                console.log(`试错失败：seq ${candidateSeqs[i]} 不可用`);
+                // 静默失败，继续尝试下一个
             }
         }
         if (!nextSeqFound) {
-            console.log(`所有候选 seq 都不可用，快速扫描结束`);
+            console.log(`前${testCount}个候选 seq 都不可用，快速扫描结束`);
             break;
         }
         console.log(`已处理总数: ${scanProcessed.size}`);
         if (!hasNew) break;
+        // 快速扫描最多跑50次，避免太慢
+        if (scanProcessed.size >= 1000) {
+            console.log(`已扫描${scanProcessed.size}条消息，停止快速扫描`);
+            break;
+        }
     }
     let estimatedMsgCount = scanProcessed.size;
-    let estimatedTime = (estimatedMsgCount / 20 / 4 / 60).toFixed(2);
-    e.reply(`大概有${estimatedMsgCount}条记录需要分析，预计需要${estimatedTime}分钟\n`);
+    // 快速扫描只跑部分，按比例估算总数
+    let estimatedTotal = Math.round(estimatedMsgCount * 1.5); // 粗略估算
+    let estimatedTime = (estimatedTotal / 20 / 4 / 60).toFixed(2);
+    e.reply(`大概有${estimatedTotal}条记录需要分析，预计需要${estimatedTime}分钟`);
 
     // 第二阶段：实际统计消息（使用快速扫描找到的seq）
     let CharList = {};
