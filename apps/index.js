@@ -865,7 +865,12 @@ yl21: {
         priority: 600,
         describe: "寻找大水逼",
     },
-guessAvatarCheck: {
+        guessAvatar: {
+        reg: '^#猜(头像|角色)(普通|困难|地狱)?(模式)?',
+        priority: 10,
+        describe: '#猜头像、#猜角色、#猜角色困难模式',
+    },
+        guessAvatarCheck: {
         reg: "(.*)",
         priority: 98,
         describe: '',
