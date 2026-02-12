@@ -435,8 +435,8 @@ let rule = {
                 priority: 450,
                 describe: "生成js文件自动放到插件目录下面",
                 check: checkJsPlugins
-            },        PluginsList: {        
-        reg: "^#v2插件列表$", 
+            },
+            PluginsList: {        reg: "^#v2插件列表$", 
         priority: 4500,        
         describe: "查看你安装的插件的列表", 
     },        
@@ -470,8 +470,8 @@ let rule = {
         priority: 450,
         describe: "生成js文件自动放到插件目录下面",
         check: checkV3JsPlugins
-    },        
-        v3PluginsList: {        
+    },
+    v3PluginsList: {        
         reg: "插件列表$", 
         priority: 4500,        
         describe: "查看你安装的插件的列表", 
