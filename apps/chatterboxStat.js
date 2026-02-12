@@ -22,8 +22,8 @@ export async function FuckingChatterbox(e) {
         ing[e.group_id] = 0;
         return true;
     }
-    let seq = CharHistory[0]?.message_seq || 0;
-    console.log(`初始 message_seq: ${seq}, message_id: ${CharHistory[0]?.message_id}`);
+    let seq = CharHistory[0]?.seq || 0;
+    console.log(`初始 seq: ${seq}, message_id: ${CharHistory[0]?.message_id}, 所有字段:`, Object.keys(CharHistory[0]));
 
     // 快速扫描，估算消息数量
     let scanSeq = seq;
@@ -51,8 +51,8 @@ export async function FuckingChatterbox(e) {
         let firstSeq = null;
         for (const key in temp) {
             if (!temp[key] || Object.keys(temp[key]).length === 0) continue;
-            let msgSeq = temp[key].message_seq;
-            // 跳过 message_seq 为 null 的消息
+            let msgSeq = temp[key].seq;
+            // 跳过 seq 为 null 的消息
             if (!msgSeq) continue;
             currentBatchSeqs.push(msgSeq);
             if (scanProcessed.has(msgSeq)) continue;
@@ -93,8 +93,8 @@ export async function FuckingChatterbox(e) {
             if (!CharTemp[key] || Object.keys(CharTemp[key]).length === 0) {
                 continue;
             }
-            let msgSeq = CharTemp[key].message_seq;
-            // 跳过 message_seq 为 null 的消息
+            let msgSeq = CharTemp[key].seq;
+            // 跳过 seq 为 null 的消息
             if (!msgSeq) continue;
 
             if (processedSeqs.has(msgSeq)) {
