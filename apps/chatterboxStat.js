@@ -26,14 +26,24 @@ export async function FuckingChatterbox(e) {
     let msgId = CharHistory[0]?.message_id || 0;
     console.log(`message_seq: ${seq}, message_id: ${msgId}`);
 
-    // 快速扫描，估算消息数量 - 尝试用 message_id 而不是 message_seq
-    let scanId = msgId;
-    let scanProcessed = new Set([msgId]);
+    // 快速扫描，估算消息数量 - 尝试不同的获取方式
     console.log("开始快速扫描估算消息数量...");
     console.log(`初始 message_id: ${msgId}`);
+    
+    // 先测试不传参数，看看能否获取历史消息
+    let testNoParam = await e.group.getChatHistory();
+    console.log(`getChatHistory() 不传参数返回: ${testNoParam ? testNoParam.length : 0} 条`);
+    if (testNoParam && testNoParam.length > 0) {
+        console.log(`第一条消息 message_id: ${testNoParam[0].message_id}, message_seq: ${testNoParam[0].message_seq}`);
+        if (testNoParam.length > 1) {
+            console.log(`最后一条消息 message_id: ${testNoParam[testNoParam.length-1].message_id}, message_seq: ${testNoParam[testNoParam.length-1].message_seq}`);
+        }
+    }
+    
+    let scanId = msgId;
+    let scanProcessed = new Set([msgId]);
     while (true) {
         console.log(`快速扫描 - 当前 scanId: ${scanId}`);
-        // cnt 不能超过 20
         let temp = await e.group.getChatHistory(scanId, 20);
         console.log(`getChatHistory(${scanId}, 20) 返回: ${temp ? temp.length : 0} 条消息`);
         if (!temp || temp.length == 0) break;
