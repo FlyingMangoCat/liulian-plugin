@@ -414,8 +414,8 @@ let rule = {
         describe: "【#竞猜】「派蒙的十万个为什么」题库", //【命令】功能说明
     },
         answerCheck: {
-        reg: "(.*)",
-        priority: 500,
+        reg: "^(?!#).*",
+        priority: 5,
         describe: "",
     },
         updateLiulianPlugin: {
@@ -423,10 +423,10 @@ let rule = {
         priority: 10,
         describe: '更新'
     },        
-        JsPlugins: {        
-        reg: "noCheck",       
-        priority: 4500,        
-        describe: "生成js文件自动放到插件目录下面",    
+        JsPlugins: {
+        reg: "",
+        priority: 450,
+        describe: "生成js文件自动放到插件目录下面",
     },        
         PluginsList: {        
         reg: "^#v2插件列表$", 
@@ -458,10 +458,10 @@ let rule = {
         priority: 4500,        
         describe: "帮助菜单",	   
     },        
-        v3JsPlugins: {        
-        reg: "(.*)",        
-        priority: 4500,        
-        describe: "生成js文件自动放到插件目录下面",    
+        v3JsPlugins: {
+        reg: "",
+        priority: 450,
+        describe: "生成js文件自动放到插件目录下面",
     },        
         v3PluginsList: {        
         reg: "插件列表$", 
@@ -851,7 +851,7 @@ yl21: {
         describe: "【#伪造信息@群成员 信息】", 
     },
         random: {
-        reg: "(.*)",
+        reg: "",
         priority: 114514,
         describe: "概率随机发送表情包",  //聊天中概率回复表情包
     },
@@ -871,8 +871,8 @@ yl21: {
         describe: '#猜头像、#猜角色、#猜角色困难模式',
     },
         guessAvatarCheck: {
-        reg: "(.*)",
-        priority: 908,
+        reg: "",
+        priority: 98,
         describe: '',
     },
         starguessAvatar: {
@@ -881,8 +881,8 @@ yl21: {
         describe: '猜星铁角色',
     },
         starguessAvatarCheck: {
-        reg: "(.*)",
-        priority: 908,
+        reg: "",
+        priority: 98,
         describe: '',
     },
         bbAvatar: {
@@ -916,8 +916,8 @@ yl21: {
        describe : "",
     },
        biaoQing: {
-       reg: "(.*)", //匹配消息正则，命令正则
-       priority: 99999, //优先级，越小优先度越高
+       reg: "", //不通过正则匹配
+       priority: 10, //优先级，越小优先度越高
        describe: "头像表情包", //【命令】功能说明
     },
        biaoQingHelp: {
@@ -926,7 +926,7 @@ yl21: {
        describe: "表情帮助", //【命令】功能说明
     },
        ad: {
-       reg: "noCheck", //不检查正则，匹配所有消息
+       reg: "", //不通过正则匹配
        priority: 99999, //最低优先级，确保不干扰其他功能
        describe: "概率随机触发宣传消息", //【命令】功能说明
     },
@@ -961,8 +961,8 @@ yl21: {
        describe: "【#禁言自己1-10次】", //【命令】功能说明
     },
        CeShi: {
-	     	reg: "(.*)", //匹配消息正则，命令正则
-     		priority: 99999, //优先级，越小优先度越高
+	     	reg: "", //不通过正则匹配
+     		priority: 5000, //优先级，越小优先度越高
 	     	describe: '检测进群退群消息', //【命令】功能说明
    	},
        dutang: {
