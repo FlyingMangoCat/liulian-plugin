@@ -18,7 +18,6 @@ guangboHelp
 import { 运势 } from "./lucktendency.js"
 import { maphelp, mapnumber } from "./maphelp.js"
 import {	currentVersion } from "../components/Changelog.js";
-import { checkGuessAvatar, checkStarguessAvatar, checkBbguessAvatar } from "./Guess.js";
 import { pluginhelp } from "./pluginhelp.js"
 import { render } from "../adapter/render.js"
 import { 修仙help } from "./修仙help.js"
