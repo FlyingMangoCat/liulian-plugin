@@ -389,7 +389,7 @@ let rule = {
         describe: "版本介绍",
     },
         mapnumber: {
-        reg: '^#?(原神地下地图编号)$',
+        reg: '^#?(原神地下地图编号)',
         priority: 10,
         describe: "介绍",
     },
@@ -423,10 +423,10 @@ let rule = {
         priority: 10,
         describe: '更新'
     },        
-        JsPlugins: {
-        reg: "",
-        priority: 450,
-        describe: "生成js文件自动放到插件目录下面",
+        JsPlugins: {        
+        reg: "",       
+        priority: 450,        
+        describe: "生成js文件自动放到插件目录下面",    
     },        
         PluginsList: {        
         reg: "^#v2插件列表$", 
@@ -456,7 +456,7 @@ let rule = {
         HelpMenu: {       
         reg: "^(#|井)*(v2插件管理帮助)(.*)$",
         priority: 4500,        
-        describe: "帮助菜单",	   
+        describe: "帮助菜单",   
     },        
         v3JsPlugins: {
         reg: "",
@@ -491,7 +491,7 @@ let rule = {
         v3HelpMenu: {       
         reg: "插件管理帮助(.*)$",
         priority: 4500,        
-        describe: "帮助菜单",	   
+        describe: "帮助菜单",   
     },
         miku: {
         reg: "^(miku|初音|初音未来|葱葱|MIKU)$", //匹配消息正则，命令正则
@@ -961,9 +961,9 @@ yl21: {
        describe: "【#禁言自己1-10次】", //【命令】功能说明
     },
        CeShi: {
-	     	reg: "", //不通过正则匹配
-     		priority: 5000, //优先级，越小优先度越高
-	     	describe: '检测进群退群消息', //【命令】功能说明
+     		reg: "", //不通过正则匹配
+    		priority: 5000, //优先级，越小优先度越高
+     		describe: '检测进群退群消息', //【命令】功能说明
    	},
        dutang: {
        reg: "^[^-]*毒鸡汤$", //匹配消息正则，命令正则
@@ -1094,7 +1094,7 @@ yl21: {
        reg: "^#?猜歌名$", //匹配消息正则，命令正则
        priority: 100, //优先级，越小优先度越高
        describe: "【猜歌名】", //【命令】功能说明
-  },
+    },
        musicanswerCheck: {
        reg: "(.*)",
        priority: 1000,
@@ -1109,17 +1109,17 @@ yl21: {
        reg: "(傻逼|淦|你妈|卧槽|woc)$", //在此处添加违禁词，用"|"隔开
        priority: 100, //优先级，越小优先度越高
        describe: "违禁词", //【命令】功能说明
-  },
+    },
        运势: {
        reg: "(运势|今日运势)$",
        priority: 1000,
        describe: "",
-  },
+    },
        小黑子: {
        reg: "^#?上传(真爱粉|black)(图|图片)$", 
        priority: 1000, //优先级，越小优先度越高
        describe: "", //【命令】功能说明
-  },
+    },
        Robacat: {
        reg: "^#*抱走猫猫$",
        priority: 999,
@@ -1150,7 +1150,7 @@ yl21: {
 		priority: 400, //优先级，越小优先度越高
 		describe: "群友给机器人主人带话", //【命令】功能说明
   	},
-  	guangbo: {
+ 	guangbo: {
 		reg: "^#广播(.*)内容(.*)$", //匹配消息正则，命令正则
 		priority: 400, //优先级，越小优先度越高
 		describe: "机器人在指定群说指定内容", //【命令】功能说明
@@ -1176,7 +1176,7 @@ yl21: {
     describe: "群聊张嘴", //【命令】功能说明
     },
     replace: {
-    reg: "/(.*)",
+    reg: "\/(.*)",
     priority: -10,
     describe: "",
     },
@@ -1253,14 +1253,17 @@ class LiulianV3 extends plugin {
   constructor() {
     let rules = []
     
-    // 将rule对象转换为V3规则数组
+    // 将rule对象转换为V3规则数组，跳过空字符串正则的规则
     for (let key in rule) {
       let cfg = rule[key]
-      rules.push({
-        reg: cfg.reg,
-        fnc: key,
-        priority: cfg.priority || 5000
-      })
+      // 跳过使用空字符串的规则，这些规则应该通过其他方式触发
+      if (cfg.reg !== "") {
+        rules.push({
+          reg: cfg.reg,
+          fnc: key,
+          priority: cfg.priority || 5000
+        })
+      }
     }
     
     super({
