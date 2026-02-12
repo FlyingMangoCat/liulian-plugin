@@ -54,7 +54,7 @@ export async function FuckingChatterbox(e) {
                 CharList[CharTemp[key].user_id] = {
                     times: 1,
                     user_id: CharTemp[key].user_id,
-                    uname = CharTemp[key].sender.card ? CharTemp[key].sender.card : CharTemp[key].sender.nickname
+                    uname: CharTemp[key].sender.card ? CharTemp[key].sender.card : CharTemp[key].sender.nickname
                 };
             }
             if (msgSeq && msgSeq < minSeq) {
