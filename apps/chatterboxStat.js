@@ -25,18 +25,18 @@ export async function FuckingChatterbox(e) {
     let seq = CharHistory[0]?.message_seq || 0;
     console.log(`初始 message_seq: ${seq}, message_id: ${CharHistory[0]?.message_id}`);
 
-    // 两个并行任务：快速预估 + 实际统计
-    let quickEstimatePromise = (async () => {
+    // 两个并行任务：快速计数 + 实际统计
+    let quickCountPromise = (async () => {
         let scanSeq = seq;
         let scanProcessed = new Set([seq]);
-        console.log("快速预估开始...");
+        console.log("快速计数开始...");
 
         while (true) {
             let temp = null;
             try {
                 temp = await e.group.getChatHistory(scanSeq, 20);
             } catch (err) {
-                console.log(`快速预估失败: ${err.message}`);
+                console.log(`快速计数失败: ${err.message}`);
                 break;
             }
             if (!temp || temp.length == 0) break;
@@ -75,13 +75,7 @@ export async function FuckingChatterbox(e) {
                 }
             }
             if (!nextSeqFound) {
-                console.log(`快速预估完成，扫描了${scanProcessed.size}条`);
-                break;
-            }
-
-            // 快速预估扫描10000条
-            if (scanProcessed.size >= 10000) {
-                console.log(`快速预估完成，扫描了${scanProcessed.size}条`);
+                console.log(`快速计数完成，共${scanProcessed.size}条消息`);
                 break;
             }
         }
@@ -151,12 +145,10 @@ export async function FuckingChatterbox(e) {
         return { CharList, allcount };
     })();
 
-    // 等待快速预估完成，发送预估消息
-    let estimatedCount = await quickEstimatePromise;
-    // 用扫描到的数量乘以1.5粗略估算总数（假设扫描了约2/3）
-    let estimatedTotal = Math.round(estimatedCount * 1.5);
-    let estimatedTime = (estimatedTotal / 20 / 4 / 60).toFixed(2);
-    e.reply(`大概有${estimatedTotal}条记录需要分析，预计需要${estimatedTime}分钟`);
+    // 等待快速计数完成，发送预估消息
+    let totalCount = await quickCountPromise;
+    let estimatedTime = (totalCount / 20 / 4 / 60).toFixed(2);
+    e.reply(`共有${totalCount}条记录需要分析，预计需要${estimatedTime}分钟`);
 
     // 等待实际统计完成
     let { CharList, allcount } = await actualStatPromise;
