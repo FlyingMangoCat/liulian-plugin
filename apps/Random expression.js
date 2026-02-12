@@ -40,6 +40,22 @@ const settings2 = {
   }
 
 // 命令规则定义
+// check 函数：判断是否应该随机发送表情包
+export function checkRandom(e) {
+  // 检查表情包功能是否开启
+  if (!Cfg.get('sys.bq', false)) return false;
+  // 检查群是否在黑名单中
+  if (bmd_GroupQQ.includes(e.group_id)) return false;
+  // 检查用户是否在黑名单中
+  if (hmd_userqq.includes(e.user_id)) return false;
+  // 生成0-100的随机数作为触发概率
+  let random_ = lodash.random(0, 100);
+  // 获取配置的触发概率
+  let gl = Cfg.get('sys.gl');
+  // 如果随机数小于配置概率，返回 true
+  return random_ < gl;
+}
+
 export const rule = {
     // 戳一戳触发表情包
     chuochuo: {
@@ -51,7 +67,8 @@ export const rule = {
 	random: {
     reg: "noCheck", // 不检查正则，匹配所有消息
     priority: 114514,
-    describe: "概率随机发送表情包",  
+    describe: "概率随机发送表情包",
+    check: checkRandom
     },
     // 上传表情包
   上传: {

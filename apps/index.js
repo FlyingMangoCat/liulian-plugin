@@ -18,6 +18,7 @@ guangboHelp
 import { 运势 } from "./lucktendency.js"
 import { maphelp, mapnumber } from "./maphelp.js"
 import {	currentVersion } from "../components/Changelog.js";
+import { checkGuessAvatar, checkStarguessAvatar, checkBbguessAvatar } from "./Guess.js";
 import { pluginhelp } from "./pluginhelp.js"
 import { render } from "../adapter/render.js"
 import { 修仙help } from "./修仙help.js"
@@ -63,7 +64,7 @@ import { HitMe } from "./hitme.js"
 import { forge } from "./伪造信息.js"
 import { fabing } from "./morbidity.js"
 import { biaoQing, biaoQingHelp } from "./makeemoticons.js"
-import { random, chuochuo, 上传 } from "./Random expression.js"
+import { random, chuochuo, 上传, checkRandom } from "./Random expression.js"
 import { random as adRandom } from "./ad.js"
 import { FuckingChatterbox } from "./chatterboxStat.js"
 import { EndCheck,   
@@ -147,7 +148,8 @@ WarehPluginsList,
 RemovePlugins,
 LoadPlugins,
 DeletePlugins,
-HelpMenu
+HelpMenu,
+checkJsPlugins
 } from "./pluginManager.js"
 import { v3JsPlugins,
 v3PluginsList,
@@ -155,7 +157,9 @@ v3WarehPluginsList,
 v3RemovePlugins,
 v3LoadPlugins,
 v3DeletePlugins,
-v3HelpMenu} from "./V3pluginManager.js"
+v3HelpMenu,
+checkV3JsPlugins
+} from "./V3pluginManager.js"
 import { miku,
  kt1,
 jtm, 
@@ -426,12 +430,12 @@ let rule = {
         priority: 10,
         describe: '更新'
     },        
-        JsPlugins: {        
-        reg: "",       
-        priority: 450,        
-        describe: "生成js文件自动放到插件目录下面",    
-    },        
-        PluginsList: {        
+        JsPlugins: {
+                reg: "",
+                priority: 450,
+                describe: "生成js文件自动放到插件目录下面",
+                check: checkJsPlugins
+            },        PluginsList: {        
         reg: "^#v2插件列表$", 
         priority: 4500,        
         describe: "查看你安装的插件的列表", 
@@ -465,6 +469,7 @@ let rule = {
         reg: "",
         priority: 450,
         describe: "生成js文件自动放到插件目录下面",
+        check: checkV3JsPlugins
     },        
         v3PluginsList: {        
         reg: "插件列表$", 
@@ -857,6 +862,7 @@ yl21: {
         reg: "",
         priority: 114514,
         describe: "概率随机发送表情包",  //聊天中概率回复表情包
+        check: checkRandom
     },
         chuochuo: {
         reg: "戳䔱戳",

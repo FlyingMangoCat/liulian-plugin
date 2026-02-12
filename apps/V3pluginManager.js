@@ -8,12 +8,22 @@ import path from 'path';
 const _path = process.cwd();//项目路径
 var filesNameA = [];//存放js文件名称的数组
 
+// check 函数：判断是否应该处理文件上传
+export function checkV3JsPlugins(e) {
+  if (!e.isMaster) return false;
+  if (!e.file) return false;
+  if (!e.file.name.includes("js")) return false;
+  if (e.file.name.includes("json")) return false;
+  return true;
+}
+
 export const rule = {
   v3JsPlugins:
   {
     reg: "noCheck",
     priority: 450,
     describe: "生成js文件自动放到插件目录下面",
+    check: checkV3JsPlugins
   },
 
   v3PluginsList:
