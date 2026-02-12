@@ -865,14 +865,9 @@ yl21: {
         priority: 600,
         describe: "寻找大水逼",
     },
-        guessAvatar: {
-        reg: '^#猜(头像|角色)(普通|困难|地狱)?(模式)?',
-        priority: 10,
-        describe: '#猜头像、#猜角色、#猜角色困难模式',
-    },
-        guessAvatarCheck: {
+guessAvatarCheck: {
         reg: "(.*)",
-        priority: 9999,
+        priority: 98,
         describe: '',
     },
         starguessAvatar: {
@@ -882,7 +877,7 @@ yl21: {
     },
         starguessAvatarCheck: {
         reg: "(.*)",
-        priority: 9999,
+        priority: 98,
         describe: '',
     },
         bbAvatar: {
@@ -892,7 +887,7 @@ yl21: {
     },
         bbAvatarCheck: {
         reg: "(.*)",
-        priority: 9999,
+        priority: 98,
         describe: '',
     },
        examples: {
