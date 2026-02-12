@@ -22,31 +22,17 @@ export async function FuckingChatterbox(e) {
         ing[e.group_id] = 0;
         return true;
     }
-    console.log("第一条消息完整结构:", JSON.stringify(CharHistory[0], null, 2));
     let seq = CharHistory[0]?.message_seq || 0;
-    let msgId = CharHistory[0]?.message_id || 0;
-    console.log(`message_seq: ${seq}, message_id: ${msgId}`);
 
     // 快速扫描，估算消息数量
     let scanSeq = seq;
     let scanProcessed = new Set([seq]);
     console.log("开始快速扫描估算消息数量...");
     console.log(`初始 seq: ${seq}`);
-    
-    // 测试不同的参数来理解 API 行为
-    let test1 = await e.group.getChatHistory(null, 5);
-    console.log(`getChatHistory(null, 5) 返回: ${test1 ? test1.length : 0} 条`);
-    if (test1 && test1.length > 0) {
-        console.log(`第一条消息 seq: ${test1[0].message_seq}`);
-    }
-    
-    let test2 = await e.group.getChatHistory(-1, 5);
-    console.log(`getChatHistory(-1, 5) 返回: ${test2 ? test2.length : 0} 条`);
-    if (test2 && test2.length > 0) {
-        console.log(`第一条消息 seq: ${test2[0].message_seq}`);
-    }
-    
-    let scanSeq = seq;
+    while (true) {
+        console.log(`快速扫描 - 当前 scanSeq: ${scanSeq}`);
+        let temp = await e.group.getChatHistory(scanSeq, 20);
+        console.log(`getChatHistory(${scanSeq}, 20) 返回: ${temp ? temp.length : 0} 条消息`);
         if (!temp || temp.length == 0) break;
         let hasNew = false;
         let currentBatchSeqs = [];
