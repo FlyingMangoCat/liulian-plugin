@@ -872,7 +872,7 @@ yl21: {
     },
         guessAvatarCheck: {
         reg: "(.*)",
-        priority: 98,
+        priority: 9999,
         describe: '',
     },
         starguessAvatar: {
@@ -882,7 +882,7 @@ yl21: {
     },
         starguessAvatarCheck: {
         reg: "(.*)",
-        priority: 98,
+        priority: 9999,
         describe: '',
     },
         bbAvatar: {
@@ -892,7 +892,7 @@ yl21: {
     },
         bbAvatarCheck: {
         reg: "(.*)",
-        priority: 98,
+        priority: 9999,
         describe: '',
     },
        examples: {
