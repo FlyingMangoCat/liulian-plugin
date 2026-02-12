@@ -14,9 +14,14 @@ export async function FuckingChatterbox(e) {
         return true;
     }
     ing[e.group_id] = 1;
-    e.reply("正在分析聊天记录，寻找本群大水逼，请等一等！");
+    e.reply("正在聊天记录，寻找本群大水逼，请等一等！");
     let CharHistory = await e.group.getChatHistory(0, 1);
-    let seq = CharHistory[0].seq;
+    if (!CharHistory || CharHistory.length === 0) {
+        e.reply("无法获取聊天记录，请稍后再试");
+        ing[e.group_id] = 0;
+        return true;
+    }
+    let seq = CharHistory[0]?.seq || 0;
     e.reply(`大概有${seq}条记录需要分析，预计需要${(seq/20/4/60).toFixed(2)}分钟`);
     let CharList = {};
     let allcount = 0;
