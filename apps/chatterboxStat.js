@@ -28,18 +28,25 @@ export async function FuckingChatterbox(e) {
     let scanSeq = seq;
     let scanProcessed = new Set([seq]);
     console.log("开始快速扫描估算消息数量...");
+    console.log(`初始 seq: ${seq}`);
     while (true) {
+        console.log(`快速扫描 - 当前 scanSeq: ${scanSeq}`);
         let temp = await e.group.getChatHistory(scanSeq, 20);
+        console.log(`getChatHistory 返回: ${temp ? temp.length : 0} 条消息`);
         if (!temp || temp.length == 0) break;
         let hasNew = false;
+        let currentBatchSeqs = [];
         for (const key in temp) {
             if (!temp[key] || Object.keys(temp[key]).length === 0) continue;
             let msgSeq = temp[key].message_seq;
+            currentBatchSeqs.push(msgSeq);
             if (scanProcessed.has(msgSeq)) continue;
             scanProcessed.add(msgSeq);
             hasNew = true;
             if (msgSeq < scanSeq) scanSeq = msgSeq;
         }
+        console.log(`本批次 seq 列表: ${currentBatchSeqs.join(', ')}`);
+        console.log(`hasNew: ${hasNew}, 新 scanSeq: ${scanSeq}, 已处理总数: ${scanProcessed.size}`);
         if (!hasNew) break;
     }
     let estimatedMsgCount = scanProcessed.size;
