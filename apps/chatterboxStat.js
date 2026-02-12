@@ -25,11 +25,10 @@ export async function FuckingChatterbox(e) {
     let seq = CharHistory[0]?.message_seq || 0;
 
     // 快速扫描，估算消息数量
-    let scanCount = 0;
     let scanSeq = seq;
     let scanProcessed = new Set([seq]);
     console.log("开始快速扫描估算消息数量...");
-    while (scanCount < 500) { // 最多扫描500次，获取更多数据用于估算
+    while (true) {
         let temp = await e.group.getChatHistory(scanSeq, 20);
         if (!temp || temp.length == 0) break;
         let hasNew = false;
@@ -42,7 +41,6 @@ export async function FuckingChatterbox(e) {
             if (msgSeq < scanSeq) scanSeq = msgSeq;
         }
         if (!hasNew) break;
-        scanCount++;
     }
     let estimatedMsgCount = scanProcessed.size;
     let estimatedTime = (estimatedMsgCount / 20 / 4 / 60).toFixed(2);
