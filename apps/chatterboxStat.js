@@ -49,10 +49,33 @@ export async function FuckingChatterbox(e) {
                 scanProcessed.add(msgSeq);
             }
 
-            // 快速预估：直接用第一条seq，不试错
-            if (temp.length > 0 && temp[0]?.message_seq) {
-                scanSeq = temp[0].message_seq;
-            } else {
+            // 试错机制：从返回的seq中选择下一个
+            let candidateSeqs = [];
+            for (const key in temp) {
+                if (!temp[key] || Object.keys(temp[key]).length === 0) continue;
+                let msgSeq = temp[key].message_seq;
+                if (!msgSeq) continue;
+                candidateSeqs.push(msgSeq);
+            }
+
+            // 并行测试找到可用的seq
+            let testPromises = candidateSeqs.map(seq => {
+                return e.group.getChatHistory(seq, 1)
+                    .then(result => ({ seq, result }))
+                    .catch(err => ({ seq, error: err }));
+            });
+            let testResults = await Promise.all(testPromises);
+            let nextSeqFound = false;
+            for (let i = 0; i < testResults.length; i++) {
+                let { seq, result, error } = testResults[i];
+                if (!error && result && result.length > 0) {
+                    scanSeq = seq;
+                    nextSeqFound = true;
+                    break;
+                }
+            }
+            if (!nextSeqFound) {
+                console.log(`快速预估完成，扫描了${scanProcessed.size}条`);
                 break;
             }
 
