@@ -22,7 +22,10 @@ export async function FuckingChatterbox(e) {
         ing[e.group_id] = 0;
         return true;
     }
+    console.log("第一条消息完整结构:", JSON.stringify(CharHistory[0], null, 2));
     let seq = CharHistory[0]?.message_seq || 0;
+    let msgId = CharHistory[0]?.message_id || 0;
+    console.log(`message_seq: ${seq}, message_id: ${msgId}`);
 
     // 快速扫描，估算消息数量
     let scanSeq = seq;
