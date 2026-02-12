@@ -74,19 +74,21 @@ export async function FuckingChatterbox(e) {
                 };
             }
         }
-        // 试错机制：从候选 seq 中逐个尝试
+        // 试错机制：并行测试多个seq
         let nextSeqFound = false;
-        for (let i = 0; i < candidateSeqs.length; i++) {
-            try {
-                let testResult = await e.group.getChatHistory(candidateSeqs[i], 1);
-                if (testResult && testResult.length > 0) {
-                    scanSeq = candidateSeqs[i];
-                    nextSeqFound = true;
-                    console.log(`试错成功：使用 seq ${scanSeq}`);
-                    break;
-                }
-            } catch (err) {
-                console.log(`试错失败：seq ${candidateSeqs[i]} 不可用`);
+        let testPromises = candidateSeqs.map(seq => {
+            return e.group.getChatHistory(seq, 1)
+                .then(result => ({ seq, result }))
+                .catch(err => ({ seq, error: err }));
+        });
+        let testResults = await Promise.all(testPromises);
+        for (let i = 0; i < testResults.length; i++) {
+            let { seq, result, error } = testResults[i];
+            if (!error && result && result.length > 0) {
+                scanSeq = seq;
+                nextSeqFound = true;
+                console.log(`试错成功：使用 seq ${scanSeq}`);
+                break;
             }
         }
         if (!nextSeqFound) {
@@ -96,8 +98,8 @@ export async function FuckingChatterbox(e) {
         console.log(`已处理总数: ${scanProcessed.size}, 已统计: ${allcount}`);
         if (!hasNew) break;
 
-        // 在处理到500条时发一次预估
-        if (!hasEstimated && scanProcessed.size >= 500) {
+        // 在处理到2000条时发一次预估
+        if (!hasEstimated && scanProcessed.size >= 2000) {
             estimatedMsgCount = scanProcessed.size;
             let estimatedTime = (estimatedMsgCount / 20 / 4 / 60).toFixed(2);
             e.reply(`已扫描${estimatedMsgCount}条，预计需要${estimatedTime}分钟`);
