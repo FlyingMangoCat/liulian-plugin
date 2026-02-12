@@ -56,8 +56,8 @@ export async function FuckingChatterbox(e) {
                 break;
             }
 
-            // 快速预估最多跑100次
-            if (scanProcessed.size >= 2000) {
+            // 快速预估扫描10000条
+            if (scanProcessed.size >= 10000) {
                 console.log(`快速预估完成，扫描了${scanProcessed.size}条`);
                 break;
             }
@@ -130,8 +130,10 @@ export async function FuckingChatterbox(e) {
 
     // 等待快速预估完成，发送预估消息
     let estimatedCount = await quickEstimatePromise;
-    let estimatedTime = (estimatedCount * 1.5 / 20 / 4 / 60).toFixed(2);
-    e.reply(`大概有${Math.round(estimatedCount * 1.5)}条记录需要分析，预计需要${estimatedTime}分钟`);
+    // 用扫描到的数量乘以1.5粗略估算总数（假设扫描了约2/3）
+    let estimatedTotal = Math.round(estimatedCount * 1.5);
+    let estimatedTime = (estimatedTotal / 20 / 4 / 60).toFixed(2);
+    e.reply(`大概有${estimatedTotal}条记录需要分析，预计需要${estimatedTime}分钟`);
 
     // 等待实际统计完成
     let { CharList, allcount } = await actualStatPromise;
