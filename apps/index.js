@@ -17,6 +17,7 @@ guangboHelp
  } from "./transmit.js"
 import { 运势 } from "./lucktendency.js"
 import { maphelp, mapnumber } from "./maphelp.js"
+import {	currentVersion } from "../components/Changelog.js";
 import { pluginhelp } from "./pluginhelp.js"
 import { render } from "../adapter/render.js"
 import { 修仙help } from "./修仙help.js"
@@ -422,13 +423,13 @@ let rule = {
         priority: 10,
         describe: '更新'
     },        
-        JsPlugins: {
-                reg: "(.*)",
-                priority: 450,
-                describe: "生成js文件自动放到插件目录下面",
-            },
-        
-                PluginsList: {        reg: "^#v2插件列表$", 
+        JsPlugins: {        
+        reg: "",       
+        priority: 450,        
+        describe: "生成js文件自动放到插件目录下面",    
+    },        
+        PluginsList: {        
+        reg: "^#v2插件列表$", 
         priority: 4500,        
         describe: "查看你安装的插件的列表", 
     },        
@@ -458,7 +459,7 @@ let rule = {
         describe: "帮助菜单",   
     },        
         v3JsPlugins: {
-        reg: "(.*)",
+        reg: "",
         priority: 450,
         describe: "生成js文件自动放到插件目录下面",
     },        
@@ -850,7 +851,7 @@ yl21: {
         describe: "【#伪造信息@群成员 信息】", 
     },
         random: {
-        reg: "(.*)",
+        reg: "",
         priority: 114514,
         describe: "概率随机发送表情包",  //聊天中概率回复表情包
     },
@@ -890,7 +891,7 @@ yl21: {
         describe: '猜邦布',
     },
         bbAvatarCheck: {
-        reg: '',
+        reg: "(.*)",
         priority: 98,
         describe: '',
     },
@@ -1251,17 +1252,20 @@ import plugin from '../adapter/lib/plugin.js'
 class LiulianV3 extends plugin {
   constructor() {
     let rules = []
-
-    // 将rule对象转换为V3规则数组
+    
+    // 将rule对象转换为V3规则数组，跳过空字符串正则的规则
     for (let key in rule) {
       let cfg = rule[key]
-      rules.push({
-        reg: cfg.reg,
-        fnc: key,
-        priority: cfg.priority || 5000
-      })
+      // 跳过使用空字符串的规则，这些规则应该通过其他方式触发
+      if (cfg.reg !== "") {
+        rules.push({
+          reg: cfg.reg,
+          fnc: key,
+          priority: cfg.priority || 5000
+        })
+      }
     }
-
+    
     super({
       name: 'liulian-plugin',
       desc: '榴莲插件',
