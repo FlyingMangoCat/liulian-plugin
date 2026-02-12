@@ -33,6 +33,7 @@ export async function FuckingChatterbox(e) {
     console.log(`初始 message_id: ${msgId}`);
     while (true) {
         console.log(`快速扫描 - 当前 scanId: ${scanId}`);
+        // cnt 不能超过 20
         let temp = await e.group.getChatHistory(scanId, 20);
         console.log(`getChatHistory(${scanId}, 20) 返回: ${temp ? temp.length : 0} 条消息`);
         if (!temp || temp.length == 0) break;
