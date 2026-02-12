@@ -51,6 +51,8 @@ export async function FuckingChatterbox(e) {
         for (const key in temp) {
             if (!temp[key] || Object.keys(temp[key]).length === 0) continue;
             let msgSeq = temp[key].message_seq;
+            // 跳过 message_seq 为 null 的消息
+            if (!msgSeq) continue;
             currentBatchSeqs.push(msgSeq);
             if (scanProcessed.has(msgSeq)) continue;
             scanProcessed.add(msgSeq);
