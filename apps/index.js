@@ -17,7 +17,6 @@ guangboHelp
  } from "./transmit.js"
 import { 运势 } from "./lucktendency.js"
 import { maphelp, mapnumber } from "./maphelp.js"
-import {	currentVersion } from "../components/Changelog.js";
 import { pluginhelp } from "./pluginhelp.js"
 import { render } from "../adapter/render.js"
 import { 修仙help } from "./修仙help.js"
@@ -871,8 +870,8 @@ yl21: {
         describe: '#猜头像、#猜角色、#猜角色困难模式',
     },
         guessAvatarCheck: {
-        reg: "",
-        priority: 98,
+        reg: "(.*)",
+        priority: 99999,
         describe: '',
     },
         starguessAvatar: {
@@ -881,8 +880,8 @@ yl21: {
         describe: '猜星铁角色',
     },
         starguessAvatarCheck: {
-        reg: "",
-        priority: 98,
+        reg: "(.*)",
+        priority: 99999,
         describe: '',
     },
         bbAvatar: {
@@ -1253,17 +1252,14 @@ class LiulianV3 extends plugin {
   constructor() {
     let rules = []
     
-    // 将rule对象转换为V3规则数组，跳过空字符串正则的规则
+    // 将rule对象转换为V3规则数组
     for (let key in rule) {
       let cfg = rule[key]
-      // 跳过使用空字符串的规则，这些规则应该通过其他方式触发
-      if (cfg.reg !== "") {
-        rules.push({
-          reg: cfg.reg,
-          fnc: key,
-          priority: cfg.priority || 5000
-        })
-      }
+      rules.push({
+        reg: cfg.reg,
+        fnc: key,
+        priority: cfg.priority || 5000
+      })
     }
     
     super({

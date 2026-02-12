@@ -181,6 +181,7 @@ export async function guessAvatarCheck(e) {
       return true;
     }
   }
+  return false;
 }
 async function replayAnswer(e, message, cfg, isReply = false) {
   clearTimeout(cfg.timer);
@@ -314,6 +315,7 @@ export async function musicanswerCheck(e) {
       clearTimeout(guessConfig.timer)
       return true;
     }
+  return false;
 }
   export async function EndCheck(e) {
     let guessConfig = getGuessConfig(e);
@@ -415,10 +417,12 @@ export async function starguessAvatarCheck(e) {
       }
       return true;
     }
-  }
-}
-
-export async function bbguessAvatar(e) {
+      }
+      return false;
+    }
+    
+    
+    export async function bbguessAvatar(e) {
   let guessConfig = getGuessConfig(e);
   if (guessConfig.playing) {
     e.reply('猜邦布游戏正在进行哦');
@@ -505,4 +509,5 @@ export async function bbguessAvatarCheck(e) {
       return true;
     }
   }
+  return false;
 }

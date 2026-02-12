@@ -62,6 +62,7 @@ export async function determineIfYouShutUp(e) {
     console.error('[闭嘴判断] Redis操作失败:', error);
     // Redis出错时不阻止后续处理，让其他功能正常工作
   }
+  return false;
 }
 export async function openYourMouth(e) {
 let limit=Cfg.get('sys.limit');
