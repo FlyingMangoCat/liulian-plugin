@@ -22,7 +22,6 @@ export async function FuckingChatterbox(e) {
         return true;
     }
     let seq = CharHistory[0]?.message_seq || 0;
-    e.reply(`正在分析聊天记录，寻找本群大水逼，请等一等！`);
 
     // 快速扫描，估算消息数量
     let scanCount = 0;
