@@ -429,79 +429,80 @@ let rule = {
         reg: '^#(榴莲|留恋)(强制)?更新',
         priority: 10,
         describe: '更新'
-    },        
-        JsPlugins: {
-                reg: "",
-                priority: 450,
-                describe: "生成js文件自动放到插件目录下面",
-                check: checkJsPlugins
-            },
-            PluginsList: {        reg: "^#v2插件列表$", 
-        priority: 4500,        
-        describe: "查看你安装的插件的列表", 
-    },        
-        WarehPluginsList: {        
-        reg: "^(#|井)*(v2仓库列表)$", 
-        priority: 4500,       
-        describe: "查看被停用的插件的列表",   
-    },        
-        RemovePlugins: {        
-        reg: "^(#|井)*(v2移除插件)(.*)$", 
-        priority: 4500,    
-        describe: "移除插件(插件名)",   
-    },        
-        LoadPlugins: {       
-        reg: "^(#|井)*(v2添加插件)(.*)$",  
-        priority: 4500,        
-        describe: "添加插件(插件名)",  
-    },        
-        DeletePlugins: {       
-        reg: "^(#|井)*(v2删除插件)(.*)$", 
-        priority: 4500,       
-        describe: "删除插件(插件名)",  
-    },       
-        HelpMenu: {       
+    },
+    JsPlugins: {
+        reg: "",
+        priority: 450,
+        describe: "生成js文件自动放到插件目录下面",
+        check: checkJsPlugins
+    },
+    PluginsList: {
+        reg: "^#v2插件列表$",
+        priority: 4500,
+        describe: "查看你安装的插件的列表",
+    },
+    WarehPluginsList: {
+        reg: "^(#|井)*(v2仓库列表)$",
+        priority: 4500,
+        describe: "查看被停用的插件的列表",
+    },
+    RemovePlugins: {
+        reg: "^(#|井)*(v2移除插件)(.*)$",
+        priority: 4500,
+        describe: "移除插件(插件名)",
+    },
+    LoadPlugins: {
+        reg: "^(#|井)*(v2添加插件)(.*)$",
+        priority: 4500,
+        describe: "添加插件(插件名)",
+    },
+    DeletePlugins: {
+        reg: "^(#|井)*(v2删除插件)(.*)$",
+        priority: 4500,
+        describe: "删除插件(插件名)",
+    },
+    HelpMenu: {
         reg: "^(#|井)*(v2插件管理帮助)(.*)$",
-        priority: 4500,        
-        describe: "帮助菜单",   
-    },        
-        v3JsPlugins: {
+        priority: 4500,
+        describe: "帮助菜单",
+    },
+    v3JsPlugins: {
         reg: "",
         priority: 450,
         describe: "生成js文件自动放到插件目录下面",
         check: checkV3JsPlugins
     },
-    v3PluginsList: {        
-        reg: "插件列表$", 
-        priority: 4500,        
-        describe: "查看你安装的插件的列表", 
-    },        
-        v3WarehPluginsList: {        
-        reg: "仓库列表$", 
-        priority: 4500,       
-        describe: "查看被停用的插件的列表",   
-    },        
-        v3RemovePlugins: {        
-        reg: "移除插件(.*)$", 
-        priority: 4500,    
-        describe: "移除插件(插件名)",   
-    },        
-        v3LoadPlugins: {       
-        reg: "添加插件(.*)$",  
-        priority: 4500,        
-        describe: "添加插件(插件名)",  
-    },        
-        v3DeletePlugins: {       
-        reg: "删除插件(.*)$", 
-        priority: 4500,       
-        describe: "删除插件(插件名)",  
-    },       
-        v3HelpMenu: {       
-        reg: "插件管理帮助(.*)$",
-        priority: 4500,        
-        describe: "帮助菜单",   
+    v3PluginsList: {
+        reg: "插件列表$",
+        priority: 4500,
+        describe: "查看你安装的插件的列表",
     },
-        miku: {
+    v3WarehPluginsList: {
+        reg: "仓库列表$",
+        priority: 4500,
+        describe: "查看被停用的插件的列表",
+    },
+    v3RemovePlugins: {
+        reg: "移除插件(.*)$",
+        priority: 4500,
+        describe: "移除插件(插件名)",
+    },
+    v3LoadPlugins: {
+        reg: "添加插件(.*)$",
+        priority: 4500,
+        describe: "添加插件(插件名)",
+    },
+    v3DeletePlugins: {
+        reg: "删除插件(.*)$",
+        priority: 4500,
+        describe: "删除插件(插件名)",
+    },
+    v3HelpMenu: {
+        reg: "插件管理帮助(.*)$",
+        priority: 4500,
+        describe: "帮助菜单",
+    },
+    miku: {
         reg: "^(miku|初音|初音未来|葱葱|MIKU)$", //匹配消息正则，命令正则
         priority: 3567, //优先级，越小优先度越高
         describe: "", //【命令】功能说明
