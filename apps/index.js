@@ -423,12 +423,12 @@ let rule = {
         describe: '更新'
     },        
         JsPlugins: {
-        reg: "(.*)",
-        priority: 99999,
-        describe: "生成js文件自动放到插件目录下面",
-    },        
-        PluginsList: {        
-        reg: "^#v2插件列表$", 
+                reg: "(.*)",
+                priority: 450,
+                describe: "生成js文件自动放到插件目录下面",
+            },
+        
+                PluginsList: {        reg: "^#v2插件列表$", 
         priority: 4500,        
         describe: "查看你安装的插件的列表", 
     },        
@@ -459,7 +459,7 @@ let rule = {
     },        
         v3JsPlugins: {
         reg: "(.*)",
-        priority: 99999,
+        priority: 450,
         describe: "生成js文件自动放到插件目录下面",
     },        
         v3PluginsList: {        
@@ -851,7 +851,7 @@ yl21: {
     },
         random: {
         reg: "(.*)",
-        priority: 99999,
+        priority: 114514,
         describe: "概率随机发送表情包",  //聊天中概率回复表情包
     },
         chuochuo: {
@@ -871,7 +871,7 @@ yl21: {
     },
         guessAvatarCheck: {
         reg: "(.*)",
-        priority: 99999,
+        priority: 98,
         describe: '',
     },
         starguessAvatar: {
@@ -881,7 +881,7 @@ yl21: {
     },
         starguessAvatarCheck: {
         reg: "(.*)",
-        priority: 99999,
+        priority: 98,
         describe: '',
     },
         bbAvatar: {
