@@ -15,6 +15,7 @@ export async function FuckingChatterbox(e) {
     }
     ing[e.group_id] = 1;
     e.reply("正在分析聊天记录，寻找本群大水逼，请等一等！");
+
     let CharHistory = await e.group.getChatHistory(0, 1);
     if (!CharHistory || CharHistory.length === 0) {
         e.reply("无法获取聊天记录，请稍后再试");
