@@ -22,7 +22,7 @@ export async function FuckingChatterbox(e) {
         return true;
     }
     let seq = CharHistory[0]?.message_seq || 0;
-    e.reply(`大概有${seq}条记录需要分析，预计需要${(seq/20/4/60).toFixed(2)}分钟`);
+    e.reply("正在分析聊天记录，寻找本群大水逼，请等一等！");
     let CharList = {};
     let allcount = 0;
     let lastSeq = seq;
