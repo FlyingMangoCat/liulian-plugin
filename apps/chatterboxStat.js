@@ -43,27 +43,53 @@ export async function FuckingChatterbox(e) {
     
     while (true) {
         console.log(`快速扫描 - 当前 scanSeq: ${scanSeq}`);
-        let temp = await e.group.getChatHistory(scanSeq, 20);
-        console.log(`getChatHistory(${scanSeq}, 20) 返回: ${temp ? temp.length : 0} 条消息`);
-        if (!temp || temp.length == 0) break;
+        let temp = null;
+        // 试错机制：如果获取失败，尝试用当前批次的其他 seq
+        try {
+            temp = await e.group.getChatHistory(scanSeq, 20);
+        } catch (err) {
+            console.log(`getChatHistory(${scanSeq}, 20) 失败: ${err.message}`);
+        }
+        if (!temp || temp.length == 0) {
+            console.log(`getChatHistory(${scanSeq}, 20) 返回空，本轮扫描结束`);
+            break;
+        }
+        console.log(`getChatHistory(${scanSeq}, 20) 返回: ${temp.length} 条消息`);
         let hasNew = false;
         let currentBatchSeqs = [];
         let firstSeq = null;
+        let candidateSeqs = []; // 候选 seq 列表，用于试错
         for (const key in temp) {
             if (!temp[key] || Object.keys(temp[key]).length === 0) continue;
             let msgSeq = temp[key].message_seq;
             // 跳过 message_seq 为 null 的消息
             if (!msgSeq) continue;
             currentBatchSeqs.push(msgSeq);
+            candidateSeqs.push(msgSeq);
             if (scanProcessed.has(msgSeq)) continue;
             scanProcessed.add(msgSeq);
             hasNew = true;
             // 记录第一条有效消息的 seq
             if (firstSeq === null) firstSeq = msgSeq;
         }
-        // 用第一条消息的 seq 作为下一次的参数（最早的）
-        if (firstSeq !== null) {
-            scanSeq = firstSeq;
+        // 试错机制：从候选 seq 中逐个尝试，直到找到一个可用的
+        let nextSeqFound = false;
+        for (let i = 0; i < candidateSeqs.length; i++) {
+            try {
+                let testResult = await e.group.getChatHistory(candidateSeqs[i], 1);
+                if (testResult && testResult.length > 0) {
+                    scanSeq = candidateSeqs[i];
+                    nextSeqFound = true;
+                    console.log(`试错成功：使用 seq ${scanSeq}`);
+                    break;
+                }
+            } catch (err) {
+                console.log(`试错失败：seq ${candidateSeqs[i]} 不可用 (${err.message})`);
+            }
+        }
+        if (!nextSeqFound) {
+            console.log(`所有候选 seq 都不可用，本轮扫描结束`);
+            break;
         }
         console.log(`本批次 message_seq 列表: ${currentBatchSeqs.join(', ')}`);
         console.log(`hasNew: ${hasNew}, 新 scanSeq: ${scanSeq}, 已处理总数: ${scanProcessed.size}`);
@@ -82,12 +108,21 @@ export async function FuckingChatterbox(e) {
     while (true) {
         loopCount++;
         console.log(`循环第 ${loopCount} 次，lastSeq: ${lastSeq}, 已处理 seq 数量: ${processedSeqs.size}`);
-        let CharTemp = await e.group.getChatHistory(lastSeq, 20);
+        let CharTemp = null;
+        // 试错机制：如果获取失败，尝试用其他 seq
+        try {
+            CharTemp = await e.group.getChatHistory(lastSeq, 20);
+        } catch (err) {
+            console.log(`getChatHistory(${lastSeq}, 20) 失败: ${err.message}`);
+            break;
+        }
         if (!CharTemp || CharTemp.length == 0) {
+            console.log(`getChatHistory(${lastSeq}, 20) 返回空，统计结束`);
             break;
         }
         let hasNewData = false;
         let firstSeq = null;
+        let candidateSeqs = []; // 候选 seq 列表，用于试错
 
         for (const key in CharTemp) {
             if (!CharTemp[key] || Object.keys(CharTemp[key]).length === 0) {
@@ -97,6 +132,7 @@ export async function FuckingChatterbox(e) {
             // 跳过 message_seq 为 null 的消息
             if (!msgSeq) continue;
 
+            candidateSeqs.push(msgSeq);
             if (processedSeqs.has(msgSeq)) {
                 continue;
             }
@@ -117,11 +153,27 @@ export async function FuckingChatterbox(e) {
             if (firstSeq === null) firstSeq = msgSeq;
         }
         if (!hasNewData) {
+            console.log(`本轮无新数据，统计结束`);
             break;
         }
-        // 用第一条消息的 seq 作为下一次的参数
-        if (firstSeq !== null) {
-            lastSeq = firstSeq;
+        // 试错机制：从候选 seq 中逐个尝试，直到找到一个可用的
+        let nextSeqFound = false;
+        for (let i = 0; i < candidateSeqs.length; i++) {
+            try {
+                let testResult = await e.group.getChatHistory(candidateSeqs[i], 1);
+                if (testResult && testResult.length > 0) {
+                    lastSeq = candidateSeqs[i];
+                    nextSeqFound = true;
+                    console.log(`试错成功：使用 seq ${lastSeq}`);
+                    break;
+                }
+            } catch (err) {
+                console.log(`试错失败：seq ${candidateSeqs[i]} 不可用 (${err.message})`);
+            }
+        }
+        if (!nextSeqFound) {
+            console.log(`所有候选 seq 都不可用，统计结束`);
+            break;
         }
     }
     let CharArray = [];
