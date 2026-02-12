@@ -874,6 +874,7 @@ yl21: {
         reg: "(.*)",
         priority: 98,
         describe: '',
+        check: require('./Guess.js').checkGuessAvatar
     },
         starguessAvatar: {
         reg: '^#(星铁)?猜(角色|角色星铁)(普通|困难|地狱)?(模式)?',
@@ -884,6 +885,7 @@ yl21: {
         reg: "(.*)",
         priority: 98,
         describe: '',
+        check: require('./Guess.js').checkStarguessAvatar
     },
         bbAvatar: {
         reg: '^#(邦布)?猜(邦布|绝区零邦布)(普通|困难|地狱)?(模式)?',
@@ -894,6 +896,7 @@ yl21: {
         reg: "(.*)",
         priority: 98,
         describe: '',
+        check: require('./Guess.js').checkBbguessAvatar
     },
        examples: {
        reg: "^#?我要休息[\s\S]*", //匹配消息正则，命令正则
@@ -1252,6 +1255,7 @@ import plugin from '../adapter/lib/plugin.js'
 class LiulianV3 extends plugin {
   constructor() {
     let rules = []
+    let checkList = []
     
     // 将rule对象转换为V3规则数组，跳过空字符串正则的规则
     for (let key in rule) {
@@ -1263,8 +1267,19 @@ class LiulianV3 extends plugin {
           fnc: key,
           priority: cfg.priority || 5000
         })
+        
+        // 如果有 check 字段，添加到 checkList
+        if (cfg.check) {
+          checkList.push({
+            key: key,
+            check: cfg.check
+          })
+        }
       }
     }
+    
+    // 保存 checkList 到实例属性
+    this.checkList = checkList
     
     super({
       name: 'liulian-plugin',
@@ -1273,6 +1288,51 @@ class LiulianV3 extends plugin {
       priority: 50,
       rule: rules
     })
+  }
+  
+  // 接受方法，执行所有 check 函数
+  accept(e) {
+    if (!this.checkList || this.checkList.length === 0) {
+      return false
+    }
+    
+    for (let idx = 0; idx < this.checkList.length; idx++) {
+      let item = this.checkList[idx]
+      if (item.check(e) === true) {
+        return true
+      }
+    }
+    return false
+  }
+  
+  // 检查猜角色游戏是否正在进行
+  checkGuessAvatar(e) {
+    try {
+      let checkFn = require('./Guess.js').checkGuessAvatar;
+      return checkFn ? checkFn(e) : false;
+    } catch (err) {
+      return false;
+    }
+  }
+  
+  // 检查星铁猜角色游戏是否正在进行
+  checkStarguessAvatar(e) {
+    try {
+      let checkFn = require('./Guess.js').checkStarguessAvatar;
+      return checkFn ? checkFn(e) : false;
+    } catch (err) {
+      return false;
+    }
+  }
+  
+  // 检查猜邦布游戏是否正在进行
+  checkBbguessAvatar(e) {
+    try {
+      let checkFn = require('./Guess.js').checkBbguessAvatar;
+      return checkFn ? checkFn(e) : false;
+    } catch (err) {
+      return false;
+    }
   }
 }
 
