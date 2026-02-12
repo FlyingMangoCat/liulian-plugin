@@ -1315,32 +1315,7 @@ class LiulianV3 extends plugin {
     return false
   }
   
-  // 检查猜角色游戏是否正在进行
-  checkGuessAvatar(e) {
-    try {
-      return checkGuessAvatar ? checkGuessAvatar(e) : false;
-    } catch (err) {
-      return false;
-    }
-  }
   
-  // 检查星铁猜角色游戏是否正在进行
-  checkStarguessAvatar(e) {
-    try {
-      return checkStarguessAvatar ? checkStarguessAvatar(e) : false;
-    } catch (err) {
-      return false;
-    }
-  }
-  
-  // 检查猜邦布游戏是否正在进行
-  checkBbguessAvatar(e) {
-    try {
-      return checkBbguessAvatar ? checkBbguessAvatar(e) : false;
-    } catch (err) {
-      return false;
-    }
-  }
 }
 
 // 将所有导出的函数添加到LiulianV3类中
