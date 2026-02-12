@@ -25,16 +25,20 @@ export async function FuckingChatterbox(e) {
     e.reply(`大概有${seq}条记录需要分析，预计需要${(seq/20/4/60).toFixed(2)}分钟`);
     let CharList = {};
     let allcount = 0;
-    console.log("seq:",seq);
-    for (let i = seq; i > 0; i = i - 20) {
-        let CharTemp = await e.group.getChatHistory(i, 20);
-        if (CharTemp.length == 0) {
+    let lastSeq = seq;
+    let loopCount = 0;
+    // 最多循环1000次，每次20条，最多2万条消息，避免无限循环
+    while (loopCount < 1000) {
+        let CharTemp = await e.group.getChatHistory(lastSeq, 20);
+        if (!CharTemp || CharTemp.length == 0) {
             break;
         }
+        let hasNewData = false;
         for (const key in CharTemp) {
-            if (CharTemp[key].length == 0) {
+            if (!CharTemp[key] || Object.keys(CharTemp[key]).length === 0) {
                 continue;
             }
+            hasNewData = true;
             allcount ++;
             if (CharList[CharTemp[key].user_id]) {
                 CharList[CharTemp[key].user_id].times += 1;
@@ -46,7 +50,15 @@ export async function FuckingChatterbox(e) {
                     uname: CharTemp[key].sender.card ? CharTemp[key].sender.card : CharTemp[key].sender.nickname
                 };
             }
+            // 更新最后一个消息的seq
+            if (CharTemp[key].message_seq) {
+                lastSeq = CharTemp[key].message_seq;
+            }
         }
+        if (!hasNewData) {
+            break;
+        }
+        loopCount++;
     }
     let CharArray = [];
     for (const key in CharList) {
