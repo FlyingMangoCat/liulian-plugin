@@ -22,6 +22,7 @@ export async function FuckingChatterbox(e) {
         return true;
     }
     let seq = CharHistory[0]?.message_seq || 0;
+    e.reply(`正在分析聊天记录，预计需要几分钟，请耐心等待...`);
     let CharList = {};
     let allcount = 0;
     let lastSeq = seq;
