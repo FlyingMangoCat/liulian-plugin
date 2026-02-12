@@ -1281,9 +1281,6 @@ class LiulianV3 extends plugin {
       }
     }
     
-    // 保存 checkList 到实例属性
-    this.checkList = checkList
-    
     super({
       name: 'liulian-plugin',
       desc: '榴莲插件',
@@ -1291,6 +1288,9 @@ class LiulianV3 extends plugin {
       priority: 50,
       rule: rules
     })
+    
+    // 保存 checkList 到实例属性，必须在 super() 调用之后
+    this.checkList = checkList
   }
   
   // 接受方法，执行所有 check 函数
