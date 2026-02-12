@@ -48,6 +48,7 @@ export async function FuckingChatterbox(e) {
         if (!temp || temp.length == 0) break;
         let hasNew = false;
         let currentBatchSeqs = [];
+        let firstSeq = null; // 记录返回的第一条消息的 seq
         for (const key in temp) {
             if (!temp[key] || Object.keys(temp[key]).length === 0) continue;
             let msgSeq = temp[key].message_seq;
@@ -55,10 +56,15 @@ export async function FuckingChatterbox(e) {
             if (scanProcessed.has(msgSeq)) continue;
             scanProcessed.add(msgSeq);
             hasNew = true;
-            if (msgSeq && msgSeq < scanSeq) scanSeq = msgSeq;
+            // 记录第一条消息的 seq
+            if (firstSeq === null) firstSeq = msgSeq;
+        }
+        // 使用第一条消息的 seq 作为下一次的参数
+        if (firstSeq !== null && firstSeq < scanSeq) {
+            scanSeq = firstSeq;
         }
         console.log(`本批次 message_seq 列表: ${currentBatchSeqs.join(', ')}`);
-        console.log(`hasNew: ${hasNew}, 新 scanSeq: ${scanSeq}, 已处理总数: ${scanProcessed.size}`);
+        console.log(`第一条消息 seq: ${firstSeq}, hasNew: ${hasNew}, 新 scanSeq: ${scanSeq}, 已处理总数: ${scanProcessed.size}`);
         if (!hasNew) break;
     }
     let estimatedMsgCount = scanProcessed.size;
