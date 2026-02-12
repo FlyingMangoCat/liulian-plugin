@@ -31,8 +31,9 @@ export async function FuckingChatterbox(e) {
     console.log(`初始 seq: ${seq}`);
     while (true) {
         console.log(`快速扫描 - 当前 scanSeq: ${scanSeq}`);
-        let temp = await e.group.getChatHistory(scanSeq, 20);
-        console.log(`getChatHistory 返回: ${temp ? temp.length : 0} 条消息`);
+        // 尝试用 0 来获取历史消息，而不是用 seq
+        let temp = await e.group.getChatHistory(0, 20);
+        console.log(`getChatHistory(0, 20) 返回: ${temp ? temp.length : 0} 条消息`);
         if (!temp || temp.length == 0) break;
         let hasNew = false;
         let currentBatchSeqs = [];
