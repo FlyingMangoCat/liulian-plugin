@@ -1262,6 +1262,9 @@ class LiulianV3 extends plugin {
       })
     }
 
+    // 按优先级排序（数字越小优先级越高）
+    rules.sort((a, b) => a.priority - b.priority)
+
     super({
       name: 'liulian-plugin',
       desc: '榴莲插件',
