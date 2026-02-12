@@ -26,8 +26,11 @@ export async function FuckingChatterbox(e) {
     let allcount = 0;
     let lastSeq = seq;
     let processedSeqs = new Set([seq]);
+    let loopCount = 0;
 
     while (true) {
+        loopCount++;
+        console.log(`循环第 ${loopCount} 次，lastSeq: ${lastSeq}, 已处理 seq 数量: ${processedSeqs.size}`);
         let CharTemp = await e.group.getChatHistory(lastSeq, 20);
         if (!CharTemp || CharTemp.length == 0) {
             break;
@@ -74,8 +77,7 @@ export async function FuckingChatterbox(e) {
         return b.times - a.times
     })
     console.log(CharArray);
-    let l = Math.ceil(CharArray.length / 10);
-    CharArray = CharArray.slice(0, l > 10 ? 10 : l);
+    CharArray = CharArray.slice(0, 10);
     let res = `一共检测到聊天记录 ${allcount} 句话，其中：\n`;
     let itemp = 0;
     for (let v of CharArray) {
