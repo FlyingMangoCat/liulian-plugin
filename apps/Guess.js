@@ -89,13 +89,6 @@ function getGuessConfig(e) {
 // 导出 getGuessConfig 供外部使用
 export { getGuessConfig };
 
-// 检查猜角色游戏是否正在进行
-export function checkGuessAvatar(e) {
-  let guessConfig = getGuessConfig(e);
-  let {playing, roleId} = guessConfig;
-  // 如果游戏正在进行，返回 true，否则返回 false
-  return playing && roleId;
-}
 const colors = [// 随机背景颜色
   '#F5F5F5',
   '#FFEDED',
