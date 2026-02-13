@@ -252,6 +252,7 @@ function getTemplate(flag = true) {
       .container .grayscale {filter: grayscale(100%);}
       #answer-wrap {margin:auto;display: flex;align-items: center;justify-content: center;}
       #answer-wrap #mask{position:absolute;z-index: 1;border: 1px solid white;box-shadow: 0 0 0 2000px rgba(0,0,0,0.6);}
+      .hint-text {position: absolute; bottom: 10px; left: 0; right: 0; text-align: center; color: white; font-size: 14px; text-shadow: 1px 1px 2px black; z-index: 10;}
   </style>
 </head>
 
@@ -262,6 +263,7 @@ function getTemplate(flag = true) {
     <img src="{{src}}" alt="头像">
     <div id="mask"></div>
   </div>
+  ${flag ? '<div class="hint-text">回答格式：#我猜[角色名]</div>' : ''}
 </div>
 <script>
 // 图片大小
