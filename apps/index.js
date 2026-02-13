@@ -880,7 +880,7 @@ yl21: {
         describe: '#猜头像、#猜角色、#猜角色困难模式',
     },
         guessAvatarCheck: {
-        reg: "",
+        reg: "^#?我猜(.*)",
         priority: 98,
         describe: '',
         check: checkGuessAvatar
@@ -891,7 +891,7 @@ yl21: {
         describe: '猜星铁角色',
     },
         starguessAvatarCheck: {
-        reg: "",
+        reg: "^#?我猜(.*)",
         priority: 98,
         describe: '',
         check: checkStarguessAvatar
@@ -902,7 +902,7 @@ yl21: {
         describe: '猜邦布',
     },
         bbAvatarCheck: {
-        reg: "",
+        reg: "^#?我猜(.*)",
         priority: 98,
         describe: '',
         check: checkBbguessAvatar

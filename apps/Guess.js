@@ -141,7 +141,7 @@ export async function guessAvatar(e) {
     size = lodash.random(35, 55);
     helpText = '%s';
   }
-  helpText = helpText.replace('%s', `即将发送一张『随机角色』的『随机一角』，${GAME_TIME_OUT}秒之后揭晓答案！`);
+  helpText = helpText.replace('%s', `即将发送一张『随机角色』的『随机一角』，${GAME_TIME_OUT}秒之后揭晓答案！\n回答格式：#我猜[角色名] 或 我猜[角色名]`);
   e.reply(helpText);
   let fileNames = [];
   let ffn = (n) => !/(未知)/.test(n);
@@ -199,7 +199,8 @@ export async function guessAvatarCheck(e) {
   let guessConfig = getGuessConfig(e);
   let {playing, roleId, normalMode} = guessConfig;
   if (playing && roleId && e.msg) {
-    let id = roleIdToName(e.msg.trim());
+    let answer = e.msg.replace(/^#?我猜/, '').trim();
+    let id = roleIdToName(answer);
     if (roleId === id) {
       await replayAnswer(e, ['恭喜你答对了！'], guessConfig, true);
       if (normalMode && lodash.random(0, 100) <= 8) {
@@ -378,7 +379,7 @@ export async function starguessAvatar(e) {
     size = lodash.random(80, 120);
     helpText = '%s';
   }
-  helpText = helpText.replace('%s', `即将发送一张『随机角色』的『随机一角』，${GAME_TIME_OUT}秒之后揭晓答案！`);
+  helpText = helpText.replace('%s', `即将发送一张『随机角色』的『随机一角』，${GAME_TIME_OUT}秒之后揭晓答案！\n回答格式：#我猜[角色名] 或 我猜[角色名]`);
   e.reply(helpText);
   let fileNames = [];
   let ffn = (n) => !/(未知)/.test(n);
@@ -436,7 +437,8 @@ export async function starguessAvatarCheck(e) {
   let guessConfig = getGuessConfig(e);
   let {playing, starroleId, normalMode} = guessConfig;
   if (playing && starroleId && e.msg) {
-    let id = starroleIdToName(e.msg.trim());
+    let answer = e.msg.replace(/^#?我猜/, '').trim();
+    let id = starroleIdToName(answer);
     if (starroleId === id) {
       await replayAnswer(e, ['恭喜你答对了！'], guessConfig, true);
       if (normalMode && lodash.random(0, 100) <= 8) {
@@ -469,7 +471,7 @@ export async function starguessAvatarCheck(e) {
     size = lodash.random(80, 120);
     helpText = '%s';
   }
-  helpText = helpText.replace('%s', `即将发送一张『随机邦布』的『随机一角』，${GAME_TIME_OUT}秒之后揭晓答案！`);
+  helpText = helpText.replace('%s', `即将发送一张『随机邦布』的『随机一角』，${GAME_TIME_OUT}秒之后揭晓答案！\n回答格式：#我猜[邦布名] 或 我猜[邦布名]`);
   e.reply(helpText);
   let fileNames = [];
   let ffn = (n) => !/(未知)/.test(n);
@@ -527,7 +529,8 @@ export async function bbguessAvatarCheck(e) {
   let guessConfig = getGuessConfig(e);
   let {playing, zzzroleId, normalMode} = guessConfig;
   if (playing && zzzroleId && e.msg) {
-    let id = zzzroleIdToName(e.msg.trim());
+    let answer = e.msg.replace(/^#?我猜/, '').trim();
+    let id = zzzroleIdToName(answer);
     if (zzzroleId === id) {
       await replayAnswer(e, ['恭喜你答对了！'], guessConfig, true);
       if (normalMode && lodash.random(0, 100) <= 8) {
