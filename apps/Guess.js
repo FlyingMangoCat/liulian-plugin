@@ -96,22 +96,6 @@ export function checkGuessAvatar(e) {
   // 如果游戏正在进行，返回 true，否则返回 false
   return playing && roleId;
 }
-
-// 检查星铁猜角色游戏是否正在进行
-export function checkStarguessAvatar(e) {
-  let guessConfig = getGuessConfig(e);
-  let {playing, starroleId} = guessConfig;
-  // 如果游戏正在进行，返回 true，否则返回 false
-  return playing && starroleId;
-}
-
-// 检查猜邦布游戏是否正在进行
-export function checkBbguessAvatar(e) {
-  let guessConfig = getGuessConfig(e);
-  let {playing, zzzroleId} = guessConfig;
-  // 如果游戏正在进行，返回 true，否则返回 false
-  return playing && zzzroleId;
-}
 const colors = [// 随机背景颜色
   '#F5F5F5',
   '#FFEDED',

@@ -74,10 +74,7 @@ guessAvatarCheck,
 starguessAvatar,
 starguessAvatarCheck,
 bbguessAvatar,
-bbguessAvatarCheck,
-checkGuessAvatar,
-checkStarguessAvatar,
-checkBbguessAvatar
+bbguessAvatarCheck
 } from "./Guess.js"
 import{ yl总,
 yl1,
@@ -882,8 +879,7 @@ yl21: {
         guessAvatarCheck: {
         reg: "^#?我猜(.*)",
         priority: 98,
-        describe: '',
-        check: checkGuessAvatar
+        describe: ''
     },
         starguessAvatar: {
         reg: '^#(星铁)?猜(角色|角色星铁)(普通|困难|地狱)?(模式)?',
@@ -893,8 +889,7 @@ yl21: {
         starguessAvatarCheck: {
         reg: "^#?我猜(.*)",
         priority: 98,
-        describe: '',
-        check: checkStarguessAvatar
+        describe: ''
     },
         bbAvatar: {
         reg: '^#(邦布)?猜(邦布|绝区零邦布)(普通|困难|地狱)?(模式)?',
@@ -904,8 +899,7 @@ yl21: {
         bbAvatarCheck: {
         reg: "^#?我猜(.*)",
         priority: 98,
-        describe: '',
-        check: checkBbguessAvatar
+        describe: ''
     },
        examples: {
        reg: "^#?我要休息[\s\S]*", //匹配消息正则，命令正则
@@ -1333,8 +1327,7 @@ const exportedFunctions = {
     sm11, sm12, sm13, sm14, sm15, sm16, sm17, sm18, sm19,
     sm20, sm21, sm22, sm23, forge, random, chuochuo,
     adRandom, FuckingChatterbox, guessAvatar, guessAvatarCheck,
-    bbguessAvatar, bbguessAvatarCheck, checkGuessAvatar,
-    checkStarguessAvatar, checkBbguessAvatar, examples, godEyesFUN,
+    bbguessAvatar, bbguessAvatarCheck, examples, godEyesFUN,
     headPortraitFUN, qmp, biaoQing, biaoQingHelp, fabing,
     lp, setu, dailyword, sentence, HitMe, CeShi, dutang,
     caihongpi, saylove, joke, 早报, xzys, ercyFUN,
