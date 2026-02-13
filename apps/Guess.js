@@ -141,7 +141,7 @@ export async function guessAvatar(e) {
     size = lodash.random(35, 55);
     helpText = '%s';
   }
-  helpText = helpText.replace('%s', `即将发送一张『随机角色』的『随机一角』，${GAME_TIME_OUT}秒之后揭晓答案！\n回答格式：#我猜[角色名] 或 我猜[角色名]`);
+  helpText = helpText.replace('%s', `即将发送一张『随机角色』的『随机一角』，${GAME_TIME_OUT}秒之后揭晓答案！\n回答格式：#我猜[角色名]`);
   e.reply(helpText);
   let fileNames = [];
   let ffn = (n) => !/(未知)/.test(n);
@@ -379,7 +379,7 @@ export async function starguessAvatar(e) {
     size = lodash.random(80, 120);
     helpText = '%s';
   }
-  helpText = helpText.replace('%s', `即将发送一张『随机角色』的『随机一角』，${GAME_TIME_OUT}秒之后揭晓答案！\n回答格式：#我猜[角色名] 或 我猜[角色名]`);
+  helpText = helpText.replace('%s', `即将发送一张『随机角色』的『随机一角』，${GAME_TIME_OUT}秒之后揭晓答案！\n回答格式：#我猜[角色名]`);
   e.reply(helpText);
   let fileNames = [];
   let ffn = (n) => !/(未知)/.test(n);
@@ -471,7 +471,7 @@ export async function starguessAvatarCheck(e) {
     size = lodash.random(80, 120);
     helpText = '%s';
   }
-  helpText = helpText.replace('%s', `即将发送一张『随机邦布』的『随机一角』，${GAME_TIME_OUT}秒之后揭晓答案！\n回答格式：#我猜[邦布名] 或 我猜[邦布名]`);
+  helpText = helpText.replace('%s', `即将发送一张『随机邦布』的『随机一角』，${GAME_TIME_OUT}秒之后揭晓答案！\n回答格式：#我猜[邦布名]`);
   e.reply(helpText);
   let fileNames = [];
   let ffn = (n) => !/(未知)/.test(n);
