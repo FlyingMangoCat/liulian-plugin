@@ -103,7 +103,7 @@ export const helpList = [{
   }, {
     icon: 78,
     title: "#猜角色",
-    desc: "目前支持原神/星铁"
+    desc: "支持原神/星铁/邦布，回答格式：#我猜[角色名]"
   }, {
     icon: 71,
     title: "#芒果问答",
