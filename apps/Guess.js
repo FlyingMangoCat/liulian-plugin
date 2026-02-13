@@ -4,7 +4,7 @@ import ffmpeg from 'ffmpeg';
 import lodash from 'lodash';
 import fetch from "node-fetch";
 import sizeOf from 'image-size';
-import { roleIdToName, starroleIdToName } from "../components/mysInfo.js";
+import { roleIdToName, starroleIdToName, zzzroleIdToName } from "../components/mysInfo.js";
 import { getPluginRender } from '../model/render.js';
 import { Data } from "#liulian";
 const GAME_TIME_OUT = 30//游戏时长(秒)
@@ -17,7 +17,7 @@ export const rule = {
     describe: '#猜头像、#猜角色、#猜角色困难模式',
   },
   guessAvatarCheck: {
-    reg: '',
+    reg: '(.*)',
     priority: 98,
     describe: '',
   },
@@ -42,7 +42,7 @@ export const rule = {
     describe: '猜星铁角色',
   },
   starguessAvatarCheck: {
-    reg: '',
+    reg: '(.*)',
     priority: 98,
     describe: '',
   },
@@ -52,7 +52,7 @@ export const rule = {
     describe: '猜邦布',
   },
   bbAvatarCheck: {
-    reg: '',
+    reg: '(.*)',
     priority: 98,
     describe: '',
   }
@@ -108,9 +108,9 @@ export function checkStarguessAvatar(e) {
 // 检查猜邦布游戏是否正在进行
 export function checkBbguessAvatar(e) {
   let guessConfig = getGuessConfig(e);
-  let {playing, bbroleId} = guessConfig;
+  let {playing, zzzroleId} = guessConfig;
   // 如果游戏正在进行，返回 true，否则返回 false
-  return playing && bbroleId;
+  return playing && zzzroleId;
 }
 const colors = [// 随机背景颜色
   '#F5F5F5',
@@ -437,7 +437,7 @@ export async function starguessAvatarCheck(e) {
   let {playing, starroleId, normalMode} = guessConfig;
   if (playing && starroleId && e.msg) {
     let id = starroleIdToName(e.msg.trim());
-    if (roleId === id) {
+    if (starroleId === id) {
       await replayAnswer(e, ['恭喜你答对了！'], guessConfig, true);
       if (normalMode && lodash.random(0, 100) <= 8) {
         e.reply('如果感觉太简单了的话，可以对我说“#星铁猜角色困难模式”或者“#星铁猜角色地狱模式”哦！');
@@ -477,9 +477,9 @@ export async function starguessAvatarCheck(e) {
   fs.readdirSync(imgPath).filter(ffn).forEach(n => fileNames.push(n));
   let fileName = fileNames[Math.round(Math.random() * (fileNames.length - 1))];
   let roleName = fileName.replace(/\..+$/, '').replace(/\d/g, '');
-  let roleId = bbroleIdToName(roleName);
+  let roleId = zzzroleIdToName(roleName);
   guessConfig.playing = true;
-  guessConfig.roleId = roleId;
+  guessConfig.zzzroleId = roleId;
   console.group('猜角色');
   console.log('ID:', roleId);
   console.log('角色:', roleName);
@@ -525,10 +525,10 @@ export async function starguessAvatarCheck(e) {
 }
 export async function bbguessAvatarCheck(e) {
   let guessConfig = getGuessConfig(e);
-  let {playing, bbroleId, normalMode} = guessConfig;
-  if (playing && bbroleId && e.msg) {
-    let id = bbroleIdToName(e.msg.trim());
-    if (roleId === id) {
+  let {playing, zzzroleId, normalMode} = guessConfig;
+  if (playing && zzzroleId && e.msg) {
+    let id = zzzroleIdToName(e.msg.trim());
+    if (zzzroleId === id) {
       await replayAnswer(e, ['恭喜你答对了！'], guessConfig, true);
       if (normalMode && lodash.random(0, 100) <= 8) {
         e.reply('如果感觉太简单了的话，可以对我说“#猜邦布困难模式”或者“#猜邦布地狱模式”哦！');

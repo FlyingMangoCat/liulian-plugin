@@ -71,3 +71,25 @@ export function starroleIdToName (keyword, search_val = false) {
   let name = nameID.get(keyword);
   return name ? name : "";
 }
+export function zzzroleIdToName (keyword, search_val = false) {
+  if (!keyword) {
+    return false;
+  }
+  if (search_val) {
+    if (genshin.zzzroleId[keyword] && genshin.zzzroleId[keyword][0]) {
+      return genshin.zzzroleId[keyword][0];
+    } else {
+      return "";
+    }
+  }
+
+  if (!nameID.get(keyword)) {
+    for (let i in genshin.zzzroleId) {
+      for (let val of genshin.zzzroleId[i]) {
+        nameID.set(val, i);
+      }
+    }
+  }
+  let name = nameID.get(keyword);
+  return name ? name : "";
+}
