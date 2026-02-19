@@ -2,6 +2,8 @@
 
 [中文](README.md) | [English](README_EN.md) 
 
+**新年快乐！**
+
 ### 访问数量：
 [![访问量](https://profile-counter.glitch.me/liulian-plugin/count.svg)](https://gitee.com/huifeidemangguomaocoder/liulian-plugin) 
 
