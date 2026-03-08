@@ -68,13 +68,7 @@ import { random as adRandom } from "./ad.js"
 import { FuckingChatterbox } from "./chatterboxStat.js"
 import { fanyi, translateText } from "./tools.js"
 import { dailyword, sentence, dailywordCheck, sentenceCheck } from "./daily.js"
-import { hotSearch, subscribeKeyword, unsubscribeKeyword, viewSubscriptions,
-         addGlobalBlockedKeyword, removeGlobalBlockedKeyword, viewGlobalBlockedKeywords,
-         addGroupBlockedKeyword, removeGroupBlockedKeyword, viewGroupBlockedKeywords,
-         viewApplications, approveApplication, rejectApplication,
-         hotWordCloud, hotTrendChart,
-         enableHotPush, disableHotPush, setHotPushTime, setHotPushPlatform, getHotPushList,
-         hotPushScheduleJob } from "./hot.js"
+import { hotSearch, subscribeKeyword, unsubscribeKeyword, viewSubscriptions, addGlobalBlockedKeyword, removeGlobalBlockedKeyword, viewGlobalBlockedKeywords, addGroupBlockedKeyword, removeGroupBlockedKeyword, viewGroupBlockedKeywords, viewApplications, approveApplication, rejectApplication, hotWordCloud, hotTrendChart, enableHotPush, disableHotPush, setHotPushTime, setHotPushPlatform, getHotPushList, hotPushScheduleJob } from "./hot.js"
 import { EndCheck,   
 musicanswerCheck,
 guessmusic,
@@ -134,21 +128,22 @@ sm22,
 sm23,
 } from "./XMmap.js"
 import {
-  changeBilibiliPush,
-  changeGroupBilibiliPush,
-  changeBiliPushPrivatePermission,
-  bilibiliPushPermission,
-  updateBilibiliPush,
-  getBilibiliPushUserList,
-  setBiliPushTimeInterval,
-  setBiliPushCookie,
-  setBiliPushFaultTime,
-  changeBiliPushTransmit,
-  setBiliPushSendType,
-  pushScheduleJob,
-  biliLogin,
+changeBilibiliPush,
+changeGroupBilibiliPush,
+changeBiliPushPrivatePermission,
+bilibiliPushPermission,
+updateBilibiliPush,
+getBilibiliPushUserList,
+setBiliPushTimeInterval,
+setBiliPushCookie,
+setBiliPushFaultTime,
+changeBiliPushTransmit,
+setBiliPushSendType,
+pushScheduleJob,
+biliLogin,
 } from "./bilibiliPush.js";
 import { bilibilihelp, YZversionInfo } from "./bilibilihelp.js"
+import { hothelp } from "./hothelp.js"
 import { JsPlugins,
 PluginsList,
 WarehPluginsList,
@@ -168,7 +163,7 @@ v3HelpMenu,
 checkV3JsPlugins
 } from "./V3pluginManager.js"
 import { miku,
- kt1,
+kt1,
 jtm, 
 mr,
 ys,
@@ -318,6 +313,7 @@ export {
     weather,
     dog,
     bilibilihelp,
+    hothelp,
     YZversionInfo,
     EndCheck,   
     musicanswerCheck,
@@ -380,7 +376,12 @@ let rule = {
         reg: "^#?(B站|b站|小破站)推送帮助$",
         priority: 1,
         describe: "B站推送帮助",
-    },    
+    },
+        hothelp: {
+        reg: "^#*(热搜帮助|热搜help|热搜说明)$",
+        priority: 1,
+        describe: "热搜功能帮助",
+    },
         updateRes: {
         reg: '^#(榴莲|留恋)(更新图像|图像更新)$',
         priority: 1,
@@ -581,79 +582,79 @@ let rule = {
         describe: "", //【命令】功能说明
     }, 
         yl总: {
-    reg: "地下地图100101", //匹配消息正则，命令正则
-    priority: 350, //优先级，越小优先度越高
-    describe: "", 
-  },
-  yl1: {
-    reg: "地下地图100102", //匹配消息正则，命令正则
-    priority: 350, //优先级，越小优先度越高
-    describe: "", 
-  },
-  yl2: {
-    reg: "地下地图100103", //匹配消息正则，命令正则
-    priority: 305, //优先级，越小优先度越高
-    describe: "", 
-  },
-  yl3: {
-    reg: "地下地图100104", //匹配消息正则，命令正则
-    priority: 350, //优先级，越小优先度越高
-    describe: "", 
-  },
-  yl4: {
-    reg: "地下地图100105", //匹配消息正则，命令正则
-    priority: 350, //优先级，越小优先度越高
-    describe: "", 
-  },
-  yl5: {
-    reg: "地下地图100106", //匹配消息正则，命令正则
-    priority: 350, //优先级，越小优先度越高
-    describe: "", 
-  },
-  yl6: {
-    reg: "地下地图100107", //匹配消息正则，命令正则
-    priority: 350, //优先级，越小优先度越高
-    describe: "", 
-  },
-  yl7: {
-    reg: "地下地图100108", //匹配消息正则，命令正则
-    priority: 305, //优先级，越小优先度越高
-    describe: "", 
-  },
-  yl8: {
-    reg: "地下地图100109", //匹配消息正则，命令正则
-    priority: 305, //优先级，越小优先度越高
-    describe: "", 
-  },
-  yl9: {
-    reg: "地下地图100110", //匹配消息正则，命令正则
-    priority: 305, //优先级，越小优先度越高
-    describe: "", 
-  },
-  yl10: {
-    reg: "地下地图100111", //匹配消息正则，命令正则
-    priority: 300, //优先级，越小优先度越高
-    describe: "", 
-  },
-  yl11: {
-    reg: "地下地图100112", //匹配消息正则，命令正则
-    priority: 300, //优先级，越小优先度越高
-    describe: "", 
-  },
-  yl12: {
-    reg: "地下地图100113", //匹配消息正则，命令正则
-    priority: 300, //优先级，越小优先度越高
-    describe: "", 
-  },
-  yl13: {
-    reg: "地下地图100114", //匹配消息正则，命令正则
-    priority: 300, //优先级，越小优先度越高
-    describe: "", 
-  },
-  yl14: {
-    reg: "地下地图100115", //匹配消息正则，命令正则
-    priority: 300, //优先级，越小优先度越高
-    describe: "", 
+        reg: "地下地图100101", //匹配消息正则，命令正则
+        priority: 350, //优先级，越小优先度越高
+       describe: "", 
+    },
+        yl1: {
+        reg: "地下地图100102", //匹配消息正则，命令正则
+        priority: 350, //优先级，越小优先度越高
+        describe: "", 
+    },
+        yl2: {
+        reg: "地下地图100103", //匹配消息正则，命令正则
+        priority: 305, //优先级，越小优先度越高
+        describe: "", 
+     },
+        yl3: {
+        reg: "地下地图100104", //匹配消息正则，命令正则
+        priority: 350, //优先级，越小优先度越高
+        describe: "", 
+     },
+        yl4: {
+        reg: "地下地图100105", //匹配消息正则，命令正则
+        priority: 350, //优先级，越小优先度越高
+        describe: "", 
+     },
+        yl5: {
+        reg: "地下地图100106", //匹配消息正则，命令正则
+        priority: 350, //优先级，越小优先度越高
+        describe: "", 
+      },
+        yl6: {
+        reg: "地下地图100107", //匹配消息正则，命令正则
+        priority: 350, //优先级，越小优先度越高
+        describe: "", 
+      },
+        yl7: {
+        reg: "地下地图100108", //匹配消息正则，命令正则
+        priority: 305, //优先级，越小优先度越高
+        describe: "", 
+      },
+        yl8: {
+        reg: "地下地图100109", //匹配消息正则，命令正则
+        priority: 305, //优先级，越小优先度越高
+        describe: "", 
+      },
+        yl9: {
+        reg: "地下地图100110", //匹配消息正则，命令正则
+        priority: 305, //优先级，越小优先度越高
+        describe: "", 
+      },
+        yl10: {
+        reg: "地下地图100111", //匹配消息正则，命令正则
+        priority: 300, //优先级，越小优先度越高
+        describe: "", 
+      },
+        yl11: {
+        reg: "地下地图100112", //匹配消息正则，命令正则
+        priority: 300, //优先级，越小优先度越高
+        describe: "", 
+      },
+        yl12: {
+        reg: "地下地图100113", //匹配消息正则，命令正则
+        priority: 300, //优先级，越小优先度越高
+        describe: "", 
+      },
+        yl13: {
+        reg: "地下地图100114", //匹配消息正则，命令正则
+        priority: 300, //优先级，越小优先度越高
+        describe: "", 
+      },
+        yl14: {
+        reg: "地下地图100115", //匹配消息正则，命令正则
+        priority: 300, //优先级，越小优先度越高
+        describe: "", 
   },
   yl15: {
     reg: "地下地图100116", //匹配消息正则，命令正则
@@ -1470,10 +1471,10 @@ class LiulianV3 extends plugin {
 
 // 将所有导出的函数添加到LiulianV3类中
 const exportedFunctions = {
-    help, wjc, maphelp, pluginhelp, tangyuanhelp, sysCfg, profileCfg, 哪个群友是我老婆,
+    help, maphelp, pluginhelp, tangyuanhelp, sysCfg, 哪个群友是我老婆,
     checkIn, randomQA, answerCheck, updateLiulianPlugin,
-    JsPlugins, checkJsPlugins, PluginsList, WarehPluginsList, RemovePlugins,
-    LoadPlugins, DeletePlugins, HelpMenu, v3JsPlugins, checkV3JsPlugins,
+    JsPlugins, PluginsList, WarehPluginsList, RemovePlugins,
+    LoadPlugins, DeletePlugins, HelpMenu, v3JsPlugins,
     v3PluginsList, v3WarehPluginsList, v3RemovePlugins,
     v3LoadPlugins, v3DeletePlugins, v3HelpMenu, miku,
     kt1, jtm, mr, ys, bh3, blhx, wl, fgo, y7d, sn,
@@ -1482,7 +1483,7 @@ const exportedFunctions = {
     yl14, yl15, yl16, yl17, yl18, yl19, yl20, sm总,
     sm1, sm2, sm3, sm4, sm5, sm6, sm7, sm8, sm9, sm10,
     sm11, sm12, sm13, sm14, sm15, sm16, sm17, sm18, sm19,
-    sm20, sm21, sm22, sm23, fakeMessage, random, chuochuo, checkRandom,
+    sm20, sm21, sm22, sm23, fakeMessage, random, chuochuo,
     adRandom, FuckingChatterbox, guessAvatar, guessAvatarCheck,
     bbguessAvatar, bbguessAvatarCheck, groupRest, godEyesFUN,
     headPortraitFUN, qmp, biaoQing, biaoQingHelp, fabing,
@@ -1494,12 +1495,12 @@ const exportedFunctions = {
     getBilibiliPushUserList, setBiliPushTimeInterval,
     setBiliPushCookie, setBiliPushFaultTime, changeBiliPushTransmit,
     setBiliPushSendType, pushScheduleJob, biliLogin, weather, dog, holiday, eventHistory, miyu, miyuCheck, fanyi, translateText, hotSearch, subscribeKeyword, unsubscribeKeyword, viewSubscriptions,
-         addGlobalBlockedKeyword, removeGlobalBlockedKeyword, viewGlobalBlockedKeywords,
-         addGroupBlockedKeyword, removeGroupBlockedKeyword, viewGroupBlockedKeywords,
-         viewApplications, approveApplication, rejectApplication,
-         hotWordCloud, hotTrendChart,
-         enableHotPush, disableHotPush, setHotPushTime, setHotPushPlatform, getHotPushList,
-         hotPushScheduleJob, bilibilihelp, YZversionInfo, EndCheck, musicanswerCheck,
+    addGlobalBlockedKeyword, removeGlobalBlockedKeyword, viewGlobalBlockedKeywords,
+    addGroupBlockedKeyword, removeGroupBlockedKeyword, viewGroupBlockedKeywords,
+    viewApplications, approveApplication, rejectApplication,
+    hotWordCloud, hotTrendChart,
+    enableHotPush, disableHotPush, setHotPushTime, setHotPushPlatform, getHotPushList,
+    hotPushScheduleJob, bilibilihelp, hothelp, YZversionInfo, EndCheck, musicanswerCheck,
     guessmusic, 运势, 小黑子, updateRes, cj, Robacat,
     Loseacat, Resetcat, Bouncecat, mapnumber, 上传, ai,
     ai_reset_memory, daihua, guangbo, guangboHelp,
