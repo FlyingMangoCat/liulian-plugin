@@ -15,124 +15,15 @@ export const helpCfg = {
 
 // 帮助菜单内容
 export const helpList = [{
-  group: "群聊互动",
+  group: "小功能合集",
   list: [{
-    icon: 47,
-    title: "娶群友 娶老婆",
-    desc: "根据发言时间抽群友老婆"
-  }, {
-    icon: 18,
-    title: "姬霓太美 菜虚鲲",
-    desc: "开团"
-  }, {
-    icon: 35,
-    title: "打卡",
-    desc: "私聊发送自动点赞"
-  }, {
-    icon: 75,
-    title: "#伪造信/消息@群友+内容",
-    desc: "指定群友伪造信息"
-  }, {
-    icon: 98,
-    title: "#我要休息xx分钟/小时/天",
-    desc: "休息xx分钟/小时/天"
-  }, {
-    icon: 90,
-    title: "#广播内容+内容",
-    desc: "多群广播信息"
-  }, {
-    icon: 59,
-    title: "随机表情(默认关闭）",
-    desc: "群聊/私聊均可用，内容/触发都为随机"
-  }]
-}, {
-  group: "学习类",
-  list: [{
-    icon: 22,
-    title: "#每日单词",
-    desc: "随机英文单词，40秒后公布翻译，回答格式：翻译[答案]"
-  }, {
-    icon: 22,
-    title: "#每日句子",
-    desc: "随机英语句，40秒后公布翻译，回答格式：翻译[答案]"
-  }, {
     icon: 78,
     title: "#猜谜语",
     desc: "随机谜语，30秒后公布答案，回答格式：#谜底[答案]"
   }, {
-    icon: 74,
-    title: "#猜歌名",
-    desc: "猜歌曲名称，需要ffmpeg"
-  }, {
-    icon: 78,
-    title: "#猜角色",
-    desc: "支持原神/星铁/邦布，回答格式：#我猜[角色名]"
-  }, {
-    icon: 71,
-    title: "#芒果问答",
-    desc: "原神知识问答"
-  }]
-}, {
-  group: "生活类",
-  list: [{
-    icon: 50,
-    title: "#xx座运势",
-    desc: "查看星座运势"
-  }, {
-    icon: 93,
-    title: "运势",
-    desc: "查看今日运势"
-  }, {
-    icon: 52,
-    title: "#早报",
-    desc: "当天新闻早报"
-  }, {
-    icon: 100,
-    title: "#城市+天气",
-    desc: "查看指定城市当日天气"
-  }, {
-    icon: 54,
-    title: "#土味情话",
-    desc: "说点土味情话"
-  }, {
-    icon: 43,
-    title: "#毒鸡汤",
-    desc: "随机毒鸡汤"
-  }, {
-    icon: 94,
-    title: "#讲个笑话",
-    desc: "讲个笑话"
-  }, {
-    icon: 30,
-    title: "#舔狗日记",
-    desc: "随机舔狗日记"
-  }, {
-    icon: 60,
-    title: "#发病xxx",
-    desc: "发病文学"
-  }]
-}, {
-  group: "信息类",
-  list: [{
     icon: 67,
     title: "#历史上的今天",
     desc: "查看历史上今天发生的事件"
-  }, {
-    icon: 11,
-    title: "#话痨统计",
-    desc: "统计群里的话痨"
-  }, {
-    icon: 56,
-    title: "#神之眼自己/@群友",
-    desc: "查看自己/群友神之眼"
-  }, {
-    icon: 42,
-    title: "#打我",
-    desc: "根据随机人品禁言"
-  }, {
-    icon: 44,
-    title: "#更新群名片",
-    desc: "更新bot群昵称数据"
   }, {
     icon: 98,
     title: "#翻译[内容]",
