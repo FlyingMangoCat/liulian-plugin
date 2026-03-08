@@ -20,7 +20,7 @@ let HotSubscriptions = {};
 export const rule = {
   hotSearch: {
     reg: "^#*(热搜|热搜榜|热点)(微博|微博热搜|weibo|知乎|知乎热榜|zhihu|百度|百度热点|baidu|抖音|抖音热搜|douyin|B站|b站|哔哩哔哩|bilihot|B站全站|b站全站|biliall|CSDN|csdn|少数派|sspai)?$",
-    priority: 490,
+    priority: 505,
     describe: "全网热搜榜",
   },
   // 订阅功能
