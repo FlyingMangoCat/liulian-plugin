@@ -90,14 +90,6 @@ export const helpList = [{
     title: "#城市+天气",
     desc: "查看指定城市当日天气"
   },{
-    icon: 85,
-    title: "#年份+节假日/假期",
-    desc: "查询年份节假日安排"
-  },{
-    icon: 67,
-    title: "#历史上的今天",
-    desc: "查看历史上今天发生的事件"
-  },{
     icon: 59,
     title: "随机表情(默认关闭）",
     desc: "群聊/私聊均可用，内容/触发都为随机"
@@ -143,6 +135,10 @@ export const helpList = [{
     icon: 79,
     title: "插件管理帮助",
     desc: "查看插件管理帮助"
+  }, {
+    icon: 100,
+    title: "汤圆帮助",
+    desc: "查看汤圆小功能帮助"
   }]
 }, {
   group: "管理命令，仅管理员可用",

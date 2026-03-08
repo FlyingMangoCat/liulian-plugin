@@ -19,6 +19,7 @@ import { 运势 } from "./lucktendency.js"
 import { maphelp, mapnumber } from "./maphelp.js"
 import {	currentVersion } from "../components/Changelog.js";
 import { pluginhelp } from "./pluginhelp.js"
+import { tangyuanhelp } from "./tangyuanhelp.js"
 import { render } from "../adapter/render.js"
 import { ercyFUN,
 chengfenFUN,
@@ -362,6 +363,11 @@ let rule = {
         reg: "^#?(插件管理帮助)$",
         priority: 1,
         describe: "插件管理帮助",
+    },
+        tangyuanhelp: {
+        reg: "^#?(汤圆帮助)$",
+        priority: 1,
+        describe: "汤圆帮助",
     },
         bilibilihelp: {
         reg: "^#?(B站|b站|小破站)推送帮助$",
@@ -1349,7 +1355,7 @@ class LiulianV3 extends plugin {
 
 // 将所有导出的函数添加到LiulianV3类中
 const exportedFunctions = {
-    help, maphelp, pluginhelp, sysCfg, 哪个群友是我老婆,
+    help, maphelp, pluginhelp, tangyuanhelp, sysCfg, 哪个群友是我老婆,
     checkIn, randomQA, answerCheck, updateLiulianPlugin,
     JsPlugins, PluginsList, WarehPluginsList, RemovePlugins,
     LoadPlugins, DeletePlugins, HelpMenu, v3JsPlugins,
