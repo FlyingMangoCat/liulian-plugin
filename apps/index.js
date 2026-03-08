@@ -1402,6 +1402,9 @@ async function task() {
 
   // B站动态推送
   schedule.scheduleJob(scheduleConfig, () => pushScheduleJob());
+  
+  // 热搜推送（每小时检查一次）
+  schedule.scheduleJob('0 * * * * ?', () => hotPushScheduleJob());
 }
 
 task();
