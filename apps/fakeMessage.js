@@ -5,14 +5,14 @@ import { Cfg } from '#liulian'
 let list = [1280951594,3598537042]; //禁止伪造的qq放到这里
 
 export const rule = {
-  forge: {
+  fakeMessage: {
     reg: "^#(伪造信息|伪造消息).*$", //匹配消息正则，命令正则
     priority: 50, //优先级，越小优先度越高
     describe: "#伪造信息@群成员 信息", 
   },
 };
 
-export async function forge(e) {
+export async function fakeMessage(e) {
 if (!Cfg.get('sys.forge', false))  {
   e.reply (`该功能已被关闭，请通过榴莲设置开启！`);
   return false

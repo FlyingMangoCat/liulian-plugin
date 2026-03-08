@@ -2,14 +2,14 @@ import { Cfg } from '#liulian'
 
 const _path = process.cwd();
 export const rule = {
-    examples: {
+    groupRest: {
         reg: "^#我要休息[\s\S]*", //匹配消息正则，命令正则
         priority: 750, //优先级，越小优先度越高
         describe: "#我要休息XX分钟 || 天 || 小时", //【命令】功能说明
     },
 };
 
-export async function examples(e) {
+export async function groupRest(e) {
 if (!Cfg.get('sys.xx', false))  {
   e.reply (`该功能已被关闭，请通过榴莲设置开启！`);
   return false

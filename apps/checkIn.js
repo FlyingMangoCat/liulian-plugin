@@ -12,14 +12,14 @@ const cfg = config.getdefault_config('liulian', 'botname', 'config');
 
 export const rule = {
     
-    chumeng: {
+    checkIn: {
         reg: "打卡$", //匹配消息正则，命令正则
         priority: 100, //优先级，越小优先度越高
         describe: "打卡or点赞", //【命令】功能说明
     },
 };
 
-export async function chumeng(e) {
+export async function checkIn(e) {
 if (!Cfg.get('sys.dk', false)) {
   e.reply (`该功能已被关闭，请通过榴莲设置开启！`);
   return false

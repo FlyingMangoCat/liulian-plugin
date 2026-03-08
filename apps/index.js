@@ -56,10 +56,10 @@ Bouncecat
  } from "./Cat.js"
 import { CeShi } from "./inoutgroup.js"
 import { 哪个群友是我老婆 } from "./whoismywife.js"
-import { chumeng } from "./打卡.js"
+import { checkIn } from "./checkIn.js"
 import { randomQA, answerCheck } from "./Q&A.js"
 import { HitMe } from "./hitme.js"
-import { forge } from "./伪造信息.js"
+import { fakeMessage } from "./fakeMessage.js"
 import { fabing } from "./morbidity.js"
 import { biaoQing, biaoQingHelp } from "./makeemoticons.js"
 import { random, chuochuo, 上传, checkRandom } from "./Random expression.js"
@@ -170,8 +170,8 @@ gz,
 se,
 kt2,
 小黑子
-} from "./寄你太美.js"
-import { examples } from "./群友强制休息.js"
+} from "./kun.js"
+import { groupRest } from "./groupRest.js"
 import { qmp } from "./updatecard.js"
 
 export {
@@ -180,7 +180,7 @@ export {
     pluginhelp,
     sysCfg,
     哪个群友是我老婆,
-    chumeng,
+    checkIn,
     randomQA,
     answerCheck,
     updateLiulianPlugin,
@@ -258,7 +258,7 @@ export {
     sm21,
     sm22,
     sm23,
-    forge,
+    fakeMessage,
     random,
     chuochuo,
     adRandom,
@@ -267,7 +267,7 @@ export {
     guessAvatarCheck,
     bbguessAvatar,
     bbguessAvatarCheck,
-    examples,
+    groupRest,
     godEyesFUN,
     headPortraitFUN,
     qmp,
@@ -399,7 +399,7 @@ let rule = {
         priority: 10,
         describe: "哪个群友是我老婆",
     },
-        chumeng: {
+        checkIn: {
         reg: "打卡$", //匹配消息正则，命令正则
         priority: 1000, //优先级，越小优先度越高
         describe: "打卡or点赞", //【命令】功能说明
@@ -843,7 +843,7 @@ yl21: {
     priority: 305, //优先级，越小优先度越高
     describe: "", 
   },
-        forge: {
+        fakeMessage: {
         reg: "^#(伪造信息|伪造消息).*$", //匹配消息正则，命令正则
         priority: 50, //优先级，越小优先度越高
         describe: "【#伪造信息@群成员 信息】", 
@@ -894,7 +894,7 @@ yl21: {
         priority: 98,
         describe: ''
     },
-       examples: {
+       groupRest: {
        reg: "^#?我要休息[\s\S]*", //匹配消息正则，命令正则
        priority: 750, //优先级，越小优先度越高
        describe: "#我要休息XX分钟 || 天 || 小时", //【命令】功能说明
@@ -1307,7 +1307,7 @@ class LiulianV3 extends plugin {
 // 将所有导出的函数添加到LiulianV3类中
 const exportedFunctions = {
     help, maphelp, pluginhelp, sysCfg, 哪个群友是我老婆,
-    chumeng, randomQA, answerCheck, updateLiulianPlugin,
+    checkIn, randomQA, answerCheck, updateLiulianPlugin,
     JsPlugins, PluginsList, WarehPluginsList, RemovePlugins,
     LoadPlugins, DeletePlugins, HelpMenu, v3JsPlugins,
     v3PluginsList, v3WarehPluginsList, v3RemovePlugins,
@@ -1318,9 +1318,9 @@ const exportedFunctions = {
     yl14, yl15, yl16, yl17, yl18, yl19, yl20, sm总,
     sm1, sm2, sm3, sm4, sm5, sm6, sm7, sm8, sm9, sm10,
     sm11, sm12, sm13, sm14, sm15, sm16, sm17, sm18, sm19,
-    sm20, sm21, sm22, sm23, forge, random, chuochuo,
+    sm20, sm21, sm22, sm23, fakeMessage, random, chuochuo,
     adRandom, FuckingChatterbox, guessAvatar, guessAvatarCheck,
-    bbguessAvatar, bbguessAvatarCheck, examples, godEyesFUN,
+    bbguessAvatar, bbguessAvatarCheck, groupRest, godEyesFUN,
     headPortraitFUN, qmp, biaoQing, biaoQingHelp, fabing,
     lp, setu, dailyword, sentence, HitMe, CeShi, dutang,
     caihongpi, saylove, joke, 早报, xzys, ercyFUN,
