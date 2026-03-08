@@ -45,6 +45,8 @@ holiday,
 eventHistory,
 miyu,
 miyuCheck,
+fanyi,
+translateText,
 setu,
 lp,
 dailyword,
@@ -1043,6 +1045,11 @@ yl21: {
        priority: 99,
        describe: "",
     },
+       fanyi: {
+       reg: "^#*翻译(.*)$",
+       priority: 100,
+       describe: "翻译功能",
+    },
        weather: {
        reg: "^#(.*)(天气)$", //匹配消息正则，命令正则
        priority: 100, //优先级，越小优先度越高
@@ -1357,7 +1364,7 @@ const exportedFunctions = {
     bilibiliPushPermission, updateBilibiliPush,
     getBilibiliPushUserList, setBiliPushTimeInterval,
     setBiliPushCookie, setBiliPushFaultTime, changeBiliPushTransmit,
-    setBiliPushSendType, pushScheduleJob, biliLogin, weather, dog, holiday, eventHistory, miyu, miyuCheck,
+    setBiliPushSendType, pushScheduleJob, biliLogin, weather, dog, holiday, eventHistory, miyu, miyuCheck, fanyi, translateText,
     bilibilihelp, YZversionInfo, EndCheck, musicanswerCheck,
     guessmusic, 运势, 小黑子, updateRes, cj, Robacat,
     Loseacat, Resetcat, Bouncecat, mapnumber, 上传, ai,
