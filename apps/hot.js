@@ -88,12 +88,12 @@ export const rule = {
   },
   // 图表功能
   hotWordCloud: {
-    reg: "^#*热搜词云(.*)$",
+    reg: "^#*热搜词云$",
     priority: 500,
     describe: "生成热搜词云图",
   },
   hotTrendChart: {
-    reg: "^#*热搜趋势(.*)$",
+    reg: "^#*热搜趋势$",
     priority: 500,
     describe: "生成热搜趋势图",
   },
