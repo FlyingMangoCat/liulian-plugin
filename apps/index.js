@@ -981,12 +981,12 @@ yl21: {
     },
        hotSearch: {
        reg: "^#*(热搜|热搜榜|热点)(.*)$",
-       priority: 502,
+       priority: 500,
        describe: "全网热搜榜",
     },
        hotHelpText: {
        reg: "^#*(热搜帮助|热搜help|热搜说明)$",
-       priority: 499,
+       priority: 500,
        describe: "热搜功能帮助（文字版）",
     },
        subscribeKeyword: {

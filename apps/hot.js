@@ -20,7 +20,7 @@ let HotSubscriptions = {};
 export const rule = {
   hotSearch: {
     reg: "^#*(热搜|热搜榜|热点)(.*)$",
-    priority: 500,
+    priority: 490,
     describe: "全网热搜榜",
   },
   // 订阅功能
