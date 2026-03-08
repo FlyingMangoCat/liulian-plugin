@@ -163,9 +163,10 @@ export async function joke(e) {
 }
 export async function dog(e) {
   const cfg = config.getdefault_config('liulian', 'token', 'config');
-  const token = cfg.token
+  const apikeys = cfg.apikeys;
+  const apikey = apikeys.dog_apikey || '';
   
-  let url = `https://api.oick.cn/api/dog?apikey=${token}`;
+  let url = `https://api.oick.cn/api/dog?apikey=${apikey}`;
   let response = await fetch(url);
   let res = await response.json();
   

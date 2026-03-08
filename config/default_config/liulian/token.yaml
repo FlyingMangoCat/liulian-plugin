@@ -6,7 +6,7 @@ apikeys:
     # oick.cn接口密钥
     dutang_apikey: f115b9fc18ffd7b14403f81f5303b288  # 毒鸡汤
     lishi_apikey: 9d1aa3a3a3db452a81000076957a6313  # 历史上的今天
-    dog_apikey: ""  # 舔狗日记（待配置）
+    dog_apikey: ec1525662b6b54abfcb6151719fbc365  # 舔狗日记
     miyu_apikey: 80bb02fb5041ee077bb6255d8d3d143b  # 随机谜语
     fanyi_apikey: 17db771c42ae78d965afd63d88bca5ec  # 翻译
     resou_apikey: f1d3322f8ad03abdea997008710f4009  # 全网热搜榜
