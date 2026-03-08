@@ -19,19 +19,19 @@ let HotSubscriptions = {};
 // 导出规则
 export const rule = {
   hotSearch: {
-    reg: "^#*(热搜|热搜榜|热点)(微博|微博热搜|weibo|知乎|知乎热榜|zhihu|百度|百度热点|baidu|抖音|抖音热搜|douyin|B站|b站|哔哩哔哩|bilihot|B站全站|b站全站|biliall|CSDN|csdn|少数派|sspai)?$",
+    reg: "^#*(热搜|热搜榜|热点)(.*)$",
     priority: 495,
     describe: "全网热搜榜",
   },
   // 订阅功能
   subscribeKeyword: {
-    reg: "^#*(订阅关键词|添加订阅)(.+)$",
-    priority: 490,
+    reg: "^#*(订阅关键词|添加订阅)(.*)$",
+    priority: 500,
     describe: "订阅关键词",
   },
   unsubscribeKeyword: {
-    reg: "^#*(取消订阅|删除订阅)(.+)$",
-    priority: 490,
+    reg: "^#*(取消订阅|删除订阅)(.*)$",
+    priority: 500,
     describe: "取消订阅",
   },
   viewSubscriptions: {
@@ -41,13 +41,13 @@ export const rule = {
   },
   // 屏蔽词功能
   addGlobalBlockedKeyword: {
-    reg: "^#*添加全局屏蔽词(.+)$",
-    priority: 490,
+    reg: "^#*添加全局屏蔽词(.*)$",
+    priority: 1,
     describe: "添加全局屏蔽词",
   },
   removeGlobalBlockedKeyword: {
-    reg: "^#*删除全局屏蔽词(.+)$",
-    priority: 490,
+    reg: "^#*删除全局屏蔽词(.*)$",
+    priority: 1,
     describe: "删除全局屏蔽词",
   },
   viewGlobalBlockedKeywords: {
@@ -56,13 +56,13 @@ export const rule = {
     describe: "查看全局屏蔽词",
   },
   addGroupBlockedKeyword: {
-    reg: "^#*添加群屏蔽词(.+)$",
-    priority: 490,
+    reg: "^#*添加群屏蔽词(.*)$",
+    priority: 500,
     describe: "添加群屏蔽词",
   },
   removeGroupBlockedKeyword: {
-    reg: "^#*删除群屏蔽词(.+)$",
-    priority: 490,
+    reg: "^#*删除群屏蔽词(.*)$",
+    priority: 500,
     describe: "删除群屏蔽词",
   },
   viewGroupBlockedKeywords: {
@@ -160,6 +160,13 @@ export async function hotSearch(e) {
   
   // 获取用户指定的平台
   let userPlatform = e.msg.replace(/^#*(热搜|热搜榜|热点)/, '').trim();
+  
+  // 检查是否是特殊关键词（帮助、词云、趋势等），如果是则返回false让其他规则匹配
+  const specialKeywords = ['帮助', 'help', '说明', '词云', '趋势', '推送', '时间', '平台'];
+  if (specialKeywords.includes(userPlatform)) {
+    return false;
+  }
+  
   let type = 'douyin'; // 默认抖音热搜
   let platformName = '抖音热搜';
   
