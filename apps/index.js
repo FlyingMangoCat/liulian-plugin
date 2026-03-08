@@ -41,6 +41,7 @@ xzys,
 godEyesFUN,
 headPortraitFUN,
 dog,
+holiday,
 setu,
 lp,
 dailyword,
@@ -1019,6 +1020,11 @@ yl21: {
        priority: 100, //优先级，越小优先度越高
        describe: "setu", //【命令】功能说明
     },
+       holiday: {
+       reg: "^#(\\d{4})?(节假日|假期)$", //匹配消息正则，命令正则
+       priority: 100, //优先级，越小优先度越高
+       describe: "节假日查询", //【命令】功能说明
+    },
        weather: {
        reg: "^#(.*)(天气)$", //匹配消息正则，命令正则
        priority: 100, //优先级，越小优先度越高
@@ -1333,7 +1339,7 @@ const exportedFunctions = {
     bilibiliPushPermission, updateBilibiliPush,
     getBilibiliPushUserList, setBiliPushTimeInterval,
     setBiliPushCookie, setBiliPushFaultTime, changeBiliPushTransmit,
-    setBiliPushSendType, pushScheduleJob, biliLogin, weather, dog,
+    setBiliPushSendType, pushScheduleJob, biliLogin, weather, dog, holiday,
     bilibilihelp, YZversionInfo, EndCheck, musicanswerCheck,
     guessmusic, 运势, 小黑子, updateRes, cj, Robacat,
     Loseacat, Resetcat, Bouncecat, mapnumber, 上传, ai,

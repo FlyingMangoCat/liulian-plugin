@@ -43,6 +43,11 @@ export const rule = {
     priority: 10, //优先级，越小优先度越高
     describe: "setu", //【命令】功能说明
   },
+  holiday: {
+    reg: "^#(\\d{4})?(节假日|假期)$", //匹配消息正则，命令正则
+    priority: 10, //优先级，越小优先度越高
+    describe: "节假日查询", //【命令】功能说明
+  },
   weather: {
     reg: "^#(.*)(天气)$", //匹配消息正则，命令正则
     priority: 10, //优先级，越小优先度越高
@@ -136,13 +141,90 @@ export async function joke(e) {
   return true; //返回true 阻挡消息不再往下
 }
 export async function dog(e) {
-  let url = "https://api.oick.cn/dog/api.php";
-  let response = await fetch(url);
-  let res = await response.json(); //结果json字符串转对象
+  const cfg = config.getdefault_config('liulian', 'token', 'config');
+  const token = cfg.token
+  
+  // 使用v3 POST接口
+  let url = `https://v3.alapi.cn/api/dog`;
+  let response = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      token: token,
+      format: 'json'
+    })
+  });
+  
+  let res = await response.json();
+  
+  if (res.code != 200) {
+    e.reply(`⚠️获取舔狗日记失败：${res.msg || '未知错误'}`);
+    return false;
+  }
+  
   let msg = [
     segment.at(e.user_id),"\n",
-    res,
+    res.data.content || res.data,
   ];
+  //发送消息
+  e.reply(msg);
+  return true; //返回true 阻挡消息不再往下
+}
+
+export async function holiday(e) {
+  const cfg = config.getdefault_config('liulian', 'token', 'config');
+  const token = cfg.token
+  
+  // 获取年份参数
+  let year = null;
+  const match = e.msg.match(/^#(\d{4})?(节假日|假期)$/);
+  if (match && match[1]) {
+    year = match[1];
+  }
+  
+  // 使用v3 POST接口
+  let url = `https://v3.alapi.cn/api/holiday`;
+  let bodyParams = { token: token };
+  if (year) {
+    bodyParams.year = year;
+  }
+  
+  let response = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(bodyParams)
+  });
+  
+  let res = await response.json();
+  
+  if (res.code != 200) {
+    e.reply(`⚠️获取节假日信息失败：${res.msg || '未知错误'}`);
+    return false;
+  }
+  
+  let holidays = res.data || [];
+  if (holidays.length === 0) {
+    e.reply(`${year ? year + '年' : '今年'}暂无节假日信息`);
+    return true;
+  }
+  
+  // 格式化节假日列表
+  let msg = [`${year ? year + '年' : '今年'}节假日安排：\n`];
+  holidays.forEach((item, index) => {
+    msg.push(`${index + 1}. ${item.name}`);
+    if (item.date) {
+      msg.push(`   日期：${item.date}`);
+    }
+    if (item.is_off_day) {
+      msg.push(`   类型：${item.is_off_day === '1' ? '休息' : '上班'}`);
+    }
+    msg.push('\n');
+  });
+  
   //发送消息
   e.reply(msg);
   return true; //返回true 阻挡消息不再往下

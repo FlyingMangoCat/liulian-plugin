@@ -90,6 +90,10 @@ export const helpList = [{
     title: "#城市+天气",
     desc: "查看指定城市当日天气"
   },{
+    icon: 85,
+    title: "#年份+节假日/假期",
+    desc: "查询年份节假日安排"
+  },{
     icon: 59,
     title: "随机表情(默认关闭）",
     desc: "群聊/私聊均可用，内容/触发都为随机"
