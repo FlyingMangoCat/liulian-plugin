@@ -20,49 +20,49 @@ let HotSubscriptions = {};
 export const rule = {
   hotSearch: {
     reg: "^#*(热搜|热搜榜|热点)(微博|微博热搜|weibo|知乎|知乎热榜|zhihu|百度|百度热点|baidu|抖音|抖音热搜|douyin|B站|b站|哔哩哔哩|bilihot|B站全站|b站全站|biliall|CSDN|csdn|少数派|sspai)?$",
-    priority: 505,
+    priority: 495,
     describe: "全网热搜榜",
   },
   // 订阅功能
   subscribeKeyword: {
-    reg: "^#*(订阅关键词|添加订阅)(.*)$",
-    priority: 500,
+    reg: "^#*(订阅关键词|添加订阅)(.+)$",
+    priority: 490,
     describe: "订阅关键词",
   },
   unsubscribeKeyword: {
-    reg: "^#*(取消订阅|删除订阅)(.*)$",
-    priority: 500,
+    reg: "^#*(取消订阅|删除订阅)(.+)$",
+    priority: 490,
     describe: "取消订阅",
   },
   viewSubscriptions: {
     reg: "^#*(查看订阅|我的订阅|订阅列表)$",
-    priority: 500,
+    priority: 502,
     describe: "查看订阅",
   },
   // 屏蔽词功能
   addGlobalBlockedKeyword: {
-    reg: "^#*添加全局屏蔽词(.*)$",
-    priority: 1,
+    reg: "^#*添加全局屏蔽词(.+)$",
+    priority: 490,
     describe: "添加全局屏蔽词",
   },
   removeGlobalBlockedKeyword: {
-    reg: "^#*删除全局屏蔽词(.*)$",
-    priority: 1,
+    reg: "^#*删除全局屏蔽词(.+)$",
+    priority: 490,
     describe: "删除全局屏蔽词",
   },
   viewGlobalBlockedKeywords: {
     reg: "^#*查看全局屏蔽词$",
-    priority: 1,
+    priority: 502,
     describe: "查看全局屏蔽词",
   },
   addGroupBlockedKeyword: {
-    reg: "^#*添加群屏蔽词(.*)$",
-    priority: 500,
+    reg: "^#*添加群屏蔽词(.+)$",
+    priority: 490,
     describe: "添加群屏蔽词",
   },
   removeGroupBlockedKeyword: {
-    reg: "^#*删除群屏蔽词(.*)$",
-    priority: 500,
+    reg: "^#*删除群屏蔽词(.+)$",
+    priority: 490,
     describe: "删除群屏蔽词",
   },
   viewGroupBlockedKeywords: {

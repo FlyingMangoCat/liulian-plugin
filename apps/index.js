@@ -980,13 +980,13 @@ yl21: {
        describe: "",
     },
        hotSearch: {
-       reg: "^#*(热搜|热搜榜|热点)(.*)$",
-       priority: 500,
+       reg: "^#*(热搜|热搜榜|热点)(微博|微博热搜|weibo|知乎|知乎热榜|zhihu|百度|百度热点|baidu|抖音|抖音热搜|douyin|B站|b站|哔哩哔哩|bilihot|B站全站|b站全站|biliall|CSDN|csdn|少数派|sspai)?$",
+       priority: 495,
        describe: "全网热搜榜",
     },
        hotHelpText: {
        reg: "^#*(热搜帮助|热搜help|热搜说明)$",
-       priority: 500,
+       priority: 488,
        describe: "热搜功能帮助（文字版）",
     },
        subscribeKeyword: {
