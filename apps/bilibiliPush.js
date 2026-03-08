@@ -71,8 +71,8 @@ async function initBiliCookie() {
   // 尝试从配置文件读取 Cookie
   try {
     const cfg = config.getdefault_config('bilibiliPush', 'bilibiliCookie', 'config');
-    if (cfg && cfg.cookie) {
-      BiliCookie = cfg.cookie;
+    if (cfg && cfg.cookie && cfg.cookie.trim() !== '') {
+      BiliCookie = cfg.cookie.trim();
       BiliReqHeaders.cookie = BiliCookie;
       Bot.logger.mark('B站推送：使用配置文件中的 Cookie');
       return true;
@@ -81,11 +81,11 @@ async function initBiliCookie() {
     Bot.logger.warn(`B站推送：读取配置文件 Cookie 失败: ${err.message}`);
   }
 
-  // 如果没有配置 Cookie，生成基础 Cookie
-  BiliCookie = `buvid3=${generateRandomId()}; b_nut=${generateRandomId()}; _uuid=${getUuid()}; b_lsid=${getBLsid()}`;
-  BiliReqHeaders.cookie = BiliCookie;
-  Bot.logger.mark('B站推送：使用自动生成的 Cookie');
-  return true;
+  // 如果没有配置 Cookie，不自动生成
+  BiliCookie = '';
+  BiliReqHeaders.cookie = '';
+  Bot.logger.mark('B站推送：未配置有效的 Cookie，B站推送功能无法使用');
+  return false;
 }
 
 // 生成随机 ID（用于 buvid3 和 b_nut）
@@ -95,6 +95,12 @@ function generateRandomId() {
 
 // 获取用户信息
 async function getUserInfo(uid) {
+  // 检查是否配置了有效的 Cookie
+  if (!BiliCookie || BiliCookie.trim() === '') {
+    Bot.logger.warn('B站推送：未配置有效的 Cookie');
+    return null;
+  }
+
   try {
     const url = `${BiliUserInfoUrl}?mid=${uid}`;
     const response = await fetch(url, {
@@ -110,7 +116,7 @@ async function getUserInfo(uid) {
     const res = await response.json();
 
     if (res.code === -352) {
-      Bot.logger.warn('B站推送：Cookie 已过期或无效');
+      Bot.logger.warn('B站推送：Cookie 已过期或无效，请重新扫码登录');
       return null;
     }
 
@@ -197,7 +203,7 @@ export async function biliLogin(e) {
       await e.reply(segment.image(qrImage));
     }
 
-    e.reply("请使用 B站手机 APP 扫码登录\n二维码有效期 3 分钟");
+    e.reply("请使用 B站手机 APP 扫码登录\n二维码有效期 3 分钟\n\n⚠️ 风险提示：\n1. 扫码登录会将您的 B站 账号与此机器人关联\n2. Cookie 包含您的登录凭证，请勿泄露给他人\n3. 建议使用小号或测试账号进行扫码\n4. 如有顾虑，可随时在配置中删除 Cookie");
 
     // 轮询登录状态
     const maxAttempts = 60; // 最多轮询 60 次（3分钟）
@@ -250,21 +256,23 @@ export async function biliLogin(e) {
           try {
             const configPath = `${_path}/plugins/liulian-plugin/config/config/bilibiliPush/bilibiliCookie.yaml`;
             const yamlContent = `# B站推送 Cookie 配置
+# 
+# ⚠️ 重要提示：
+# 本插件已移除公用Cookie，必须使用个人账号扫码登录
+# 
 # 获取方式：
-# 1. 登录 B站网页版 (https://www.bilibili.com)
-# 2. 按 F12 打开开发者工具
-# 3. 切换到 Network (网络) 标签
-# 4. 刷新页面
-# 5. 找到任意请求，查看 Request Headers 中的 Cookie
-# 6. 复制完整的 Cookie 内容到下方
-
-# Cookie 内容（留空则使用自动生成的 Cookie，但功能可能受限）
+# 1. 发送指令：#B站扫码登录
+# 2. 使用B站手机APP扫描生成的二维码
+# 3. 登录成功后，Cookie会自动保存到本配置文件
+# 
+# ⚠️ 风险提示：
+# - 扫码登录会将您的B站账号与此机器人关联
+# - Cookie包含您的登录凭证，请勿泄露给他人
+# - 建议使用小号或测试账号进行扫码
+# - 如有顾虑，可随时删除下方Cookie内容
+# 
+# Cookie 内容（留空则需重新扫码登录）
 cookie: '${cookie}'
-
-# 注意：
-# - 建议配置有效的 Cookie 以获得更好的推送效果
-# - Cookie 包含敏感信息，请勿泄露给他人
-# - Cookie 可能会过期，如遇推送失败可尝试更新 Cookie
 `;
 
             fs.writeFileSync(configPath, yamlContent, 'utf8');
@@ -355,7 +363,13 @@ async function initBiliPushJson() {
 }
 
 initBiliPushJson(); // 初始化配置
-initBiliCookie(); // 初始化 Cookie
+
+// 初始化 Cookie
+const cookieStatus = await initBiliCookie();
+if (!cookieStatus) {
+  Bot.logger.mark('B站推送：未配置有效的 Cookie，B站推送功能无法使用');
+  Bot.logger.mark('B站推送：请主人发送 #B站扫码登录 进行配置');
+}
 
 // (开启|关闭)B站推送
 export async function changeBilibiliPush(e) {
@@ -626,10 +640,16 @@ export async function updateBilibiliPush(e) {
       return true;
     }
 
+    // 检查是否配置了有效的 Cookie
+    if (!BiliCookie || BiliCookie.trim() === '') {
+      e.reply("⚠️ 检测到未配置B站 Cookie\n请主人发送 #B站扫码登录 后再添加订阅");
+      return true;
+    }
+
     // 先获取用户信息
     let userInfo = await getUserInfo(uid);
     if (!userInfo) {
-      e.reply("⚠️无法获取用户信息，可能是UID错误或B站接口限制\n提示：建议在配置文件中配置有效的 B站 Cookie");
+      e.reply("⚠️ 无法获取用户信息，可能的原因：\n1. UID 错误\n2. B站接口限制\n3. Cookie 已过期\n\n请尝试：\n- 检查UID是否正确\n- 发送 #B站扫码登录 更新Cookie");
       return true;
     }
 
@@ -707,7 +727,8 @@ export async function setBiliPushCookie(e) {
     e.reply(`只有主人才可以命令榴莲哦`);
     return false;
   }
-  e.reply("填写成功");
+  
+  e.reply("⚠️ 本插件已移除手动配置 Cookie 功能\n请使用扫码登录功能获取 Cookie\n\n发送指令：#B站扫码登录\n使用B站手机APP扫描二维码即可自动配置");
   return true;
 }
 
@@ -885,6 +906,12 @@ function isAllowSchedulePush(user) {
 
 // 动态推送
 async function pushDynamic(pushInfo) {
+  // 检查是否配置了有效的 Cookie
+  if (!BiliCookie || BiliCookie.trim() === '') {
+    Bot.logger.warn('B站推送：未配置有效的 Cookie，跳过动态推送');
+    return true;
+  }
+
   let users = pushInfo.biliUserList;
   for (let i = 0; i < users.length; i++) {
     let biliUID = users[i].uid;
@@ -919,7 +946,7 @@ async function pushDynamic(pushInfo) {
       const res = await response.json();
 
       if (res.code === -352) {
-        Bot.logger.warn('B站推送：Cookie 已过期或无效');
+        Bot.logger.warn('B站推送：Cookie 已过期或无效，请重新扫码登录');
         await common.sleep(BiliApiRequestTimeInterval);
         nowDynamicPushList.set(biliUID, []);
         continue;
