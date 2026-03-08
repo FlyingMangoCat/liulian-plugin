@@ -2,6 +2,7 @@ import fetch from "node-fetch";
 import config from "../model/config/config.js";
 import common from "../components/bcommon.js";
 import hotDatabase from "./hot/database.js";
+import fs from "fs";
 
 // 安全获取segment对象
 const segment = global.segment || global.Bot?.segment || {}
@@ -888,14 +889,12 @@ export async function getHotPushList(e) {
 function saveHotPushJson() {
   const _path = process.cwd();
   let path = _path + "/data/PushNews/HotPushConfig.json";
-  const fs = require('fs');
   fs.writeFileSync(path, JSON.stringify(HotPushConfig, "", "\t"));
 }
 
 // 初始化推送配置
 function initHotPushConfig() {
   const _path = process.cwd();
-  const fs = require('fs');
   if (fs.existsSync(_path + "/data/PushNews/HotPushConfig.json")) {
     HotPushConfig = JSON.parse(fs.readFileSync(_path + "/data/PushNews/HotPushConfig.json", "utf8"));
   }
