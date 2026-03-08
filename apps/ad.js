@@ -165,8 +165,8 @@ export async function random(e) {
   // 生成0-100的随机数作为触发概率
   const randomNum = lodash.random(0, 100);
   
-  // 获取配置的触发概率（默认1%，建议1-3%）
-  const triggerProbability = Cfg.get('sys.adProbability', 1);
+  // 获取配置的触发概率（默认5%，建议3-10%）
+  const triggerProbability = Cfg.get('sys.adProbability', 5);
 
   // 如果随机数小于配置概率，则触发宣传
   if (randomNum < triggerProbability) {
