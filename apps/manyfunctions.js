@@ -101,11 +101,15 @@ export const rule = {
 };
 
 export async function dutang(e) {
-  let url = "https://api.oick.cn/dutang/api.php";
+  const cfg = config.getdefault_config('liulian', 'token', 'config');
+  const token = cfg.token
+  
+  let url = `https://api.oick.cn/api/dutang?apikey=${token}`;
   let response = await fetch(url);
-  let res = await response.json(); //结果json字符串转对象
+  let res = await response.json();
+  
   let msg = [
-    segment.at(e.user_id),"\n",res,
+    segment.at(e.user_id),"\n",res.content || res,
   ];
   //发送消息
   e.reply(msg);
