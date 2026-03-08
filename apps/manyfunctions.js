@@ -153,29 +153,12 @@ export async function dog(e) {
   const cfg = config.getdefault_config('liulian', 'token', 'config');
   const token = cfg.token
   
-  // 使用v3 POST接口
-  let url = `https://v3.alapi.cn/api/dog`;
-  let response = await fetch(url, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({
-      token: token,
-      format: 'json'
-    })
-  });
-  
+  let url = `https://api.oick.cn/api/dog?apikey=${token}`;
+  let response = await fetch(url);
   let res = await response.json();
   
-  if (res.code != 200) {
-    e.reply(`⚠️获取舔狗日记失败：${res.msg || '未知错误'}`);
-    return false;
-  }
-  
   let msg = [
-    segment.at(e.user_id),"\n",
-    res.data.content || res.data,
+    segment.at(e.user_id),"\n",res.content || res,
   ];
   //发送消息
   e.reply(msg);
