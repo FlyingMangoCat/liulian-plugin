@@ -15,6 +15,37 @@ export const helpCfg = {
 
 // 帮助菜单内容
 export const helpList = [{
+  group: "群聊互动",
+  list: [{
+    icon: 47,
+    title: "娶群友 娶老婆",
+    desc: "根据发言时间抽群友老婆"
+  }, {
+    icon: 18,
+    title: "姬霓太美 菜虚鲲",
+    desc: "开团"
+  }, {
+    icon: 35,
+    title: "打卡",
+    desc: "私聊发送自动点赞"
+  }, {
+    icon: 75,
+    title: "#伪造信/消息@群友+内容",
+    desc: "指定群友伪造信息"
+  }, {
+    icon: 98,
+    title: "#我要休息xx分钟/小时/天",
+    desc: "休息xx分钟/小时/天"
+  }, {
+    icon: 90,
+    title: "#广播内容+内容",
+    desc: "多群广播信息"
+  }, {
+    icon: 59,
+    title: "随机表情(默认关闭）",
+    desc: "群聊/私聊均可用，内容/触发都为随机"
+  }]
+}, {
   group: "学习类",
   list: [{
     icon: 22,
