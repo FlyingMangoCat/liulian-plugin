@@ -322,6 +322,11 @@ const cfg = config.getdefault_config('liulian', 'token', 'config');
   ];
   
   e.reply(msg);
+  
+  // 延迟发送热搜提示
+  setTimeout(() => {
+    e.reply('\n💡 发送 #热搜 可查看全网热搜榜\n支持：微博、知乎、百度、抖音、B站、CSDN、少数派');
+  }, 2000);
 
   return true;
 }

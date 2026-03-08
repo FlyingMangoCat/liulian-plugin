@@ -68,7 +68,10 @@ import { random as adRandom } from "./ad.js"
 import { FuckingChatterbox } from "./chatterboxStat.js"
 import { fanyi, translateText } from "./tools.js"
 import { dailyword, sentence, dailywordCheck, sentenceCheck } from "./daily.js"
-import { hotSearch } from "./hot.js"
+import { hotSearch, subscribeKeyword, unsubscribeKeyword, viewSubscriptions,
+         addGlobalBlockedKeyword, removeGlobalBlockedKeyword, viewGlobalBlockedKeywords,
+         addGroupBlockedKeyword, removeGroupBlockedKeyword, viewGroupBlockedKeywords,
+         viewApplications, approveApplication, rejectApplication } from "./hot.js"
 import { EndCheck,   
 musicanswerCheck,
 guessmusic,
@@ -980,6 +983,66 @@ yl21: {
        priority: 500,
        describe: "全网热搜榜",
     },
+       subscribeKeyword: {
+       reg: "^#*(订阅关键词|添加订阅)(.*)$",
+       priority: 500,
+       describe: "订阅关键词",
+    },
+       unsubscribeKeyword: {
+       reg: "^#*(取消订阅|删除订阅)(.*)$",
+       priority: 500,
+       describe: "取消订阅",
+    },
+       viewSubscriptions: {
+       reg: "^#*(查看订阅|我的订阅|订阅列表)$",
+       priority: 500,
+       describe: "查看订阅",
+    },
+       addGlobalBlockedKeyword: {
+       reg: "^#*添加全局屏蔽词(.*)$",
+       priority: 1,
+       describe: "添加全局屏蔽词",
+    },
+       removeGlobalBlockedKeyword: {
+       reg: "^#*删除全局屏蔽词(.*)$",
+       priority: 1,
+       describe: "删除全局屏蔽词",
+    },
+       viewGlobalBlockedKeywords: {
+       reg: "^#*查看全局屏蔽词$",
+       priority: 1,
+       describe: "查看全局屏蔽词",
+    },
+       addGroupBlockedKeyword: {
+       reg: "^#*添加群屏蔽词(.*)$",
+       priority: 500,
+       describe: "添加群屏蔽词",
+    },
+       removeGroupBlockedKeyword: {
+       reg: "^#*删除群屏蔽词(.*)$",
+       priority: 500,
+       describe: "删除群屏蔽词",
+    },
+       viewGroupBlockedKeywords: {
+       reg: "^#*(查看屏蔽词|群屏蔽词)$",
+       priority: 500,
+       describe: "查看群屏蔽词",
+    },
+       viewApplications: {
+       reg: "^#*查看订阅申请$",
+       priority: 1,
+       describe: "查看订阅申请",
+    },
+       approveApplication: {
+       reg: "^#*通过订阅申请\\s*(\\d+)\\s*(.*)$",
+       priority: 1,
+       describe: "通过订阅申请",
+    },
+       rejectApplication: {
+       reg: "^#*拒绝订阅申请\\s*(\\d+)\\s*(.*)$",
+       priority: 1,
+       describe: "拒绝订阅申请",
+    },
        HitMe: {
        reg: "#打我", //匹配消息正则，命令正则
        priority: 1000, //优先级，越小优先度越高
@@ -1384,7 +1447,10 @@ const exportedFunctions = {
     bilibiliPushPermission, updateBilibiliPush,
     getBilibiliPushUserList, setBiliPushTimeInterval,
     setBiliPushCookie, setBiliPushFaultTime, changeBiliPushTransmit,
-    setBiliPushSendType, pushScheduleJob, biliLogin, weather, dog, holiday, eventHistory, miyu, miyuCheck, fanyi, translateText, hotSearch, bilibilihelp, YZversionInfo, EndCheck, musicanswerCheck,
+    setBiliPushSendType, pushScheduleJob, biliLogin, weather, dog, holiday, eventHistory, miyu, miyuCheck, fanyi, translateText, hotSearch, subscribeKeyword, unsubscribeKeyword, viewSubscriptions,
+         addGlobalBlockedKeyword, removeGlobalBlockedKeyword, viewGlobalBlockedKeywords,
+         addGroupBlockedKeyword, removeGroupBlockedKeyword, viewGroupBlockedKeywords,
+         viewApplications, approveApplication, rejectApplication, bilibilihelp, YZversionInfo, EndCheck, musicanswerCheck,
     guessmusic, 运势, 小黑子, updateRes, cj, Robacat,
     Loseacat, Resetcat, Bouncecat, mapnumber, 上传, ai,
     ai_reset_memory, daihua, guangbo, guangboHelp,

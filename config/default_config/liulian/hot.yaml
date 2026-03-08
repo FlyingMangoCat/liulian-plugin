@@ -1,0 +1,24 @@
+# 热搜榜功能配置
+# 
+# 推送配置
+push:
+  # 推送时间间隔（小时）
+  interval: 12
+  # 默认推送平台：douyin/weibo/zhihu/baidu/bilihot/biliall/csdn/sspai
+  default_platform: douyin
+  # 订阅关键词上限（每个群最多订阅多少个关键词）
+  subscription_limit: 10
+  # 订阅申请有效期（天），超过天数未审批自动删除
+  application_expiry: 7
+  
+# 图表配置
+charts:
+  # 词云图生成开关
+  wordcloud_enabled: true
+  # 趋势图显示天数（最近几天的数据）
+  trend_days: 7
+  # 趋势图刷新间隔（分钟），避免频繁生成
+  trend_refresh_interval: 60
+  
+# 历史数据保留天数
+history_retention_days: 30

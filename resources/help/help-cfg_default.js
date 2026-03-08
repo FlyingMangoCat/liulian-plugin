@@ -50,6 +50,18 @@ export const helpList = [{
     title: "#每日单词/句子",
     desc: "练习英语"
   }, {
+    icon: 101,
+    title: "#热搜",
+    desc: "全网热搜榜，支持：微博/知乎/百度/抖音/B站/CSDN/少数派"
+  }, {
+    icon: 102,
+    title: "#订阅关键词",
+    desc: "订阅热搜关键词，出现时自动通知"
+  }, {
+    icon: 103,
+    title: "#添加屏蔽词",
+    desc: "添加屏蔽词，过滤不感兴趣的热搜"
+  }, {
     icon: 52,
     title: "早报",
     desc: "当天新闻早报"
