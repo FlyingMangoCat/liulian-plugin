@@ -156,8 +156,20 @@ export async function weather(e) {
   console.log(keyword);
    const cfg = config.getdefault_config('liulian', 'token', 'config');
   const token = cfg.token
-  let url = `https://v2.alapi.cn/api/tianqi?token=${token}&city=${keyword}`;
-  let response = await fetch(url);
+  let url = `https://v3.alapi.cn/api/tianqi`;
+  
+  // 使用POST方法请求v3接口
+  let response = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      token: token,
+      city: keyword
+    })
+  });
+  
   let res = await response.json(); //结果json字符串转对象
        let msg = [
 "城市：",res.data.city,
@@ -169,14 +181,14 @@ export async function weather(e) {
 "\n","最高温度：",res.data.max_temp,"℃",
 "\n","最低温度：",res.data.min_temp,"℃",
 "\n","风向：",res.data.wind,
-"\n","风力：",res.data.wind_speed,
-"\n","风速：",res.data.wind_scale,
+"\n","风力：",res.data.wind_power,
+"\n","风速：",res.data.wind_speed,
 "\n","降雨：",res.data.rain,
 "\n","湿度：",res.data.humidity,
 "\n","能见度：",res.data.visibility,
 "\n","气压：",res.data.pressure,
 "\n","车辆限制：",res.data.tail_number,
-"\n","预警情况：",res.data.alarm,
+"\n","预警情况：",res.data.alarm ? res.data.alarm.join('、') : '无',
 "\n",`${botname}提示您：今日`,res.data.aqi.air_tips,
   ];
 if (res.code == 429) {
@@ -189,7 +201,7 @@ if (res.code == 429) {
 export async function 早报(e) {
 const cfg = config.getdefault_config('liulian', 'token', 'config');
   const token = cfg.token
-   let url = `https://v2.alapi.cn/api/zaobao?token=${token}&format=image`;
+   let url = `https://v3.alapi.cn/api/zaobao?token=${token}&format=image`;
 //https://admin.alapi.cn/account/center
   let msg = [
 

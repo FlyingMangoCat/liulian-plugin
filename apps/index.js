@@ -1226,16 +1226,20 @@ initPushConfig();
 
 // 定时任务
 async function task() {
+  // 生成随机偏移分钟数（1-9），避免整点推送错过动态
+  const randomOffset = Math.floor(Math.random() * 9) + 1;
+  
   let scheduleConfig = "0 5,9,15,19,45,59 * * * ?"; // 默认
   let timeInter = Number(pushConfig.dynamicPushTimeInterval);
   // 做好容错，防一手乱改配置文件
   if (!isNaN(timeInter)) {
     timeInter = Math.ceil(timeInter); // 确保一定是整数
-    if (timeInter <= 0) timeInter = 1; // 确保一定大于等于 1
+    if (timeInter <= 0) timeInter = 1; // 确保一定大于等于1
 
-    scheduleConfig = `0 0/${timeInter} * * * ?`;
+    // 使用随机偏移量，避免整点推送错过动态
+    scheduleConfig = `${randomOffset} 0/${timeInter} * * * ?`;
     if (timeInter >= 60) {
-      scheduleConfig = `0 0 * * * ?`;
+      scheduleConfig = `${randomOffset} 0 * * * ?`;
     }
   }
 

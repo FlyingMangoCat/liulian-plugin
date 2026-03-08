@@ -18,7 +18,7 @@ export const rule = {
 
 export async function 早报(e) {
 
-   let url = `https://v2.alapi.cn/api/zaobao?token=17Noc6E1x3kduTdK&format=image`;
+   let url = `https://v3.alapi.cn/api/zaobao?token=17Noc6E1x3kduTdK&format=image`;
 //https://admin.alapi.cn/account/center
   let msg = [
 

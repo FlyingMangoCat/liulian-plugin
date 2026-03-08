@@ -18,8 +18,8 @@ const externalAPIs = {
     alapi: {
         name: 'ALAPI(天气/早报)',
         urls: [
-            'https://v2.alapi.cn/api/tianqi',
-            'https://v2.alapi.cn/api/zaobao'
+            'https://v3.alapi.cn/api/tianqi',
+            'https://v3.alapi.cn/api/zaobao'
         ]
     },
     tianapi: {
