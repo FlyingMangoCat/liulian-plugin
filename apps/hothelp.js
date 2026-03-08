@@ -60,10 +60,3 @@ export async function hothelp (e, { render }) {
     element: 'default'
   })
 }
-
-export const rule = {
-  hothelp: {
-    reg: "^#*(热搜帮助|热搜help|热搜说明)$",
-    describe: "热搜功能帮助",
-  }
-}

@@ -68,7 +68,7 @@ import { random as adRandom } from "./ad.js"
 import { FuckingChatterbox } from "./chatterboxStat.js"
 import { fanyi, translateText } from "./tools.js"
 import { dailyword, sentence, dailywordCheck, sentenceCheck } from "./daily.js"
-import { hotSearch, subscribeKeyword, unsubscribeKeyword, viewSubscriptions, addGlobalBlockedKeyword, removeGlobalBlockedKeyword, viewGlobalBlockedKeywords, addGroupBlockedKeyword, removeGroupBlockedKeyword, viewGroupBlockedKeywords, viewApplications, approveApplication, rejectApplication, hotWordCloud, hotTrendChart, enableHotPush, disableHotPush, setHotPushTime, setHotPushPlatform, getHotPushList, hotPushScheduleJob } from "./hot.js"
+import { hotSearch, hotHelpText, subscribeKeyword, unsubscribeKeyword, viewSubscriptions, addGlobalBlockedKeyword, removeGlobalBlockedKeyword, viewGlobalBlockedKeywords, addGroupBlockedKeyword, removeGroupBlockedKeyword, viewGroupBlockedKeywords, viewApplications, approveApplication, rejectApplication, hotWordCloud, hotTrendChart, enableHotPush, disableHotPush, setHotPushTime, setHotPushPlatform, getHotPushList, hotPushScheduleJob } from "./hot.js"
 import { EndCheck,   
 musicanswerCheck,
 guessmusic,
@@ -377,11 +377,6 @@ let rule = {
         reg: "^#?(B站|b站|小破站)推送帮助$",
         priority: 1,
         describe: "B站推送帮助",
-    },
-        hothelp: {
-        reg: "^#*(热搜帮助|热搜help|热搜说明)$",
-        priority: 1,
-        describe: "热搜功能帮助",
     },
         updateRes: {
         reg: '^#(榴莲|留恋)(更新图像|图像更新)$',
@@ -988,6 +983,11 @@ yl21: {
        priority: 500,
        describe: "全网热搜榜",
     },
+       hotHelpText: {
+       reg: "^#*(热搜帮助|热搜help|热搜说明)$",
+       priority: 500,
+       describe: "热搜功能帮助（文字版）",
+    },
        subscribeKeyword: {
        reg: "^#*(订阅关键词|添加订阅)(.*)$",
        priority: 500,
@@ -1512,7 +1512,7 @@ const exportedFunctions = {
     viewApplications, approveApplication, rejectApplication,
     hotWordCloud, hotTrendChart,
     enableHotPush, disableHotPush, setHotPushTime, setHotPushPlatform, getHotPushList,
-    hotPushScheduleJob, bilibilihelp, hothelp, YZversionInfo, EndCheck, musicanswerCheck,
+    hotPushScheduleJob, hotHelpText, bilibilihelp, hothelp, YZversionInfo, EndCheck, musicanswerCheck,
     guessmusic, 运势, 小黑子, updateRes, cj, Robacat,
     Loseacat, Resetcat, Bouncecat, mapnumber, 上传, ai,
     ai_reset_memory, daihua, guangbo, guangboHelp,
