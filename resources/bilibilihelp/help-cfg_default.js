@@ -68,9 +68,13 @@ export const helpList = [{
     desc: "默认推送文字+图片+链接"
   },{
     icon: 30,
-    title: "设置B站推送合并",
-    desc: "合并为消息合并转发"
-  }]
+      title: "设置B站推送合并",
+      desc: "合并为消息合并转发"
+    },{
+      icon: 72,
+      title: "刷新B站推送列表",
+      desc: "同步最新的默认用户列表"
+    }]
 }, {
   group: "其他帮助",
   list: [{

@@ -1616,3 +1616,59 @@ async function saveConfigJson() {
   let path = _path + "/data/PushNews/BilibiliPushConfig.json";
   fs.writeFileSync(path, JSON.stringify(BilibiliPushConfig, "", "\t"));
 }
+
+// 默认B站用户列表
+const defaultBiliUserList = [
+  { uid: "401742377", name: "原神" },
+  { uid: "1636034895", name: "绝区零" },
+  { uid: "1340190821", name: "崩坏星穹铁道" },
+  { uid: "3546886017387331", name: "崩坏因缘精灵" },
+  { uid: "27534330", name: "崩坏3第一偶像爱酱" },
+  { uid: "3546720675826241", name: "妄想天使唯一指定官号" },
+  { uid: "609035442", name: "会飞的芒果猫" }
+];
+
+// 刷新B站推送列表
+export async function refreshBiliPushList(e) {
+  if (!e.isMaster) {
+    e.reply("只有主人可以刷新B站推送列表");
+    return false;
+  }
+
+  let pushID = "";
+  if (e.isGroup) {
+    pushID = e.group_id;
+  } else {
+    pushID = e.user_id;
+  }
+
+  if (!PushBilibiliDynamic[pushID]) {
+    return e.reply("当前未开启B站推送，请先开启B站推送功能");
+  }
+
+  let push = PushBilibiliDynamic[pushID];
+  let currentList = push.biliUserList || [];
+  let currentUIDs = new Set(currentList.map(u => u.uid));
+  let addedCount = 0;
+  let addedUsers = [];
+
+  // 检查并添加缺失的默认用户
+  for (let defaultUser of defaultBiliUserList) {
+    if (!currentUIDs.has(defaultUser.uid)) {
+      currentList.push(defaultUser);
+      currentUIDs.add(defaultUser.uid);
+      addedCount++;
+      addedUsers.push(defaultUser.name);
+    }
+  }
+
+  if (addedCount > 0) {
+    push.biliUserList = currentList;
+    savePushJson();
+    e.reply(`✅ 已刷新B站推送列表\n新增了 ${addedCount} 个用户：${addedUsers.join("、")}\n\n当前共有 ${currentList.length} 个用户`);
+  } else {
+    e.reply(`当前B站推送列表已经是最新状态，共 ${currentList.length} 个用户`);
+  }
+
+  return true;
+}

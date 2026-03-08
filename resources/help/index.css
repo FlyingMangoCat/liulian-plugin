@@ -72,8 +72,8 @@ body {
   height: 40px;
   display: block;
   position: absolute;
-  background: url("icon.png") 0 0 no-repeat;
-  background-size: 500px auto;
+  background: url("icon.png") 0 0 repeat;
+  background-size: 500px 500px;
   border-radius: 5px;
   left: 6px;
   top: 12px;
