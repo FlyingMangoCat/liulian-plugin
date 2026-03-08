@@ -1,3 +1,13 @@
+# 0.13.14
+
+* **修复导出函数遗漏问题**🐛
+      * 补全exportedFunctions中遗漏的导出函数
+      * 添加checkJsPlugins和checkV3JsPlugins导出
+      * 添加checkRandom导出
+      * 添加profileCfg导出
+      * 添加wjc导出
+      * 确保所有导入的功能函数都正确导出到exportedFunctions对象
+
 # 0.13.13
 
 * **新增汤圆帮助系统**ⁿᵉʷ
