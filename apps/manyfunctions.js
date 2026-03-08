@@ -201,12 +201,32 @@ if (res.code == 429) {
 export async function 早报(e) {
 const cfg = config.getdefault_config('liulian', 'token', 'config');
   const token = cfg.token
-   let url = `https://v3.alapi.cn/api/zaobao?token=${token}&format=image`;
-//https://admin.alapi.cn/account/center
+  
+  // 使用v3 POST接口
+  let url = `https://v3.alapi.cn/api/zaobao`;
+  let response = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      token: token,
+      format: 'image'
+    })
+  });
+  
+  let res = await response.json();
+  
+  if (res.code != 200) {
+    e.reply(`⚠️获取早报失败：${res.msg || '未知错误'}`);
+    return false;
+  }
+  
   let msg = [
-
-    segment.image(url),
-
+    segment.image(res.data.image),
+    `\n${res.data.date}`,
+    res.data.news ? `\n【新闻】${res.data.news}` : '',
+    res.data.weiyu ? `\n【微语】${res.data.weiyu}` : ''
   ];
   
   e.reply(msg);

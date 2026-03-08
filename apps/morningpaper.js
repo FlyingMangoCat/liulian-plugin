@@ -18,13 +18,32 @@ export const rule = {
 
 export async function 早报(e) {
 
-   let url = `https://v3.alapi.cn/api/zaobao?token=17Noc6E1x3kduTdK&format=image`;
-//https://admin.alapi.cn/account/center
-  let msg = [
-
-    segment.image(url),
-
-  ];
+   // 使用v3 POST接口
+   let url = `https://v3.alapi.cn/api/zaobao`;
+   let response = await fetch(url, {
+     method: 'POST',
+     headers: {
+       'Content-Type': 'application/json'
+     },
+     body: JSON.stringify({
+       token: '17Noc6E1x3kduTdK',
+       format: 'image'
+     })
+   });
+   
+   let res = await response.json();
+   
+   if (res.code != 200) {
+     e.reply(`⚠️获取早报失败：${res.msg || '未知错误'}`);
+     return false;
+   }
+   
+   let msg = [
+     segment.image(res.data.image),
+     `\n${res.data.date}`,
+     res.data.news ? `\n【新闻】${res.data.news}` : '',
+     res.data.weiyu ? `\n【微语】${res.data.weiyu}` : ''
+   ];
   
   e.reply(msg);
 
