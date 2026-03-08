@@ -34,6 +34,13 @@ export const helpList = [{
     desc: "全网热搜榜，支持：微博、知乎、百度、抖音、B站、CSDN、少数派"
   }]
 }, {
+  group: "使用说明",
+  list: [{
+    icon: 77,
+    title: "热搜榜使用方法",
+    desc: "#热搜（抖音）、#热搜微博、#热搜知乎、#热搜百度、#热搜B站、#热搜CSDN、#热搜少数派"
+  }]
+}, {
   group: "娱乐功能",
   list: [{
     icon: 44,

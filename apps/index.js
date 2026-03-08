@@ -976,7 +976,7 @@ yl21: {
     },
        hotSearch: {
        reg: "^#*(热搜|热搜榜|热点)(.*)$",
-       priority: 100,
+       priority: 500,
        describe: "全网热搜榜",
     },
        HitMe: {
