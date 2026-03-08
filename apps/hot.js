@@ -85,6 +85,43 @@ export const rule = {
     priority: 1,
     describe: "拒绝订阅申请",
   },
+  // 图表功能
+  hotWordCloud: {
+    reg: "^#*热搜词云(.*)$",
+    priority: 500,
+    describe: "生成热搜词云图",
+  },
+  hotTrendChart: {
+    reg: "^#*热搜趋势(.*)$",
+    priority: 500,
+    describe: "生成热搜趋势图",
+  },
+  // 定时推送管理
+  enableHotPush: {
+    reg: "^#*开启热搜推送$",
+    priority: 500,
+    describe: "开启定时推送",
+  },
+  disableHotPush: {
+    reg: "^#*关闭热搜推送$",
+    priority: 500,
+    describe: "关闭定时推送",
+  },
+  setHotPushTime: {
+    reg: "^#*设置热搜推送时间(.*)$",
+    priority: 500,
+    describe: "设置推送时间",
+  },
+  setHotPushPlatform: {
+    reg: "^#*设置热搜推送平台(.*)$",
+    priority: 500,
+    describe: "设置推送平台",
+  },
+  getHotPushList: {
+    reg: "^#*热搜推送列表$",
+    priority: 500,
+    describe: "查看推送配置",
+  },
 };
 
 // 全网热搜榜
@@ -530,3 +567,380 @@ export async function rejectApplication(e) {
   
   return true;
 }
+
+// 生成热搜词云图
+export async function hotWordCloud(e) {
+  const platformMap = {
+    '微博': 'weibo',
+    'weibo': 'weibo',
+    '知乎': 'zhihu',
+    'zhihu': 'zhihu',
+    '百度': 'baidu',
+    'baidu': 'baidu',
+    '抖音': 'douyin',
+    'douyin': 'douyin',
+    'B站': 'bilihot',
+    'bilihot': 'bilihot',
+    'CSDN': 'csdn',
+    'csdn': 'csdn',
+    '少数派': 'sspai',
+    'sspai': 'sspai',
+  };
+
+  const hotConfig = config.getdefault_config('liulian', 'hot', 'config');
+  if (!hotConfig.charts.wordcloud_enabled) {
+    e.reply('⚠️ 词云图功能未启用');
+    return true;
+  }
+
+  e.reply('⏳ 正在生成词云图，请稍候...');
+
+  let userPlatform = e.msg.replace(/^#*热搜词云/, '').trim();
+  let platform = userPlatform && platformMap[userPlatform] ? platformMap[userPlatform] : 'douyin';
+  
+  try {
+    // 获取热门关键词
+    const keywords = await hotDatabase.getTopKeywords(7, 50);
+    
+    if (keywords.length === 0) {
+      e.reply('暂无足够的历史数据生成词云图');
+      return true;
+    }
+
+    // 转换为词云数据格式
+    const wordCloudData = keywords.map(k => ({
+      text: k.title,
+      value: k.count
+    }));
+
+    // 生成词云图（这里需要调用图表生成API）
+    // 暂时返回文本数据
+    let msg = ['📊 热搜词云数据（最近7天）\n\n'];
+    wordCloudData.slice(0, 20).forEach((item, index) => {
+      msg.push(`${index + 1}. ${item.text} (${item.value}次)`);
+    });
+
+    e.reply(msg.join('\n'));
+    
+  } catch (err) {
+    e.reply(`生成词云图失败：${err.message}`);
+  }
+  
+  return true;
+}
+
+// 生成热搜趋势图
+export async function hotTrendChart(e) {
+  const platformMap = {
+    '微博': 'weibo',
+    'weibo': 'weibo',
+    '知乎': 'zhihu',
+    'zhihu': 'zhihu',
+    '百度': 'baidu',
+    'baidu': 'baidu',
+    '抖音': 'douyin',
+    'douyin': 'douyin',
+    'B站': 'bilihot',
+    'bilihot': 'bilihot',
+    'CSDN': 'csdn',
+    'csdn': 'csdn',
+    '少数派': 'sspai',
+    'sspai': 'sspai',
+  };
+
+  const hotConfig = config.getdefault_config('liulian', 'hot', 'config');
+  if (!hotConfig.charts.wordcloud_enabled) {
+    e.reply('⚠️ 趋势图功能未启用');
+    return true;
+  }
+
+  e.reply('⏳ 正在分析历史数据生成趋势图，可能需要较长时间...');
+
+  let userPlatform = e.msg.replace(/^#*热搜趋势/, '').trim();
+  let platform = userPlatform && platformMap[userPlatform] ? platformMap[userPlatform] : 'douyin';
+  
+  try {
+    // 获取历史数据
+    const history = await hotDatabase.getHotSearchHistory(platform, 7);
+    
+    if (history.length === 0) {
+      e.reply('暂无足够的历史数据生成趋势图');
+      return true;
+    }
+
+    // 统计每天的热度数据
+    const trendData = {};
+    history.forEach(item => {
+      const date = item.record_time.split('T')[0];
+      if (!trendData[date]) {
+        trendData[date] = [];
+      }
+      trendData[date].push(item.hot_value || 0);
+    });
+
+    // 计算每天的平均热度
+    const chartData = Object.keys(trendData).map(date => {
+      const values = trendData[date];
+      const avg = values.reduce((a, b) => a + b, 0) / values.length;
+      return {
+        time: date,
+        value: Math.round(avg)
+      };
+    }).sort((a, b) => a.time.localeCompare(b.time));
+
+    // 生成趋势图（这里需要调用图表生成API）
+    // 暂时返回文本数据
+    let msg = ['📈 热搜趋势数据（最近7天）\n\n'];
+    chartData.forEach(item => {
+      msg.push(`${item.time}: 平均热度 ${item.value}`);
+    });
+
+    e.reply(msg.join('\n'));
+    
+  } catch (err) {
+    e.reply(`生成趋势图失败：${err.message}`);
+  }
+  
+  return true;
+}
+
+// 开启热搜推送
+export async function enableHotPush(e) {
+  if (!e.isGroup) {
+    e.reply('定时推送仅支持群聊');
+    return true;
+  }
+
+  if (e.isGroup && !common.isGroupAdmin(e) && !e.isMaster) {
+    e.reply('只有管理员和主人可以开启推送');
+    return true;
+  }
+
+  const pushID = e.group_id;
+  
+  if (!HotPushConfig[pushID]) {
+    HotPushConfig[pushID] = {
+      isNewsPush: true,
+      platform: 'douyin',
+      pushTime: 9
+    };
+  } else {
+    HotPushConfig[pushID].isNewsPush = true;
+  }
+
+  saveHotPushJson();
+  Bot.logger.mark(`开启热搜推送:${pushID}`);
+  e.reply(`✅ 热搜推送已开启\n每天${HotPushConfig[pushID].pushTime}点自动推送${HotPushConfig[pushID].platform}热搜`);
+
+  return true;
+}
+
+// 关闭热搜推送
+export async function disableHotPush(e) {
+  if (!e.isGroup) {
+    e.reply('定时推送仅支持群聊');
+    return true;
+  }
+
+  if (e.isGroup && !common.isGroupAdmin(e) && !e.isMaster) {
+    e.reply('只有管理员和主人可以关闭推送');
+    return true;
+  }
+
+  const pushID = e.group_id;
+  
+  if (HotPushConfig[pushID]) {
+    HotPushConfig[pushID].isNewsPush = false;
+    saveHotPushJson();
+    Bot.logger.mark(`关闭热搜推送:${pushID}`);
+    e.reply(`❌ 热搜推送已关闭`);
+  } else {
+    e.reply('当前群未开启过热搜推送');
+  }
+
+  return true;
+}
+
+// 设置推送时间
+export async function setHotPushTime(e) {
+  if (!e.isGroup) {
+    e.reply('定时推送仅支持群聊');
+    return true;
+  }
+
+  if (e.isGroup && !common.isGroupAdmin(e) && !e.isMaster) {
+    e.reply('只有管理员和主人可以设置推送时间');
+    return true;
+  }
+
+  let time = e.msg.replace(/^#*设置热搜推送时间/, '').trim();
+  time = Number(time);
+  
+  if (!time || time < 0 || time > 23) {
+    e.reply('请输入有效的时间（0-23）\n示例：#设置热搜推送时间 9');
+    return true;
+  }
+
+  const pushID = e.group_id;
+  
+  if (!HotPushConfig[pushID]) {
+    HotPushConfig[pushID] = {
+      isNewsPush: true,
+      platform: 'douyin',
+      pushTime: time
+    };
+  } else {
+    HotPushConfig[pushID].pushTime = time;
+  }
+
+  saveHotPushJson();
+  e.reply(`✅ 推送时间已设置为每天${time}点`);
+
+  return true;
+}
+
+// 设置推送平台
+export async function setHotPushPlatform(e) {
+  if (!e.isGroup) {
+    e.reply('定时推送仅支持群聊');
+    return true;
+  }
+
+  if (e.isGroup && !common.isGroupAdmin(e) && !e.isMaster) {
+    e.reply('只有管理员和主人可以设置推送平台');
+    return true;
+  }
+
+  const platformMap = {
+    '微博': 'weibo',
+    'weibo': 'weibo',
+    '知乎': 'zhihu',
+    'zhihu': 'zhihu',
+    '百度': 'baidu',
+    'baidu': 'baidu',
+    '抖音': 'douyin',
+    'douyin': 'douyin',
+    'B站': 'bilihot',
+    'bilihot': 'bilihot',
+    'CSDN': 'csdn',
+    'csdn': 'csdn',
+    '少数派': 'sspai',
+    'sspai': 'sspai',
+  };
+
+  let platform = e.msg.replace(/^#*设置热搜推送平台/, '').trim();
+  
+  if (!platform || !platformMap[platform]) {
+    e.reply(`请输入有效的平台\n支持：微博、知乎、百度、抖音、B站、CSDN、少数派\n示例：#设置热搜推送平台 微博`);
+    return true;
+  }
+
+  const pushID = e.group_id;
+  
+  if (!HotPushConfig[pushID]) {
+    HotPushConfig[pushID] = {
+      isNewsPush: true,
+      platform: platformMap[platform],
+      pushTime: 9
+    };
+  } else {
+    HotPushConfig[pushID].platform = platformMap[platform];
+  }
+
+  saveHotPushJson();
+  e.reply(`✅ 推送平台已设置为：${platform}`);
+
+  return true;
+}
+
+// 查看推送配置
+export async function getHotPushList(e) {
+  if (!e.isGroup) {
+    e.reply('定时推送仅支持群聊');
+    return true;
+  }
+
+  const pushID = e.group_id;
+  
+  if (!HotPushConfig[pushID]) {
+    e.reply('当前群未开启热搜推送\n发送 #开启热搜推送 来开启');
+    return true;
+  }
+
+  const config = HotPushConfig[pushID];
+  const status = config.isNewsPush ? '已开启' : '已关闭';
+  const platformName = {
+    'weibo': '微博',
+    'zhihu': '知乎',
+    'baidu': '百度',
+    'douyin': '抖音',
+    'bilihot': 'B站',
+    'csdn': 'CSDN',
+    'sspai': '少数派'
+  };
+
+  e.reply(`热搜推送配置：\n状态：${status}\n推送时间：每天${config.pushTime}点\n推送平台：${platformName[config.platform] || config.platform}`);
+
+  return true;
+}
+
+// 存储推送配置
+function saveHotPushJson() {
+  const _path = process.cwd();
+  let path = _path + "/data/PushNews/HotPushConfig.json";
+  const fs = require('fs');
+  fs.writeFileSync(path, JSON.stringify(HotPushConfig, "", "\t"));
+}
+
+// 初始化推送配置
+function initHotPushConfig() {
+  const _path = process.cwd();
+  const fs = require('fs');
+  if (fs.existsSync(_path + "/data/PushNews/HotPushConfig.json")) {
+    HotPushConfig = JSON.parse(fs.readFileSync(_path + "/data/PushNews/HotPushConfig.json", "utf8"));
+  }
+}
+
+// 定时推送任务
+export async function hotPushScheduleJob(e = {}) {
+  if (e.msg) return false;
+  if (e.msg && !e.isMaster) {
+    return false;
+  }
+  
+  if (Object.keys(HotPushConfig).length === 0) {
+    return true;
+  }
+
+  Bot.logger.mark("liulian-plugin —— 热搜定时推送");
+
+  for (let user in HotPushConfig) {
+    let config = HotPushConfig[user];
+    if (config.isNewsPush) {
+      // 检查是否到了推送时间
+      const now = new Date();
+      const currentHour = now.getHours();
+      
+      if (currentHour === config.pushTime) {
+        // 获取热搜并推送
+        const mockEvent = {
+          msg: `#热搜${config.platform === 'douyin' ? '' : config.platform}`,
+          group_id: user,
+          reply: async (msg) => {
+            if (user.toString().length > 10) {
+              await Bot.pickGroup(user).sendMsg(msg);
+            } else {
+              await Bot.pickGroup(user).sendMsg(msg);
+            }
+          }
+        };
+        await hotSearch(mockEvent);
+      }
+    }
+  }
+
+  return true;
+}
+
+// 初始化
+initHotPushConfig();

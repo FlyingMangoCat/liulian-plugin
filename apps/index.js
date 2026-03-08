@@ -71,7 +71,10 @@ import { dailyword, sentence, dailywordCheck, sentenceCheck } from "./daily.js"
 import { hotSearch, subscribeKeyword, unsubscribeKeyword, viewSubscriptions,
          addGlobalBlockedKeyword, removeGlobalBlockedKeyword, viewGlobalBlockedKeywords,
          addGroupBlockedKeyword, removeGroupBlockedKeyword, viewGroupBlockedKeywords,
-         viewApplications, approveApplication, rejectApplication } from "./hot.js"
+         viewApplications, approveApplication, rejectApplication,
+         hotWordCloud, hotTrendChart,
+         enableHotPush, disableHotPush, setHotPushTime, setHotPushPlatform, getHotPushList,
+         hotPushScheduleJob } from "./hot.js"
 import { EndCheck,   
 musicanswerCheck,
 guessmusic,
@@ -1043,6 +1046,46 @@ yl21: {
        priority: 1,
        describe: "拒绝订阅申请",
     },
+       hotWordCloud: {
+       reg: "^#*热搜词云(.*)$",
+       priority: 500,
+       describe: "生成热搜词云图",
+    },
+       hotTrendChart: {
+       reg: "^#*热搜趋势(.*)$",
+       priority: 500,
+       describe: "生成热搜趋势图",
+    },
+       enableHotPush: {
+       reg: "^#*开启热搜推送$",
+       priority: 500,
+       describe: "开启定时推送",
+    },
+       disableHotPush: {
+       reg: "^#*关闭热搜推送$",
+       priority: 500,
+       describe: "关闭定时推送",
+    },
+       setHotPushTime: {
+       reg: "^#*设置热搜推送时间(.*)$",
+       priority: 500,
+       describe: "设置推送时间",
+    },
+       setHotPushPlatform: {
+       reg: "^#*设置热搜推送平台(.*)$",
+       priority: 500,
+       describe: "设置推送平台",
+    },
+       getHotPushList: {
+       reg: "^#*热搜推送列表$",
+       priority: 500,
+       describe: "查看推送配置",
+    },
+       hotPushScheduleJob: {
+       reg: "^#*测试热搜推送$",
+       priority: 500,
+       describe: "测试热搜推送",
+    },
        HitMe: {
        reg: "#打我", //匹配消息正则，命令正则
        priority: 1000, //优先级，越小优先度越高
@@ -1450,7 +1493,10 @@ const exportedFunctions = {
     setBiliPushSendType, pushScheduleJob, biliLogin, weather, dog, holiday, eventHistory, miyu, miyuCheck, fanyi, translateText, hotSearch, subscribeKeyword, unsubscribeKeyword, viewSubscriptions,
          addGlobalBlockedKeyword, removeGlobalBlockedKeyword, viewGlobalBlockedKeywords,
          addGroupBlockedKeyword, removeGroupBlockedKeyword, viewGroupBlockedKeywords,
-         viewApplications, approveApplication, rejectApplication, bilibilihelp, YZversionInfo, EndCheck, musicanswerCheck,
+         viewApplications, approveApplication, rejectApplication,
+         hotWordCloud, hotTrendChart,
+         enableHotPush, disableHotPush, setHotPushTime, setHotPushPlatform, getHotPushList,
+         hotPushScheduleJob, bilibilihelp, YZversionInfo, EndCheck, musicanswerCheck,
     guessmusic, 运势, 小黑子, updateRes, cj, Robacat,
     Loseacat, Resetcat, Bouncecat, mapnumber, 上传, ai,
     ai_reset_memory, daihua, guangbo, guangboHelp,
