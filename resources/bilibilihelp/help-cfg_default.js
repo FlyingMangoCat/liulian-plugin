@@ -47,6 +47,18 @@ export const helpList = [{
 },{
   group: "其他指令/功能",
   list: [{
+    icon: 95,
+    title: "订阅B站推送+B站用户UID",
+    desc: "订阅B站用户"
+  }, {
+    icon: 96,
+    title: "取消B站推送+B站用户UID",
+    desc: "取消订阅B站用户"
+  }, {
+    icon: 95,
+    title: "B站扫码登录",
+    desc: "扫码登录获取Cookie(仅主人)"
+  }, {
     icon: 97,
     title: "B站推送列表",
     desc: "查看当前订阅的B站用户"
