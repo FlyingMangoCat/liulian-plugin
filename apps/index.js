@@ -1470,10 +1470,10 @@ class LiulianV3 extends plugin {
 
 // 将所有导出的函数添加到LiulianV3类中
 const exportedFunctions = {
-    help, maphelp, pluginhelp, tangyuanhelp, sysCfg, 哪个群友是我老婆,
+    help, wjc, maphelp, pluginhelp, tangyuanhelp, sysCfg, profileCfg, 哪个群友是我老婆,
     checkIn, randomQA, answerCheck, updateLiulianPlugin,
-    JsPlugins, PluginsList, WarehPluginsList, RemovePlugins,
-    LoadPlugins, DeletePlugins, HelpMenu, v3JsPlugins,
+    JsPlugins, checkJsPlugins, PluginsList, WarehPluginsList, RemovePlugins,
+    LoadPlugins, DeletePlugins, HelpMenu, v3JsPlugins, checkV3JsPlugins,
     v3PluginsList, v3WarehPluginsList, v3RemovePlugins,
     v3LoadPlugins, v3DeletePlugins, v3HelpMenu, miku,
     kt1, jtm, mr, ys, bh3, blhx, wl, fgo, y7d, sn,
@@ -1482,7 +1482,7 @@ const exportedFunctions = {
     yl14, yl15, yl16, yl17, yl18, yl19, yl20, sm总,
     sm1, sm2, sm3, sm4, sm5, sm6, sm7, sm8, sm9, sm10,
     sm11, sm12, sm13, sm14, sm15, sm16, sm17, sm18, sm19,
-    sm20, sm21, sm22, sm23, fakeMessage, random, chuochuo,
+    sm20, sm21, sm22, sm23, fakeMessage, random, chuochuo, checkRandom,
     adRandom, FuckingChatterbox, guessAvatar, guessAvatarCheck,
     bbguessAvatar, bbguessAvatarCheck, groupRest, godEyesFUN,
     headPortraitFUN, qmp, biaoQing, biaoQingHelp, fabing,
