@@ -1187,13 +1187,27 @@ async function processBatchPush(allPushTasks) {
       }
 
       // 带重试机制的动态获取
-      await fetchUserDynamicWithRetry(pushInfo, user, biliUID);
+      let pushList = await fetchUserDynamicWithRetry(pushInfo, user, biliUID);
       
-      // 随机延迟30秒-2分钟，模拟真人浏览行为
-      if (i < users.length - 1) {
-        let randomDelay = Math.floor(Math.random() * 90) + 30; // 30-120秒
-        Bot.logger.mark(`B站推送：等待${randomDelay}秒后处理下一个用户`);
-        await common.sleep(randomDelay * 1000);
+      // 估算阅读时间（如果有新动态的话）
+      if (pushList && pushList.length > 0) {
+        let readingTime = estimateReadingTime(pushList);
+        Bot.logger.mark(`B站推送：用户[${biliUID}]估算阅读时间=${readingTime}秒`);
+        
+        // 基于估算阅读时间调整下次查询的随机延迟
+        // 在估算时间的50%-150%之间波动，增加规律性
+        let delayRange = Math.max(15, readingTime); // 至少15秒
+        let minDelay = Math.floor(delayRange * 0.5);  // 下限：50%
+        let maxDelay = Math.floor(delayRange * 1.5);  // 上限：150%
+        let actualDelay = Math.floor(Math.random() * (maxDelay - minDelay + 1)) + minDelay;
+        
+        Bot.logger.mark(`B站推送：等待${actualDelay}秒后处理下一个用户（基于估算阅读时间${readingTime}秒）`);
+        await common.sleep(actualDelay * 1000);
+      } else {
+        // 没有新动态，使用基础随机延迟30-60秒
+        let baseDelay = Math.floor(Math.random() * 30) + 30;
+        Bot.logger.mark(`B站推送：等待${baseDelay}秒后处理下一个用户（无新动态）`);
+        await common.sleep(baseDelay * 1000);
       }
     }
   }
@@ -1210,6 +1224,8 @@ async function fetchUserDynamicWithRetry(pushInfo, user, biliUID, retryCount = 0
     if (pushList.length > 0) {
       await sendDynamic(pushInfo, user, pushList);
     }
+    
+    return pushList; // 返回动态列表，用于估算阅读时间
   } catch (err) {
     if (retryCount < maxRetries) {
       Bot.logger.warn(`B站推送：获取用户[${biliUID}]动态失败，第${retryCount + 1}次重试，错误: ${err.message}`);
@@ -1220,11 +1236,12 @@ async function fetchUserDynamicWithRetry(pushInfo, user, biliUID, retryCount = 0
     } else {
       Bot.logger.error(`B站推送：获取用户[${biliUID}]动态失败，已达最大重试次数，错误: ${err.message}`);
       nowDynamicPushList.set(biliUID, []);
+      return []; // 返回空数组
     }
   }
 }
 
-// 获取用户动态（不包含发送）
+// 获取用户动态（不包含发送），返回动态列表和估算的阅读时间
 async function fetchUserDynamic(pushInfo, user, biliUID) {
   let url = `${BiliDynamicApiUrl}?host_mid=${biliUID}&timezone_offset=-480&features=itemOpusStyle`;
   let pushList = [];
@@ -1289,6 +1306,56 @@ async function fetchUserDynamic(pushInfo, user, biliUID) {
   }
   
   return pushList;
+}
+
+// 估算动态内容的阅读时间（秒）
+function estimateReadingTime(pushList) {
+  if (!pushList || pushList.length === 0) {
+    return 10; // 默认10秒
+  }
+  
+  let totalTextLength = 0;
+  let totalImageCount = 0;
+  
+  for (let dynamic of pushList) {
+    // 估算文字长度
+    let textLength = 0;
+    let desc = dynamic?.modules?.module_dynamic?.desc;
+    if (desc && desc.text) {
+      textLength += String(desc.text).length;
+    }
+    
+    // 估算图片数量
+    let imageCount = 0;
+    let major = dynamic?.modules?.module_dynamic?.major;
+    if (major) {
+      if (major.type === 'MAJOR_TYPE_OPUS') {
+        // 图文动态
+        if (major.opus && major.opus.pics) {
+          imageCount += major.opus.pics.length;
+        }
+      } else if (major.type === 'MAJOR_TYPE_ARCHIVE') {
+        // 视频动态，按1张图片算
+        imageCount += 1;
+      } else if (major.type === 'MAJOR_TYPE_ARTICLE') {
+        // 专栏动态，按2张图片算
+        imageCount += 2;
+      }
+    }
+    
+    totalTextLength += textLength;
+    totalImageCount += imageCount;
+  }
+  
+  // 估算阅读时间：文字每100字5秒，每张图片10秒
+  let textTime = Math.ceil(totalTextLength / 100) * 5;
+  let imageTime = totalImageCount * 10;
+  let baseTime = 10; // 基础时间10秒
+  
+  let totalReadingTime = baseTime + textTime + imageTime;
+  
+  // 限制在10-60秒之间
+  return Math.max(10, Math.min(60, totalReadingTime));
 }
 
 // 定时任务是否给这个QQ对象推送B站动态
