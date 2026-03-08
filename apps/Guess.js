@@ -7,6 +7,7 @@ import sizeOf from 'image-size';
 import { roleIdToName, starroleIdToName, zzzroleIdToName } from "../components/mysInfo.js";
 import { getPluginRender } from '../model/render.js';
 import { Data } from "#liulian";
+import config from "../model/config/config.js"
 const GAME_TIME_OUT = 30//游戏时长(秒)
 const _path = process.cwd();
 let music = [7351920257]; //这里改网易云的歌单id
@@ -52,6 +53,16 @@ export const rule = {
     describe: '猜邦布',
   },
   bbAvatarCheck: {
+    reg: '(.*)',
+    priority: 98,
+    describe: '',
+  },
+  miyu: {
+    reg: '^#*猜谜语$',
+    priority: 99,
+    describe: '猜谜语',
+  },
+  miyuCheck: {
     reg: '(.*)',
     priority: 98,
     describe: '',
@@ -516,5 +527,82 @@ export async function bbguessAvatarCheck(e) {
       return true;
     }
   }
+  return false;
+}
+// 谜语游戏状态管理
+const miyuGames = new Map();
+
+export async function miyu(e) {
+  // 检查是否有正在进行的游戏
+  if (miyuGames.has(e.group_id)) {
+    e.reply('猜谜语游戏正在进行中，请先回答当前的谜语！');
+    return true;
+  }
+  
+  const cfg = config.getdefault_config('liulian', 'token', 'config');
+  const apikeys = cfg.apikeys;
+  const apikey = apikeys.miyu_apikey || '';
+  
+  let url = `https://api.oick.cn/api/miyu?apikey=${apikey}`;
+  let response = await fetch(url);
+  let res = await response.json();
+  
+  if (!res || !res.topic || !res.answer) {
+    e.reply('获取谜语失败，请稍后重试');
+    return true;
+  }
+  
+  const gameTime = 30; // 游戏时长30秒
+  
+  // 显示谜语
+  let msg = `🧩 猜谜语游戏开始！
+  
+${res.topic}
+
+提示：${res.tip}
+
+${gameTime}秒后公布答案！
+回答格式：#谜底[答案]`;
+  e.reply(msg);
+  
+  // 保存游戏状态
+  miyuGames.set(e.group_id, {
+    answer: res.answer,
+    timer: null
+  });
+  
+  // 设置超时公布答案
+  const gameTimer = setTimeout(() => {
+    if (miyuGames.has(e.group_id)) {
+      const game = miyuGames.get(e.group_id);
+      e.reply(`⏰ 时间到！正确答案是：${game.answer}`);
+      miyuGames.delete(e.group_id);
+    }
+  }, gameTime * 1000);
+  
+  // 保存定时器
+  const game = miyuGames.get(e.group_id);
+  game.timer = gameTimer;
+  
+  return true;
+}
+
+export async function miyuCheck(e) {
+  // 检查是否有正在进行的游戏
+  if (!miyuGames.has(e.group_id)) {
+    return false;
+  }
+  
+  const game = miyuGames.get(e.group_id);
+  const userAnswer = e.msg.replace(/^#?谜底/, '').trim();
+  
+  if (userAnswer === game.answer) {
+    // 回答正确
+    clearTimeout(game.timer);
+    e.reply(`🎉 恭喜你答对了！正确答案就是：${game.answer}`);
+    miyuGames.delete(e.group_id);
+    return true;
+  }
+  
   return false;
 }

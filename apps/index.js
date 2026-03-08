@@ -43,14 +43,8 @@ headPortraitFUN,
 dog,
 holiday,
 eventHistory,
-miyu,
-miyuCheck,
-fanyi,
-translateText,
 setu,
-lp,
-dailyword,
-sentence
+lp
 } from "./manyfunctions.js"
 import { sjclassic,
 zdclassic,
@@ -58,6 +52,16 @@ zdclassic,
 import { Robacat,
 Loseacat,
 Resetcat,
+Bouncecat,
+mapnumber, 上传, ai,
+ai_reset_memory, daihua, guangbo, guangboHelp,
+starguessAvatar, starguessAvatarCheck, toShutUp,
+determineIfYouShutUp, openYourMouth, replace, sjclassic,
+zdclassic, liulian_status
+} from "./Guess.js"
+import { miyu, miyuCheck } from "./Guess.js"
+import { fanyi, translateText } from "./tools.js"
+import { dailyword, sentence, dailywordCheck, sentenceCheck } from "./daily.js"
 Bouncecat
  } from "./Cat.js"
 import { CeShi } from "./inoutgroup.js"
@@ -960,6 +964,16 @@ yl21: {
        priority: 1000, //优先级，越小优先度越高
        describe: "每日单词", //【命令】功能说明
     },
+       dailywordCheck: {
+       reg: "(.*)",
+       priority: 999,
+       describe: "",
+    },
+       sentenceCheck: {
+       reg: "(.*)",
+       priority: 999,
+       describe: "",
+    },
        HitMe: {
        reg: "#打我", //匹配消息正则，命令正则
        priority: 1000, //优先级，越小优先度越高
@@ -1357,7 +1371,7 @@ const exportedFunctions = {
     adRandom, FuckingChatterbox, guessAvatar, guessAvatarCheck,
     bbguessAvatar, bbguessAvatarCheck, groupRest, godEyesFUN,
     headPortraitFUN, qmp, biaoQing, biaoQingHelp, fabing,
-    lp, setu, dailyword, sentence, HitMe, CeShi, dutang,
+    lp, setu, dailyword, sentence, dailywordCheck, sentenceCheck, HitMe, CeShi, dutang,
     caihongpi, saylove, joke, 早报, xzys, ercyFUN,
     chengfenFUN, daanFUN, qiuqianFUN, changeBilibiliPush,
     changeGroupBilibiliPush, changeBiliPushPrivatePermission,
