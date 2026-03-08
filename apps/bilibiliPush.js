@@ -196,24 +196,45 @@ export async function biliLogin(e) {
       return true;
     }
 
-    // 发送二维码图片
+    // 构建消息：二维码 + 风险提示
+    const msg = [
+      segment.image(qrImage),
+      "\n请使用 B站手机 APP 扫码登录\n二维码有效期 3 分钟\n\n⚠️ 风险提示：\n1. 扫码登录会将您的 B站 账号与此机器人关联\n2. Cookie 包含您的登录凭证，请勿泄露给他人\n3. 建议使用小号或测试账号进行扫码\n4. 如有顾虑，可随时在配置中删除 Cookie"
+    ];
+
+    // 发送二维码和提示
+    let qrMessage;
     if (e.isGroup) {
-      await e.group.sendMsg(segment.image(qrImage));
+      qrMessage = await e.group.sendMsg(msg);
     } else {
-      await e.reply(segment.image(qrImage));
+      qrMessage = await e.reply(msg);
     }
 
-    e.reply("请使用 B站手机 APP 扫码登录\n二维码有效期 3 分钟\n\n⚠️ 风险提示：\n1. 扫码登录会将您的 B站 账号与此机器人关联\n2. Cookie 包含您的登录凭证，请勿泄露给他人\n3. 建议使用小号或测试账号进行扫码\n4. 如有顾虑，可随时在配置中删除 Cookie");
+    // 记录二维码消息ID，用于撤回
+    const qrMessageId = qrMessage?.message_id;
+
+    // 设置2分钟超时撤回
+    const timeoutId = setTimeout(() => {
+      if (qrMessageId) {
+        if (e.isGroup) {
+          e.group.recallMsg(qrMessageId).catch(() => {});
+        } else {
+          e.group?.recallMsg(qrMessageId).catch(() => {});
+        }
+      }
+    }, 120000); // 2分钟后撤回
 
     // 轮询登录状态
     const maxAttempts = 60; // 最多轮询 60 次（3分钟）
     let attempts = 0;
+    let isScanned = false; // 是否已扫描
 
     const pollInterval = setInterval(async () => {
       attempts++;
 
       if (attempts > maxAttempts) {
         clearInterval(pollInterval);
+        clearTimeout(timeoutId);
         e.reply("登录超时，请重新扫码");
         return;
       }
@@ -233,6 +254,16 @@ export async function biliLogin(e) {
         if (pollRes.code === 0 && pollRes.data?.code === 0) {
           // 登录成功
           clearInterval(pollInterval);
+          clearTimeout(timeoutId);
+
+          // 撤回二维码
+          if (qrMessageId) {
+            if (e.isGroup) {
+              e.group.recallMsg(qrMessageId).catch(() => {});
+            } else {
+              e.group?.recallMsg(qrMessageId).catch(() => {});
+            }
+          }
 
           const url = pollRes.data.url;
           if (!url) {
@@ -286,9 +317,35 @@ cookie: '${cookie}'
         } else if (pollRes.data?.code === 86038) {
           // 二维码已过期
           clearInterval(pollInterval);
+          clearTimeout(timeoutId);
+          
+          // 撤回二维码
+          if (qrMessageId) {
+            if (e.isGroup) {
+              e.group.recallMsg(qrMessageId).catch(() => {});
+            } else {
+              e.group?.recallMsg(qrMessageId).catch(() => {});
+            }
+          }
+          
           e.reply("二维码已过期，请重新扫码");
         } else if (pollRes.data?.code === 86090) {
           // 等待扫码
+          if (!isScanned) {
+            // 已扫描，等待确认
+            isScanned = true;
+            
+            // 撤回二维码
+            if (qrMessageId) {
+              if (e.isGroup) {
+                e.group.recallMsg(qrMessageId).catch(() => {});
+              } else {
+                e.group?.recallMsg(qrMessageId).catch(() => {});
+              }
+            }
+            
+            e.reply("已扫码，请在手机上确认登录");
+          }
           // 继续轮询
         }
       } catch (err) {
