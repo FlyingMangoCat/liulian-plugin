@@ -163,11 +163,14 @@ export async function hotSearch(e) {
   let type = 'douyin'; // 默认抖音热搜
   let platformName = '抖音热搜';
   
-  // 如果用户指定了平台，则使用指定的
-  if (userPlatform && platformMap[userPlatform]) {
+  // 如果用户没有指定平台，使用默认平台
+  if (!userPlatform || userPlatform === '') {
+    // 使用默认的抖音热搜
+  } else if (platformMap[userPlatform]) {
+    // 如果用户指定了平台且在支持列表中，使用指定的
     type = platformMap[userPlatform];
     platformName = userPlatform;
-  } else if (userPlatform && userPlatform !== '') {
+  } else {
     // 用户输入了平台名但不在支持列表中
     e.reply(`⚠️ 不支持的平台：${userPlatform}\n\n支持的平台：\n微博、知乎、百度、抖音、B站、CSDN、少数派\n\n示例：#热搜、#热搜微博、#热搜知乎`);
     return true;
