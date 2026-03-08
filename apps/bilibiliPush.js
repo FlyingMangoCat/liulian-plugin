@@ -285,23 +285,23 @@ export async function biliLogin(e) {
 
           // 保存到配置文件
           try {
-            const configPath = `${_path}/plugins/liulian-plugin/config/config/bilibiliPush/bilibiliCookie.yaml`;
+            const configPath = `${_path}/config/default_config/bilibiliPush/bilibiliCookie.yaml`;
             const yamlContent = `# B站推送 Cookie 配置
-# 
+#
 # ⚠️ 重要提示：
 # 本插件已移除公用Cookie，必须使用个人账号扫码登录
-# 
+#
 # 获取方式：
 # 1. 发送指令：#B站扫码登录
 # 2. 使用B站手机APP扫描生成的二维码
 # 3. 登录成功后，Cookie会自动保存到本配置文件
-# 
+#
 # ⚠️ 风险提示：
 # - 扫码登录会将您的B站账号与此机器人关联
 # - Cookie包含您的登录凭证，请勿泄露给他人
 # - 建议使用小号或测试账号进行扫码
 # - 如有顾虑，可随时删除下方Cookie内容
-# 
+#
 # Cookie 内容（留空则需重新扫码登录）
 cookie: '${cookie}'
 `;
