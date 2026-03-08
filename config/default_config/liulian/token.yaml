@@ -1,2 +1,18 @@
 token:
     nBVycnfNuEdovU6p
+
+# API密钥配置
+apikeys:
+    # oick.cn接口密钥
+    dutang_apikey: f115b9fc18ffd7b14403f81f5303b288  # 毒鸡汤
+    lishi_apikey: 9d1aa3a3a3db452a81000076957a6313  # 历史上的今天
+    dog_apikey: ""  # 舔狗日记（待配置）
+    miyu_apikey: 80bb02fb5041ee077bb6255d8d3d143b  # 随机谜语
+    fanyi_apikey: 17db771c42ae78d965afd63d88bca5ec  # 翻译
+    resou_apikey: f1d3322f8ad03abdea997008710f4009  # 全网热搜榜
+    english_apikey: ab026f00f48225d5f2db37547f9fbd37  # 英汉语录
+   骚扰电话_apikey: ba064d92256c0e1af36ef66c3d505075  # 骚扰电话查询
+    qq头像_apikey: bd3a80a90c9b1ea702ed3763b1429e80  # 获取QQ头像
+    base64_apikey: 5b001cfa1769b8425454f3b6e5b541fe  # base64加密/解密
+    网易云_apikey: c737205308d9496c1889e53b5097a09f  # 网易云解析
+    qrcode_apikey: e1236149addc762ece4815745d040954  # 二维码生成

@@ -53,6 +53,16 @@ export const rule = {
     priority: 10, //优先级，越小优先度越高
     describe: "历史上的今天", //【命令】功能说明
   },
+  miyu: {
+    reg: "^#*猜谜语$", //匹配消息正则，命令正则
+    priority: 10, //优先级，越小优先度越高
+    describe: "猜谜语", //【命令】功能说明
+  },
+  miyuCheck: {
+    reg: "(.*)",
+    priority: 9,
+    describe: "",
+  },
   weather: {
     reg: "^#(.*)(天气)$", //匹配消息正则，命令正则
     priority: 10, //优先级，越小优先度越高
@@ -679,4 +689,75 @@ export async function sentence(e) {
 
 
   return true; //返回true 阻挡消息不再往下
+}
+
+// 谜语游戏状态管理
+const miyuGames = new Map();
+
+export async function miyu(e) {
+  // 检查是否有正在进行的游戏
+  if (miyuGames.has(e.group_id)) {
+    e.reply('猜谜语游戏正在进行中，请先回答当前的谜语！');
+    return true;
+  }
+  
+  const cfg = config.getdefault_config('liulian', 'token', 'config');
+  const apikeys = cfg.apikeys;
+  const apikey = apikeys.miyu_apikey || '';
+  
+  let url = `https://api.oick.cn/api/miyu?apikey=${apikey}`;
+  let response = await fetch(url);
+  let res = await response.json();
+  
+  if (!res || !res.topic || !res.answer) {
+    e.reply('获取谜语失败，请稍后重试');
+    return true;
+  }
+  
+  const gameTime = 30; // 游戏时长30秒
+  
+  // 显示谜语
+  let msg = `🧩 猜谜语游戏开始！\n\n${res.topic}\n\n提示：${res.tip}\n\n${gameTime}秒后公布答案！\n回答格式：#谜底[答案]`;
+  e.reply(msg);
+  
+  // 保存游戏状态
+  miyuGames.set(e.group_id, {
+    answer: res.answer,
+    timer: null
+  });
+  
+  // 设置超时公布答案
+  const gameTimer = setTimeout(() => {
+    if (miyuGames.has(e.group_id)) {
+      const game = miyuGames.get(e.group_id);
+      e.reply(`⏰ 时间到！正确答案是：${game.answer}`);
+      miyuGames.delete(e.group_id);
+    }
+  }, gameTime * 1000);
+  
+  // 保存定时器
+  const game = miyuGames.get(e.group_id);
+  game.timer = gameTimer;
+  
+  return true;
+}
+
+export async function miyuCheck(e) {
+  // 检查是否有正在进行的游戏
+  if (!miyuGames.has(e.group_id)) {
+    return false;
+  }
+  
+  const game = miyuGames.get(e.group_id);
+  const userAnswer = e.msg.replace(/^#?谜底/, '').trim();
+  
+  if (userAnswer === game.answer) {
+    // 回答正确
+    clearTimeout(game.timer);
+    e.reply(`🎉 恭喜你答对了！正确答案就是：${game.answer}`);
+    miyuGames.delete(e.group_id);
+    return true;
+  }
+  
+  return false;
 }
