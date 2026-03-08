@@ -1387,25 +1387,31 @@ async function task() {
   // 生成随机偏移分钟数（1-9），避免整点推送错过动态
   const randomOffset = Math.floor(Math.random() * 9) + 1;
   
-  let scheduleConfig = "0 5,9,15,19,45,59 * * * ?"; // 默认
+  // 优化定时策略：模拟真人浏览，每20分钟检查一次（一小时3次）
+  // 随机偏移秒数（0-59），增加随机性
+  const randomSecond = Math.floor(Math.random() * 60);
+  let scheduleConfig = `${randomSecond} 0,20,40 * * * ?`; // 每小时的0,20,40分钟执行
+  
   let timeInter = Number(pushConfig.dynamicPushTimeInterval);
   // 做好容错，防一手乱改配置文件
   if (!isNaN(timeInter)) {
     timeInter = Math.ceil(timeInter); // 确保一定是整数
     if (timeInter <= 0) timeInter = 1; // 确保一定大于等于1
 
-    // 使用随机偏移量，避免整点推送错过动态
-    scheduleConfig = `${randomOffset} 0/${timeInter} * * * ?`;
+    // 如果配置了时间间隔，优先使用配置
+    // 但也添加随机偏移，模拟真人
+    scheduleConfig = `${randomSecond} 0/${timeInter} * * * ?`;
     if (timeInter >= 60) {
-      scheduleConfig = `${randomOffset} 0 * * * ?`;
+      scheduleConfig = `${randomSecond} 0 * * * ?`;
     }
   }
 
   // B站动态推送
   schedule.scheduleJob(scheduleConfig, () => pushScheduleJob());
   
-  // 热搜推送（每小时检查一次）
-  schedule.scheduleJob('0 * * * * ?', () => hotPushScheduleJob());
+  // 热搜推送（每小时检查一次，使用随机秒数）
+  const hotSearchRandomSecond = Math.floor(Math.random() * 60);
+  schedule.scheduleJob(`${hotSearchRandomSecond} * * * *`, () => hotPushScheduleJob());
 }
 
 task();

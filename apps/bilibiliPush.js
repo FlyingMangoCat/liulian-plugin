@@ -199,7 +199,7 @@ export async function biliLogin(e) {
 
   try {
     // 获取登录二维码
-    const response = await fetch(BiliLoginQrcodeUrl, {
+    const response = await fetch(BiliLoginQrcodeUrl + "?source=main-fe-header", {
       method: "get",
       headers: BiliReqHeaders
     });
@@ -272,46 +272,171 @@ export async function biliLogin(e) {
       }
     }, 120000); // 2分钟后撤回
 
-    // 轮询登录状态
-    const maxAttempts = 60; // 最多轮询 60 次（3分钟）
+    // 轮询登录状态（优化轮询策略）
+    const maxAttempts = 120; // 最多轮询 120 次（2分钟）
     let attempts = 0;
     let isScanned = false; // 是否已扫描
 
-    const pollInterval = setInterval(async () => {
+    // 使用渐进式轮询策略
+    const pollLogin = async () => {
       attempts++;
 
       if (attempts > maxAttempts) {
-        clearInterval(pollInterval);
-        clearTimeout(timeoutId);
         e.reply("登录超时，请重新扫码");
+        if (qrMessageId) {
+          try {
+            if (e.isGroup) {
+              await e.group.recallMsg(qrMessageId);
+            } else {
+              await e.group?.recallMsg(qrMessageId);
+            }
+          } catch (err) {
+            // 忽略撤回失败
+          }
+        }
         return;
       }
 
       try {
-        const pollResponse = await fetch(`${BiliLoginInfoUrl}?qrcode_key=${qrcodeKey}`, {
+        const pollResponse = await fetch(`${BiliLoginInfoUrl}?qrcode_key=${qrcodeKey}&source=main-fe-header`, {
           method: "get",
           headers: BiliReqHeaders
         });
 
         if (!pollResponse.ok) {
-          return;
+          // 请求失败，继续轮询
+          return scheduleNextPoll();
         }
 
         const pollRes = await pollResponse.json();
 
-        if (pollRes.code === 0 && pollRes.data?.code === 0) {
-          // 登录成功
-          clearInterval(pollInterval);
-          clearTimeout(timeoutId);
-
-          // 撤回二维码
-          if (qrMessageId) {
-            if (e.isGroup) {
-              e.group.recallMsg(qrMessageId).catch(() => {});
-            } else {
-              e.group?.recallMsg(qrMessageId).catch(() => {});
+        if (pollRes.code === 0) {
+          const dataCode = pollRes.data?.code;
+          
+          if (dataCode === 0) {
+            // 登录成功，处理Cookie
+            await handleLoginSuccess(pollResponse, e, qrMessageId);
+            return;
+          } else if (dataCode === 86038) {
+            // 二维码已失效
+            e.reply("二维码已失效，请重新扫码");
+            return;
+          } else if (dataCode === 86090) {
+            // 等待扫码
+            if (!isScanned) {
+              Bot.logger.mark("B站推送：等待扫码...");
+            }
+          } else if (dataCode === 86101) {
+            // 已扫码，等待确认
+            if (!isScanned) {
+              Bot.logger.mark("B站推送：已扫码，等待确认...");
+              isScanned = true;
             }
           }
+        }
+      } catch (err) {
+        Bot.logger.error(`B站推送：轮询登录状态异常: ${err.message}`);
+      }
+
+      // 继续轮询
+      scheduleNextPoll();
+    };
+
+    // 渐进式轮询间隔
+    const scheduleNextPoll = () => {
+      let nextDelay = 1000; // 默认1秒
+      if (attempts < 10) {
+        nextDelay = 1000; // 前10次，1秒
+      } else if (attempts < 30) {
+        nextDelay = 2000; // 10-30次，2秒
+      } else {
+        nextDelay = 3000; // 30次后，3秒
+      }
+      setTimeout(pollLogin, nextDelay);
+    };
+
+    // 开始轮询
+    pollLogin();
+
+  } catch (err) {
+    Bot.logger.error(`B站推送：扫码登录异常: ${err.message}`);
+    e.reply("扫码登录失败，请稍后重试");
+  }
+
+  return true;
+}
+
+// 处理登录成功
+async function handleLoginSuccess(pollResponse, e, qrMessageId) {
+  try {
+    // 获取响应头中的set-cookie
+    const setCookieHeaders = pollResponse.headers.get('set-cookie');
+    if (!setCookieHeaders) {
+      e.reply("登录成功但未获取到Cookie，请重试");
+      return;
+    }
+
+    // 解析Cookie
+    const cookieMap = new Map();
+    setCookieHeaders.split(', ').forEach(cookieStr => {
+      const [nameValue, ...parts] = cookieStr.split(';');
+      const [name, value] = nameValue.split('=');
+      if (name && value) {
+        cookieMap.set(name.trim(), value.trim());
+      }
+    });
+
+    // 提取关键Cookie字段
+    const SESSDATA = cookieMap.get('SESSDATA') || '';
+    const biliJct = cookieMap.get('bili_jct') || '';
+    const DedeUserID = cookieMap.get('DedeUserID') || '';
+    const DedeUserIDCkMd5 = cookieMap.get('DedeUserID__ckMd5') || '';
+
+    if (!SESSDATA || !biliJct || !DedeUserID) {
+      e.reply("登录成功但Cookie不完整，请重试");
+      return;
+    }
+
+    // 构建Cookie字符串
+    const cookieString = `SESSDATA=${SESSDATA}; bili_jct=${biliJct}; DedeUserID=${DedeUserID}; DedeUserID__ckMd5=${DedeUserIDCkMd5};`;
+
+    // 保存Cookie到配置
+    BiliCookie = cookieString;
+    BiliReqHeaders.cookie = cookieString;
+    BiliUID = parseInt(DedeUserID);
+
+    // 获取并保存UID
+    await getLoginUserInfo();
+
+    // 保存到配置文件
+    try {
+      const cfg = config.getdefault_config('bilibiliPush', 'bilibiliCookie', 'config');
+      cfg.cookie = cookieString;
+      Bot.logger.mark('B站推送：Cookie已保存到配置文件');
+    } catch (err) {
+      Bot.logger.warn(`B站推送：保存Cookie到配置文件失败: ${err.message}`);
+    }
+
+    // 撤回二维码
+    if (qrMessageId) {
+      try {
+        if (e.isGroup) {
+          await e.group.recallMsg(qrMessageId);
+        } else {
+          await e.group?.recallMsg(qrMessageId);
+        }
+      } catch (err) {
+        // 忽略撤回失败
+      }
+    }
+
+    e.reply(`✅ 扫码登录成功！\n当前登录用户ID：${BiliUID}\nCookie已保存，可以开始使用B站推送功能`);
+
+  } catch (err) {
+    Bot.logger.error(`B站推送：处理登录成功状态异常: ${err.message}`);
+    e.reply("登录成功但处理Cookie失败，请重试");
+  }
+}
 
           const url = pollRes.data.url;
           if (!url) {
@@ -1226,6 +1351,12 @@ async function sendDynamic(info, biliUser, list) {
         continue;
       }
 
+      // 计算内容长度，用于动态调整延迟
+      let contentLength = calculateContentLength(msg);
+      let sendDelay = calculateSendDelay(contentLength, val.type);
+      
+      Bot.logger.mark(`B站推送：动态[${val.id_str}] 内容长度=${contentLength}, 延迟=${sendDelay}ms`);
+
       let sendType = getSendType(info);
       if (sendType === "merge") {
         msg = await common.replyMake(msg, info.isGroup, msg[0]);
@@ -1243,7 +1374,8 @@ async function sendDynamic(info, biliUser, list) {
       }
 
       Bot.logger.mark(`B站推送：成功推送动态 [${val.id_str}]`);
-      await common.sleep(BotHaveARest);
+      // 使用动态计算的延迟，模拟真人发送
+      await common.sleep(sendDelay);
 
     } catch (err) {
       Bot.logger.error(`B站推送：发送动态异常 [${val.id_str}]: ${err.message}`);
@@ -1251,6 +1383,61 @@ async function sendDynamic(info, biliUser, list) {
   }
 
   return true;
+}
+
+// 计算内容长度（文字+图片数量）
+function calculateContentLength(msg) {
+  let textLength = 0;
+  let imageCount = 0;
+  
+  if (Array.isArray(msg)) {
+    for (let item of msg) {
+      if (item.type === 'text') {
+        textLength += String(item.text).length;
+      } else if (item.type === 'image') {
+        imageCount++;
+      }
+    }
+  } else if (typeof msg === 'string') {
+    textLength += msg.length;
+  }
+  
+  // 图片按10个文字长度计算
+  return textLength + (imageCount * 10);
+}
+
+// 根据内容长度和类型计算发送延迟
+function calculateSendDelay(contentLength, dynamicType) {
+  // 基础延迟：2-5秒
+  let baseDelay = Math.floor(Math.random() * 3000) + 2000;
+  
+  // 内容长度系数：每100字增加0.5秒
+  let contentDelay = Math.floor(contentLength / 100) * 500;
+  
+  // 动态类型系数
+  let typeDelay = 0;
+  switch (dynamicType) {
+    case "DYNAMIC_TYPE_AV":
+      typeDelay = 1000; // 视频动态多1秒
+      break;
+    case "DYNAMIC_TYPE_ARTICLE":
+      typeDelay = 2000; // 专栏多2秒
+      break;
+    case "DYNAMIC_TYPE_DRAW":
+      typeDelay = 1500; // 图文多1.5秒
+      break;
+    default:
+      typeDelay = 500; // 其他类型多0.5秒
+  }
+  
+  // 随机波动：±30%
+  let randomFactor = 0.7 + Math.random() * 0.6;
+  
+  // 总延迟
+  let totalDelay = (baseDelay + contentDelay + typeDelay) * randomFactor;
+  
+  // 限制在2-15秒之间
+  return Math.max(2000, Math.min(15000, Math.floor(totalDelay)));
 }
 
 // 群推送失败了，再推一次，再失败就算球了
