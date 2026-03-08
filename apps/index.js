@@ -52,18 +52,8 @@ zdclassic,
 import { Robacat,
 Loseacat,
 Resetcat,
-Bouncecat,
-ai,
-ai_reset_memory, daihua, guangbo, guangboHelp,
-starguessAvatar, starguessAvatarCheck, toShutUp,
-determineIfYouShutUp, openYourMouth, replace, sjclassic,
-zdclassic, liulian_status
-} from "./Guess.js"
-import { miyu, miyuCheck } from "./Guess.js"
-import { fanyi, translateText } from "./tools.js"
-import { dailyword, sentence, dailywordCheck, sentenceCheck } from "./daily.js"
 Bouncecat
- } from "./Cat.js"
+} from "./Cat.js"
 import { CeShi } from "./inoutgroup.js"
 import { 哪个群友是我老婆 } from "./whoismywife.js"
 import { checkIn } from "./checkIn.js"
@@ -75,6 +65,8 @@ import { biaoQing, biaoQingHelp } from "./makeemoticons.js"
 import { random, chuochuo, 上传, checkRandom } from "./Random expression.js"
 import { random as adRandom } from "./ad.js"
 import { FuckingChatterbox } from "./chatterboxStat.js"
+import { fanyi, translateText } from "./tools.js"
+import { dailyword, sentence, dailywordCheck, sentenceCheck } from "./daily.js"
 import { EndCheck,   
 musicanswerCheck,
 guessmusic,
@@ -83,7 +75,9 @@ guessAvatarCheck,
 starguessAvatar,
 starguessAvatarCheck,
 bbguessAvatar,
-bbguessAvatarCheck
+bbguessAvatarCheck,
+miyu,
+miyuCheck
 } from "./Guess.js"
 import{ yl总,
 yl1,
