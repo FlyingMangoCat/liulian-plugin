@@ -67,7 +67,7 @@ import { random, chuochuo, 上传, checkRandom } from "./Random expression.js"
 import { random as adRandom } from "./ad.js"
 import { FuckingChatterbox } from "./chatterboxStat.js"
 import { fanyi, translateText } from "./tools.js"
-import { dailyword, sentence, dailywordCheck, sentenceCheck } from "./daily.js"
+import { dailyword, sentence, dailywordCheck, sentenceCheck, hotSearch } from "./daily.js"
 import { EndCheck,   
 musicanswerCheck,
 guessmusic,
@@ -974,6 +974,11 @@ yl21: {
        priority: 999,
        describe: "",
     },
+       hotSearch: {
+       reg: "^#*(热搜|热搜榜|热点)(.*)$",
+       priority: 100,
+       describe: "全网热搜榜",
+    },
        HitMe: {
        reg: "#打我", //匹配消息正则，命令正则
        priority: 1000, //优先级，越小优先度越高
@@ -1371,7 +1376,7 @@ const exportedFunctions = {
     adRandom, FuckingChatterbox, guessAvatar, guessAvatarCheck,
     bbguessAvatar, bbguessAvatarCheck, groupRest, godEyesFUN,
     headPortraitFUN, qmp, biaoQing, biaoQingHelp, fabing,
-    lp, setu, dailyword, sentence, dailywordCheck, sentenceCheck, HitMe, CeShi, dutang,
+    lp, setu, dailyword, sentence, dailywordCheck, sentenceCheck, hotSearch, HitMe, CeShi, dutang,
     caihongpi, saylove, joke, 早报, xzys, ercyFUN,
     chengfenFUN, daanFUN, qiuqianFUN, changeBilibiliPush,
     changeGroupBilibiliPush, changeBiliPushPrivatePermission,

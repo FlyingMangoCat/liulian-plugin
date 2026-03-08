@@ -28,6 +28,10 @@ export const helpList = [{
     icon: 98,
     title: "#翻译[内容]",
     desc: "翻译指定内容"
+  }, {
+    icon: 66,
+    title: "#热搜[平台]",
+    desc: "全网热搜榜，支持：微博、知乎、百度、抖音、B站、CSDN、少数派"
   }]
 }, {
   group: "娱乐功能",
