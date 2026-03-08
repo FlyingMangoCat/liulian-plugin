@@ -48,6 +48,11 @@ export const rule = {
     priority: 10, //优先级，越小优先度越高
     describe: "节假日查询", //【命令】功能说明
   },
+  eventHistory: {
+    reg: "^#*历史上的今天$", //匹配消息正则，命令正则
+    priority: 10, //优先级，越小优先度越高
+    describe: "历史上的今天", //【命令】功能说明
+  },
   weather: {
     reg: "^#(.*)(天气)$", //匹配消息正则，命令正则
     priority: 10, //优先级，越小优先度越高
@@ -224,6 +229,66 @@ export async function holiday(e) {
     }
     msg.push('\n');
   });
+  
+  //发送消息
+  e.reply(msg);
+  return true; //返回true 阻挡消息不再往下
+}
+
+export async function eventHistory(e) {
+  const cfg = config.getdefault_config('liulian', 'token', 'config');
+  const token = cfg.token
+  
+  // 获取当前日期的月和日
+  const now = new Date();
+  const month = now.getMonth() + 1; // getMonth()返回0-11
+  const day = now.getDate();
+  
+  // 使用v3 POST接口
+  let url = `https://v3.alapi.cn/api/eventHistory`;
+  let response = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      token: token,
+      month: month,
+      day: day
+    })
+  });
+  
+  let res = await response.json();
+  
+  if (res.code != 200) {
+    e.reply(`⚠️获取历史上的今天失败：${res.msg || '未知错误'}`);
+    return false;
+  }
+  
+  let events = res.data || [];
+  if (!events || events.length === 0) {
+    e.reply(`${month}月${day}日历史上今天暂无记录`);
+    return true;
+  }
+  
+  // 格式化历史事件列表
+  let msg = [`📅 ${month}月${day}日 历史上的今天：\n`];
+  
+  // 限制显示数量，避免消息过长
+  const maxEvents = 10;
+  const displayEvents = events.slice(0, maxEvents);
+  
+  displayEvents.forEach((item, index) => {
+    msg.push(`${index + 1}. 【${item.year || '未知年份'}】${item.title || '未知事件'}`);
+    if (item.desc) {
+      msg.push(`   ${item.desc}`);
+    }
+    msg.push('\n');
+  });
+  
+  if (events.length > maxEvents) {
+    msg.push(`... 还有 ${events.length - maxEvents} 条事件未显示`);
+  }
   
   //发送消息
   e.reply(msg);

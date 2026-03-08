@@ -94,6 +94,10 @@ export const helpList = [{
     title: "#年份+节假日/假期",
     desc: "查询年份节假日安排"
   },{
+    icon: 67,
+    title: "#历史上的今天",
+    desc: "查看历史上今天发生的事件"
+  },{
     icon: 59,
     title: "随机表情(默认关闭）",
     desc: "群聊/私聊均可用，内容/触发都为随机"
