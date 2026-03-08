@@ -93,6 +93,15 @@ body {
   display: inline-block;
   padding: 0 3px;
 }
+.official-group {
+  font-size: 14px;
+  text-align: center;
+  color: #d3bc8e;
+  position: relative;
+  padding-left: 10px;
+  text-shadow: 1px 1px 1px #000;
+  margin: 5px 0 15px 0;
+}
 /*  */
 .cons {
   display: inline-block;
