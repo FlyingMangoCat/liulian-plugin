@@ -101,10 +101,7 @@ export const rule = {
 };
 
 export async function dutang(e) {
-  const cfg = config.getdefault_config('liulian', 'token', 'config');
-  const token = cfg.token
-  
-  let url = `https://api.oick.cn/api/dutang?apikey=${token}`;
+  let url = `https://api.oick.cn/api/dutang?apikey=f115b9fc18ffd7b14403f81f5303b288`;
   let response = await fetch(url);
   let res = await response.json();
   
@@ -223,41 +220,29 @@ export async function holiday(e) {
 }
 
 export async function eventHistory(e) {
-  const cfg = config.getdefault_config('liulian', 'token', 'config');
-  const token = cfg.token
-  
-  let url = `https://api.oick.cn/api/lishi?apikey=${token}`;
-  let response = await fetch(url, {
-    method: 'GET'
-  });
-  
+  let url = `https://api.oick.cn/api/lishi?apikey=9d1aa3a3a3db452a81000076957a6313`;
+  let response = await fetch(url);
   let res = await response.json();
   
-  if (!res || res.result && res.result.length === 0) {
-    e.reply(`获取历史上的今天失败或暂无记录`);
-    return false;
-  }
-  
-  let events = res.result || [];
-  if (!events || events.length === 0) {
-    e.reply(`历史上今天暂无记录`);
+  if (!res || !res.result || res.result.length === 0) {
+    e.reply(`暂无历史上的今天记录`);
     return true;
   }
   
   // 格式化历史事件列表
-  let msg = [`📅 ${res.day || '今天'} 历史上的今天：\n`];
+  let msg = [`📅 历史上的今天：\n`];
   
   // 限制显示数量，避免消息过长
   const maxEvents = 10;
-  const displayEvents = events.slice(0, maxEvents);
+  const displayEvents = res.result.slice(0, maxEvents);
   
   displayEvents.forEach((item, index) => {
-    msg.push(`${index + 1}. ${item}`);
+    msg.push(`${index + 1}. 【${item.year || '未知年份'}】${item.title || '未知事件'}`);
     msg.push('\n');
   });
   
-  if (events.length > maxEvents) {
-    msg.push(`... 还有 ${events.length - maxEvents} 条事件未显示`);
+  if (res.result.length > maxEvents) {
+    msg.push(`... 还有 ${res.result.length - maxEvents} 条事件未显示`);
   }
   
   //发送消息
