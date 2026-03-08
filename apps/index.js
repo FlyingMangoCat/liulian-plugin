@@ -142,6 +142,7 @@ setBiliPushSendType,
 pushScheduleJob,
 biliLogin,
 refreshBiliPushList,
+checkBiliCookie,
 } from "./bilibiliPush.js";
 import { bilibilihelp, YZversionInfo } from "./bilibilihelp.js"
 import { hothelp } from "./hothelp.js"
@@ -1253,6 +1254,11 @@ yl21: {
        priority: 500,
        describe: "刷新B站推送列表，同步最新的默认用户",
   },
+       checkBiliCookie: {
+       reg: "^#*检查B站Cookie$",
+       priority: 500,
+       describe: "检查当前Cookie状态",
+  },
        guessmusic: {
        reg: "^#?猜歌名$", //匹配消息正则，命令正则
        priority: 100, //优先级，越小优先度越高
@@ -1506,7 +1512,7 @@ const exportedFunctions = {
     bilibiliPushPermission, updateBilibiliPush,
     getBilibiliPushUserList, setBiliPushTimeInterval,
     setBiliPushCookie, setBiliPushFaultTime, changeBiliPushTransmit,
-    setBiliPushSendType, pushScheduleJob, biliLogin, refreshBiliPushList, weather, dog, holiday, eventHistory, miyu, miyuCheck, fanyi, translateText, hotSearch, subscribeKeyword, unsubscribeKeyword, viewSubscriptions,
+    setBiliPushSendType, pushScheduleJob, biliLogin, refreshBiliPushList, checkBiliCookie, weather, dog, holiday, eventHistory, miyu, miyuCheck, fanyi, translateText, hotSearch, subscribeKeyword, unsubscribeKeyword, viewSubscriptions,
     addGlobalBlockedKeyword, removeGlobalBlockedKeyword, viewGlobalBlockedKeywords,
     addGroupBlockedKeyword, removeGroupBlockedKeyword, viewGroupBlockedKeywords,
     viewApplications, approveApplication, rejectApplication,

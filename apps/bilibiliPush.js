@@ -50,7 +50,10 @@ const BiliReqHeaders = {
   'sec-fetch-mode': 'cors',
   'sec-fetch-site': 'same-site',
   'sec-fetch-user': '?1',
-  'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+  'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+  'sec-ch-ua-arch': '"x86"',
+  'sec-ch-ua-bitness': '"64"',
+  'sec-ch-ua-full-version': '"120.0.0.0"'
 }
 
 // B站 Cookie（从配置文件读取或自动生成）
@@ -79,7 +82,8 @@ async function initBiliCookie() {
     if (cfg && cfg.cookie && cfg.cookie.trim() !== '') {
       BiliCookie = cfg.cookie.trim();
       BiliReqHeaders.cookie = BiliCookie;
-      Bot.logger.mark('B站推送：使用配置文件中的 Cookie');
+      Bot.logger.mark(`B站推送：使用配置文件中的 Cookie (长度: ${BiliCookie.length})`);
+      Bot.logger.mark(`B站推送：Cookie内容: ${BiliCookie.substring(0, 20)}...`);
       
       // 获取当前登录用户的 UID
       await getLoginUserInfo();
@@ -399,6 +403,9 @@ async function handleLoginSuccess(pollResponse, e, qrMessageId) {
 
     // 构建Cookie字符串
     const cookieString = `SESSDATA=${SESSDATA}; bili_jct=${biliJct}; DedeUserID=${DedeUserID}; DedeUserID__ckMd5=${DedeUserIDCkMd5};`;
+
+    Bot.logger.mark(`B站推送：登录成功，获取到Cookie (长度: ${cookieString.length})`);
+    Bot.logger.mark(`B站推送：Cookie包含字段: SESSDATA(${SESSDATA.substring(0,5)}...), DedeUserID=${DedeUserID}`);
 
     // 保存Cookie到配置
     BiliCookie = cookieString;
@@ -1150,18 +1157,17 @@ async function fetchUserDynamic(pushInfo, user, biliUID) {
   let url = `${BiliDynamicApiUrl}?host_mid=${biliUID}&timezone_offset=-480&features=itemOpusStyle`;
   let pushList = [];
 
-  // 动态添加 DedeUserID 到 Cookie
-  const headers = { ...BiliReqHeaders };
-  if (BiliUID > 0) {
-    headers.cookie = BiliReqHeaders.cookie + `DedeUserID=${BiliUID};`;
-  }
-  
+  Bot.logger.mark(`B站推送：准备获取用户[${biliUID}]的动态`);
+  Bot.logger.mark(`B站推送：当前Cookie: ${BiliReqHeaders.cookie.substring(0, 20)}...`);
+
+  // 使用BiliReqHeaders，Cookie已经包含了DedeUserID
   const response = await fetch(url, {
     method: "get",
-    headers: headers
+    headers: BiliReqHeaders
   });
 
   if (!response.ok) {
+    Bot.logger.error(`B站推送：获取用户[${biliUID}]动态失败，HTTP状态码: ${response.status}`);
     throw new Error(`HTTP状态码: ${response.status}`);
   }
 
@@ -1615,6 +1621,24 @@ async function savePushJson() {
 async function saveConfigJson() {
   let path = _path + "/data/PushNews/BilibiliPushConfig.json";
   fs.writeFileSync(path, JSON.stringify(BilibiliPushConfig, "", "\t"));
+}
+
+// 检查Cookie状态
+export async function checkBiliCookie(e) {
+  if (!e.isMaster) {
+    e.reply("只有主人可以使用此功能");
+    return false;
+  }
+
+  let info = "";
+  info += `当前Cookie状态:\n`;
+  info += `- 是否配置Cookie: ${BiliCookie ? '是' : '否'}\n`;
+  info += `- Cookie长度: ${BiliCookie ? BiliCookie.length : 0}\n`;
+  info += `- DedeUserID: ${BiliUID}\n`;
+  info += `- Cookie内容: ${BiliCookie ? BiliCookie.substring(0, 50) + '...' : '未配置'}\n`;
+  
+  e.reply(info);
+  return true;
 }
 
 // 默认B站用户列表
