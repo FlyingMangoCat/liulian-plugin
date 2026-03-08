@@ -2,7 +2,13 @@
 
 [中文](README.md) | [English](README_EN.md) 
 
-**新年快乐！** 
+**元宵节快乐！**
+
+⚠️ **安全提示：谨防电信诈骗**
+- 任何要求转账、汇款、索要账号密码、验证码的都是诈骗！
+- 官方人员绝不会私下联系你索要钱财或账号信息
+- 如遇可疑情况，请第一时间联系管理员核实
+- 保护好个人隐私和财产安全，不轻信陌生人 
 
 ### 访问数量：
 [![访问量](https://profile-counter.glitch.me/liulian-plugin/count.svg)](https://gitee.com/huifeidemangguomaocoder/liulian-plugin) 

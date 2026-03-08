@@ -20,7 +20,6 @@ import { maphelp, mapnumber } from "./maphelp.js"
 import {	currentVersion } from "../components/Changelog.js";
 import { pluginhelp } from "./pluginhelp.js"
 import { render } from "../adapter/render.js"
-import { 修仙help } from "./修仙help.js"
 import { ercyFUN,
 chengfenFUN,
 daanFUN,
@@ -179,7 +178,6 @@ export {
     help,
     maphelp,
     pluginhelp,
-    修仙help,
     sysCfg,
     哪个群友是我老婆,
     chumeng,
@@ -360,11 +358,6 @@ let rule = {
         reg: "^#?(插件管理帮助)$",
         priority: 1,
         describe: "插件管理帮助",
-    },
-        修仙help: {
-        reg: "^#?(修仙使用帮助)$",
-        priority: 100,
-        describe: "修仙使用帮助",
     },
         bilibilihelp: {
         reg: "^#?(B站|b站|小破站)推送帮助$",
@@ -1313,7 +1306,7 @@ class LiulianV3 extends plugin {
 
 // 将所有导出的函数添加到LiulianV3类中
 const exportedFunctions = {
-    help, maphelp, pluginhelp, 修仙help, sysCfg, 哪个群友是我老婆,
+    help, maphelp, pluginhelp, sysCfg, 哪个群友是我老婆,
     chumeng, randomQA, answerCheck, updateLiulianPlugin,
     JsPlugins, PluginsList, WarehPluginsList, RemovePlugins,
     LoadPlugins, DeletePlugins, HelpMenu, v3JsPlugins,
