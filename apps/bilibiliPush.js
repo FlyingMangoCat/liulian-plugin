@@ -1351,12 +1351,6 @@ async function sendDynamic(info, biliUser, list) {
         continue;
       }
 
-      // 计算内容长度，用于动态调整延迟
-      let contentLength = calculateContentLength(msg);
-      let sendDelay = calculateSendDelay(contentLength, val.type);
-      
-      Bot.logger.mark(`B站推送：动态[${val.id_str}] 内容长度=${contentLength}, 延迟=${sendDelay}ms`);
-
       let sendType = getSendType(info);
       if (sendType === "merge") {
         msg = await common.replyMake(msg, info.isGroup, msg[0]);
@@ -1374,8 +1368,8 @@ async function sendDynamic(info, biliUser, list) {
       }
 
       Bot.logger.mark(`B站推送：成功推送动态 [${val.id_str}]`);
-      // 使用动态计算的延迟，模拟真人发送
-      await common.sleep(sendDelay);
+      // 固定延迟，避免一次性发送太多消息
+      await common.sleep(BotHaveARest);
 
     } catch (err) {
       Bot.logger.error(`B站推送：发送动态异常 [${val.id_str}]: ${err.message}`);
@@ -1383,61 +1377,6 @@ async function sendDynamic(info, biliUser, list) {
   }
 
   return true;
-}
-
-// 计算内容长度（文字+图片数量）
-function calculateContentLength(msg) {
-  let textLength = 0;
-  let imageCount = 0;
-  
-  if (Array.isArray(msg)) {
-    for (let item of msg) {
-      if (item.type === 'text') {
-        textLength += String(item.text).length;
-      } else if (item.type === 'image') {
-        imageCount++;
-      }
-    }
-  } else if (typeof msg === 'string') {
-    textLength += msg.length;
-  }
-  
-  // 图片按10个文字长度计算
-  return textLength + (imageCount * 10);
-}
-
-// 根据内容长度和类型计算发送延迟
-function calculateSendDelay(contentLength, dynamicType) {
-  // 基础延迟：2-5秒
-  let baseDelay = Math.floor(Math.random() * 3000) + 2000;
-  
-  // 内容长度系数：每100字增加0.5秒
-  let contentDelay = Math.floor(contentLength / 100) * 500;
-  
-  // 动态类型系数
-  let typeDelay = 0;
-  switch (dynamicType) {
-    case "DYNAMIC_TYPE_AV":
-      typeDelay = 1000; // 视频动态多1秒
-      break;
-    case "DYNAMIC_TYPE_ARTICLE":
-      typeDelay = 2000; // 专栏多2秒
-      break;
-    case "DYNAMIC_TYPE_DRAW":
-      typeDelay = 1500; // 图文多1.5秒
-      break;
-    default:
-      typeDelay = 500; // 其他类型多0.5秒
-  }
-  
-  // 随机波动：±30%
-  let randomFactor = 0.7 + Math.random() * 0.6;
-  
-  // 总延迟
-  let totalDelay = (baseDelay + contentDelay + typeDelay) * randomFactor;
-  
-  // 限制在2-15秒之间
-  return Math.max(2000, Math.min(15000, Math.floor(totalDelay)));
 }
 
 // 群推送失败了，再推一次，再失败就算球了
