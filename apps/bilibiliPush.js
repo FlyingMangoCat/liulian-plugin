@@ -14,7 +14,7 @@ if (!fs.existsSync(`${_path}/data/PushNews/`)) {
   fs.mkdirSync(`${_path}/data/PushNews/`);
 }
 
-let dynamicPushHistory = []; // 历史推送，仅记录推送的消息ID，不记录本体对象，用来防止重复推送的
+let dynamicPushHistory = []; // 历史推送，记录推送的动态详细信息，包含ID和发布时间
 let nowDynamicPushList = new Map(); // 本次新增的需要推送的列表信息
 let BilibiliPushConfig = {}; // 推送配置
 let PushBilibiliDynamic = {}; // 推送对象列表
@@ -1003,13 +1003,24 @@ export async function pushScheduleJob(e = {}) {
   }
   Bot.logger.mark("liulian-plugin —— B站动态定时推送");
   // 将上一次推送的动态全部合并到历史记录中
-  let hisArr = new Set(dynamicPushHistory);
+  let hisMap = new Map();
+  // 从已有历史记录初始化Map
+  for (let item of dynamicPushHistory) {
+    hisMap.set(item.id_str, item);
+  }
+  // 添加新推送的动态
   for (let [userId, pushList] of nowDynamicPushList) {
     for (let msg of pushList) {
-      hisArr.add(msg.id_str);
+      let author = msg?.modules?.module_author || {};
+      let pubTime = author?.pub_ts || 0;
+      hisMap.set(msg.id_str, {
+        id_str: msg.id_str,
+        pub_time: pubTime,
+        update_time: Date.now()
+      });
     }
   }
-  dynamicPushHistory = [...hisArr]; 
+  dynamicPushHistory = [...hisMap.values()];
   await redis.set("liulian:bilipush:history", JSON.stringify(dynamicPushHistory), { EX: 24 * 60 * 60 }); // 仅存储一次，过期时间24小时
   nowPushDate = Date.now();
   nowDynamicPushList = new Map(); // 清空上次的推送列表
@@ -1141,6 +1152,17 @@ async function fetchUserDynamic(pushInfo, user, biliUID) {
   // 去重
   pushList = rmDuplicatePushList(pushList);
   
+  if (pushList.length > 0) {
+    Bot.logger.mark(`B站推送：用户[${biliUID}]有 ${pushList.length} 条新动态待推送`);
+    // 记录每条动态的详细信息
+    pushList.forEach((item, index) => {
+      let author = item?.modules?.module_author || {};
+      let pubTime = author?.pub_ts || 0;
+      let pubDate = new Date(pubTime * 1000).toLocaleString('zh-CN');
+      Bot.logger.mark(`B站推送：动态[${index + 1}] ID=${item.id_str}, 发布时间=${pubDate}`);
+    });
+  }
+  
   return pushList;
 }
 
@@ -1156,8 +1178,32 @@ function isAllowSchedulePush(user) {
 // 历史推送过的动态，这一轮不推
 function rmDuplicatePushList(newList) {
   if (newList && newList.length === 0) return newList;
+  
+  // 创建历史记录的Map，方便快速查找
+  let historyMap = new Map();
+  for (let item of dynamicPushHistory) {
+    historyMap.set(item.id_str, item);
+  }
+  
   return newList.filter((item) => {
-    return !dynamicPushHistory.includes(item.id_str);
+    let id = item.id_str;
+    let author = item?.modules?.module_author || {};
+    let pubTime = author?.pub_ts || 0;
+    
+    // 检查是否在历史记录中
+    if (!historyMap.has(id)) {
+      return true; // 不在历史记录中，需要推送
+    }
+    
+    // 在历史记录中，检查发布时间是否一致
+    let historyItem = historyMap.get(id);
+    if (historyItem.pub_time === pubTime) {
+      // 发布时间一致，说明是同一条动态，不推送
+      return false;
+    }
+    
+    // 发布时间不一致，可能是被编辑的动态，推送
+    return true;
   });
 }
 
