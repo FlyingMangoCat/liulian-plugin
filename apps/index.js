@@ -67,7 +67,8 @@ import { random, chuochuo, 上传, checkRandom } from "./Random expression.js"
 import { random as adRandom } from "./ad.js"
 import { FuckingChatterbox } from "./chatterboxStat.js"
 import { fanyi, translateText } from "./tools.js"
-import { dailyword, sentence, dailywordCheck, sentenceCheck, hotSearch } from "./daily.js"
+import { dailyword, sentence, dailywordCheck, sentenceCheck } from "./daily.js"
+import { hotSearch } from "./hot.js"
 import { EndCheck,   
 musicanswerCheck,
 guessmusic,
@@ -1376,15 +1377,14 @@ const exportedFunctions = {
     adRandom, FuckingChatterbox, guessAvatar, guessAvatarCheck,
     bbguessAvatar, bbguessAvatarCheck, groupRest, godEyesFUN,
     headPortraitFUN, qmp, biaoQing, biaoQingHelp, fabing,
-    lp, setu, dailyword, sentence, dailywordCheck, sentenceCheck, hotSearch, HitMe, CeShi, dutang,
+    lp, setu, dailyword, sentence, dailywordCheck, sentenceCheck, HitMe, CeShi, dutang,
     caihongpi, saylove, joke, 早报, xzys, ercyFUN,
     chengfenFUN, daanFUN, qiuqianFUN, changeBilibiliPush,
     changeGroupBilibiliPush, changeBiliPushPrivatePermission,
     bilibiliPushPermission, updateBilibiliPush,
     getBilibiliPushUserList, setBiliPushTimeInterval,
     setBiliPushCookie, setBiliPushFaultTime, changeBiliPushTransmit,
-    setBiliPushSendType, pushScheduleJob, biliLogin, weather, dog, holiday, eventHistory, miyu, miyuCheck, fanyi, translateText,
-    bilibilihelp, YZversionInfo, EndCheck, musicanswerCheck,
+    setBiliPushSendType, pushScheduleJob, biliLogin, weather, dog, holiday, eventHistory, miyu, miyuCheck, fanyi, translateText, hotSearch, bilibilihelp, YZversionInfo, EndCheck, musicanswerCheck,
     guessmusic, 运势, 小黑子, updateRes, cj, Robacat,
     Loseacat, Resetcat, Bouncecat, mapnumber, 上传, ai,
     ai_reset_memory, daihua, guangbo, guangboHelp,
