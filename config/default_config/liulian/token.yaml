@@ -11,7 +11,7 @@ apikeys:
     fanyi_apikey: 17db771c42ae78d965afd63d88bca5ec  # 翻译
     resou_apikey: f1d3322f8ad03abdea997008710f4009  # 全网热搜榜
     english_apikey: ab026f00f48225d5f2db37547f9fbd37  # 英汉语录
-   骚扰电话_apikey: ba064d92256c0e1af36ef66c3d505075  # 骚扰电话查询
+    骚扰电话_apikey: ba064d92256c0e1af36ef66c3d505075  # 骚扰电话查询
     qq头像_apikey: bd3a80a90c9b1ea702ed3763b1429e80  # 获取QQ头像
     base64_apikey: 5b001cfa1769b8425454f3b6e5b541fe  # base64加密/解密
     网易云_apikey: c737205308d9496c1889e53b5097a09f  # 网易云解析

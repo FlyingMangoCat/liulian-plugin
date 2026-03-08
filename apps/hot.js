@@ -128,7 +128,7 @@ export const rule = {
 // 全网热搜榜
 export async function hotSearch(e) {
   const cfg = config.getdefault_config('liulian', 'token', 'config');
-  const apikeys = cfg.apikeys;
+  const apikeys = cfg?.apikeys || {};
   const apikey = apikeys.resou_apikey || '';
   
   // 支持的平台映射
