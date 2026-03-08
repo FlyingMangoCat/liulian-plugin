@@ -1014,13 +1014,134 @@ export async function pushScheduleJob(e = {}) {
   nowPushDate = Date.now();
   nowDynamicPushList = new Map(); // 清空上次的推送列表
   let temp = PushBilibiliDynamic;
+  
+  // 收集所有需要推送的用户，然后分批处理
+  let allPushTasks = [];
   for (let user in temp) {
-    temp[user].pushTarget = user; // 保存推送QQ对象
-    // 循环每个订阅了推送任务的QQ对象
+    temp[user].pushTarget = user;
     if (isAllowSchedulePush(temp[user])) {
-      await pushDynamic(temp[user]);
+      allPushTasks.push({
+        pushInfo: temp[user],
+        users: temp[user].biliUserList
+      });
     }
   }
+  
+  // 分批处理，每批处理一个用户，使用随机延迟
+  await processBatchPush(allPushTasks);
+}
+
+// 分批处理推送任务，模拟真人行为
+async function processBatchPush(allPushTasks) {
+  for (let task of allPushTasks) {
+    let { pushInfo, users } = task;
+    
+    for (let i = 0; i < users.length; i++) {
+      let user = users[i];
+      let biliUID = user.uid;
+
+      // 检查是否已经请求过这个用户的动态
+      let lastPushList = nowDynamicPushList.get(biliUID);
+      if (lastPushList) {
+        if (lastPushList.length === 0) {
+          continue;
+        }
+        await sendDynamic(pushInfo, user, lastPushList);
+        continue;
+      }
+
+      // 带重试机制的动态获取
+      await fetchUserDynamicWithRetry(pushInfo, user, biliUID);
+      
+      // 随机延迟30秒-2分钟，模拟真人浏览行为
+      if (i < users.length - 1) {
+        let randomDelay = Math.floor(Math.random() * 90) + 30; // 30-120秒
+        Bot.logger.mark(`B站推送：等待${randomDelay}秒后处理下一个用户`);
+        await common.sleep(randomDelay * 1000);
+      }
+    }
+  }
+}
+
+// 带重试机制的动态获取
+async function fetchUserDynamicWithRetry(pushInfo, user, biliUID, retryCount = 0) {
+  const maxRetries = 3;
+  
+  try {
+    let pushList = await fetchUserDynamic(pushInfo, user, biliUID);
+    nowDynamicPushList.set(biliUID, pushList);
+    
+    if (pushList.length > 0) {
+      await sendDynamic(pushInfo, user, pushList);
+    }
+  } catch (err) {
+    if (retryCount < maxRetries) {
+      Bot.logger.warn(`B站推送：获取用户[${biliUID}]动态失败，第${retryCount + 1}次重试，错误: ${err.message}`);
+      // 失败后等待5-15秒重试
+      let retryDelay = Math.floor(Math.random() * 10) + 5;
+      await common.sleep(retryDelay * 1000);
+      return fetchUserDynamicWithRetry(pushInfo, user, biliUID, retryCount + 1);
+    } else {
+      Bot.logger.error(`B站推送：获取用户[${biliUID}]动态失败，已达最大重试次数，错误: ${err.message}`);
+      nowDynamicPushList.set(biliUID, []);
+    }
+  }
+}
+
+// 获取用户动态（不包含发送）
+async function fetchUserDynamic(pushInfo, user, biliUID) {
+  let url = `${BiliDynamicApiUrl}?host_mid=${biliUID}&timezone_offset=-480&features=itemOpusStyle`;
+  let pushList = [];
+
+  // 动态添加 DedeUserID 到 Cookie
+  const headers = { ...BiliReqHeaders };
+  if (BiliUID > 0) {
+    headers.cookie = BiliReqHeaders.cookie + `DedeUserID=${BiliUID};`;
+  }
+  
+  const response = await fetch(url, {
+    method: "get",
+    headers: headers
+  });
+
+  if (!response.ok) {
+    throw new Error(`HTTP状态码: ${response.status}`);
+  }
+
+  const res = await response.json();
+
+  if (res.code === -352) {
+    Bot.logger.warn('B站推送：Cookie 已过期或无效，请重新扫码登录');
+    return [];
+  }
+
+  if (res.code !== 0) {
+    throw new Error(`错误码: ${res.code}, 消息: ${res.message}`);
+  }
+
+  let data = res?.data?.items || [];
+  if (data.length === 0) {
+    Bot.logger.mark(`B站推送：用户[${biliUID}]暂无新动态`);
+    return [];
+  }
+
+  // 筛选需要推送的动态
+  for (let val of data) {
+    let author = val?.modules?.module_author || {};
+    if (!author?.pub_ts) continue;
+
+    let pubTime = author.pub_ts * 1000;
+    // 检查是否在允许推送的时间范围内
+    if (nowPushDate - pubTime > DynamicPushTimeInterval) {
+      continue;
+    }
+    pushList.push(val);
+  }
+
+  // 去重
+  pushList = rmDuplicatePushList(pushList);
+  
+  return pushList;
 }
 
 // 定时任务是否给这个QQ对象推送B站动态
@@ -1029,111 +1150,6 @@ function isAllowSchedulePush(user) {
   if (!user.isNewsPush) return false; // 不推那当然。。不推咯
   if (user.allowPush === false) return false; // 信息里边禁止使用推送功能了，那直接禁止
   if (!BilibiliPushConfig.allowPrivate && !user.isGroup) return false; // 禁止私聊推送并且不是群聊，直接禁止
-  return true;
-}
-
-// 动态推送
-async function pushDynamic(pushInfo) {
-  // 检查是否配置了有效的 Cookie
-  if (!BiliCookie || BiliCookie.trim() === '') {
-    Bot.logger.warn('B站推送：未配置有效的 Cookie，跳过动态推送');
-    return true;
-  }
-
-  let users = pushInfo.biliUserList;
-  for (let i = 0; i < users.length; i++) {
-    let biliUID = users[i].uid;
-
-    // 检查是否已经请求过这个用户的动态
-    let lastPushList = nowDynamicPushList.get(biliUID);
-    if (lastPushList) {
-      if (lastPushList.length === 0) {
-        continue;
-      }
-      await sendDynamic(pushInfo, users[i], lastPushList);
-      continue;
-    }
-
-    // 请求用户动态
-    let url = `${BiliDynamicApiUrl}?host_mid=${biliUID}&timezone_offset=-480&features=itemOpusStyle`;
-    let pushList = [];
-
-    try {
-      // 动态添加 DedeUserID 到 Cookie
-      const headers = { ...BiliReqHeaders };
-      if (BiliUID > 0) {
-        headers.cookie = BiliReqHeaders.cookie + `DedeUserID=${BiliUID};`;
-      }
-      
-      const response = await fetch(url, {
-        method: "get",
-        headers: headers
-      });
-
-      if (!response.ok) {
-        Bot.logger.warn(`B站推送：获取用户[${biliUID}]动态失败，HTTP状态码: ${response.status}`);
-        await common.sleep(BiliApiRequestTimeInterval);
-        nowDynamicPushList.set(biliUID, []);
-        continue;
-      }
-
-      const res = await response.json();
-
-      if (res.code === -352) {
-        Bot.logger.warn('B站推送：Cookie 已过期或无效，请重新扫码登录');
-        await common.sleep(BiliApiRequestTimeInterval);
-        nowDynamicPushList.set(biliUID, []);
-        continue;
-      }
-
-      if (res.code !== 0) {
-        Bot.logger.warn(`B站推送：获取用户[${biliUID}]动态失败，错误码: ${res.code}, 消息: ${res.message}`);
-        await common.sleep(BiliApiRequestTimeInterval);
-        nowDynamicPushList.set(biliUID, []);
-        continue;
-      }
-
-      let data = res?.data?.items || [];
-      if (data.length === 0) {
-        Bot.logger.mark(`B站推送：用户[${biliUID}]暂无新动态`);
-        await common.sleep(BiliApiRequestTimeInterval);
-        nowDynamicPushList.set(biliUID, []);
-        continue;
-      }
-
-      // 筛选需要推送的动态
-      for (let val of data) {
-        let author = val?.modules?.module_author || {};
-        if (!author?.pub_ts) continue;
-
-        let pubTime = author.pub_ts * 1000;
-        // 检查是否在允许推送的时间范围内
-        if (nowPushDate - pubTime > DynamicPushTimeInterval) {
-          continue;
-        }
-        pushList.push(val);
-      }
-
-      // 去重
-      pushList = rmDuplicatePushList(pushList);
-      nowDynamicPushList.set(biliUID, pushList);
-
-      if (pushList.length === 0) {
-        Bot.logger.mark(`B站推送：用户[${biliUID}]没有需要推送的新动态`);
-        await common.sleep(BiliApiRequestTimeInterval);
-        continue;
-      }
-
-      Bot.logger.mark(`B站推送：用户[${biliUID}]有 ${pushList.length} 条新动态待推送`);
-      await sendDynamic(pushInfo, users[i], pushList);
-      await common.sleep(BiliApiRequestTimeInterval);
-
-    } catch (err) {
-      Bot.logger.error(`B站推送：获取用户[${biliUID}]动态异常: ${err.message}`);
-      await common.sleep(BiliApiRequestTimeInterval);
-      nowDynamicPushList.set(biliUID, []);
-    }
-  }
   return true;
 }
 
