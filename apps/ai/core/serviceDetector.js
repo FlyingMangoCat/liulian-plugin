@@ -43,7 +43,18 @@ class ServiceDetector {
             return modelStatus;
         } catch (error) {
             console.error('[ServiceDetector] 检查模型状态失败:', error);
-            return {};
+            // 即使检查失败，也返回默认的模型状态结构
+            const configModels = config.ai?.ollama?.models || {};
+            const modelStatus = {};
+
+            for (const [key, modelName] of Object.entries(configModels)) {
+                modelStatus[key] = {
+                    name: modelName,
+                    available: false
+                };
+            }
+
+            return modelStatus;
         }
     }
 
