@@ -1372,44 +1372,104 @@ function buildSendDynamic(biliUser, dynamic, info) {
         return msg;
 
       case "DYNAMIC_TYPE_WORD":
-        desc = dynamic?.modules?.module_dynamic?.desc;
-        if (!desc) {
-          Bot.logger.warn(`B站推送：文字动态数据不完整 [${dynamic.id_str}]`);
-          return null;
-        }
-        if (!contentFilter(desc.text)) return null;
-        title = `${biliUser.name}「动态」推送：\n`;
-        if (getSendType(info) != "default") {
-          msg = [title, `${desc.text}\n`, `${BiliDrawDynamicLinkUrl}${dynamic.id_str}`];
+        // 检查majorType，支持MAJOR_TYPE_OPUS类型
+        let majorTypeWord = dynamic?.modules?.module_dynamic?.major?.type;
+        if (majorTypeWord === 'MAJOR_TYPE_OPUS') {
+          desc = dynamic?.modules?.module_dynamic?.major?.opus || {};
+          let opusDesc = desc?.summary?.text || '';
+          if (!opusDesc) {
+            Bot.logger.warn(`B站推送：文字动态数据不完整 [${dynamic.id_str}]`);
+            return null;
+          }
+          if (!contentFilter(opusDesc)) return null;
+          title = `${biliUser.name}「动态」推送：\n`;
+          if (getSendType(info) != "default") {
+            msg = [title, `${opusDesc}\n`, `${BiliDrawDynamicLinkUrl}${dynamic.id_str}`];
+          } else {
+            msg = [title, `${dynamicContentLimit(opusDesc)}\n`, `${BiliDrawDynamicLinkUrl}${dynamic.id_str}`];
+          }
         } else {
-          msg = [title, `${dynamicContentLimit(desc.text)}\n`, `${BiliDrawDynamicLinkUrl}${dynamic.id_str}`];
+          desc = dynamic?.modules?.module_dynamic?.desc;
+          if (!desc) {
+            Bot.logger.warn(`B站推送：文字动态数据不完整 [${dynamic.id_str}]`);
+            return null;
+          }
+          if (!contentFilter(desc.text)) return null;
+          title = `${biliUser.name}「动态」推送：\n`;
+          if (getSendType(info) != "default") {
+            msg = [title, `${desc.text}\n`, `${BiliDrawDynamicLinkUrl}${dynamic.id_str}`];
+          } else {
+            msg = [title, `${dynamicContentLimit(desc.text)}\n`, `${BiliDrawDynamicLinkUrl}${dynamic.id_str}`];
+          }
         }
         return msg;
 
       case "DYNAMIC_TYPE_DRAW":
-        desc = dynamic?.modules?.module_dynamic?.desc;
-        pics = dynamic?.modules?.module_dynamic?.major?.draw?.items;
-        if (!desc && !pics) {
-          Bot.logger.warn(`B站推送：图文动态数据不完整 [${dynamic.id_str}]`);
-          return null;
-        }
-        if (desc && !contentFilter(desc.text)) return null;
-
-        if (pics && pics.length > 0) {
-          pics = pics.map((item) => {
-            return segment.image(item.src);
-          });
+        // 检查majorType，支持MAJOR_TYPE_OPUS、MAJOR_TYPE_DRAW类型
+        let majorTypeDraw = dynamic?.modules?.module_dynamic?.major?.type;
+        if (majorTypeDraw === 'MAJOR_TYPE_OPUS') {
+          desc = dynamic?.modules?.module_dynamic?.major?.opus || {};
+          pics = desc?.pics || [];
+          if (pics && pics.length > 0) {
+            pics = pics.map((item) => {
+              return segment.image(item.url);
+            });
+          } else {
+            pics = [];
+          }
+          let opusDesc = desc?.summary?.text || '';
+          if (opusDesc && !contentFilter(opusDesc)) return null;
+          title = `${biliUser.name}「图文」推送：\n`;
+          if (getSendType(info) != "default") {
+            msg = [title, opusDesc ? `${opusDesc}\n` : '', ...pics, `${BiliDrawDynamicLinkUrl}${dynamic.id_str}`];
+          } else {
+            if (pics.length > DynamicPicCountLimit) pics.length = DynamicPicCountLimit;
+            msg = [title, opusDesc ? `${dynamicContentLimit(opusDesc)}\n` : '', ...pics, `${BiliDrawDynamicLinkUrl}${dynamic.id_str}`];
+          }
+        } else if (majorTypeDraw === 'MAJOR_TYPE_DRAW') {
+          desc = dynamic?.modules?.module_dynamic?.desc;
+          pics = dynamic?.modules?.module_dynamic?.major?.draw?.items;
+          if (!desc && !pics) {
+            Bot.logger.warn(`B站推送：图文动态数据不完整 [${dynamic.id_str}]`);
+            return null;
+          }
+          if (desc && !contentFilter(desc.text)) return null;
+          if (pics && pics.length > 0) {
+            pics = pics.map((item) => {
+              return segment.image(item.src);
+            });
+          } else {
+            pics = [];
+          }
+          title = `${biliUser.name}「图文」推送：\n`;
+          if (getSendType(info) != "default") {
+            msg = [title, desc ? `${desc.text}\n` : '', ...pics, `${BiliDrawDynamicLinkUrl}${dynamic.id_str}`];
+          } else {
+            if (pics.length > DynamicPicCountLimit) pics.length = DynamicPicCountLimit;
+            msg = [title, desc ? `${dynamicContentLimit(desc.text)}\n` : '', ...pics, `${BiliDrawDynamicLinkUrl}${dynamic.id_str}`];
+          }
         } else {
-          pics = [];
-        }
-
-        title = `${biliUser.name}「图文」推送：\n`;
-
-        if (getSendType(info) != "default") {
-          msg = [title, desc ? `${desc.text}\n` : '', ...pics, `${BiliDrawDynamicLinkUrl}${dynamic.id_str}`];
-        } else {
-          if (pics.length > DynamicPicCountLimit) pics.length = DynamicPicCountLimit;
-          msg = [title, desc ? `${dynamicContentLimit(desc.text)}\n` : '', ...pics, `${BiliDrawDynamicLinkUrl}${dynamic.id_str}`];
+          desc = dynamic?.modules?.module_dynamic?.desc;
+          pics = dynamic?.modules?.module_dynamic?.major?.draw?.items;
+          if (!desc && !pics) {
+            Bot.logger.warn(`B站推送：图文动态数据不完整 [${dynamic.id_str}]`);
+            return null;
+          }
+          if (desc && !contentFilter(desc.text)) return null;
+          if (pics && pics.length > 0) {
+            pics = pics.map((item) => {
+              return segment.image(item.src);
+            });
+          } else {
+            pics = [];
+          }
+          title = `${biliUser.name}「图文」推送：\n`;
+          if (getSendType(info) != "default") {
+            msg = [title, desc ? `${desc.text}\n` : '', ...pics, `${BiliDrawDynamicLinkUrl}${dynamic.id_str}`];
+          } else {
+            if (pics.length > DynamicPicCountLimit) pics.length = DynamicPicCountLimit;
+            msg = [title, desc ? `${dynamicContentLimit(desc.text)}\n` : '', ...pics, `${BiliDrawDynamicLinkUrl}${dynamic.id_str}`];
+          }
         }
         return msg;
 
