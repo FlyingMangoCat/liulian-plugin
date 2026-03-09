@@ -1418,6 +1418,7 @@ function buildSendDynamic(biliUser, dynamic, info) {
         // 检查majorType，支持MAJOR_TYPE_OPUS、MAJOR_TYPE_DRAW类型
         let majorTypeDraw = dynamic?.modules?.module_dynamic?.major?.type;
         if (majorTypeDraw === 'MAJOR_TYPE_OPUS') {
+          // 新版API：图文动态数据在major.opus中
           desc = dynamic?.modules?.module_dynamic?.major?.opus || {};
           pics = desc?.pics || [];
           if (pics && pics.length > 0) {
@@ -1437,6 +1438,7 @@ function buildSendDynamic(biliUser, dynamic, info) {
             msg = [title, opusDesc ? `${dynamicContentLimit(opusDesc)}\n` : '', ...pics, `${BiliDrawDynamicLinkUrl}${dynamic.id_str}`];
           }
         } else if (majorTypeDraw === 'MAJOR_TYPE_DRAW') {
+          // 旧版API：图文动态数据在major.draw中
           desc = dynamic?.modules?.module_dynamic?.desc;
           pics = dynamic?.modules?.module_dynamic?.major?.draw?.items;
           if (!desc && !pics) {
@@ -1459,26 +1461,23 @@ function buildSendDynamic(biliUser, dynamic, info) {
             msg = [title, desc ? `${dynamicContentLimit(desc.text)}\n` : '', ...pics, `${BiliDrawDynamicLinkUrl}${dynamic.id_str}`];
           }
         } else {
-          desc = dynamic?.modules?.module_dynamic?.desc;
+          // 兼容旧版数据结构，直接从major.draw获取
           pics = dynamic?.modules?.module_dynamic?.major?.draw?.items;
-          if (!desc && !pics) {
+          if (!pics || pics.length === 0) {
             Bot.logger.warn(`B站推送：图文动态数据不完整 [${dynamic.id_str}]`);
             return null;
           }
-          if (desc && !contentFilter(desc.text)) return null;
-          if (pics && pics.length > 0) {
+          if (pics.length > 0) {
             pics = pics.map((item) => {
               return segment.image(item.src);
             });
-          } else {
-            pics = [];
           }
           title = `${biliUser.name}「图文」推送：\n`;
           if (getSendType(info) != "default") {
-            msg = [title, desc ? `${desc.text}\n` : '', ...pics, `${BiliDrawDynamicLinkUrl}${dynamic.id_str}`];
+            msg = [title, ...pics, `${BiliDrawDynamicLinkUrl}${dynamic.id_str}`];
           } else {
             if (pics.length > DynamicPicCountLimit) pics.length = DynamicPicCountLimit;
-            msg = [title, desc ? `${dynamicContentLimit(desc.text)}\n` : '', ...pics, `${BiliDrawDynamicLinkUrl}${dynamic.id_str}`];
+            msg = [title, ...pics, `${BiliDrawDynamicLinkUrl}${dynamic.id_str}`];
           }
         }
         return msg;
