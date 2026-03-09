@@ -95,14 +95,16 @@ let DynamicPushTimeInterval = 60 * 60 * 1000; // 过期时间，单位：小时�
 async function initBiliCookie() {
   // 从配置文件读取Cookie
   if (!BiliCookie || BiliCookie.trim() === '') {
-    try {
-      const cfg = config.getdefault_config('bilibiliPush', 'bilibiliCookie', 'config');
-      if (cfg && cfg.cookie && cfg.cookie.trim() !== '') {
-        BiliCookie = cfg.cookie;
-        Bot.logger.mark(`B站推送：从配置文件加载 Cookie (长度: ${BiliCookie.length})`);
+    if (fs.existsSync(_path + "/data/PushNews/BilibiliPushConfig.json")) {
+      try {
+        const configData = JSON.parse(fs.readFileSync(_path + "/data/PushNews/BilibiliPushConfig.json", "utf8"));
+        if (configData.bilibiliCookie && configData.bilibiliCookie.cookie && configData.bilibiliCookie.cookie.trim() !== '') {
+          BiliCookie = configData.bilibiliCookie.cookie;
+          Bot.logger.mark(`B站推送：从配置文件加载 Cookie (长度: ${BiliCookie.length})`);
+        }
+      } catch (err) {
+        Bot.logger.warn(`B站推送：从配置文件加载 Cookie 失败: ${err.message}`);
       }
-    } catch (err) {
-      Bot.logger.warn(`B站推送：从配置文件加载 Cookie 失败: ${err.message}`);
     }
   }
   
@@ -412,8 +414,11 @@ async function handleLoginSuccess(pollResponse, e, qrMessageId) {
 
     // 保存到配置文件
     try {
-      const cfg = config.getdefault_config('bilibiliPush', 'bilibiliCookie', 'config');
-      cfg.cookie = cookieString;
+      if (!BilibiliPushConfig.bilibiliCookie) {
+        BilibiliPushConfig.bilibiliCookie = {};
+      }
+      BilibiliPushConfig.bilibiliCookie.cookie = cookieString;
+      await saveConfigJson();
       Bot.logger.mark('B站推送：Cookie已保存到配置文件');
     } catch (err) {
       Bot.logger.warn(`B站推送：保存Cookie到配置文件失败: ${err.message}`);
