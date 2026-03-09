@@ -1216,31 +1216,27 @@ function estimateReadingTime(pushList) {
   for (let dynamic of pushList) {
     // 估算文字长度
     let textLength = 0;
-    let desc = dynamic?.modules?.module_dynamic?.desc;
-    if (desc && desc.text) {
-      textLength += String(desc.text).length;
-    }
-    
-    // 估算图片数量
-    let imageCount = 0;
     let major = dynamic?.modules?.module_dynamic?.major;
-    if (major) {
-      if (major.type === 'MAJOR_TYPE_OPUS') {
-        // 图文动态
-        if (major.opus && major.opus.pics) {
-          imageCount += major.opus.pics.length;
-        }
-      } else if (major.type === 'MAJOR_TYPE_ARCHIVE') {
+    
+    // 新版API：文字动态和图文动态的文本都在major.opus.summary.text中
+    if (major && major.type === 'MAJOR_TYPE_OPUS' && major.opus && major.opus.summary) {
+      textLength += String(major.opus.summary.text || '').length;
+      // 估算图片数量
+      if (major.opus.pics) {
+        totalImageCount += major.opus.pics.length;
+      }
+    } else if (major) {
+      // 其他类型动态
+      if (major.type === 'MAJOR_TYPE_ARCHIVE') {
         // 视频动态，按1张图片算
-        imageCount += 1;
+        totalImageCount += 1;
       } else if (major.type === 'MAJOR_TYPE_ARTICLE') {
         // 专栏动态，按2张图片算
-        imageCount += 2;
+        totalImageCount += 2;
       }
     }
     
     totalTextLength += textLength;
-    totalImageCount += imageCount;
   }
   
   // 估算阅读时间：文字每100字5秒，每张图片10秒
@@ -1366,7 +1362,7 @@ async function pushAgain(groupId, msg, retryCount = 0) {
 // 构建动态消息
 function buildSendDynamic(biliUser, dynamic, info) {
   try {
-    let desc, msg, pics;
+    let desc, msg, pics, opusDesc;
     let title = `${biliUser.name}「动态」推送：\n`;
 
     // 以下对象结构参考新版 API 接口
@@ -1382,103 +1378,41 @@ function buildSendDynamic(biliUser, dynamic, info) {
         return msg;
 
       case "DYNAMIC_TYPE_WORD":
-        // 检查majorType，支持MAJOR_TYPE_OPUS类型
-        let majorTypeWord = dynamic?.modules?.module_dynamic?.major?.type;
-        if (majorTypeWord === 'MAJOR_TYPE_OPUS') {
-          desc = dynamic?.modules?.module_dynamic?.major?.opus || {};
-          let opusDesc = desc?.summary?.text || '';
-          if (!opusDesc) {
-            Bot.logger.warn(`B站推送：文字动态数据不完整 [${dynamic.id_str}]`);
-            return null;
-          }
-          if (!contentFilter(opusDesc)) return null;
-          title = `${biliUser.name}「动态」推送：\n`;
-          if (getSendType(info) != "default") {
-            msg = [title, `${opusDesc}\n`, `${BiliDrawDynamicLinkUrl}${dynamic.id_str}`];
-          } else {
-            msg = [title, `${dynamicContentLimit(opusDesc)}\n`, `${BiliDrawDynamicLinkUrl}${dynamic.id_str}`];
-          }
+        // 新版API：文字动态数据在major.opus中
+        desc = dynamic?.modules?.module_dynamic?.major?.opus || {};
+        opusDesc = desc?.summary?.text || '';
+        if (!opusDesc) {
+          Bot.logger.warn(`B站推送：文字动态数据不完整 [${dynamic.id_str}]`);
+          return null;
+        }
+        if (!contentFilter(opusDesc)) return null;
+        title = `${biliUser.name}「动态」推送：\n`;
+        if (getSendType(info) != "default") {
+          msg = [title, `${opusDesc}\n`, `${BiliDrawDynamicLinkUrl}${dynamic.id_str}`];
         } else {
-          desc = dynamic?.modules?.module_dynamic?.desc;
-          if (!desc) {
-            Bot.logger.warn(`B站推送：文字动态数据不完整 [${dynamic.id_str}]`);
-            return null;
-          }
-          if (!contentFilter(desc.text)) return null;
-          title = `${biliUser.name}「动态」推送：\n`;
-          if (getSendType(info) != "default") {
-            msg = [title, `${desc.text}\n`, `${BiliDrawDynamicLinkUrl}${dynamic.id_str}`];
-          } else {
-            msg = [title, `${dynamicContentLimit(desc.text)}\n`, `${BiliDrawDynamicLinkUrl}${dynamic.id_str}`];
-          }
+          msg = [title, `${dynamicContentLimit(opusDesc)}\n`, `${BiliDrawDynamicLinkUrl}${dynamic.id_str}`];
         }
         return msg;
 
       case "DYNAMIC_TYPE_DRAW":
-        // 检查majorType，支持MAJOR_TYPE_OPUS、MAJOR_TYPE_DRAW类型
-        let majorTypeDraw = dynamic?.modules?.module_dynamic?.major?.type;
-        if (majorTypeDraw === 'MAJOR_TYPE_OPUS') {
-          // 新版API：图文动态数据在major.opus中
-          desc = dynamic?.modules?.module_dynamic?.major?.opus || {};
-          pics = desc?.pics || [];
-          if (pics && pics.length > 0) {
-            pics = pics.map((item) => {
-              return segment.image(item.url);
-            });
-          } else {
-            pics = [];
-          }
-          let opusDesc = desc?.summary?.text || '';
-          if (opusDesc && !contentFilter(opusDesc)) return null;
-          title = `${biliUser.name}「图文」推送：\n`;
-          if (getSendType(info) != "default") {
-            msg = [title, opusDesc ? `${opusDesc}\n` : '', ...pics, `${BiliDrawDynamicLinkUrl}${dynamic.id_str}`];
-          } else {
-            if (pics.length > DynamicPicCountLimit) pics.length = DynamicPicCountLimit;
-            msg = [title, opusDesc ? `${dynamicContentLimit(opusDesc)}\n` : '', ...pics, `${BiliDrawDynamicLinkUrl}${dynamic.id_str}`];
-          }
-        } else if (majorTypeDraw === 'MAJOR_TYPE_DRAW') {
-          // 旧版API：图文动态数据在major.draw中
-          desc = dynamic?.modules?.module_dynamic?.desc;
-          pics = dynamic?.modules?.module_dynamic?.major?.draw?.items;
-          if (!desc && !pics) {
-            Bot.logger.warn(`B站推送：图文动态数据不完整 [${dynamic.id_str}]`);
-            return null;
-          }
-          if (desc && !contentFilter(desc.text)) return null;
-          if (pics && pics.length > 0) {
-            pics = pics.map((item) => {
-              return segment.image(item.src);
-            });
-          } else {
-            pics = [];
-          }
-          title = `${biliUser.name}「图文」推送：\n`;
-          if (getSendType(info) != "default") {
-            msg = [title, desc ? `${desc.text}\n` : '', ...pics, `${BiliDrawDynamicLinkUrl}${dynamic.id_str}`];
-          } else {
-            if (pics.length > DynamicPicCountLimit) pics.length = DynamicPicCountLimit;
-            msg = [title, desc ? `${dynamicContentLimit(desc.text)}\n` : '', ...pics, `${BiliDrawDynamicLinkUrl}${dynamic.id_str}`];
-          }
+        // 新版API：图文动态数据在major.opus中
+        desc = dynamic?.modules?.module_dynamic?.major?.opus || {};
+        pics = desc?.pics || [];
+        if (pics && pics.length > 0) {
+          pics = pics.map((item) => {
+            return segment.image(item.url);
+          });
         } else {
-          // 兼容旧版数据结构，直接从major.draw获取
-          pics = dynamic?.modules?.module_dynamic?.major?.draw?.items;
-          if (!pics || pics.length === 0) {
-            Bot.logger.warn(`B站推送：图文动态数据不完整 [${dynamic.id_str}]`);
-            return null;
-          }
-          if (pics.length > 0) {
-            pics = pics.map((item) => {
-              return segment.image(item.src);
-            });
-          }
-          title = `${biliUser.name}「图文」推送：\n`;
-          if (getSendType(info) != "default") {
-            msg = [title, ...pics, `${BiliDrawDynamicLinkUrl}${dynamic.id_str}`];
-          } else {
-            if (pics.length > DynamicPicCountLimit) pics.length = DynamicPicCountLimit;
-            msg = [title, ...pics, `${BiliDrawDynamicLinkUrl}${dynamic.id_str}`];
-          }
+          pics = [];
+        }
+        opusDesc = desc?.summary?.text || '';
+        if (opusDesc && !contentFilter(opusDesc)) return null;
+        title = `${biliUser.name}「图文」推送：\n`;
+        if (getSendType(info) != "default") {
+          msg = [title, opusDesc ? `${opusDesc}\n` : '', ...pics, `${BiliDrawDynamicLinkUrl}${dynamic.id_str}`];
+        } else {
+          if (pics.length > DynamicPicCountLimit) pics.length = DynamicPicCountLimit;
+          msg = [title, opusDesc ? `${dynamicContentLimit(opusDesc)}\n` : '', ...pics, `${BiliDrawDynamicLinkUrl}${dynamic.id_str}`];
         }
         return msg;
 
