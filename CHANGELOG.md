@@ -4,6 +4,11 @@
     * 修复动态解析失败，支持新版API的MAJOR_TYPE_OPUS类型
     * 实现自适应间隔时间策略，根据新动态情况智能调整推送频率
     * 增加推送随机性，避免固定时间被检测
+* B站推送修复
+    * 修复Cookie保存和加载问题，改用JSON文件保存
+    * 修复Cookie为undefined时的substring错误
+    * 删除旧版API兼容代码，只保留MAJOR_TYPE_OPUS支持
+    * 修复推送失败导致漏推的问题
 
 # 0.14.5
 
