@@ -1087,9 +1087,10 @@ export async function pushScheduleJob(e = {}) {
   return { hasNewDynamic };
 }
 
-// 分批处理推送任务，模拟真人行为
+// 分批处理推送任务，按动态推送策略
 async function processBatchPush(allPushTasks) {
-  let totalNewDynamicCount = 0; // 记录本轮是否有新动态
+  // 第一步：收集所有需要推送的动态（去重）
+  let allDynamics = new Map(); // 使用Map去重，key为动态ID
   
   for (let task of allPushTasks) {
     let { pushInfo, users } = task;
@@ -1101,46 +1102,117 @@ async function processBatchPush(allPushTasks) {
       // 检查是否已经请求过这个用户的动态
       let lastPushList = nowDynamicPushList.get(biliUID);
       if (lastPushList) {
-        if (lastPushList.length === 0) {
-          continue;
+        // 将动态添加到全局列表
+        for (let dynamic of lastPushList) {
+          if (!allDynamics.has(dynamic.id_str)) {
+            allDynamics.set(dynamic.id_str, {
+              dynamic: dynamic,
+              biliUser: user,
+              pushTargets: []
+            });
+          }
+          // 添加推送目标（避免重复）
+          let target = allDynamics.get(dynamic.id_str);
+          if (!target.pushTargets.includes(pushInfo.pushTarget)) {
+            target.pushTargets.push(pushInfo.pushTarget);
+          }
         }
-        totalNewDynamicCount += lastPushList.length;
-        await sendDynamic(pushInfo, user, lastPushList);
         continue;
       }
 
       // 带重试机制的动态获取
       let pushList = await fetchUserDynamicWithRetry(pushInfo, user, biliUID);
       
-      // 估算阅读时间（如果有新动态的话）
       if (pushList && pushList.length > 0) {
-        totalNewDynamicCount += pushList.length;
+        // 将动态添加到全局列表
+        for (let dynamic of pushList) {
+          if (!allDynamics.has(dynamic.id_str)) {
+            allDynamics.set(dynamic.id_str, {
+              dynamic: dynamic,
+              biliUser: user,
+              pushTargets: []
+            });
+          }
+          // 添加推送目标（避免重复）
+          let target = allDynamics.get(dynamic.id_str);
+          if (!target.pushTargets.includes(pushInfo.pushTarget)) {
+            target.pushTargets.push(pushInfo.pushTarget);
+          }
+        }
+        
+        // 估算阅读时间，用于延迟
         let readingTime = estimateReadingTime(pushList);
-        Bot.logger.mark(`B站推送：用户[${biliUID}]估算阅读时间=${readingTime}秒`);
+        Bot.logger.mark(`B站推送：用户[${biliUID}]有 ${pushList.length} 条新动态`);
         
-        // 基于估算阅读时间调整下次查询的随机延迟
-        // 在估算时间的50%-150%之间波动，增加规律性
-        let delayRange = Math.max(15, readingTime); // 至少15秒
-        let minDelay = Math.floor(delayRange * 0.5);  // 下限：50%
-        let maxDelay = Math.floor(delayRange * 1.5);  // 上限：150%
-        let actualDelay = Math.floor(Math.random() * (maxDelay - minDelay + 1)) + minDelay;
-        
-        Bot.logger.mark(`B站推送：等待${actualDelay}秒后处理下一个用户（基于估算阅读时间${readingTime}秒）`);
-        await common.sleep(actualDelay * 1000);
-      } else {
-        // 没有新动态，使用基础随机延迟30-60秒
-        let baseDelay = Math.floor(Math.random() * 30) + 30;
-        Bot.logger.mark(`B站推送：等待${baseDelay}秒后处理下一个用户（无新动态）`);
-        await common.sleep(baseDelay * 1000);
+        // 用户之间有短暂延迟
+        let userDelay = Math.floor(Math.random() * 10) + 5;
+        await common.sleep(userDelay * 1000);
       }
     }
   }
   
+  // 第二步：按动态推送（每条动态推给所有群）
+  let dynamicIndex = 0;
+  for (let [dynamicId, dynamicData] of allDynamics) {
+    dynamicIndex++;
+    let { dynamic, biliUser, pushTargets } = dynamicData;
+    
+    Bot.logger.mark(`B站推送：开始推送动态[${dynamicIndex}/${allDynamics.size}] [${dynamicId}] 到 ${pushTargets.length} 个群`);
+    
+    // 构建消息
+    let msg = buildSendDynamic(biliUser, dynamic, { sendType: 'default' });
+    
+    if (!msg || msg === "can't push transmit") {
+      Bot.logger.warn(`B站推送：动态信息解析失败或跳过转发 [${dynamicId}]`);
+      continue;
+    }
+    
+    // 推送给所有群
+    for (let pushTarget of pushTargets) {
+      try {
+        // 获取该群的推送配置
+        let pushInfo = PushBilibiliDynamic[pushTarget];
+        if (!pushInfo) continue;
+        
+        let sendType = getSendType(pushInfo);
+        let finalMsg = msg;
+        if (sendType === "merge") {
+          finalMsg = await common.replyMake(msg, pushInfo.isGroup, msg[0]);
+        }
+        
+        if (pushInfo.isGroup) {
+          await Bot.pickGroup(pushTarget)
+            .sendMsg(finalMsg)
+            .catch((err) => {
+              Bot.logger.error(`B站推送：群[${pushTarget}]推送失败: ${err.message}`);
+              return pushAgain(pushTarget, finalMsg);
+            });
+        } else {
+          await common.relpyPrivate(pushTarget, finalMsg);
+        }
+        
+        Bot.logger.mark(`B站推送：成功推送动态 [${dynamicId}] 到 群[${pushTarget}]`);
+        
+        // 群之间有短暂延迟（500ms）
+        await common.sleep(500);
+      } catch (err) {
+        Bot.logger.error(`B站推送：发送动态异常 [${dynamicId}]: ${err.message}`);
+      }
+    }
+    
+    // 动态之间有延迟（30-60秒）
+    if (dynamicIndex < allDynamics.size) {
+      let delayBetweenDynamics = Math.floor(Math.random() * 30) + 30;
+      Bot.logger.mark(`B站推送：等待${delayBetweenDynamics}秒后推送下一条动态`);
+      await common.sleep(delayBetweenDynamics * 1000);
+    }
+  }
+  
   // 返回是否有新动态
-  return totalNewDynamicCount > 0;
+  return allDynamics.size > 0;
 }
 
-// 带重试机制的动态获取
+// 带重试机制的动态获取（只获取，不发送）
 async function fetchUserDynamicWithRetry(pushInfo, user, biliUID, retryCount = 0) {
   const maxRetries = 3;
   
@@ -1148,11 +1220,7 @@ async function fetchUserDynamicWithRetry(pushInfo, user, biliUID, retryCount = 0
     let pushList = await fetchUserDynamic(pushInfo, user, biliUID);
     nowDynamicPushList.set(biliUID, pushList);
     
-    if (pushList.length > 0) {
-      await sendDynamic(pushInfo, user, pushList);
-    }
-    
-    return pushList; // 返回动态列表，用于估算阅读时间
+    return pushList; // 返回动态列表，不发送
   } catch (err) {
     if (retryCount < maxRetries) {
       Bot.logger.warn(`B站推送：获取用户[${biliUID}]动态失败，第${retryCount + 1}次重试，错误: ${err.message}`);
