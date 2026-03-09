@@ -1394,32 +1394,67 @@ async function initPushConfig() {
 }
 initPushConfig();
 
+// 自适应B站推送间隔时间配置
+let adaptivePushConfig = {
+  minInterval: 5,  // 最小间隔5分钟（无新动态时）
+  maxInterval: 20, // 最大间隔20分钟（有新动态时）
+  defaultInterval: 10 // 默认间隔10分钟
+};
+
+// 自适应B站推送定时任务（使用递归setTimeout实现动态间隔）
+let biliPushScheduleTimer = null;
+
+async function adaptiveBiliPushSchedule() {
+  try {
+    // 记录开始时间
+    const startTime = Date.now();
+    Bot.logger.mark(`B站推送：开始执行自适应推送任务`);
+    
+    // 执行推送任务，获取结果
+    const result = await pushScheduleJob();
+    
+    // 计算执行耗时（分钟）
+    const executionTime = Math.ceil((Date.now() - startTime) / 1000 / 60);
+    
+    // 根据是否有新动态，决定下一次的间隔时间
+    let nextInterval;
+    if (result && result.hasNewDynamic) {
+      // 有新动态，延长间隔
+      nextInterval = adaptivePushConfig.maxInterval + Math.floor(Math.random() * 5); // 20-25分钟
+    } else {
+      // 无新动态，缩短间隔
+      nextInterval = adaptivePushConfig.minInterval + Math.floor(Math.random() * 5); // 5-10分钟
+    }
+    
+    // 执行时间不能超过间隔时间，避免立即执行
+    if (executionTime >= nextInterval) {
+      nextInterval = executionTime + 1; // 至少间隔1分钟
+    }
+    
+    Bot.logger.mark(`B站推送：上一轮执行耗时${executionTime}分钟，${result && result.hasNewDynamic ? '有新动态' : '无新动态'}，下次间隔${nextInterval}分钟`);
+    
+    // 清除旧的定时器
+    if (biliPushScheduleTimer) {
+      clearTimeout(biliPushScheduleTimer);
+    }
+    
+    // 设置下一次执行
+    biliPushScheduleTimer = setTimeout(adaptiveBiliPushSchedule, nextInterval * 60 * 1000);
+    
+  } catch (err) {
+    Bot.logger.error(`B站推送：自适应定时任务异常: ${err.message}`);
+    // 发生异常，使用默认间隔重试
+    if (biliPushScheduleTimer) {
+      clearTimeout(biliPushScheduleTimer);
+    }
+    biliPushScheduleTimer = setTimeout(adaptiveBiliPushSchedule, adaptivePushConfig.defaultInterval * 60 * 1000);
+  }
+}
+
 // 定时任务
 async function task() {
-  // 生成随机偏移分钟数（1-9），避免整点推送错过动态
-  const randomOffset = Math.floor(Math.random() * 9) + 1;
-  
-  // 优化定时策略：模拟真人浏览，每20分钟检查一次（一小时3次）
-  // 随机偏移秒数（0-59），增加随机性
-  const randomSecond = Math.floor(Math.random() * 60);
-  let scheduleConfig = `${randomSecond} 0,20,40 * * * ?`; // 每小时的0,20,40分钟执行
-  
-  let timeInter = Number(pushConfig.dynamicPushTimeInterval);
-  // 做好容错，防一手乱改配置文件
-  if (!isNaN(timeInter)) {
-    timeInter = Math.ceil(timeInter); // 确保一定是整数
-    if (timeInter <= 0) timeInter = 1; // 确保一定大于等于1
-
-    // 如果配置了时间间隔，优先使用配置
-    // 但也添加随机偏移，模拟真人
-    scheduleConfig = `${randomSecond} 0/${timeInter} * * * ?`;
-    if (timeInter >= 60) {
-      scheduleConfig = `${randomSecond} 0 * * * ?`;
-    }
-  }
-
-  // B站动态推送
-  schedule.scheduleJob(scheduleConfig, () => pushScheduleJob());
+  // B站动态推送 - 使用自适应间隔
+  adaptiveBiliPushSchedule();
   
   // 热搜推送（每小时检查一次，使用随机秒数）
   const hotSearchRandomSecond = Math.floor(Math.random() * 60);

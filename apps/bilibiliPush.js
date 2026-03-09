@@ -1057,11 +1057,16 @@ export async function pushScheduleJob(e = {}) {
   }
   
   // 分批处理，每批处理一个用户，使用随机延迟
-  await processBatchPush(allPushTasks);
+  const hasNewDynamic = await processBatchPush(allPushTasks);
+  
+  // 返回是否有新动态
+  return { hasNewDynamic };
 }
 
 // 分批处理推送任务，模拟真人行为
 async function processBatchPush(allPushTasks) {
+  let totalNewDynamicCount = 0; // 记录本轮是否有新动态
+  
   for (let task of allPushTasks) {
     let { pushInfo, users } = task;
     
@@ -1075,6 +1080,7 @@ async function processBatchPush(allPushTasks) {
         if (lastPushList.length === 0) {
           continue;
         }
+        totalNewDynamicCount += lastPushList.length;
         await sendDynamic(pushInfo, user, lastPushList);
         continue;
       }
@@ -1084,6 +1090,7 @@ async function processBatchPush(allPushTasks) {
       
       // 估算阅读时间（如果有新动态的话）
       if (pushList && pushList.length > 0) {
+        totalNewDynamicCount += pushList.length;
         let readingTime = estimateReadingTime(pushList);
         Bot.logger.mark(`B站推送：用户[${biliUID}]估算阅读时间=${readingTime}秒`);
         
@@ -1104,6 +1111,9 @@ async function processBatchPush(allPushTasks) {
       }
     }
   }
+  
+  // 返回是否有新动态
+  return totalNewDynamicCount > 0;
 }
 
 // 带重试机制的动态获取
