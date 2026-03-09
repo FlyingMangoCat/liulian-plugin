@@ -1,10 +1,27 @@
 import fs from "fs";
-import fetch from "node-fetch";
+import axios from 'axios';
+import axiosCookieJarSupport from 'axios-cookiejar-support';
+import * as tough from 'tough-cookie';
 import common from "../components/bcommon.js";
 import { botConfig } from "../components/bcommon.js"
 import config from "../model/config/config.js"
 import { getBLsid, getUuid } from "#liulian"
 import Cfg from '../components/Cfg.js'
+
+// 创建cookie jar
+const cookieJar = new tough.CookieJar();
+const httpClient = axios.create({ jar: cookieJar });
+
+// 从cookiejar中获取cookie值
+async function getCookieValue(cookieName) {
+  try {
+    const cookies = await cookieJar.getCookies('https://api.bilibili.com');
+    const cookie = cookies.find(c => c.key === cookieName);
+    return cookie ? cookie.value : '';
+  } catch (err) {
+    return '';
+  }
+}
 
 const _path = process.cwd();
 const cfg = config.getdefault_config('liulian', 'botname', 'config');
@@ -99,17 +116,11 @@ async function getLoginUserInfo() {
   }
 
   try {
-    const response = await fetch(BiliNavUrl, {
-      method: "get",
+    const response = await httpClient.get(BiliNavUrl, {
       headers: BiliReqHeaders
     });
 
-    if (!response.ok) {
-      Bot.logger.warn(`B站推送：获取登录用户信息失败，HTTP状态码: ${response.status}`);
-      return;
-    }
-
-    const res = await response.json();
+    const res = response.data;
 
     if (res.code === -352) {
       Bot.logger.warn('B站推送：Cookie 已过期或无效，请重新扫码登录');
@@ -146,17 +157,11 @@ async function getUserInfo(uid) {
 
   try {
     const url = `${BiliUserInfoUrl}?mid=${uid}`;
-    const response = await fetch(url, {
-      method: "get",
+    const response = await httpClient.get(url, {
       headers: BiliReqHeaders
     });
 
-    if (!response.ok) {
-      Bot.logger.warn(`B站推送：获取用户信息失败，HTTP状态码: ${response.status}`);
-      return null;
-    }
-
-    const res = await response.json();
+    const res = response.data;
 
     if (res.code === -352) {
       Bot.logger.warn('B站推送：Cookie 已过期或无效，请重新扫码登录');
@@ -194,17 +199,11 @@ export async function biliLogin(e) {
 
   try {
     // 获取登录二维码
-    const response = await fetch(BiliLoginQrcodeUrl + "?source=main-fe-header", {
-      method: "get",
+    const response = await httpClient.get(BiliLoginQrcodeUrl + "?source=main-fe-header", {
       headers: BiliReqHeaders
     });
 
-    if (!response.ok) {
-      e.reply("获取登录二维码失败，请稍后重试");
-      return true;
-    }
-
-    const res = await response.json();
+    const res = response.data;
 
     if (res.code !== 0) {
       e.reply(`获取登录二维码失败：${res.message}`);
@@ -293,17 +292,11 @@ export async function biliLogin(e) {
       }
 
       try {
-        const pollResponse = await fetch(`${BiliLoginInfoUrl}?qrcode_key=${qrcodeKey}&source=main-fe-header`, {
-          method: "get",
+        const pollResponse = await httpClient.get(`${BiliLoginInfoUrl}?qrcode_key=${qrcodeKey}&source=main-fe-header`, {
           headers: BiliReqHeaders
         });
 
-        if (!pollResponse.ok) {
-          // 请求失败，继续轮询
-          return scheduleNextPoll();
-        }
-
-        const pollRes = await pollResponse.json();
+        const pollRes = pollResponse.data;
 
         if (pollRes.code === 0) {
           const dataCode = pollRes.data?.code;
@@ -364,47 +357,45 @@ export async function biliLogin(e) {
 // 处理登录成功
 async function handleLoginSuccess(pollResponse, e, qrMessageId) {
   try {
-    // 获取响应头中的set-cookie
-    const setCookieHeaders = pollResponse.headers.get('set-cookie');
-    if (!setCookieHeaders) {
+    // Cookie已经由cookiejar自动管理，不需要手动解析
+    const setCookieHeaders = pollResponse.headers['set-cookie'];
+    if (!setCookieHeaders || setCookieHeaders.length === 0) {
       e.reply("登录成功但未获取到Cookie，请重试");
       return;
     }
 
-    // 解析Cookie
-    const cookieMap = new Map();
-    setCookieHeaders.split(', ').forEach(cookieStr => {
-      const [nameValue, ...parts] = cookieStr.split(';');
-      const [name, value] = nameValue.split('=');
-      if (name && value) {
-        cookieMap.set(name.trim(), value.trim());
+    // 手动设置cookie到cookiejar
+    for (const cookieStr of setCookieHeaders) {
+      try {
+        await cookieJar.setCookie(cookieStr, 'https://passport.bilibili.com');
+      } catch (err) {
+        Bot.logger.warn(`B站推送：设置Cookie失败: ${err.message}`);
       }
-    });
+    }
 
-    // 提取关键Cookie字段
-    const SESSDATA = cookieMap.get('SESSDATA') || '';
-    const biliJct = cookieMap.get('bili_jct') || '';
-    const DedeUserID = cookieMap.get('DedeUserID') || '';
-    const DedeUserIDCkMd5 = cookieMap.get('DedeUserID__ckMd5') || '';
-
-    if (!SESSDATA || !biliJct || !DedeUserID) {
+    // 获取DedeUserID
+    const SESSDATA = await getCookieValue('SESSDATA');
+    const DedeUserID = await getCookieValue('DedeUserID');
+    
+    if (!SESSDATA || !DedeUserID) {
       e.reply("登录成功但Cookie不完整，请重试");
       return;
     }
 
-    // 构建Cookie字符串
-    const cookieString = `SESSDATA=${SESSDATA}; bili_jct=${biliJct}; DedeUserID=${DedeUserID}; DedeUserID__ckMd5=${DedeUserIDCkMd5};`;
-
-    Bot.logger.mark(`B站推送：登录成功，获取到Cookie (长度: ${cookieString.length})`);
-    Bot.logger.mark(`B站推送：Cookie包含字段: SESSDATA(${SESSDATA.substring(0,5)}...), DedeUserID=${DedeUserID}`);
-
-    // 保存Cookie到配置
-    BiliCookie = cookieString;
-    BiliReqHeaders.cookie = cookieString;
     BiliUID = parseInt(DedeUserID);
+
+    Bot.logger.mark(`B站推送：登录成功，DedeUserID=${BiliUID}`);
 
     // 获取并保存UID
     await getLoginUserInfo();
+
+    // 保存到配置文件（只保存SESSDATA、bili_jct、DedeUserID）
+    const biliJct = await getCookieValue('bili_jct');
+    const DedeUserIDCkMd5 = await getCookieValue('DedeUserID__ckMd5');
+    const cookieString = `SESSDATA=${SESSDATA}; bili_jct=${biliJct}; DedeUserID=${DedeUserID}; DedeUserID__ckMd5=${DedeUserIDCkMd5};`;
+    
+    BiliCookie = cookieString;
+    BiliReqHeaders.cookie = cookieString;
 
     // 保存到配置文件
     try {
@@ -1152,17 +1143,11 @@ async function fetchUserDynamic(pushInfo, user, biliUID) {
   Bot.logger.mark(`B站推送：当前Cookie: ${BiliReqHeaders.cookie.substring(0, 20)}...`);
 
   // 使用BiliReqHeaders，Cookie已经包含了DedeUserID
-  const response = await fetch(url, {
-    method: "get",
+  const response = await httpClient.get(url, {
     headers: BiliReqHeaders
   });
 
-  if (!response.ok) {
-    Bot.logger.error(`B站推送：获取用户[${biliUID}]动态失败，HTTP状态码: ${response.status}`);
-    throw new Error(`HTTP状态码: ${response.status}`);
-  }
-
-  const res = await response.json();
+  const res = response.data;
 
   if (res.code === -352) {
     Bot.logger.warn('B站推送：Cookie 已过期或无效，请重新扫码登录');
