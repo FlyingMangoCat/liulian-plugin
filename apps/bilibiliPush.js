@@ -1,6 +1,6 @@
 import fs from "fs";
 import axios from 'axios';
-import axiosCookieJarSupport from 'axios-cookiejar-support';
+import wrapper from 'axios-cookiejar-support';
 import * as tough from 'tough-cookie';
 import common from "../components/bcommon.js";
 import { botConfig } from "../components/bcommon.js"
@@ -10,7 +10,7 @@ import Cfg from '../components/Cfg.js'
 
 // 创建cookie jar
 const cookieJar = new tough.CookieJar();
-const httpClient = axios.create({ jar: cookieJar });
+const httpClient = wrapper(axios.create({ jar: cookieJar }));
 
 // 从cookiejar中获取cookie值
 async function getCookieValue(cookieName) {
