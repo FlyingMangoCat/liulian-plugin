@@ -8,7 +8,7 @@ import Cfg from '../components/Cfg.js'
 
 const _path = process.cwd();
 const cfg = config.getdefault_config('liulian', 'botname', 'config');
-  const botname = cfg.botname
+const botname = cfg.botname
 
 if (!fs.existsSync(`${_path}/data/PushNews/`)) {
   fs.mkdirSync(`${_path}/data/PushNews/`);
@@ -76,29 +76,20 @@ let DynamicPushTimeInterval = 60 * 60 * 1000; // 过期时间，单位：小时�
 
 // 初始化 B站 Cookie
 async function initBiliCookie() {
-  // 尝试从配置文件读取 Cookie
-  try {
-    const cfg = config.getdefault_config('bilibiliPush', 'bilibiliCookie', 'config');
-    if (cfg && cfg.cookie && cfg.cookie.trim() !== '') {
-      BiliCookie = cfg.cookie.trim();
-      BiliReqHeaders.cookie = BiliCookie;
-      Bot.logger.mark(`B站推送：使用配置文件中的 Cookie (长度: ${BiliCookie.length})`);
-      Bot.logger.mark(`B站推送：Cookie内容: ${BiliCookie.substring(0, 20)}...`);
-      
-      // 获取当前登录用户的 UID
-      await getLoginUserInfo();
-      
-      return true;
-    }
-  } catch (err) {
-    Bot.logger.warn(`B站推送：读取配置文件 Cookie 失败: ${err.message}`);
+  // 检查是否有扫码登录保存的Cookie
+  if (!BiliCookie || BiliCookie.trim() === '') {
+    Bot.logger.mark('B站推送：未配置有效的 Cookie，B站推送功能无法使用');
+    Bot.logger.mark('B站推送：请主人发送 #B站扫码登录 进行配置');
+    return false;
   }
 
-  // 如果没有配置 Cookie，不自动生成
-  BiliCookie = '';
-  BiliReqHeaders.cookie = '';
-  Bot.logger.mark('B站推送：未配置有效的 Cookie，B站推送功能无法使用');
-  return false;
+  BiliReqHeaders.cookie = BiliCookie;
+  Bot.logger.mark(`B站推送：使用扫码登录的 Cookie (长度: ${BiliCookie.length})`);
+  
+  // 获取当前登录用户的 UID
+  await getLoginUserInfo();
+  
+  return true;
 }
 
 // 获取当前登录用户信息（获取 UID）
