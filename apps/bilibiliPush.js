@@ -87,6 +87,7 @@ const DynamicContentLenLimit = 95; // 推送文字和图文动态时，限制字
 const DynamicContentLineLimit = 5; // 推送文字和图文动态时，限制多少行文本
 
 let nowPushDate = Date.now(); // 设置当前推送的开始时间
+let lastSuccessfulPushDate = Date.now(); // 记录上一次成功推送的时间，用于避免漏推
 let pushTimeInterval = 10; // 推送间隔时间，单位：分钟
 // 延长过期时间的定义
 let DynamicPushTimeInterval = 60 * 60 * 1000; // 过期时间，单位：小时，默认一小时，范围[1,24]
@@ -1077,6 +1078,11 @@ export async function pushScheduleJob(e = {}) {
   // 分批处理，每批处理一个用户，使用随机延迟
   const hasNewDynamic = await processBatchPush(allPushTasks);
   
+  // 只有成功推送后才更新lastSuccessfulPushDate，避免漏推
+  if (hasNewDynamic) {
+    lastSuccessfulPushDate = nowPushDate;
+  }
+  
   // 返回是否有新动态
   return { hasNewDynamic };
 }
@@ -1198,8 +1204,9 @@ async function fetchUserDynamic(pushInfo, user, biliUID) {
     if (!author?.pub_ts) continue;
 
     let pubTime = author.pub_ts * 1000;
-    // 检查是否在允许推送的时间范围内
-    if (nowPushDate - pubTime > DynamicPushTimeInterval) {
+    // 使用lastSuccessfulPushDate来判断是否过期，避免因推送失败导致漏推
+    // 如果上一次推送成功后，动态发布时间早于过期时间，就不推送
+    if (lastSuccessfulPushDate - pubTime > DynamicPushTimeInterval) {
       continue;
     }
     pushList.push(val);
