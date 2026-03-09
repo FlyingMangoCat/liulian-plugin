@@ -1142,11 +1142,22 @@ async function processBatchPush(allPushTasks) {
         
         // 估算阅读时间，用于延迟
         let readingTime = estimateReadingTime(pushList);
-        Bot.logger.mark(`B站推送：用户[${biliUID}]有 ${pushList.length} 条新动态`);
+        Bot.logger.mark(`B站推送：用户[${biliUID}]有 ${pushList.length} 条新动态，估算阅读时间=${readingTime}秒`);
         
-        // 用户之间有短暂延迟
-        let userDelay = Math.floor(Math.random() * 10) + 5;
-        await common.sleep(userDelay * 1000);
+        // 基于估算阅读时间调整下次查询的随机延迟，避免被检测
+        // 在估算时间的50%-150%之间波动，增加规律性
+        let delayRange = Math.max(15, readingTime); // 至少15秒
+        let minDelay = Math.floor(delayRange * 0.5);  // 下限：50%
+        let maxDelay = Math.floor(delayRange * 1.5);  // 上限：150%
+        let actualDelay = Math.floor(Math.random() * (maxDelay - minDelay + 1)) + minDelay;
+        
+        Bot.logger.mark(`B站推送：等待${actualDelay}秒后处理下一个用户（基于估算阅读时间${readingTime}秒）`);
+        await common.sleep(actualDelay * 1000);
+      } else {
+        // 没有新动态，使用基础随机延迟30-60秒
+        let baseDelay = Math.floor(Math.random() * 30) + 30;
+        Bot.logger.mark(`B站推送：等待${baseDelay}秒后处理下一个用户（无新动态）`);
+        await common.sleep(baseDelay * 1000);
       }
     }
   }
