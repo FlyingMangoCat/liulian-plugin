@@ -8,7 +8,7 @@ import Cfg from '../components/Cfg.js'
 
 const _path = process.cwd();
 const cfg = config.getdefault_config('liulian', 'botname', 'config');
-  const botname = cfg.botname
+const botname = cfg.botname
 
 if (!fs.existsSync(`${_path}/data/PushNews/`)) {
   fs.mkdirSync(`${_path}/data/PushNews/`);
