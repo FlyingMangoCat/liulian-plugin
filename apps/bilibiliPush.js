@@ -1150,7 +1150,7 @@ async function fetchUserDynamic(pushInfo, user, biliUID) {
   let pushList = [];
 
   Bot.logger.mark(`B站推送：准备获取用户[${biliUID}]的动态`);
-  Bot.logger.mark(`B站推送：当前Cookie: ${BiliReqHeaders.cookie.substring(0, 20)}...`);
+  Bot.logger.mark(`B站推送：当前Cookie: ${BiliReqHeaders.cookie ? BiliReqHeaders.cookie.substring(0, 20) + '...' : '未配置'}`);
 
   // 使用BiliReqHeaders，Cookie已经包含了DedeUserID
   const response = await httpClient.get(url, {
