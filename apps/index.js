@@ -1394,10 +1394,10 @@ async function initPushConfig() {
 }
 initPushConfig();
 
-// 自适应B站推送间隔时间配置
+// 自适应B站推送间隔时间配置（分钟）
 let adaptivePushConfig = {
-  minInterval: 5,  // 最小间隔5分钟（无新动态时）
-  maxInterval: 20, // 最大间隔20分钟（有新动态时）
+  minInterval: 3,   // 最小间隔3分钟（无新动态时）
+  maxInterval: 30,  // 最大间隔30分钟（有新动态时）
   defaultInterval: 10 // 默认间隔10分钟
 };
 
@@ -1416,14 +1416,14 @@ async function adaptiveBiliPushSchedule() {
     // 计算执行耗时（分钟）
     const executionTime = Math.ceil((Date.now() - startTime) / 1000 / 60);
     
-    // 根据是否有新动态，决定下一次的间隔时间
+    // 根据是否有新动态，决定下一次的间隔时间（完全随机）
     let nextInterval;
     if (result && result.hasNewDynamic) {
-      // 有新动态，延长间隔
-      nextInterval = adaptivePushConfig.maxInterval + Math.floor(Math.random() * 5); // 20-25分钟
+      // 有新动态，间隔较长，范围15-30分钟
+      nextInterval = 15 + Math.floor(Math.random() * 16); // 15-30分钟
     } else {
-      // 无新动态，缩短间隔
-      nextInterval = adaptivePushConfig.minInterval + Math.floor(Math.random() * 5); // 5-10分钟
+      // 无新动态，间隔较短，范围3-12分钟
+      nextInterval = 3 + Math.floor(Math.random() * 10); // 3-12分钟
     }
     
     // 执行时间不能超过间隔时间，避免立即执行
@@ -1438,16 +1438,19 @@ async function adaptiveBiliPushSchedule() {
       clearTimeout(biliPushScheduleTimer);
     }
     
-    // 设置下一次执行
-    biliPushScheduleTimer = setTimeout(adaptiveBiliPushSchedule, nextInterval * 60 * 1000);
+    // 设置下一次执行（添加随机秒数偏移，避免整点触发）
+    const randomSeconds = Math.floor(Math.random() * 60); // 0-59秒随机偏移
+    const nextDelay = nextInterval * 60 * 1000 + randomSeconds * 1000;
+    biliPushScheduleTimer = setTimeout(adaptiveBiliPushSchedule, nextDelay);
     
   } catch (err) {
     Bot.logger.error(`B站推送：自适应定时任务异常: ${err.message}`);
-    // 发生异常，使用默认间隔重试
+    // 发生异常，使用随机间隔重试（5-15分钟）
     if (biliPushScheduleTimer) {
       clearTimeout(biliPushScheduleTimer);
     }
-    biliPushScheduleTimer = setTimeout(adaptiveBiliPushSchedule, adaptivePushConfig.defaultInterval * 60 * 1000);
+    const randomRetryInterval = 5 + Math.floor(Math.random() * 11); // 5-15分钟
+    biliPushScheduleTimer = setTimeout(adaptiveBiliPushSchedule, randomRetryInterval * 60 * 1000);
   }
 }
 
