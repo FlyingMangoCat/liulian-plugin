@@ -1,6 +1,6 @@
 import fs from "fs";
 import axios from 'axios';
-import wrapper from 'axios-cookiejar-support';
+import { wrapper } from 'axios-cookiejar-support';
 import * as tough from 'tough-cookie';
 import common from "../components/bcommon.js";
 import { botConfig } from "../components/bcommon.js"
