@@ -581,23 +581,6 @@ export async function rejectApplication(e) {
 
 // 生成热搜词云图
 export async function hotWordCloud(e) {
-  const platformMap = {
-    '微博': 'weibo',
-    'weibo': 'weibo',
-    '知乎': 'zhihu',
-    'zhihu': 'zhihu',
-    '百度': 'baidu',
-    'baidu': 'baidu',
-    '抖音': 'douyin',
-    'douyin': 'douyin',
-    'B站': 'bilihot',
-    'bilihot': 'bilihot',
-    'CSDN': 'csdn',
-    'csdn': 'csdn',
-    '少数派': 'sspai',
-    'sspai': 'sspai',
-  };
-
   const hotConfig = config.getdefault_config('liulian', 'hot', 'config');
   if (!hotConfig.charts.wordcloud_enabled) {
     e.reply('⚠️ 词云图功能未启用');
@@ -606,9 +589,6 @@ export async function hotWordCloud(e) {
 
   e.reply('⏳ 正在生成词云图，请稍候...');
 
-  let userPlatform = e.msg.replace(/^#*热搜词云/, '').trim();
-  let platform = userPlatform && platformMap[userPlatform] ? platformMap[userPlatform] : 'douyin';
-  
   try {
     // 获取热门关键词
     const keywords = await hotDatabase.getTopKeywords(7, 50);
@@ -624,7 +604,7 @@ export async function hotWordCloud(e) {
       value: k.count
     }));
 
-    // 生成词云图（这里需要调用图表生成API）
+    // TODO: 需要实现图表生成功能
     // 暂时返回文本数据
     let msg = ['📊 热搜词云数据（最近7天）\n\n'];
     wordCloudData.slice(0, 20).forEach((item, index) => {
@@ -699,7 +679,7 @@ export async function hotTrendChart(e) {
       };
     }).sort((a, b) => a.time.localeCompare(b.time));
 
-    // 生成趋势图（这里需要调用图表生成API）
+    // TODO: 需要实现图表生成功能
     // 暂时返回文本数据
     let msg = ['📈 热搜趋势数据（最近7天）\n\n'];
     chartData.forEach(item => {
