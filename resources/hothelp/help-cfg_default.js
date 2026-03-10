@@ -181,6 +181,11 @@ export const helpList = [
         desc: "查看汤圆帮助"
       },
       {
+        icon: 86,
+        title: "热搜帮助",
+        desc: "查看热搜功能帮助"
+      },
+      {
         icon: 79,
         title: "插件管理帮助",
         desc: "查看插件管理帮助"
