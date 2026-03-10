@@ -15,27 +15,11 @@ export const helpCfg = {
 
 // 帮助菜单内容
 export const helpList = [{
-  group: "新增功能",
+  group: "实用工具",
   list: [{
-    icon: 78,
-    title: "#猜谜语",
-    desc: "随机谜语，30秒后公布答案，回答格式：#谜底[答案]"
-  }, {
-    icon: 67,
-    title: "#历史上的今天",
-    desc: "查看历史上今天发生的事件"
-  }, {
     icon: 98,
     title: "#翻译[内容]",
     desc: "翻译指定内容"
-  }, {
-    icon: 66,
-    title: "#热搜[平台]",
-    desc: "全网热搜榜，支持：微博、知乎、百度、抖音、B站、CSDN、少数派"
-  }, {
-    icon: 76,
-    title: "#骚扰电话/查电话",
-    desc: "查询手机号是否为骚扰电话"
   }, {
     icon: 101,
     title: "#base64加密[内容]",
@@ -46,15 +30,27 @@ export const helpList = [{
     desc: "对base64文本进行解码"
   }]
 }, {
-  group: "使用说明",
+  group: "查询功能",
   list: [{
-    icon: 77,
-    title: "热搜榜使用方法",
-    desc: "#热搜（抖音）、#热搜微博、#热搜知乎、#热搜百度、#热搜B站、#热搜CSDN、#热搜少数派"
+    icon: 66,
+    title: "#热搜[平台]",
+    desc: "全网热搜榜，支持：微博、知乎、百度、抖音、B站、CSDN、少数派"
+  }, {
+    icon: 76,
+    title: "#骚扰电话/查电话",
+    desc: "查询手机号是否为骚扰电话"
+  }, {
+    icon: 67,
+    title: "#历史上的今天",
+    desc: "查看历史上今天发生的事件"
   }]
 }, {
-  group: "娱乐功能",
+  group: "娱乐互动",
   list: [{
+    icon: 78,
+    title: "#猜谜语",
+    desc: "随机谜语，30秒后公布答案，回答格式：#谜底[答案]"
+  }, {
     icon: 44,
     title: "猫猫系统",
     desc: "抱走猫猫、猫猫突袭"
@@ -74,6 +70,13 @@ export const helpList = [{
     icon: 99,
     title: "#观音灵签",
     desc: "观音灵签"
+  }]
+}, {
+  group: "使用说明",
+  list: [{
+    icon: 77,
+    title: "热搜榜使用方法",
+    desc: "#热搜（抖音）、#热搜微博、#热搜知乎、#热搜百度、#热搜B站、#热搜CSDN、#热搜少数派"
   }]
 }, {
   group: "其他帮助",
