@@ -72,20 +72,20 @@
     
     WordCloud(element, {
       list: wordList,
-      gridSize: 4,
+      gridSize: 2,
       weightFactor: function (size) {
-        return Math.pow(size, 0.6) * element.width / 1024 * 4;
+        return Math.pow(size, 0.7) * element.width / 1024 * 8;
       },
       fontFamily: 'Microsoft YaHei, SimHei, Arial',
       color: function (word, weight, fontSize, distance, theta) {
         return colors[Math.floor(Math.random() * colors.length)];
       },
-      rotateRatio: 0.2,
+      rotateRatio: 0.15,
       rotationSteps: 2,
       backgroundColor: 'transparent',
       shape: 'circle',
       shrinkToFit: true,
-      minSize: 14
+      minSize: 20
     });
   </script>
 </body>
