@@ -163,13 +163,8 @@ export const helpList = [
     ]
   },
   {
-    group: '其他帮助',
+    group: '其他帮助（部分功能帮助为独立帮助，榴莲帮助内不包括）',
     list: [
-      {
-        icon: 89,
-        title: "榴莲帮助",
-        desc: "查看榴莲插件主帮助"
-      },
       {
         icon: 84,
         title: "B站推送帮助",
@@ -181,7 +176,7 @@ export const helpList = [
         desc: "查看地下地图使用帮助"
       },
       {
-        icon: 89,
+        icon: 100,
         title: "汤圆帮助",
         desc: "查看汤圆帮助"
       },
