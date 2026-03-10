@@ -11,6 +11,27 @@ import config from "../model/config/config.js"
 const GAME_TIME_OUT = 30//游戏时长(秒)
 const _path = process.cwd();
 let music = [7351920257]; //这里改网易云的歌单id
+
+// 上传音频文件
+async function uploadRecord(url) {
+  try {
+    const response = await fetch(url);
+    const buffer = await response.buffer();
+    const tempPath = path.join(_path, 'temp', `music_${Date.now()}.mp3`);
+    
+    // 确保temp目录存在
+    const tempDir = path.join(_path, 'temp');
+    if (!fs.existsSync(tempDir)) {
+      fs.mkdirSync(tempDir, { recursive: true });
+    }
+    
+    fs.writeFileSync(tempPath, buffer);
+    return segment.record(tempPath);
+  } catch (error) {
+    console.error('上传音频失败:', error);
+    return null;
+  }
+}
 export const rule = {
   guessAvatar: {
     reg: '^#猜(头像|角色)(普通|困难|地狱)?(模式)?',
