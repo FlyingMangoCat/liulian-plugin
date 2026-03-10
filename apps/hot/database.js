@@ -23,6 +23,7 @@ class HotDatabase {
             this.ensureJsonFile('subscriptions.json', []);
             this.ensureJsonFile('applications.json', []);
             this.ensureJsonFile('history.json', []);
+            this.ensureJsonFile('keywords.json', []);
 
             this.isConnected = true;
             console.log('[HotDatabase] 文件存储初始化成功');
@@ -372,7 +373,7 @@ class HotDatabase {
 
     async getTopKeywords(days = 7, limit = 50) {
         try {
-            const data = this.readJsonFile('history.json');
+            const data = this.readJsonFile('keywords.json');
             const cutoffTime = new Date();
             cutoffTime.setDate(cutoffTime.getDate() - days);
 
@@ -381,18 +382,42 @@ class HotDatabase {
             data.forEach(item => {
                 const itemTime = new Date(item.record_time);
                 if (itemTime >= cutoffTime) {
-                    const title = item.title;
-                    keywordCount[title] = (keywordCount[title] || 0) + 1;
+                    const word = item.word;
+                    keywordCount[word] = (keywordCount[word] || 0) + 1;
                 }
             });
 
             return Object.entries(keywordCount)
-                .map(([title, count]) => ({ title, count }))
+                .map(([text, count]) => ({ text, count }))
                 .sort((a, b) => b.count - a.count)
                 .slice(0, limit);
         } catch (error) {
             console.error('[HotDatabase] 获取热门关键词失败:', error);
             return [];
+        }
+    }
+
+    // 保存分词后的关键词
+    async saveKeyword(platform, word) {
+        try {
+            const data = this.readJsonFile('keywords.json');
+            
+            data.push({
+                platform: platform,
+                word: word,
+                record_time: new Date().toISOString()
+            });
+
+            // 限制关键词记录数量（最多保留50000条）
+            if (data.length > 50000) {
+                data.splice(0, data.length - 50000);
+            }
+
+            this.writeJsonFile('keywords.json', data);
+            return true;
+        } catch (error) {
+            console.error('[HotDatabase] 保存关键词失败:', error);
+            return false;
         }
     }
 
@@ -411,6 +436,15 @@ class HotDatabase {
             });
 
             this.writeJsonFile('history.json', filtered);
+
+            // 清理过期的关键词
+            const keywords = this.readJsonFile('keywords.json');
+            const filteredKeywords = keywords.filter(item => {
+                const itemTime = new Date(item.record_time);
+                return itemTime >= cutoffTime;
+            });
+
+            this.writeJsonFile('keywords.json', filteredKeywords);
 
             // 清理过期的申请
             const applications = this.readJsonFile('applications.json');

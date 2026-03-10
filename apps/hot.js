@@ -4,6 +4,11 @@ import common from "../components/bcommon.js";
 import hotDatabase from "./hot/database.js";
 import fs from "fs";
 import { Common } from '#liulian';
+import Segment from 'segment';
+
+// 初始化分词器
+const segmenter = new Segment();
+segmenter.useDefault();
 
 // 安全获取segment对象
 const segment = global.segment || global.Bot?.segment || {}
@@ -225,6 +230,15 @@ export async function hotSearch(e) {
     // 保存到数据库（用于趋势分析）
     for (let item of top10) {
       await hotDatabase.saveHotSearchHistory(type, item.title, item.hot);
+      
+      // 分词并保存关键词
+      const words = segmenter.doSegment(item.title, { simple: true });
+      for (let word of words) {
+        // 过滤掉单字和常见无意义词
+        if (word.length >= 2 && !/^[的了在是和与及吗呢吧啊呀哦]+$/.test(word)) {
+          await hotDatabase.saveKeyword(type, word);
+        }
+      }
     }
     
     // 如果消息太长，分段发送
@@ -738,6 +752,15 @@ export async function hotUpdate(e) {
         
         for (let item of top10) {
           await hotDatabase.saveHotSearchHistory(platform, item.title, item.hot);
+          
+          // 分词并保存关键词
+          const words = segmenter.doSegment(item.title, { simple: true });
+          for (let word of words) {
+            // 过滤掉单字和常见无意义词
+            if (word.length >= 2 && !/^[的了在是和与及吗呢吧啊呀哦]+$/.test(word)) {
+              await hotDatabase.saveKeyword(platform, word);
+            }
+          }
         }
         
         successCount++;
