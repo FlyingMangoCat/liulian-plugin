@@ -36,6 +36,14 @@ export const helpList = [{
     icon: 76,
     title: "#骚扰电话/查电话",
     desc: "查询手机号是否为骚扰电话"
+  }, {
+    icon: 101,
+    title: "#base64加密[内容]",
+    desc: "对文本进行base64编码"
+  }, {
+    icon: 102,
+    title: "#base64解密[内容]",
+    desc: "对base64文本进行解码"
   }]
 }, {
   group: "使用说明",
