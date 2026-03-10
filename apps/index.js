@@ -69,7 +69,7 @@ import { biaoQing, biaoQingHelp } from "./makeemoticons.js"
 import { random, chuochuo, 上传, checkRandom } from "./Random expression.js"
 import { random as adRandom } from "./ad.js"
 import { FuckingChatterbox } from "./chatterboxStat.js"
-import { fanyi, translateText } from "./tools.js"
+import { fanyi, translateText, base64jiami, base64jiemi, wyyjx, wyyauto } from "./tools.js"
 import { dailyword, sentence, dailywordCheck, sentenceCheck } from "./daily.js"
 import { hotSearch, hotHelpText, subscribeKeyword, unsubscribeKeyword, viewSubscriptions, addGlobalBlockedKeyword, removeGlobalBlockedKeyword, viewGlobalBlockedKeywords, addGroupBlockedKeyword, removeGroupBlockedKeyword, viewGroupBlockedKeywords, viewApplications, approveApplication, rejectApplication, hotWordCloud, hotTrendChart, enableHotPush, disableHotPush, setHotPushTime, setHotPushPlatform, getHotPushList, hotPushScheduleJob } from "./hot.js"
 import { EndCheck,   
@@ -1283,6 +1283,26 @@ yl21: {
        priority: 900,
        describe: "",
   },
+       base64jiami: {
+       reg: "^#*base64加密(.*)$",
+       priority: 100,
+       describe: "base64编码",
+    },
+       base64jiemi: {
+       reg: "^#*base64解密(.*)$",
+       priority: 100,
+       describe: "base64解码",
+    },
+       wyyjx: {
+       reg: "^#*网易云解析(.*)$",
+       priority: 100,
+       describe: "网易云歌曲解析",
+    },
+       wyyauto: {
+       reg: "music.163.com.*id=",
+       priority: 50,
+       describe: "网易云链接自动解析",
+    },
        wjc: {
        reg: "(傻逼|淦|你妈|卧槽|woc)$", //在此处添加违禁词，用"|"隔开
        priority: 100, //优先级，越小优先度越高
@@ -1559,7 +1579,7 @@ const exportedFunctions = {
     bilibiliPushPermission, updateBilibiliPush,
     getBilibiliPushUserList, setBiliPushTimeInterval,
     setBiliPushCookie, setBiliPushFaultTime, changeBiliPushTransmit,
-    setBiliPushSendType, pushScheduleJob, biliLogin, refreshBiliPushList, checkBiliCookie, weather, dog, holiday, eventHistory, miyu, miyuCheck, fanyi, translateText, hotSearch, subscribeKeyword, unsubscribeKeyword, viewSubscriptions,
+    setBiliPushSendType, pushScheduleJob, biliLogin, refreshBiliPushList, checkBiliCookie, weather, dog, holiday, eventHistory, miyu, miyuCheck, fanyi, translateText, base64jiami, base64jiemi, wyyjx, wyyauto, hotSearch, subscribeKeyword, unsubscribeKeyword, viewSubscriptions,
     addGlobalBlockedKeyword, removeGlobalBlockedKeyword, viewGlobalBlockedKeywords,
     addGroupBlockedKeyword, removeGroupBlockedKeyword, viewGroupBlockedKeywords,
     viewApplications, approveApplication, rejectApplication,
