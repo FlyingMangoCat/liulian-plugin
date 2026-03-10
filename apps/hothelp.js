@@ -52,11 +52,9 @@ export async function hothelp (e, { render }) {
     helpGroup.push(group)
   })
 
-  return await render('hothelp/index', {
+  return await Common.render('hothelp/index', {
     helpCfg,
     helpGroup,
-    currentVersion,
-    changelogs,
     element: 'default'
-  })
+  }, { e, render, scale: 1.2 })
 }
