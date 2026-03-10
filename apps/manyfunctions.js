@@ -491,14 +491,14 @@ else  if(keyword == `射手` || keyword == `射手座` ){
 
 export async function headPortraitFUN(e) {
   if (!e.isGroup || !headPortrait) return false;
-  
+
   const cfg = config.getdefault_config('liulian', 'token', 'config');
   const apikeys = cfg.apikeys;
-  const apikey = apikeys.qqtx_apikey || '';
-  
+  const apikey = apikeys.qq头像_apikey || '';
+
   let qq = e.user_id;
   let name = e.sender.card;
-  
+
   if (e.msg.match('自己')) {
     try {
       let url = `https://api.oick.cn/api/qqtx?qq=${qq}&apikey=${apikey}`;
@@ -516,12 +516,12 @@ export async function headPortraitFUN(e) {
     }
     return true
   }
-  
+
   if (!e.at) {
     e.reply("发送看头像@xx，可以快捷查看ta的头像哦~")
     return true
   }
-  
+
   try {
     let url = `https://api.oick.cn/api/qqtx?qq=${e.at}&apikey=${apikey}`;
     let response = await fetch(url);
