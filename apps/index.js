@@ -47,6 +47,9 @@ eventHistory,
 setu,
 lp
 } from "./manyfunctions.js"
+import { 骚扰电话,
+rule as phoneRule
+} from "./phone.js"
 import { sjclassic,
 zdclassic,
  } from "./classic.js"
@@ -341,6 +344,7 @@ export {
     determineIfYouShutUp,
     openYourMouth,
     replace,
+    骚扰电话,
     sjclassic,
     zdclassic,
     liulian_status,
@@ -1178,6 +1182,11 @@ yl21: {
        reg: "^#*翻译(.*)$",
        priority: 100,
        describe: "翻译功能",
+    },
+       骚扰电话: {
+       reg: "^#*(骚扰电话|查电话)(.*)$",
+       priority: 100,
+       describe: "骚扰电话查询",
     },
        weather: {
        reg: "^#(.*)(天气)$", //匹配消息正则，命令正则
