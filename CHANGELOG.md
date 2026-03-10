@@ -1,3 +1,11 @@
+# 0.14.8
+
+* 修复热搜词云和趋势图渲染功能
+    * 使用Common.render替代puppeteer直接调用，修复模块路径错误
+    * 优化渲染参数传递，支持scale缩放配置
+    * 创建Chart.js模板文件（wordcloud.html、trend.html）
+    * 确保图表能正确生成并显示图片
+
 # 0.14.7
 
 * 修复热搜帮助功能
