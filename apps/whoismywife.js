@@ -1,6 +1,7 @@
 import { segment } from "oicq";
 import fetch from "node-fetch";
 import { Cfg, logger } from '#liulian'
+import config from "../model/config/config.js"
 //项目路径
 const _path = process.cwd();
 let GayCD = { };
@@ -34,106 +35,169 @@ if (random < 5) {
         }
     }, (time*60000));
     let mmap = await e.group.getMemberMap();
-    let arrMember = Array.from(mmap.values());
-    let randomWife = arrMember[Math.round(Math.random() * (arrMember.length-1))];
-    if (randomWife.last_sent_time>=(new Date().getTime() - 259200000)/1000){
+        let arrMember = Array.from(mmap.values());
+    
+        // 第一优先级：3天内发过言的群员
+        let randomWife = arrMember[Math.round(Math.random() * (arrMember.length-1))];
+        if (randomWife.last_sent_time>=(new Date().getTime() - 259200000)/1000){
+            let msg = [
+                segment.at(e.user_id),
+                "今天你的群友老婆是",
+                segment.image(`https://q1.qlogo.cn/g?b=qq&s=0&nk=${randomWife.user_id}`),
+                `【${randomWife.nickname}】 (${randomWife.user_id}) 哒哒哒！(健康使用要刷屏！)`
+            ]
+            e.reply(msg);
+            logger.mark('第一个老婆最后发言时间：'+getMyDate(randomWife.last_sent_time*1000));
+            return true;
+        }
+        let randomWife2 = arrMember[Math.round(Math.random() * (arrMember.length-1))];
+        if (randomWife2.last_sent_time>=(new Date().getTime() - 259200000)/1000){
+            let msg = [
+                segment.at(e.user_id),
+                "今天你的群友老婆是",
+                segment.image(`https://q1.qlogo.cn/g?b=qq&s=0&nk=${randomWife2.user_id}`),
+                `【${randomWife2.nickname}】 (${randomWife2.user_id}) 哒哒哒！快点趁热入洞房吧！(健康使用不要刷屏！)`
+            ]
+            e.reply(msg);
+            logger.mark('第二个老婆最后发言时间：'+getMyDate(randomWife2.last_sent_time*1000));
+            return true;
+        }
+        let randomWife3 = arrMember[Math.round(Math.random() * (arrMember.length-1))];
+        if (randomWife3.last_sent_time>=(new Date().getTime() - 259200000)/1000){
+            let msg = [
+                segment.at(e.user_id),
+                "今天你的群友老婆是",
+                segment.image(`https://q1.qlogo.cn/g?b=qq&s=0&nk=${randomWife3.user_id}`),
+                `【${randomWife3.nickname}】 (${randomWife3.user_id}) 哒哒哒！(健康使用不要刷屏！)`
+            ]
+            e.reply(msg);
+            logger.mark('第三个老婆最后发言时间：'+getMyDate(randomWife3.last_sent_time*1000));
+            return true;
+        }
+        let randomWife4 = arrMember[Math.round(Math.random() * (arrMember.length-1))];
+        if (randomWife4.last_sent_time>=(new Date().getTime() - 259200000)/1000){
+            let msg = [
+                segment.at(e.user_id),
+                "今天你的群友老婆是",
+                segment.image(`https://q1.qlogo.cn/g?b=qq&s=0&nk=${randomWife4.user_id}`),
+                `【${randomWife4.nickname}】 (${randomWife4.user_id}) 啦啦啦！(健康使用不要刷屏！)`
+            ]
+            e.reply(msg);
+            logger.mark('第四个老婆最后发言时间：'+getMyDate(randomWife4.last_sent_time*1000));
+            return true;
+        }
+        let randomWife5 = arrMember[Math.round(Math.random() * (arrMember.length-1))];
+        if (randomWife5.last_sent_time>=(new Date().getTime() - 259200000)/1000){
+            let msg = [
+                segment.at(e.user_id),
+                "今天你的群友老婆是",
+                segment.image(`https://q1.qlogo.cn/g?b=qq&s=0&nk=${randomWife5.user_id}`),
+                `【${randomWife5.nickname}】 (${randomWife5.user_id}) 啦啦啦！(健康使用不要刷屏！)`
+            ]
+            e.reply(msg);
+            logger.mark('第五个老婆最后发言时间：'+getMyDate(randomWife5.last_sent_time*1000));
+            return true;
+        }
+        let randomWife6 = arrMember[Math.round(Math.random() * (arrMember.length-1))];
+        if (randomWife6.last_sent_time>=(new Date().getTime() - 259200000)/1000){
+            let msg = [
+                segment.at(e.user_id),
+                "今天你的群友老婆是",
+                segment.image(`https://q1.qlogo.cn/g?b=qq&s=0&nk=${randomWife6.user_id}`),
+                `【${randomWife6.nickname}】 (${randomWife6.user_id}) 啦啦啦！(健康使用不要刷屏！)`
+            ]
+            e.reply(msg);
+            logger.mark('第六个老婆最后发言时间：'+getMyDate(randomWife6.last_sent_time*1000));
+            return true;
+        }
+        let randomWife7 = arrMember[Math.round(Math.random() * (arrMember.length-1))];
+        if (randomWife7.last_sent_time>=(new Date().getTime() - 259200000)/1000){
+            let msg = [
+                segment.at(e.user_id),
+                "今天你的群友老婆是",
+                segment.image(`https://q1.qlogo.cn/g?b=qq&s=0&nk=${randomWife7.user_id}`),
+                `【${randomWife7.nickname}】 (${randomWife7.user_id}) 啦啦啦！(健康使用不要刷屏！)`
+            ]
+            e.reply(msg);
+            logger.mark('第七个老婆最后发言时间：'+getMyDate(randomWife7.last_sent_time*1000));
+            return true;
+        }
+        let randomWife8 = arrMember[Math.round(Math.random() * (arrMember.length-1))];
+        if (randomWife8.last_sent_time>=(new Date().getTime() - 259200000)/1000){
+            let msg = [
+                segment.at(e.user_id),
+                "今天你的群友老婆是",
+                segment.image(`https://q1.qlogo.cn/g?b=qq&s=0&nk=${randomWife8.user_id}`),
+                `【${randomWife8.nickname}】 (${randomWife8.user_id}) 啦啦啦！(健康使用不要刷屏！)`
+            ]
+            e.reply(msg);
+            logger.mark('第八个老婆最后发言时间：'+getMyDate(randomWife8.last_sent_time*1000));
+            return true;
+        }
+    
+        // 第二优先级：7天内发过言的群员
+        logger.mark('3天内无人发言，降级到7天内发过言的群员');
+        let randomWife9 = arrMember[Math.round(Math.random() * (arrMember.length-1))];
+        if (randomWife9.last_sent_time>=(new Date().getTime() - 604800000)/1000){
+            let msg = [
+                segment.at(e.user_id),
+                "今天你的群友老婆是",
+                segment.image(`https://q1.qlogo.cn/g?b=qq&s=0&nk=${randomWife9.user_id}`),
+                `【${randomWife9.nickname}】 (${randomWife9.user_id}) 哒哒哒！(健康使用不要刷屏！)`
+            ]
+            e.reply(msg);
+            logger.mark('第九个老婆最后发言时间：'+getMyDate(randomWife9.last_sent_time*1000));
+            return true;
+        }
+        let randomWife10 = arrMember[Math.round(Math.random() * (arrMember.length-1))];
+        if (randomWife10.last_sent_time>=(new Date().getTime() - 604800000)/1000){
+            let msg = [
+                segment.at(e.user_id),
+                "今天你的群友老婆是",
+                segment.image(`https://q1.qlogo.cn/g?b=qq&s=0&nk=${randomWife10.user_id}`),
+                `【${randomWife10.nickname}】 (${randomWife10.user_id}) 哒哒哒！快点趁热入洞房吧！(健康使用不要刷屏！)`
+            ]
+            e.reply(msg);
+            logger.mark('第十个老婆最后发言时间：'+getMyDate(randomWife10.last_sent_time*1000));
+            return true;
+        }
+        let randomWife11 = arrMember[Math.round(Math.random() * (arrMember.length-1))];
+        if (randomWife11.last_sent_time>=(new Date().getTime() - 604800000)/1000){
+            let msg = [
+                segment.at(e.user_id),
+                "今天你的群友老婆是",
+                segment.image(`https://q1.qlogo.cn/g?b=qq&s=0&nk=${randomWife11.user_id}`),
+                `【${randomWife11.nickname}】 (${randomWife11.user_id}) 哒哒哒！(健康使用不要刷屏！)`
+            ]
+            e.reply(msg);
+            logger.mark('第十一个老婆最后发言时间：'+getMyDate(randomWife11.last_sent_time*1000));
+            return true;
+        }
+        let randomWife12 = arrMember[Math.round(Math.random() * (arrMember.length-1))];
+        if (randomWife12.last_sent_time>=(new Date().getTime() - 604800000)/1000){
+            let msg = [
+                segment.at(e.user_id),
+                "今天你的群友老婆是",
+                segment.image(`https://q1.qlogo.cn/g?b=qq&s=0&nk=${randomWife12.user_id}`),
+                `【${randomWife12.nickname}】 (${randomWife12.user_id}) 啦啦啦！(健康使用不要刷屏！)`
+            ]
+            e.reply(msg);
+            logger.mark('第十二个老婆最后发言时间：'+getMyDate(randomWife12.last_sent_time*1000));
+            return true;
+        }
+    
+        // 第三优先级：从所有群员中选择
+        logger.mark('7天内无人发言，降级到所有群员');
+        let randomWife13 = arrMember[Math.round(Math.random() * (arrMember.length-1))];
         let msg = [
             segment.at(e.user_id),
             "今天你的群友老婆是",
-            segment.image(`https://q1.qlogo.cn/g?b=qq&s=0&nk=${randomWife.user_id}`),
-            `【${randomWife.nickname}】 (${randomWife.user_id}) 哒哒哒！(健康使用要刷屏！)`
+            segment.image(`https://q1.qlogo.cn/g?b=qq&s=0&nk=${randomWife13.user_id}`),
+            `【${randomWife13.nickname}】 (${randomWife13.user_id}) 哒哒哒！(健康使用不要刷屏！)`
         ]
         e.reply(msg);
-        logger.mark('第一个老婆最后发言时间：'+getMyDate(randomWife.last_sent_time*1000));
-        return true;
-    }
-    let randomWife2 = arrMember[Math.round(Math.random() * (arrMember.length-1))];
-    if (randomWife2.last_sent_time>=(new Date().getTime() - 259200000)/1000){
-        let msg = [
-            segment.at(e.user_id),
-            "今天你的群友老婆是",
-            segment.image(`https://q1.qlogo.cn/g?b=qq&s=0&nk=${randomWife2.user_id}`),
-            `【${randomWife2.nickname}】 (${randomWife2.user_id}) 哒哒哒！快点趁热入洞房吧！(健康使用不要刷屏！)`
-        ]
-        e.reply(msg);
-        logger.mark('第二个老婆最后发言时间：'+getMyDate(randomWife2.last_sent_time*1000));
-        return true;
-    }
-    let randomWife3 = arrMember[Math.round(Math.random() * (arrMember.length-1))];
-    if (randomWife3.last_sent_time>=(new Date().getTime() - 259200000)/1000){
-        let msg = [
-            segment.at(e.user_id),
-            "今天你的群友老婆是",
-            segment.image(`https://q1.qlogo.cn/g?b=qq&s=0&nk=${randomWife3.user_id}`),
-            `【${randomWife3.nickname}】 (${randomWife3.user_id}) 哒哒哒！(健康使用不要刷屏！)`
-        ]
-        e.reply(msg);
-        logger.mark('第三个老婆最后发言时间：'+getMyDate(randomWife3.last_sent_time*1000));
-        return true;
-    }
-    let randomWife4 = arrMember[Math.round(Math.random() * (arrMember.length-1))];
-    if (randomWife4.last_sent_time>=(new Date().getTime() - 259200000)/1000){
-        let msg = [
-            segment.at(e.user_id),
-            "今天你的群友老婆是",
-            segment.image(`https://q1.qlogo.cn/g?b=qq&s=0&nk=${randomWife4.user_id}`),
-            `【${randomWife4.nickname}】 (${randomWife4.user_id}) 啦啦啦！(健康使用不要刷屏！)`
-        ]
-        e.reply(msg);
-        logger.mark('第四个老婆最后发言时间：'+getMyDate(randomWife4.last_sent_time*1000));
-        return true;
-    }
-    let randomWife5 = arrMember[Math.round(Math.random() * (arrMember.length-1))];
-    if (randomWife5.last_sent_time>=(new Date().getTime() - 259200000)/1000){
-        let msg = [
-            segment.at(e.user_id),
-            "今天你的群友老婆是",
-            segment.image(`https://q1.qlogo.cn/g?b=qq&s=0&nk=${randomWife5.user_id}`),
-            `【${randomWife5.nickname}】 (${randomWife5.user_id}) 啦啦啦！(健康使用不要刷屏！)`
-        ]
-        e.reply(msg);
-        logger.mark('第五个老婆最后发言时间：'+getMyDate(randomWife5.last_sent_time*1000));
-        return true;
-    }
-    let randomWife6 = arrMember[Math.round(Math.random() * (arrMember.length-1))];
-    if (randomWife6.last_sent_time>=(new Date().getTime() - 259200000)/1000){
-        let msg = [
-            segment.at(e.user_id),
-            "今天你的群友老婆是",
-            segment.image(`https://q1.qlogo.cn/g?b=qq&s=0&nk=${randomWife6.user_id}`),
-            `【${randomWife6.nickname}】 (${randomWife6.user_id}) 啦啦啦！(健康使用不要刷屏！)`
-        ]
-        e.reply(msg);
-        logger.mark('第六个老婆最后发言时间：'+getMyDate(randomWife6.last_sent_time*1000));
-        return true;
-    }
-    let randomWife7 = arrMember[Math.round(Math.random() * (arrMember.length-1))];
-    if (randomWife7.last_sent_time>=(new Date().getTime() - 259200000)/1000){
-        let msg = [
-            segment.at(e.user_id),
-            "今天你的群友老婆是",
-            segment.image(`https://q1.qlogo.cn/g?b=qq&s=0&nk=${randomWife7.user_id}`),
-            `【${randomWife7.nickname}】 (${randomWife7.user_id}) 啦啦啦！(健康使用不要刷屏！)`
-        ]
-        e.reply(msg);
-        logger.mark('第七个老婆最后发言时间：'+getMyDate(randomWife7.last_sent_time*1000));
-        return true;
-    }
-    let randomWife8 = arrMember[Math.round(Math.random() * (arrMember.length-1))];
-    if (randomWife8.last_sent_time>=(new Date().getTime() - 259200000)/1000){
-        let msg = [
-            segment.at(e.user_id),
-            "今天你的群友老婆是",
-            segment.image(`https://q1.qlogo.cn/g?b=qq&s=0&nk=${randomWife8.user_id}`),
-            `【${randomWife8.nickname}】 (${randomWife8.user_id}) 啦啦啦！(健康使用不要刷屏！)`
-        ]
-        e.reply(msg);
-        logger.mark('第八个老婆最后发言时间：'+getMyDate(randomWife8.last_sent_time*1000));
-        return true;
-    }
-    e.reply("这个群里3天内都没人说话，怎么娶老婆呀~");
-    return true;
-}
+        logger.mark('第十三个老婆最后发言时间：'+getMyDate(randomWife13.last_sent_time*1000));
+        return true;}
 function getMyDate(str) {
     var oDate = new Date(str),
         oYear = oDate.getFullYear(),
