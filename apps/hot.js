@@ -599,8 +599,11 @@ export async function hotWordCloud(e, { render }) {
       return true;
     }
 
+    // 只取前30个高频关键词
+    const topKeywords = keywords.slice(0, 30);
+
     // 转换为词云数据格式
-    const wordCloudData = keywords.map(k => ({
+    const wordCloudData = topKeywords.map(k => ({
       text: k.title,
       value: k.count
     }));

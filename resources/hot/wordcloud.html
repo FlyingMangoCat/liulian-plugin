@@ -34,9 +34,6 @@
       border-radius: 12px;
       padding: 20px;
       border: 2px solid rgba(230, 126, 34, 0.1);
-      display: flex;
-      align-items: center;
-      justify-content: center;
     }
     #wordCloudChart {
       width: 100%;
@@ -58,12 +55,13 @@
     const element = document.getElementById('wordCloudChart');
     const container = element.parentElement;
     
-    // 设置 canvas 尺寸
-    element.width = container.offsetWidth;
-    element.height = container.offsetHeight;
+    // 设置更高的分辨率
+    const scale = 2;
+    element.width = container.offsetWidth * scale;
+    element.height = container.offsetHeight * scale;
     
     // 转换为 WordCloud2.js 需要的格式
-    const wordList = chartData.map(d => [d.text, d.value * 3]);
+    const wordList = chartData.map(d => [d.text, d.value * 5]);
     
     // 颜色数组
     const colors = [
@@ -74,18 +72,20 @@
     
     WordCloud(element, {
       list: wordList,
-      gridSize: Math.round(16 * element.width / 1024),
+      gridSize: 4,
       weightFactor: function (size) {
-        return Math.pow(size, 0.8) * element.width / 1024 * 2;
+        return Math.pow(size, 0.6) * element.width / 1024 * 4;
       },
       fontFamily: 'Microsoft YaHei, SimHei, Arial',
       color: function (word, weight, fontSize, distance, theta) {
         return colors[Math.floor(Math.random() * colors.length)];
       },
-      rotateRatio: 0.3,
+      rotateRatio: 0.2,
       rotationSteps: 2,
       backgroundColor: 'transparent',
-      shape: 'circle'
+      shape: 'circle',
+      shrinkToFit: true,
+      minSize: 14
     });
   </script>
 </body>
