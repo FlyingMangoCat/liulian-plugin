@@ -28,6 +28,10 @@ export const helpList = [{
     icon: 102,
     title: "#base64解密[内容]",
     desc: "对base64文本进行解码"
+  }, {
+    icon: 103,
+    title: "#网易云解析[歌曲ID]",
+    desc: "解析网易云歌曲链接"
   }]
 }, {
   group: "查询功能",

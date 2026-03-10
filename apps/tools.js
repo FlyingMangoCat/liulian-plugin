@@ -40,6 +40,16 @@ export const rule = {
     priority: 100,
     describe: "base64解码",
   },
+  wyyjx: {
+    reg: "^#*网易云解析(.*)$",
+    priority: 100,
+    describe: "网易云歌曲解析",
+  },
+  wyyauto: {
+    reg: "music.163.com.*id=",
+    priority: 50,
+    describe: "网易云链接自动解析",
+  },
 };
 
 // 用户命令接口
@@ -117,6 +127,68 @@ export async function base64jiemi(e) {
     }
   } catch (error) {
     e.reply('解码失败，请稍后重试');
+  }
+
+  return true;
+}
+
+// 网易云主动解析
+export async function wyyjx(e) {
+  const text = e.msg.replace(/^#*网易云解析/, '').trim();
+
+  if (!text) {
+    e.reply('请输入网易云歌曲ID或链接，格式：#网易云解析[歌曲ID] 或 #网易云解析[网易云链接]');
+    return true;
+  }
+
+  // 提取歌曲ID
+  let songId = text;
+  const match = text.match(/id=(\d+)/);
+  if (match) {
+    songId = match[1];
+  }
+
+  const cfg = config.getdefault_config('liulian', 'token', 'config');
+  const apikeys = cfg.apikeys;
+  const apikey = apikeys.网易云_apikey || '';
+
+  try {
+    let url = `https://api.oick.cn/api/wyy?id=${songId}&apikey=${apikey}`;
+    let response = await fetch(url);
+    let res = await response.json();
+
+    if (res && res.MP3) {
+      e.reply(`歌曲链接：${res.MP3}`);
+    } else {
+      e.reply('解析失败，请检查歌曲ID是否正确');
+    }
+  } catch (error) {
+    e.reply('解析失败，请稍后重试');
+  }
+
+  return true;
+}
+
+// 网易云自动解析
+export async function wyyauto(e) {
+  const match = e.msg.match(/id=(\d+)/);
+  if (!match) return false;
+
+  const songId = match[1];
+  const cfg = config.getdefault_config('liulian', 'token', 'config');
+  const apikeys = cfg.apikeys;
+  const apikey = apikeys.网易云_apikey || '';
+
+  try {
+    let url = `https://api.oick.cn/api/wyy?id=${songId}&apikey=${apikey}`;
+    let response = await fetch(url);
+    let res = await response.json();
+
+    if (res && res.MP3) {
+      e.reply(`网易云歌曲解析成功：\n歌曲链接：${res.MP3}`);
+    }
+  } catch (error) {
+    console.error('网易云自动解析失败:', error);
   }
 
   return true;
