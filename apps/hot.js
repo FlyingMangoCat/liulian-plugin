@@ -3,7 +3,7 @@ import config from "../model/config/config.js";
 import common from "../components/bcommon.js";
 import hotDatabase from "./hot/database.js";
 import fs from "fs";
-import puppeteer from '../../lib/puppeteer/puppeteer.js';
+import { Common } from '#liulian';
 
 // 安全获取segment对象
 const segment = global.segment || global.Bot?.segment || {}
@@ -581,7 +581,7 @@ export async function rejectApplication(e) {
 }
 
 // 生成热搜词云图
-export async function hotWordCloud(e) {
+export async function hotWordCloud(e, { render }) {
   const hotConfig = config.getdefault_config('liulian', 'hot', 'config');
   if (!hotConfig.charts.wordcloud_enabled) {
     e.reply('⚠️ 词云图功能未启用');
@@ -606,10 +606,10 @@ export async function hotWordCloud(e) {
     }));
 
     // 使用渲染系统生成词云图
-    const img = await puppeteer.screenshot('liulian-plugin/hot/wordcloud', {
+    const img = await Common.render('hot/wordcloud', {
       title: '热搜词云（最近7天）',
       chartData: JSON.stringify(wordCloudData)
-    });
+    }, { e, render, scale: 1.2 });
 
     e.reply(segment.image(img));
     
@@ -621,7 +621,7 @@ export async function hotWordCloud(e) {
 }
 
 // 生成热搜趋势图
-export async function hotTrendChart(e) {
+export async function hotTrendChart(e, { render }) {
   const platformMap = {
     '微博': 'weibo',
     'weibo': 'weibo',
@@ -680,12 +680,12 @@ export async function hotTrendChart(e) {
     }).sort((a, b) => a.time.localeCompare(b.time));
 
     // 使用渲染系统生成趋势图
-    const img = await puppeteer.screenshot('liulian-plugin/hot/trend', {
+    const img = await Common.render('hot/trend', {
       title: '热搜趋势（最近7天）',
       chartData: JSON.stringify(chartData),
       axisXTitle: '日期',
       axisYTitle: '平均热度'
-    });
+    }, { e, render, scale: 1.2 });
 
     e.reply(segment.image(img));
     
