@@ -46,68 +46,135 @@
   <div class="container">
     <h1>{{ title }}</h1>
     <div class="chart-container">
-      <canvas id="wordCloudChart"></canvas>
+      <canvas id="wordCloudChart" data-chart="{{ chartData }}"></canvas>
     </div>
   </div>
 
   <script>
-    const chartData = {{ chartData }};
+    const chartData = JSON.parse(document.getElementById('wordCloudChart').dataset.chart);
     
     const ctx = document.getElementById('wordCloudChart').getContext('2d');
     
-    new Chart(ctx, {
-      type: 'wordCloud',
-      data: {
-        labels: chartData.map(d => d.text),
-        datasets: [{
-          label: '出现次数',
-          data: chartData.map(d => d.value),
-          backgroundColor: chartData.map((_, i) => {
-            const colors = [
-              'rgba(230, 126, 34, 0.8)',
-              'rgba(243, 156, 18, 0.8)',
-              'rgba(211, 84, 0, 0.8)',
-              'rgba(39, 174, 96, 0.8)',
-              'rgba(52, 152, 219, 0.8)',
-              'rgba(155, 89, 182, 0.8)',
-              'rgba(231, 76, 60, 0.8)',
-              'rgba(26, 188, 156, 0.8)'
-            ];
-            return colors[i % colors.length];
-          }),
-          borderColor: chartData.map((_, i) => {
-            const colors = [
-              'rgba(230, 126, 34, 1)',
-              'rgba(243, 156, 18, 1)',
-              'rgba(211, 84, 0, 1)',
-              'rgba(39, 174, 96, 1)',
-              'rgba(52, 152, 219, 1)',
-              'rgba(155, 89, 182, 1)',
-              'rgba(231, 76, 60, 1)',
-              'rgba(26, 188, 156, 1)'
-            ];
-            return colors[i % colors.length];
-          }),
-          borderWidth: 2
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: {
-            display: false
-          },
-          tooltip: {
-            callbacks: {
-              label: function(context) {
-                return `${context.label}: ${context.raw} 次`;
+    // 尝试使用词云图表，如果不可用则降级为气泡图
+    try {
+      new Chart(ctx, {
+        type: 'wordCloud',
+        data: {
+          labels: chartData.map(d => d.text),
+          datasets: [{
+            label: '出现次数',
+            data: chartData.map(d => d.value),
+            backgroundColor: chartData.map((_, i) => {
+              const colors = [
+                'rgba(230, 126, 34, 0.8)',
+                'rgba(243, 156, 18, 0.8)',
+                'rgba(211, 84, 0, 0.8)',
+                'rgba(39, 174, 96, 0.8)',
+                'rgba(52, 152, 219, 0.8)',
+                'rgba(155, 89, 182, 0.8)',
+                'rgba(231, 76, 60, 0.8)',
+                'rgba(26, 188, 156, 0.8)'
+              ];
+              return colors[i % colors.length];
+            }),
+            borderColor: chartData.map((_, i) => {
+              const colors = [
+                'rgba(230, 126, 34, 1)',
+                'rgba(243, 156, 18, 1)',
+                'rgba(211, 84, 0, 1)',
+                'rgba(39, 174, 96, 1)',
+                'rgba(52, 152, 219, 1)',
+                'rgba(155, 89, 182, 1)',
+                'rgba(231, 76, 60, 1)',
+                'rgba(26, 188, 156, 1)'
+              ];
+              return colors[i % colors.length];
+            }),
+            borderWidth: 2
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              display: false
+            },
+            tooltip: {
+              callbacks: {
+                label: function(context) {
+                  return `${context.label}: ${context.raw} 次`;
+                }
               }
             }
           }
         }
-      }
-    });
+      });
+    } catch (e) {
+      // 词云不可用，降级为气泡图
+      console.log('词云图表不可用，使用气泡图替代');
+      new Chart(ctx, {
+        type: 'bubble',
+        data: {
+          datasets: [{
+            label: '热搜关键词',
+            data: chartData.map((d, i) => ({
+              x: Math.random() * 100,
+              y: Math.random() * 100,
+              r: Math.min(Math.max(d.value * 2, 15), 50),
+              label: d.text
+            })),
+            backgroundColor: chartData.map((_, i) => {
+              const colors = [
+                'rgba(230, 126, 34, 0.8)',
+                'rgba(243, 156, 18, 0.8)',
+                'rgba(211, 84, 0, 0.8)',
+                'rgba(39, 174, 96, 0.8)',
+                'rgba(52, 152, 219, 0.8)',
+                'rgba(155, 89, 182, 0.8)',
+                'rgba(231, 76, 60, 0.8)',
+                'rgba(26, 188, 156, 0.8)'
+              ];
+              return colors[i % colors.length];
+            }),
+            borderColor: chartData.map((_, i) => {
+              const colors = [
+                'rgba(230, 126, 34, 1)',
+                'rgba(243, 156, 18, 1)',
+                'rgba(211, 84, 0, 1)',
+                'rgba(39, 174, 96, 1)',
+                'rgba(52, 152, 219, 1)',
+                'rgba(155, 89, 182, 1)',
+                'rgba(231, 76, 60, 1)',
+                'rgba(26, 188, 156, 1)'
+              ];
+              return colors[i % colors.length];
+            }),
+            borderWidth: 2
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              display: false
+            },
+            tooltip: {
+              callbacks: {
+                label: function(context) {
+                  return `${context.raw.label}: ${context.raw.r / 2} 次`;
+                }
+              }
+            }
+          },
+          scales: {
+            x: { display: false },
+            y: { display: false }
+          }
+        }
+      });
+    }
   </script>
 </body>
 </html>

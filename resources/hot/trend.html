@@ -45,12 +45,12 @@
   <div class="container">
     <h1>{{ title }}</h1>
     <div class="chart-container">
-      <canvas id="trendChart"></canvas>
+      <canvas id="trendChart" data-chart="{{ chartData }}"></canvas>
     </div>
   </div>
 
   <script>
-    const chartData = {{ chartData }};
+    const chartData = JSON.parse(document.getElementById('trendChart').dataset.chart);
     
     const ctx = document.getElementById('trendChart').getContext('2d');
     
