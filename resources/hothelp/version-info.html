@@ -1,0 +1,62 @@
+{{extend elemLayout}}
+
+{{block 'css'}}
+<link rel="stylesheet" type="text/css" href="{{_res_path}}/hothelp/version-info.css"/>
+{{/block}}
+
+{{block 'main'}}
+<div class="hot-bg log-cont">
+  <div class="cont">
+    <div class="cont-title">热搜功能使用说明</div>
+    <div class="cont-body">
+      <ul class="log-ul">
+        <li>
+          <p>热搜查询</p>
+          <ul class="sub-log-ul">
+            <li>#热搜 - 查看所有平台热搜</li>
+            <li>#热搜微博 - 查看微博热搜</li>
+            <li>#热搜知乎 - 查看知乎热搜</li>
+            <li>#热搜百度 - 查看百度热搜</li>
+            <li>#热搜抖音 - 查看抖音热搜</li>
+            <li>#热搜B站 - 查看B站热搜</li>
+            <li>#热搜CSDN - 查看CSDN热搜</li>
+            <li>#热搜少数派 - 查看少数派热搜</li>
+          </ul>
+        </li>
+        <li>
+          <p>关键词订阅</p>
+          <ul class="sub-log-ul">
+            <li>#订阅关键词[关键词] - 订阅关键词</li>
+            <li>#取消订阅[关键词] - 取消订阅</li>
+            <li>#查看订阅 - 查看已订阅关键词</li>
+          </ul>
+        </li>
+        <li>
+          <p>屏蔽词管理</p>
+          <ul class="sub-log-ul">
+            <li>#添加群屏蔽词[词] - 添加群屏蔽词</li>
+            <li>#删除群屏蔽词[词] - 删除群屏蔽词</li>
+            <li>#查看屏蔽词 - 查看群屏蔽词列表</li>
+          </ul>
+        </li>
+        <li>
+          <p>定时推送</p>
+          <ul class="sub-log-ul">
+            <li>#开启热搜推送 - 开启定时推送</li>
+            <li>#关闭热搜推送 - 关闭定时推送</li>
+            <li>#设置推送时间[时间] - 设置推送时间</li>
+            <li>#设置推送平台[平台] - 设置推送平台</li>
+          </ul>
+        </li>
+        <li>
+          <p>可视化功能</p>
+          <ul class="sub-log-ul">
+            <li>#热搜词云 - 生成热搜词云图</li>
+            <li>#热搜趋势 - 生成热搜趋势图</li>
+          </ul>
+        </li>
+      </ul>
+    </div>
+  </div>
+</div>
+{{/block}}
