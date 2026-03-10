@@ -3,6 +3,7 @@ import config from "../model/config/config.js";
 import common from "../components/bcommon.js";
 import hotDatabase from "./hot/database.js";
 import fs from "fs";
+import puppeteer from '../../lib/puppeteer/puppeteer.js';
 
 // 安全获取segment对象
 const segment = global.segment || global.Bot?.segment || {}
@@ -604,14 +605,13 @@ export async function hotWordCloud(e) {
       value: k.count
     }));
 
-    // TODO: 需要实现图表生成功能
-    // 暂时返回文本数据
-    let msg = ['📊 热搜词云数据（最近7天）\n\n'];
-    wordCloudData.slice(0, 20).forEach((item, index) => {
-      msg.push(`${index + 1}. ${item.text} (${item.value}次)`);
+    // 使用渲染系统生成词云图
+    const img = await puppeteer.screenshot('liulian-plugin/hot/wordcloud', {
+      title: '热搜词云（最近7天）',
+      chartData: JSON.stringify(wordCloudData)
     });
 
-    e.reply(msg.join('\n'));
+    e.reply(segment.image(img));
     
   } catch (err) {
     e.reply(`生成词云图失败：${err.message}`);
@@ -679,14 +679,15 @@ export async function hotTrendChart(e) {
       };
     }).sort((a, b) => a.time.localeCompare(b.time));
 
-    // TODO: 需要实现图表生成功能
-    // 暂时返回文本数据
-    let msg = ['📈 热搜趋势数据（最近7天）\n\n'];
-    chartData.forEach(item => {
-      msg.push(`${item.time}: 平均热度 ${item.value}`);
+    // 使用渲染系统生成趋势图
+    const img = await puppeteer.screenshot('liulian-plugin/hot/trend', {
+      title: '热搜趋势（最近7天）',
+      chartData: JSON.stringify(chartData),
+      axisXTitle: '日期',
+      axisYTitle: '平均热度'
     });
 
-    e.reply(msg.join('\n'));
+    e.reply(segment.image(img));
     
   } catch (err) {
     e.reply(`生成趋势图失败：${err.message}`);
