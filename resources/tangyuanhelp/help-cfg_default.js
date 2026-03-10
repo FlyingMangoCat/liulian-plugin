@@ -72,13 +72,7 @@ export const helpList = [{
     desc: "观音灵签"
   }]
 }, {
-  group: "使用说明",
-  list: [{
-    icon: 77,
-    title: "热搜榜使用方法",
-    desc: "#热搜（抖音）、#热搜微博、#热搜知乎、#热搜百度、#热搜B站、#热搜CSDN、#热搜少数派"
-  }]
-}, {
+  }, {
   group: "其他帮助",
   list: [{
     icon: 100,
