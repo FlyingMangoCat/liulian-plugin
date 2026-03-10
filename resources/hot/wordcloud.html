@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>热搜词云</title>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/wordcloud@1.2.2/src/wordcloud2.min.js"></script>
   <style>
     body {
       margin: 0;
@@ -34,10 +34,13 @@
       border-radius: 12px;
       padding: 20px;
       border: 2px solid rgba(230, 126, 34, 0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
-    canvas {
-      width: 100% !important;
-      height: 100% !important;
+    #wordCloudChart {
+      width: 100%;
+      height: 100%;
     }
   </style>
 </head>
@@ -52,68 +55,37 @@
   <script>
     const chartData = JSON.parse(document.getElementById('wordCloudChart').dataset.chart);
     
-    const ctx = document.getElementById('wordCloudChart').getContext('2d');
+    const element = document.getElementById('wordCloudChart');
+    const container = element.parentElement;
     
-    new Chart(ctx, {
-      type: 'bubble',
-      data: {
-        datasets: [{
-          label: '热搜关键词',
-          data: chartData.map((d, i) => ({
-            x: Math.random() * 100,
-            y: Math.random() * 100,
-            r: Math.min(Math.max(d.value * 2, 15), 50),
-            label: d.text
-          })),
-          backgroundColor: chartData.map((_, i) => {
-            const colors = [
-              'rgba(230, 126, 34, 0.8)',
-              'rgba(243, 156, 18, 0.8)',
-              'rgba(211, 84, 0, 0.8)',
-              'rgba(39, 174, 96, 0.8)',
-              'rgba(52, 152, 219, 0.8)',
-              'rgba(155, 89, 182, 0.8)',
-              'rgba(231, 76, 60, 0.8)',
-              'rgba(26, 188, 156, 0.8)'
-            ];
-            return colors[i % colors.length];
-          }),
-          borderColor: chartData.map((_, i) => {
-            const colors = [
-              'rgba(230, 126, 34, 1)',
-              'rgba(243, 156, 18, 1)',
-              'rgba(211, 84, 0, 1)',
-              'rgba(39, 174, 96, 1)',
-              'rgba(52, 152, 219, 1)',
-              'rgba(155, 89, 182, 1)',
-              'rgba(231, 76, 60, 1)',
-              'rgba(26, 188, 156, 1)'
-            ];
-            return colors[i % colors.length];
-          }),
-          borderWidth: 2
-        }]
+    // 设置 canvas 尺寸
+    element.width = container.offsetWidth;
+    element.height = container.offsetHeight;
+    
+    // 转换为 WordCloud2.js 需要的格式
+    const wordList = chartData.map(d => [d.text, d.value * 3]);
+    
+    // 颜色数组
+    const colors = [
+      '#e67e22', '#f39c12', '#d35400', 
+      '#27ae60', '#3498db', '#9b59b6', 
+      '#e74c3c', '#1abc9c'
+    ];
+    
+    WordCloud(element, {
+      list: wordList,
+      gridSize: Math.round(16 * element.width / 1024),
+      weightFactor: function (size) {
+        return Math.pow(size, 0.8) * element.width / 1024 * 2;
       },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: {
-            display: false
-          },
-          tooltip: {
-            callbacks: {
-              label: function(context) {
-                return `${context.raw.label}: ${context.raw.r / 2} 次`;
-              }
-            }
-          }
-        },
-        scales: {
-          x: { display: false },
-          y: { display: false }
-        }
-      }
+      fontFamily: 'Microsoft YaHei, SimHei, Arial',
+      color: function (word, weight, fontSize, distance, theta) {
+        return colors[Math.floor(Math.random() * colors.length)];
+      },
+      rotateRatio: 0.3,
+      rotationSteps: 2,
+      backgroundColor: 'transparent',
+      shape: 'circle'
     });
   </script>
 </body>
