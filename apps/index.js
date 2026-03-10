@@ -383,11 +383,6 @@ let rule = {
         priority: 1,
         describe: "B站推送帮助",
     },
-        hothelp: {
-        reg: "^#?(热搜帮助)$",
-        priority: 1,
-        describe: "热搜帮助",
-    },
         updateRes: {
         reg: '^#(榴莲|留恋)(更新图像|图像更新)$',
         priority: 1,
