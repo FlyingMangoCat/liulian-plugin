@@ -117,10 +117,6 @@ export const helpList = [{
     title: "运势",
     desc: "查看今日运势"
   }, {
-    icon: 76,
-    title: "#骚扰电话/查电话",
-    desc: "查询手机号是否为骚扰电话"
-  }, {
     icon: 100,
     title: "榴莲ai",
     desc: "@机器人或随机触发(当前不可用，如有需要联系芒果猫)"

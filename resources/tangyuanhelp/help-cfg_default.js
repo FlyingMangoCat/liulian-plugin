@@ -32,6 +32,10 @@ export const helpList = [{
     icon: 66,
     title: "#热搜[平台]",
     desc: "全网热搜榜，支持：微博、知乎、百度、抖音、B站、CSDN、少数派"
+  }, {
+    icon: 76,
+    title: "#骚扰电话/查电话",
+    desc: "查询手机号是否为骚扰电话"
   }]
 }, {
   group: "使用说明",
