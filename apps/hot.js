@@ -621,10 +621,10 @@ export async function hotWordCloud(e, { render }) {
     // 只取前30个高频关键词
     const topKeywords = keywords.slice(0, 30);
 
-    // 转换为词云数据格式
+    // 转换为词云数据格式 (getTopKeywords返回的是[word, count]数组格式)
     const wordCloudData = topKeywords.map(k => ({
-      text: k.title,
-      value: k.count
+      text: k[0],
+      value: k[1]
     }));
 
     // 使用渲染系统生成词云图

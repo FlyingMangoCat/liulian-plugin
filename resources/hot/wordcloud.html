@@ -50,43 +50,51 @@
   </div>
 
   <script>
-    const chartData = JSON.parse(document.getElementById('wordCloudChart').dataset.chart);
-    
-    const element = document.getElementById('wordCloudChart');
-    const container = element.parentElement;
-    
-    // 设置更高的分辨率
-    const scale = 2;
-    element.width = container.offsetWidth * scale;
-    element.height = container.offsetHeight * scale;
-    
-    // 转换为 WordCloud2.js 需要的格式
-    const wordList = chartData.map(d => [d.text, d.value * 5]);
-    
-    // 颜色数组
-    const colors = [
-      '#e67e22', '#f39c12', '#d35400', 
-      '#27ae60', '#3498db', '#9b59b6', 
-      '#e74c3c', '#1abc9c'
-    ];
-    
-    WordCloud(element, {
-      list: wordList,
-      gridSize: 2,
-      weightFactor: function (size) {
-        return Math.pow(size, 0.7) * element.width / 1024 * 8;
-      },
-      fontFamily: 'Microsoft YaHei, SimHei, Arial',
-      color: function (word, weight, fontSize, distance, theta) {
-        return colors[Math.floor(Math.random() * colors.length)];
-      },
-      rotateRatio: 0.15,
-      rotationSteps: 2,
-      backgroundColor: 'transparent',
-      shape: 'circle',
-      shrinkToFit: true,
-      minSize: 20
-    });
+    try {
+      const chartData = JSON.parse(document.getElementById('wordCloudChart').dataset.chart);
+      
+      if (!Array.isArray(chartData) || chartData.length === 0) {
+        document.querySelector('.chart-container').innerHTML = '<p style="text-align: center; color: #999; padding: 50px;">暂无数据</p>';
+      } else {
+        const element = document.getElementById('wordCloudChart');
+        const container = element.parentElement;
+        
+        // 设置更高的分辨率
+        const scale = 2;
+        element.width = container.offsetWidth * scale;
+        element.height = container.offsetHeight * scale;
+        
+        // 转换为 WordCloud2.js 需要的格式
+        const wordList = chartData.map(d => [d.text || '未知', d.value || 1]);
+        
+        // 颜色数组
+        const colors = [
+          '#e67e22', '#f39c12', '#d35400', 
+          '#27ae60', '#3498db', '#9b59b6', 
+          '#e74c3c', '#1abc9c'
+        ];
+        
+        WordCloud(element, {
+          list: wordList,
+          gridSize: 2,
+          weightFactor: function (size) {
+            return Math.pow(size, 0.7) * element.width / 1024 * 8;
+          },
+          fontFamily: 'Microsoft YaHei, SimHei, Arial',
+          color: function (word, weight, fontSize, distance, theta) {
+            return colors[Math.floor(Math.random() * colors.length)];
+          },
+          rotateRatio: 0.15,
+          rotationSteps: 2,
+          backgroundColor: 'transparent',
+          shape: 'circle',
+          shrinkToFit: true,
+          minSize: 20
+        });
+      }
+    } catch (err) {
+      document.querySelector('.chart-container').innerHTML = '<p style="text-align: center; color: #e74c3c; padding: 50px;">数据解析失败：' + err.message + '</p>';
+    }
   </script>
 </body>
 </html>
