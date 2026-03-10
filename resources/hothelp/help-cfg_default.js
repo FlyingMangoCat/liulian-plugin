@@ -10,17 +10,17 @@ export const helpList = [
     group: '热搜查询',
     list: [
       {
-        icon: 101,
+        icon: 86,
         title: "#热搜",
         desc: "全网热搜榜，支持：微博/知乎/百度/抖音/B站/CSDN/少数派"
       },
       {
-        icon: 102,
+        icon: 87,
         title: "#热搜词云",
         desc: "生成热搜词云图"
       },
       {
-        icon: 103,
+        icon: 88,
         title: "#热搜趋势",
         desc: "生成热搜趋势图"
       }
@@ -60,17 +60,17 @@ export const helpList = [
     group: '关键词订阅',
     list: [
       {
-        icon: 104,
+        icon: 95,
         title: "#订阅关键词",
         desc: "订阅热搜关键词，出现时自动通知"
       },
       {
-        icon: 105,
+        icon: 96,
         title: "#取消订阅",
         desc: "取消已订阅的关键词"
       },
       {
-        icon: 106,
+        icon: 97,
         title: "#查看订阅",
         desc: "查看当前订阅的关键词列表"
       }
@@ -80,17 +80,17 @@ export const helpList = [
     group: '屏蔽词管理',
     list: [
       {
-        icon: 107,
+        icon: 98,
         title: "#添加群屏蔽词",
         desc: "添加群级别屏蔽词，过滤不感兴趣的热搜"
       },
       {
-        icon: 108,
+        icon: 99,
         title: "#删除群屏蔽词",
         desc: "删除群级别屏蔽词"
       },
       {
-        icon: 109,
+        icon: 100,
         title: "#查看屏蔽词",
         desc: "查看当前群的屏蔽词列表"
       }
@@ -101,32 +101,32 @@ export const helpList = [
     auth: 'master',
     list: [
       {
-        icon: 110,
+        icon: 70,
         title: "#添加全局屏蔽词",
         desc: "添加全局屏蔽词，所有群生效"
       },
       {
-        icon: 111,
+        icon: 71,
         title: "#删除全局屏蔽词",
         desc: "删除全局屏蔽词"
       },
       {
-        icon: 112,
+        icon: 72,
         title: "#查看全局屏蔽词",
         desc: "查看全局屏蔽词列表"
       },
       {
-        icon: 113,
+        icon: 73,
         title: "#查看订阅申请",
         desc: "查看待处理的订阅申请"
       },
       {
-        icon: 114,
+        icon: 74,
         title: "#通过订阅申请",
         desc: "通过订阅申请（需指定申请ID）"
       },
       {
-        icon: 115,
+        icon: 75,
         title: "#拒绝订阅申请",
         desc: "拒绝订阅申请（需指定申请ID）"
       }
@@ -136,60 +136,60 @@ export const helpList = [
     group: '定时推送',
     list: [
       {
-        icon: 116,
+        icon: 76,
         title: "#开启热搜推送",
         desc: "开启定时推送热搜功能"
       },
       {
-        icon: 117,
+        icon: 77,
         title: "#关闭热搜推送",
         desc: "关闭定时推送热搜功能"
       },
       {
-        icon: 118,
+        icon: 78,
         title: "#设置推送时间",
         desc: "设置定时推送的时间"
       },
       {
-        icon: 119,
+        icon: 79,
         title: "#设置推送平台",
         desc: "设置推送的热搜平台"
       },
       {
-          icon: 120,
-          title: "#热搜推送列表",
-          desc: "查看当前推送配置"
-            }
-          ]
-        },
-        {
-          group: '其他帮助',
-          list: [
-            {
-              icon: 100,
-              title: "榴莲帮助",
-              desc: "查看榴莲插件主帮助"
-            },
-            {
-              icon: 84,
-              title: "B站推送帮助",
-              desc: "查看B站推送帮助"
-            },
-            {
-              icon: 89,
-              title: "地下地图帮助",
-              desc: "查看地下地图使用帮助"
-            },
-            {
-              icon: 100,
-              title: "汤圆帮助",
-              desc: "查看汤圆帮助"
-            },
-            {
-              icon: 79,
-              title: "插件管理帮助",
-              desc: "查看插件管理帮助"
-            }
-          ]
-        }
-      ]
+        icon: 80,
+        title: "#热搜推送列表",
+        desc: "查看当前推送配置"
+      }
+    ]
+  },
+  {
+    group: '其他帮助',
+    list: [
+      {
+        icon: 89,
+        title: "榴莲帮助",
+        desc: "查看榴莲插件主帮助"
+      },
+      {
+        icon: 84,
+        title: "B站推送帮助",
+        desc: "查看B站推送帮助"
+      },
+      {
+        icon: 89,
+        title: "地下地图帮助",
+        desc: "查看地下地图使用帮助"
+      },
+      {
+        icon: 89,
+        title: "汤圆帮助",
+        desc: "查看汤圆帮助"
+      },
+      {
+        icon: 79,
+        title: "插件管理帮助",
+        desc: "查看插件管理帮助"
+      }
+    ]
+  }
+]
