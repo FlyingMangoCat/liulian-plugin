@@ -10,7 +10,7 @@
     body {
       margin: 0;
       padding: 20px;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background: linear-gradient(135deg, #e67e22 0%, #d35400 100%);
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
     }
     .container {
@@ -19,11 +19,11 @@
       background: white;
       border-radius: 16px;
       padding: 30px;
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      box-shadow: 0 20px 60px rgba(230, 126, 34, 0.3);
     }
     h1 {
       text-align: center;
-      color: #333;
+      color: #e67e22;
       margin-bottom: 30px;
       font-size: 28px;
       font-weight: 600;
@@ -34,6 +34,7 @@
       background: #f8f9fa;
       border-radius: 12px;
       padding: 20px;
+      border: 2px solid rgba(230, 126, 34, 0.1);
     }
     canvas {
       width: 100% !important;
@@ -63,27 +64,27 @@
           data: chartData.map(d => d.value),
           backgroundColor: chartData.map((_, i) => {
             const colors = [
-              'rgba(102, 126, 234, 0.8)',
-              'rgba(118, 75, 162, 0.8)',
-              'rgba(255, 107, 107, 0.8)',
-              'rgba(78, 205, 196, 0.8)',
-              'rgba(255, 230, 109, 0.8)',
-              'rgba(247, 127, 0, 0.8)',
-              'rgba(0, 168, 255, 0.8)',
-              'rgba(114, 137, 218, 0.8)'
+              'rgba(230, 126, 34, 0.8)',
+              'rgba(243, 156, 18, 0.8)',
+              'rgba(211, 84, 0, 0.8)',
+              'rgba(39, 174, 96, 0.8)',
+              'rgba(52, 152, 219, 0.8)',
+              'rgba(155, 89, 182, 0.8)',
+              'rgba(231, 76, 60, 0.8)',
+              'rgba(26, 188, 156, 0.8)'
             ];
             return colors[i % colors.length];
           }),
           borderColor: chartData.map((_, i) => {
             const colors = [
-              'rgba(102, 126, 234, 1)',
-              'rgba(118, 75, 162, 1)',
-              'rgba(255, 107, 107, 1)',
-              'rgba(78, 205, 196, 1)',
-              'rgba(255, 230, 109, 1)',
-              'rgba(247, 127, 0, 1)',
-              'rgba(0, 168, 255, 1)',
-              'rgba(114, 137, 218, 1)'
+              'rgba(230, 126, 34, 1)',
+              'rgba(243, 156, 18, 1)',
+              'rgba(211, 84, 0, 1)',
+              'rgba(39, 174, 96, 1)',
+              'rgba(52, 152, 219, 1)',
+              'rgba(155, 89, 182, 1)',
+              'rgba(231, 76, 60, 1)',
+              'rgba(26, 188, 156, 1)'
             ];
             return colors[i % colors.length];
           }),
