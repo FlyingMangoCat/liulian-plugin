@@ -50,6 +50,11 @@ export const rule = {
     priority: 50,
     describe: "网易云链接自动解析",
   },
+  qrcode: {
+    reg: "^#*二维码(.*)$",
+    priority: 100,
+    describe: "二维码生成",
+  },
 };
 
 // 用户命令接口
@@ -189,6 +194,44 @@ export async function wyyauto(e) {
     }
   } catch (error) {
     console.error('网易云自动解析失败:', error);
+  }
+
+  return true;
+}
+
+// 二维码生成
+export async function qrcode(e) {
+  let text = e.msg.replace(/^#*二维码/, '').trim();
+
+  if (!text) {
+    e.reply('请输入要生成二维码的内容，格式：#二维码[内容] [大小]');
+    return true;
+  }
+
+  // 解析大小参数
+  let size = '200px'; // 默认大小
+  const match = text.match(/(\d+)px$/);
+  if (match) {
+    size = match[1] + 'px';
+    text = text.replace(/\s*\d+px$/, '').trim();
+  }
+
+  const cfg = config.getdefault_config('liulian', 'token', 'config');
+  const apikeys = cfg.apikeys;
+  const apikey = apikeys.qrcode_apikey || '';
+
+  try {
+    let url = `https://api.oick.cn/api/qrcode?text=${encodeURIComponent(text)}&size=${size}&apikey=${apikey}`;
+    let response = await fetch(url);
+    let res = await response.json();
+
+    if (res && res.图片) {
+      e.reply(segment.image(res.图片));
+    } else {
+      e.reply('二维码生成失败，请稍后重试');
+    }
+  } catch (error) {
+    e.reply('二维码生成失败，请稍后重试');
   }
 
   return true;

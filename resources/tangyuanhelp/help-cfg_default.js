@@ -32,6 +32,10 @@ export const helpList = [{
     icon: 103,
     title: "#网易云解析[歌曲ID]",
     desc: "解析网易云歌曲链接"
+  }, {
+    icon: 95,
+    title: "#二维码[内容] [大小]",
+    desc: "生成二维码（可选大小）"
   }]
 }, {
   group: "查询功能",
@@ -76,7 +80,6 @@ export const helpList = [{
     desc: "观音灵签"
   }]
 }, {
-  }, {
   group: "其他帮助",
   list: [{
     icon: 100,
