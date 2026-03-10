@@ -606,12 +606,10 @@ export async function hotWordCloud(e, { render }) {
     }));
 
     // 使用渲染系统生成词云图
-    const img = await Common.render('hot/wordcloud', {
+    await Common.render('hot/wordcloud', {
       title: '热搜词云（最近7天）',
       chartData: JSON.stringify(wordCloudData)
     }, { e, render, scale: 1.2 });
-
-    e.reply(segment.image(img));
     
   } catch (err) {
     e.reply(`生成词云图失败：${err.message}`);
@@ -680,14 +678,12 @@ export async function hotTrendChart(e, { render }) {
     }).sort((a, b) => a.time.localeCompare(b.time));
 
     // 使用渲染系统生成趋势图
-    const img = await Common.render('hot/trend', {
+    await Common.render('hot/trend', {
       title: '热搜趋势（最近7天）',
       chartData: JSON.stringify(chartData),
       axisXTitle: '日期',
       axisYTitle: '平均热度'
     }, { e, render, scale: 1.2 });
-
-    e.reply(segment.image(img));
     
   } catch (err) {
     e.reply(`生成趋势图失败：${err.message}`);
