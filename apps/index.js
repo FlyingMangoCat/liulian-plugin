@@ -71,7 +71,7 @@ import { random as adRandom } from "./ad.js"
 import { FuckingChatterbox } from "./chatterboxStat.js"
 import { fanyi, translateText, base64jiami, base64jiemi, wyyjx, wyyauto, qrcode } from "./tools.js"
 import { dailyword, sentence, dailywordCheck, sentenceCheck } from "./daily.js"
-import { hotSearch, subscribeKeyword, unsubscribeKeyword, viewSubscriptions, addGlobalBlockedKeyword, removeGlobalBlockedKeyword, viewGlobalBlockedKeywords, addGroupBlockedKeyword, removeGroupBlockedKeyword, viewGroupBlockedKeywords, viewApplications, approveApplication, rejectApplication, hotWordCloud, hotTrendChart, enableHotPush, disableHotPush, setHotPushTime, setHotPushPlatform, getHotPushList, hotPushScheduleJob } from "./hot.js"
+import { hotSearch, subscribeKeyword, unsubscribeKeyword, viewSubscriptions, addGlobalBlockedKeyword, removeGlobalBlockedKeyword, viewGlobalBlockedKeywords, addGroupBlockedKeyword, removeGroupBlockedKeyword, viewGroupBlockedKeywords, viewApplications, approveApplication, rejectApplication, hotWordCloud, hotTrendChart, hotUpdate, enableHotPush, disableHotPush, setHotPushTime, setHotPushPlatform, getHotPushList, hotPushScheduleJob } from "./hot.js"
 import { EndCheck,   
 musicanswerCheck,
 guessmusic,
@@ -1588,7 +1588,7 @@ const exportedFunctions = {
     addGlobalBlockedKeyword, removeGlobalBlockedKeyword, viewGlobalBlockedKeywords,
     addGroupBlockedKeyword, removeGroupBlockedKeyword, viewGroupBlockedKeywords,
     viewApplications, approveApplication, rejectApplication,
-    hotWordCloud, hotTrendChart,
+    hotWordCloud, hotTrendChart, hotUpdate,
     enableHotPush, disableHotPush, setHotPushTime, setHotPushPlatform, getHotPushList,
     hotPushScheduleJob, bilibilihelp, hothelp, YZversionInfo, EndCheck, musicanswerCheck,
     guessmusic, 运势, 小黑子, updateRes, cj, Robacat,

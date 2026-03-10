@@ -98,6 +98,11 @@ export const rule = {
     priority: 500,
     describe: "生成热搜趋势图",
   },
+  hotUpdate: {
+    reg: "^#*热搜更新$",
+    priority: 1,
+    describe: "更新热搜数据（仅管理员）",
+  },
   // 定时推送管理
   enableHotPush: {
     reg: "^#*开启热搜推送$",
@@ -692,6 +697,70 @@ export async function hotTrendChart(e, { render }) {
     e.reply(`生成趋势图失败：${err.message}`);
   }
   
+  return true;
+}
+
+// 更新热搜数据（仅管理员）
+export async function hotUpdate(e) {
+  if (!e.isMaster) {
+    e.reply('⚠️ 此功能仅管理员可用');
+    return true;
+  }
+
+  e.reply('⏳ 正在更新各平台热搜数据，请稍候...');
+
+  const platforms = ['weibo', 'zhihu', 'baidu', 'douyin', 'bilihot', 'csdn', 'sspai'];
+  const platformNames = {
+    'weibo': '微博',
+    'zhihu': '知乎',
+    'baidu': '百度',
+    'douyin': '抖音',
+    'bilihot': 'B站',
+    'csdn': 'CSDN',
+    'sspai': '少数派'
+  };
+
+  let successCount = 0;
+  let failCount = 0;
+  let results = [];
+
+  for (let platform of platforms) {
+    try {
+      const apikey = config.getdefault_config('liulian', 'hot', 'apikey') || '';
+      const url = `https://api.oick.cn/api/hot?type=${platform}&apikey=${apikey}`;
+      
+      let response = await fetch(url);
+      let res = await response.json();
+      
+      if (res && Array.isArray(res.data) && res.data.length > 0) {
+        // 只保存前10条
+        const top10 = res.data.slice(0, 10);
+        
+        for (let item of top10) {
+          await hotDatabase.saveHotSearchHistory(platform, item.title, item.hot);
+        }
+        
+        successCount++;
+        results.push(`✅ ${platformNames[platform]}：已更新 ${top10.length} 条`);
+      } else {
+        failCount++;
+        results.push(`❌ ${platformNames[platform]}：无数据`);
+      }
+    } catch (err) {
+      failCount++;
+      results.push(`❌ ${platformNames[platform]}：${err.message}`);
+    }
+  }
+
+  const msg = [
+    '📊 热搜数据更新完成\n',
+    `✅ 成功：${successCount} 个平台`,
+    `❌ 失败：${failCount} 个平台\n`,
+    ...results,
+    `\n💡 现在可以使用 #热搜词云 和 #热搜趋势 命令生成图表`
+  ];
+
+  e.reply(msg.join('\n'));
   return true;
 }
 
