@@ -172,8 +172,8 @@ export async function hotSearch(e) {
   // 获取用户指定的平台
   let userPlatform = e.msg.replace(/^#*(热搜|热搜榜|热点)/, '').trim();
   
-  // 检查是否是特殊关键词（帮助、词云、趋势等），如果是则返回false让其他规则匹配
-  const specialKeywords = ['帮助', 'help', '说明', '词云', '趋势', '推送', '时间', '平台'];
+  // 检查是否是特殊关键词（帮助、词云、趋势、更新等），如果是则返回false让其他规则匹配
+  const specialKeywords = ['帮助', 'help', '说明', '词云', '趋势', '推送', '时间', '平台', '更新'];
   if (specialKeywords.includes(userPlatform)) {
     return false;
   }
