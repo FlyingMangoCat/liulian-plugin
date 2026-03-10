@@ -56,6 +56,7 @@ export async function tangyuanhelp (e, { render }) {
   return await Common.render('tangyuanhelp/index', {
     helpCfg,
     helpGroup,
+    bgType: 8,
     element: 'default'
   }, { e, render, scale: 1.2 })
 }
