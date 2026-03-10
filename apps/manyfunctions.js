@@ -490,16 +490,53 @@ else  if(keyword == `射手` || keyword == `射手座` ){
 }
 
 export async function headPortraitFUN(e) {
-  if (!e.isGroup||!headPortrait) return false;
+  if (!e.isGroup || !headPortrait) return false;
+  
+  const cfg = config.getdefault_config('liulian', 'token', 'config');
+  const apikeys = cfg.apikeys;
+  const apikey = apikeys.qqtx_apikey || '';
+  
+  let qq = e.user_id;
+  let name = e.sender.card;
+  
   if (e.msg.match('自己')) {
-    e.reply(segment.image(`https://q1.qlogo.cn/g?b=qq&s=0&nk=${e.user_id}`))
+    try {
+      let url = `https://api.oick.cn/api/qqtx?qq=${qq}&apikey=${apikey}`;
+      let response = await fetch(url);
+      let res = await response.json();
+      let msg = [
+        segment.at(qq),
+        "\n昵称：",
+        res.name || name,
+        segment.image(res.imgurl || `https://q1.qlogo.cn/g?b=qq&s=0&nk=${qq}`)
+      ];
+      e.reply(msg);
+    } catch (err) {
+      e.reply(segment.image(`https://q1.qlogo.cn/g?b=qq&s=0&nk=${qq}`));
+    }
     return true
   }
+  
   if (!e.at) {
     e.reply("发送看头像@xx，可以快捷查看ta的头像哦~")
     return true
   }
-  e.reply(segment.image(`https://q1.qlogo.cn/g?b=qq&s=0&nk=${e.at}`))
+  
+  try {
+    let url = `https://api.oick.cn/api/qqtx?qq=${e.at}&apikey=${apikey}`;
+    let response = await fetch(url);
+    let res = await response.json();
+    let member = await liulianSafe.getGroupMemberInfo(e.group_id, e.at).catch((err) => { })
+    let msg = [
+      segment.at(e.at),
+      "\n昵称：",
+      res.name || (member?.nickname || '未知'),
+      segment.image(res.imgurl || `https://q1.qlogo.cn/g?b=qq&s=0&nk=${e.at}`)
+    ];
+    e.reply(msg);
+  } catch (err) {
+    e.reply(segment.image(`https://q1.qlogo.cn/g?b=qq&s=0&nk=${e.at}`));
+  }
   return true;
 }
 export async function godEyesFUN(e) {
