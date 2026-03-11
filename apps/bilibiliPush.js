@@ -184,6 +184,11 @@ async function getUserInfo(uid) {
       return null;
     }
 
+    if (res.code === 799) {
+      Bot.logger.warn('B站推送：接口访问受限（错误码799），可能是频率限制或风控');
+      return { error: 799, message: '接口访问受限' };
+    }
+
     if (res.code !== 0) {
       Bot.logger.warn(`B站推送：获取用户信息失败，错误码: ${res.code}, 消息: ${res.message}`);
       return null;
@@ -815,6 +820,11 @@ export async function updateBilibiliPush(e) {
     let userInfo = await getUserInfo(uid);
     if (!userInfo) {
       e.reply("⚠️ 无法获取用户信息，可能的原因：\n1. UID 错误\n2. B站接口限制\n3. Cookie 已过期\n\n请尝试：\n- 检查UID是否正确\n- 发送 #B站扫码登录 更新Cookie");
+      return true;
+    }
+
+    if (userInfo.error === 799) {
+      e.reply("⚠️ 无法获取用户信息（错误码799）\n\n可能的原因：\n1. B站接口访问频率限制\n2. 当前Cookie账号可能被风控\n3. 请求过于频繁触发限制\n\n解决方案：\n- 等待几分钟后重试\n- 发送 #B站扫码登录 更新Cookie\n- 确认UID是否正确\n\n如持续出现此问题，建议联系管理员");
       return true;
     }
 
