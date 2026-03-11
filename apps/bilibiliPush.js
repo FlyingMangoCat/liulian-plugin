@@ -283,13 +283,13 @@ export async function biliLogin(e) {
     const res = response.data;
 
     if (res.code !== 0) {
-      e.reply(`获取登录二维码失败：${res.message}`);
+      e.reply(`哎呀，获取登录二维码失败了：${res.message}`);
       return true;
     }
 
     const qrcodeData = res?.data;
     if (!qrcodeData || !qrcodeData.url || !qrcodeData.qrcode_key) {
-      e.reply("登录二维码数据异常");
+      e.reply("嘶，登录二维码数据好像有问题");
       return true;
     }
 
@@ -311,7 +311,7 @@ export async function biliLogin(e) {
       });
     } catch (err) {
       Bot.logger.error(`B站推送：生成二维码失败: ${err.message}`);
-      e.reply("生成二维码失败，请检查是否安装了 qrcode 依赖");
+      e.reply("哎呀，生成二维码失败了，是不是少装了什么依赖？");
       return true;
     }
 
@@ -353,7 +353,7 @@ export async function biliLogin(e) {
       attempts++;
 
       if (attempts > maxAttempts) {
-        e.reply("登录超时，请重新扫码");
+        e.reply("哎呀，登录超时了，重新扫码试试吧~");
         if (qrMessageId) {
           try {
             if (e.isGroup) {
@@ -384,7 +384,7 @@ export async function biliLogin(e) {
             return;
           } else if (dataCode === 86038) {
             // 二维码已失效
-            e.reply("二维码已失效，请重新扫码");
+            e.reply("哎呀，二维码过期了，重新扫码试试吧~");
             return;
           } else if (dataCode === 86090) {
             // 等待扫码
@@ -425,7 +425,7 @@ export async function biliLogin(e) {
 
   } catch (err) {
     Bot.logger.error(`B站推送：扫码登录异常: ${err.message}`);
-    e.reply("扫码登录失败，请稍后重试");
+    e.reply("哎呀，扫码登录失败了，等会再试试吧~");
   }
 
   return true;
@@ -437,7 +437,7 @@ async function handleLoginSuccess(pollResponse, e, qrMessageId) {
     // Cookie已经由cookiejar自动管理，不需要手动解析
     const setCookieHeaders = pollResponse.headers['set-cookie'];
     if (!setCookieHeaders || setCookieHeaders.length === 0) {
-      e.reply("登录成功但未获取到Cookie，请重试");
+      e.reply("登录是成功了，但是没拿到Cookie，重新试试吧~");
       return;
     }
 
@@ -455,7 +455,7 @@ async function handleLoginSuccess(pollResponse, e, qrMessageId) {
     const DedeUserID = await getCookieValue('DedeUserID');
     
     if (!SESSDATA || !DedeUserID) {
-      e.reply("登录成功但Cookie不完整，请重试");
+      e.reply("登录是成功了，但是Cookie好像不完整，重新试试吧~");
       return;
     }
 
@@ -503,7 +503,7 @@ async function handleLoginSuccess(pollResponse, e, qrMessageId) {
 
   } catch (err) {
     Bot.logger.error(`B站推送：处理登录成功状态异常: ${err.message}`);
-    e.reply("登录成功但处理Cookie失败，请重试");
+    e.reply("登录是成功了，但是处理Cookie的时候出错了，重新试试吧~");
   }
 }
 
@@ -995,7 +995,7 @@ export async function setBiliPushCookie(e) {
     return false;
   }
   
-  e.reply("⚠️ 本插件已移除手动配置 Cookie 功能\n请使用扫码登录功能获取 Cookie\n\n发送指令：#B站扫码登录\n使用B站手机APP扫描二维码即可自动配置");
+  e.reply("⚠️ 嘿嘿，手动配置Cookie的功能${botname}已经移除啦\n现在用扫码登录更方便哦~\n\n发送指令：#B站扫码登录\n用B站手机APP扫个码就行啦~");
   return true;
 }
 
