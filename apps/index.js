@@ -1216,6 +1216,11 @@ yl21: {
        describe: "慎用！允许/禁止私聊的方式使用B站推送功能",
   },
        bilibiliPushPermission: {
+       reg: "^#*(开启|关闭)B站推送群权限\\s*.*$",
+       priority: 500,
+       describe: "在任意地方给任意群聊开启/关闭狗管理使用B站推送功能的权限",
+  },
+       setBiliPushTimeInterval: {
        reg: "^#*B站推送时间\\s*\\d+$",
        priority: 500,
        describe: "设置B站推送的定时任务间隔时间",
