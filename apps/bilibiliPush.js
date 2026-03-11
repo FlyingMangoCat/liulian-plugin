@@ -220,6 +220,53 @@ async function getUserInfo(uid, retryCount = 0) {
   }
 }
 
+// 获取用户动态列表（用于订阅验证）
+async function getUserDynamicList(uid, retryCount = 0) {
+  // 检查是否配置了有效的 Cookie
+  if (!BiliCookie || BiliCookie.trim() === '') {
+    Bot.logger.warn('B站推送：未配置有效的 Cookie');
+    return null;
+  }
+
+  try {
+    const url = `${BiliDynamicApiUrl}?host_mid=${uid}&timezone_offset=-480&features=itemOpusStyle`;
+    const response = await httpClient.get(url, {
+      headers: BiliReqHeaders
+    });
+
+    const res = response.data;
+
+    if (res.code === -352) {
+      Bot.logger.warn('B站推送：Cookie 已过期或无效，请重新扫码登录');
+      return null;
+    }
+
+    if (res.code === 799) {
+      Bot.logger.warn(`B站推送：接口访问受限（错误码799），第${retryCount + 1}次遇到`);
+      // 重试机制：最多重试3次，每次等待5-10秒
+      if (retryCount < 3) {
+        let retryDelay = Math.floor(Math.random() * 5) + 5;
+        Bot.logger.mark(`B站推送：等待${retryDelay}秒后重试获取用户[${uid}]动态`);
+        await common.sleep(retryDelay * 1000);
+        return getUserDynamicList(uid, retryCount + 1);
+      } else {
+        Bot.logger.warn('B站推送：达到最大重试次数，仍然受限');
+        return { error: 799, message: '接口访问受限' };
+      }
+    }
+
+    if (res.code !== 0) {
+      Bot.logger.warn(`B站推送：获取用户动态列表失败，错误码: ${res.code}, 消息: ${res.message}`);
+      return null;
+    }
+
+    return res.data;
+  } catch (err) {
+    Bot.logger.error(`B站推送：获取用户动态列表异常: ${err.message}`);
+    return null;
+  }
+}
+
 // B站扫码登录
 export async function biliLogin(e) {
   if (!e.isMaster) {
@@ -825,21 +872,57 @@ export async function updateBilibiliPush(e) {
       return true;
     }
 
-    // 先获取用户信息
-    let userInfo = await getUserInfo(uid);
-    if (!userInfo) {
-      e.reply("⚠️ 无法获取用户信息，可能的原因：\n1. UID 错误\n2. B站接口限制\n3. Cookie 已过期\n\n请尝试：\n- 检查UID是否正确\n- 发送 #B站扫码登录 更新Cookie");
-      return true;
+    // 参考yuki-plugin：先获取动态列表验证UID
+    let dynamicData = await getUserDynamicList(uid);
+    let userInfo = null;
+    let infoName = '';
+
+    // 处理动态列表获取结果
+    if (dynamicData && dynamicData.code === -352) {
+      e.reply("⚠️ 遭遇风控，该UID的主页空间动态内容检查失败\n请检查Cookie配置后再试\n将跳过校验并保存订阅，请自行检查UID是否正确");
+    } else if (dynamicData && dynamicData.code === 799) {
+      e.reply("⚠️ 接口访问受限，正在重试...");
+      dynamicData = await getUserDynamicList(uid);
     }
 
-    if (userInfo.error === 799) {
-      e.reply("⚠️ 无法获取用户信息（错误码799）\n\n可能的原因：\n1. B站接口访问频率限制\n2. 当前Cookie账号可能被风控\n3. 请求过于频繁触发限制\n\n解决方案：\n- 等待几分钟后重试\n- 发送 #B站扫码登录 更新Cookie\n- 确认UID是否正确\n\n如持续出现此问题，建议联系管理员");
-      return true;
+    // 如果动态列表为空，进行UID校验
+    if (dynamicData && dynamicData.code === 0 && dynamicData.has_more === false) {
+      e.reply(`检测到该UID的主页空间动态内容为空，执行UID校验...`);
+      userInfo = await getUserInfo(uid);
+      
+      if (userInfo && userInfo.error === -404) {
+        e.reply(`经过校验，该用户不存在，输入的UID：${uid} 无效。订阅失败。`);
+        return true;
+      } else if (userInfo && userInfo.error === -403) {
+        e.reply("可能是Cookie过期或API参数错误，访问权限不足，发起UID检验失败。\n将跳过校验并保存订阅，请自行检查UID是否正确。");
+      } else if (userInfo && userInfo.error === 799) {
+        e.reply("⚠️ 接口访问受限（错误码799），将跳过校验并保存订阅");
+      } else if (userInfo) {
+        infoName = userInfo.name;
+        e.reply(`昵称：${infoName}\nUID：${uid} 校验成功！`);
+      }
+    } else if (dynamicData && dynamicData.code === 0 && dynamicData.items && dynamicData.items.length > 0) {
+      // 从动态列表中获取用户名称
+      infoName = dynamicData.items[0].modules?.module_author?.name || uid;
+    } else if (dynamicData && dynamicData.error === 799) {
+      e.reply("⚠️ 接口访问受限（错误码799），将跳过校验并保存订阅\n请稍后重试或更换Cookie");
+    } else {
+      // 如果获取动态列表失败，尝试获取用户信息
+      userInfo = await getUserInfo(uid);
+      if (userInfo && userInfo.error === -404) {
+        e.reply(`经过校验，该用户不存在，输入的UID：${uid} 无效。订阅失败。`);
+        return true;
+      } else if (userInfo) {
+        infoName = userInfo.name || uid;
+      }
     }
 
-    PushBilibiliDynamic[pushID].biliUserList.push({ uid, name: userInfo.name });
+    // 确定最终的用户名称
+    let finalName = infoName || uid;
+
+    PushBilibiliDynamic[pushID].biliUserList.push({ uid, name: finalName });
     savePushJson();
-    e.reply(`添加成功~\n${userInfo.name}：${uid}`);
+    e.reply(`添加成功~\n${finalName}：${uid}`);
   }
 
   return true;
