@@ -1575,7 +1575,7 @@ const exportedFunctions = {
     changeGroupBilibiliPush, changeBiliPushPrivatePermission,
     bilibiliPushPermission, updateBilibiliPush,
     getBilibiliPushUserList, setBiliPushTimeInterval,
-    setBiliPushCookie, setBiliPushFaultTime, changeBiliPushTransmit,
+    setBiliPushFaultTime, changeBiliPushTransmit,
     setBiliPushSendType, pushScheduleJob, biliLogin, refreshBiliPushList, checkBiliCookie, weather, dog, holiday, eventHistory, miyu, miyuCheck, fanyi, translateText, base64jiami, base64jiemi, wyyjx, wyyauto, qrcode, hotSearch, subscribeKeyword, unsubscribeKeyword, viewSubscriptions,
     addGlobalBlockedKeyword, removeGlobalBlockedKeyword, viewGlobalBlockedKeywords,
     addGroupBlockedKeyword, removeGroupBlockedKeyword, viewGroupBlockedKeywords,
