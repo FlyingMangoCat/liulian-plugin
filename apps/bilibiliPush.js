@@ -164,7 +164,7 @@ function generateRandomId() {
 }
 
 // 获取用户信息
-async function getUserInfo(uid) {
+async function getUserInfo(uid, retryCount = 0) {
   // 检查是否配置了有效的 Cookie
   if (!BiliCookie || BiliCookie.trim() === '') {
     Bot.logger.warn('B站推送：未配置有效的 Cookie');
@@ -185,8 +185,17 @@ async function getUserInfo(uid) {
     }
 
     if (res.code === 799) {
-      Bot.logger.warn('B站推送：接口访问受限（错误码799），可能是频率限制或风控');
-      return { error: 799, message: '接口访问受限' };
+      Bot.logger.warn(`B站推送：接口访问受限（错误码799），第${retryCount + 1}次遇到`);
+      // 重试机制：最多重试3次，每次等待5-10秒
+      if (retryCount < 3) {
+        let retryDelay = Math.floor(Math.random() * 5) + 5;
+        Bot.logger.mark(`B站推送：等待${retryDelay}秒后重试获取用户[${uid}]信息`);
+        await common.sleep(retryDelay * 1000);
+        return getUserInfo(uid, retryCount + 1);
+      } else {
+        Bot.logger.warn('B站推送：达到最大重试次数，仍然受限');
+        return { error: 799, message: '接口访问受限' };
+      }
     }
 
     if (res.code !== 0) {
@@ -1275,6 +1284,11 @@ async function fetchUserDynamic(pushInfo, user, biliUID) {
   if (res.code === -352) {
     Bot.logger.warn('B站推送：Cookie 已过期或无效，请重新扫码登录');
     return [];
+  }
+
+  if (res.code === 799) {
+    Bot.logger.warn(`B站推送：获取动态接口访问受限（错误码799），用户[${biliUID}]`);
+    throw new Error(`接口访问受限（错误码799）`);
   }
 
   if (res.code !== 0) {
