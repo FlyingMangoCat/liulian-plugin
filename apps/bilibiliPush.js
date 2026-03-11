@@ -507,29 +507,6 @@ async function handleLoginSuccess(pollResponse, e, qrMessageId) {
   }
 }
 
-// 从登录 URL 中提取 Cookie
-function extractCookieFromUrl(url) {
-  try {
-    const urlObj = new URL(url);
-    const params = urlObj.searchParams;
-
-    let cookie = '';
-    const cookieKeys = ['SESSDATA', 'bili_jct', 'DedeUserID'];
-
-    cookieKeys.forEach(key => {
-      const value = params.get(key);
-      if (value) {
-        cookie += `${key}=${value}; `;
-      }
-    });
-
-    return cookie.trim();
-  } catch (err) {
-    Bot.logger.error(`B站推送：提取 Cookie 失败: ${err.message}`);
-    return null;
-  }
-}
-
 async function initBiliPushJson() {
   if (fs.existsSync(_path + "/data/PushNews/PushBilibiliDynamic.json")) {
     PushBilibiliDynamic = JSON.parse(fs.readFileSync(_path + "/data/PushNews/PushBilibiliDynamic.json", "utf8"));
@@ -986,16 +963,6 @@ export async function getBilibiliPushUserList(e) {
   let status = push.isNewsPush ? "开启" : "关闭";
   e.reply(`当前B站推送是【${status}】状态哦\n推送的B站用户有：\n${info}`);
 
-  return true;
-}
-
-export async function setBiliPushCookie(e) {
-  if (!e.isMaster) {
-    e.reply(`只有主人才可以命令榴莲哦`);
-    return false;
-  }
-  
-  e.reply("⚠️ 嘿嘿，手动配置Cookie的功能${botname}已经移除啦\n现在用扫码登录更方便哦~\n\n发送指令：#B站扫码登录\n用B站手机APP扫个码就行啦~");
   return true;
 }
 
