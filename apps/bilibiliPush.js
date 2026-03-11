@@ -879,38 +879,38 @@ export async function updateBilibiliPush(e) {
 
     // 处理动态列表获取结果
     if (dynamicData && dynamicData.code === -352) {
-      e.reply("⚠️ 遭遇风控，该UID的主页空间动态内容检查失败\n请检查Cookie配置后再试\n将跳过校验并保存订阅，请自行检查UID是否正确");
+      e.reply("嘶，好像遇到风控了，这个UID的主页动态检查失败\n先保存订阅吧，你自己检查下UID对不对~");
     } else if (dynamicData && dynamicData.code === 799) {
-      e.reply("⚠️ 接口访问受限，正在重试...");
+      e.reply("接口访问受限，等${botname}重试一下...");
       dynamicData = await getUserDynamicList(uid);
     }
 
     // 如果动态列表为空，进行UID校验
     if (dynamicData && dynamicData.code === 0 && dynamicData.has_more === false) {
-      e.reply(`检测到该UID的主页空间动态内容为空，执行UID校验...`);
+      e.reply(`这个UID好像没有动态，${botname}再去确认一下这个UID是不是真的存在...`);
       userInfo = await getUserInfo(uid);
       
       if (userInfo && userInfo.error === -404) {
-        e.reply(`经过校验，该用户不存在，输入的UID：${uid} 无效。订阅失败。`);
+        e.reply(`嘶，这个UID：${uid} 根本不存在嘛！`);
         return true;
       } else if (userInfo && userInfo.error === -403) {
-        e.reply("可能是Cookie过期或API参数错误，访问权限不足，发起UID检验失败。\n将跳过校验并保存订阅，请自行检查UID是否正确。");
+        e.reply("哎呀，访问权限不够，可能是Cookie过期了\n先保存订阅吧，你自己检查下UID对不对~");
       } else if (userInfo && userInfo.error === 799) {
-        e.reply("⚠️ 接口访问受限（错误码799），将跳过校验并保存订阅");
+        e.reply("接口访问受限，先保存订阅吧，你自己检查下UID对不对~");
       } else if (userInfo) {
         infoName = userInfo.name;
-        e.reply(`昵称：${infoName}\nUID：${uid} 校验成功！`);
+        e.reply(`好滴~昵称：${infoName}，UID：${uid} 没问题！`);
       }
     } else if (dynamicData && dynamicData.code === 0 && dynamicData.items && dynamicData.items.length > 0) {
       // 从动态列表中获取用户名称
       infoName = dynamicData.items[0].modules?.module_author?.name || uid;
     } else if (dynamicData && dynamicData.error === 799) {
-      e.reply("⚠️ 接口访问受限（错误码799），将跳过校验并保存订阅\n请稍后重试或更换Cookie");
+      e.reply("接口访问受限，先保存订阅吧，你自己检查下UID对不对~");
     } else {
       // 如果获取动态列表失败，尝试获取用户信息
       userInfo = await getUserInfo(uid);
       if (userInfo && userInfo.error === -404) {
-        e.reply(`经过校验，该用户不存在，输入的UID：${uid} 无效。订阅失败。`);
+        e.reply(`嘶，这个UID：${uid} 根本不存在嘛！`);
         return true;
       } else if (userInfo) {
         infoName = userInfo.name || uid;
