@@ -6,6 +6,7 @@ import imageProcessor from './imageProcessor.js'
 import connectionRetry from './connectionRetry.js'
 import fallbackProcessor from './fallbackProcessor.js'
 import memoryManager from './memoryManager.js'
+import EnvironmentDetector from './envDetector.js'
 
 export {
   DatabaseManager,
@@ -15,5 +16,6 @@ export {
   imageProcessor,
   connectionRetry,
   fallbackProcessor,
-  memoryManager
+  memoryManager,
+  EnvironmentDetector
 }

@@ -2,6 +2,7 @@ import fs from 'fs'
 import { Cfg, Common, liulianSafe } from '#liulian'
 import lodash from 'lodash'
 import { exec } from 'child_process'
+import { EnvironmentDetector, sessionManager } from '#liulian.core'
 
 let cfgMap = {
   渲染: 'sys.scale',
@@ -75,6 +76,46 @@ export async function sysCfg (e, { render }) {
     return true
   }
 
+  // 处理Python环境配置的确认回复
+  if (sessionManager.has(e.user_id)) {
+    const session = sessionManager.get(e.user_id);
+    
+    if (session.type === 'python_setup') {
+      // 处理用户对Python环境配置的确认
+      if (e.msg === '确定' || e.msg === '是') {
+        // 用户确认，开始配置Python环境
+        e.reply('正在配置Python环境，请稍候...\n' +
+               '这可能需要几分钟时间，期间请耐心等待...\n\n' +
+               '💡 提示：配置过程会下载约50MB的数据，请确保网络连接正常');
+        
+        const detector = new EnvironmentDetector();
+        const progress = (message) => {
+          e.reply(message);
+        };
+        
+        const success = await detector.setupPythonEnv(progress);
+        
+        if (success) {
+          // 配置成功，重新开启AI功能
+          Cfg.set('liulian.ai.enabled', true);
+          e.reply('✅ Python环境配置成功！AI功能已开启。\n💡 提示：请重启机器人以便加载AI相关数据和组件');
+        } else {
+          e.reply('❌ Python环境配置失败，请手动配置后重试。\n\n' +
+                 '💡 提示：您可以手动安装Python 3.8或更高版本，然后再次尝试开启AI功能。');
+        }
+        
+        // 清除会话
+        sessionManager.clear(e.user_id);
+        return true;
+      } else if (e.msg === '取消' || e.msg === '否') {
+        // 用户取消
+        e.reply('已取消配置Python环境。\nAI功能保持关闭状态。');
+        sessionManager.clear(e.user_id);
+        return true;
+      }
+    }
+  }
+
   let cfgReg = new RegExp(sysCfgReg)
   let regRet = cfgReg.exec(e.msg)
 
@@ -131,9 +172,32 @@ export async function sysCfg (e, { render }) {
       const oldValue = Cfg.get(cfgKey);
       Cfg.set(cfgKey, val);
       
-      // 如果是AI开关设置，添加重启提示
+      // 如果是AI开关设置，添加环境检测和重启提示
       if (cfgKey === 'liulian.ai.enabled' && oldValue !== val) {
         if (val) {
+          // 开启AI功能前检测Python环境
+          const detector = new EnvironmentDetector();
+          const hasPython = await detector.detectPython();
+          
+          if (!hasPython) {
+            // 没有Python环境，提示用户是否自动配置
+            const userId = e.user_id;
+            sessionManager.create(userId, 'python_setup', {
+              cfgKey,
+              newValue: val
+            });
+            
+            e.reply('检测到未安装Python环境，是否自动配置？\n' +
+                   '回复【确定】开始配置，回复【取消】放弃。\n' +
+                   '（30秒内有效）\n\n' +
+                   '💡 提示：配置过程可能需要几分钟，期间请耐心等待...');
+            
+            // 回滚设置，等待用户确认后再开启
+            Cfg.set(cfgKey, oldValue);
+            return true;
+          }
+          
+          // 已有Python环境，直接开启
           e.reply('✅ AI功能已开启\n💡 提示：请重启机器人以便加载AI相关数据和组件');
         } else {
           e.reply('❌ AI功能已关闭\n💡 提示：AI相关组件将不再加载，节省系统资源');
