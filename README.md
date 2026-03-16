@@ -53,8 +53,6 @@ pnpm install -P
 
 * 电子邮箱 **fmc@liulian-ai.top**
 
-* [官网](http://liulian-ai.top)
-
 ### **安全提示**
 ⚠️ **谨防电信诈骗**
 - 任何要求转账、汇款、索要账号密码、验证码的都是诈骗！
