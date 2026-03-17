@@ -76,7 +76,7 @@ pnpm install -P
   
 ### **赞助**
 
-* 欢迎[爱发电](https://afdian.net/a/huifeidemangguomao)投喂或点个免费的**Star**，您的支持是我们更新及维护的动力~
+* 欢迎[爱发电](https://ifdian.net/a/huifeidemangguomao)投喂或点个免费的**Star**，您的支持是我们更新及维护的动力~
 
 #### **赞助列表（仅展示前十（不展示具体金额）列表定期更新，详情请见[赞助列表](https://liulian-ai.top/thanks)）**
 
