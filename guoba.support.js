@@ -14,7 +14,7 @@ export function supportGuoba() {
       link: "https://gitee.com/huifeidemangguomao/liulian-plugin",
       isV3: true,
       isV2: true,
-      description: "提供原神地下地图，插件管理，B站推送，及娶群友，猜角色，芒果问答等群聊功能",
+      description: "提供原神地下地图、插件管理、B站推送、娶群友、猜角色、芒果问答等群聊功能",
       // 显示图标，此为个性化配置
       // 图标可在 https://icon-sets.iconify.design 这里进行搜索
       icon: "",
