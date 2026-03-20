@@ -89,7 +89,6 @@ pnpm install -P
 7. 你？
 8. 某只假的假期10
 9. 长楠
-10. 乐
 .......
 
 <details><summary>📝写在最后</summary>
