@@ -13,18 +13,18 @@ const _path = process.cwd();
 let music = [7351920257]; //这里改网易云的歌单id
 
 // 上传音频文件
-async function uploadRecord(url) {
+export async function uploadRecord(url) {
   try {
     const response = await fetch(url);
     const buffer = await response.buffer();
     const tempPath = path.join(_path, 'temp', `music_${Date.now()}.mp3`);
-    
+
     // 确保temp目录存在
     const tempDir = path.join(_path, 'temp');
     if (!fs.existsSync(tempDir)) {
       fs.mkdirSync(tempDir, { recursive: true });
     }
-    
+
     fs.writeFileSync(tempPath, buffer);
     return segment.record(tempPath);
   } catch (error) {
@@ -220,7 +220,7 @@ export async function guessAvatarCheck(e) {
   }
   return false;
 }
-async function replayAnswer(e, message, cfg, isReply = false) {
+export async function replayAnswer(e, message, cfg, isReply = false) {
   clearTimeout(cfg.timer);
   cfg.playing = false;
   let answer = await cfg.answer;
