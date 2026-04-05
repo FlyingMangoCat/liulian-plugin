@@ -33,9 +33,6 @@ let cfgMap = {
   管理员:'liulian.admin.users',
   // 记忆系统配置
   云端记忆:'liulian.memory.cloud',
-  // 宣传模块配置
-  宣传模块:'sys.ad',
-  宣传概率:'sys.adProbability',
 }
 let sysCfgReg = `^#榴莲设置\\s*(${lodash.keys(cfgMap).join('|')})?\\s*(.*)$`
 export const rule = {
@@ -225,9 +222,6 @@ export async function sysCfg (e, { render }) {
     shutup: getStatus('sys.shutup', false),
     PluginName: Cfg.get('sys.PluginName', 1),
     aits: getStatus('sys.aits', true),
-    // 宣传模块配置显示
-    ad: getStatus('sys.ad', true),
-    adProbability: Cfg.get('sys.adProbability', 1),
     // 榴莲AI配置显示
     aiEnabled: getStatus('liulian.ai.enabled', false),
     apiEndpoint: Cfg.get('liulian.api.endpoint', 'https://api.liulian.ai/v1'),

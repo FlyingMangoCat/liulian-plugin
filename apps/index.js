@@ -66,7 +66,6 @@ import { fakeMessage } from "./fakeMessage.js"
 import { fabing } from "./morbidity.js"
 import { biaoQing, biaoQingHelp } from "./makeemoticons.js"
 import { random, chuochuo, 上传, checkRandom } from "./Random expression.js"
-import { random as adRandom } from "./ad.js"
 import { FuckingChatterbox } from "./chatterboxStat.js"
 import { fanyi, translateText, base64jiami, base64jiemi, wyyjx, wyyauto, qrcode } from "./tools.js"
 import { dailyword, sentence, dailywordCheck, sentenceCheck } from "./daily.js"
@@ -271,7 +270,6 @@ export {
     fakeMessage,
     random,
     chuochuo,
-    adRandom,
     FuckingChatterbox,
     guessAvatar,
     guessAvatarCheck,
@@ -955,11 +953,6 @@ yl21: {
        priority: 100, //优先级，越小优先度越高
        describe: "表情帮助", //【命令】功能说明
     },
-       ad: {
-       reg: "", //不通过正则匹配
-       priority: 99999, //最低优先级，确保不干扰其他功能
-       describe: "概率随机触发宣传消息", //【命令】功能说明
-    },
        fabing: {
        reg: "^#?发病(.*)$", //匹配消息正则，命令正则
        priority: 50, //优先级，越小优先度越高
@@ -1576,7 +1569,7 @@ const exportedFunctions = {
     sm1, sm2, sm3, sm4, sm5, sm6, sm7, sm8, sm9, sm10,
     sm11, sm12, sm13, sm14, sm15, sm16, sm17, sm18, sm19,
     sm20, sm21, sm22, sm23, fakeMessage, random, chuochuo,
-    adRandom, FuckingChatterbox, guessAvatar, guessAvatarCheck,
+    FuckingChatterbox, guessAvatar, guessAvatarCheck,
     bbguessAvatar, bbguessAvatarCheck, groupRest, godEyesFUN,
     headPortraitFUN, qmp, biaoQing, biaoQingHelp, fabing,
     lp, setu, dailyword, sentence, dailywordCheck, sentenceCheck, HitMe, CeShi, dutang,
