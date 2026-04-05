@@ -4,7 +4,6 @@ import config from "../model/config/config.js"
 import { Cfg } from '#liulian'
 import { versionInfo, help } from "./help.js"
 import { wjc } from "./wjc.js"
-import { ai, ai_reset_memory } from "./ai.js"
 import { liulian_status } from './status.js';
 import { replace } from "./replace.js"
 import { toShutUp,
@@ -330,8 +329,6 @@ export {
     Bouncecat,
     mapnumber,
     上传,
-    ai,
-    ai_reset_memory,
     daihua,
     guangbo,
     guangboHelp,
@@ -352,6 +349,19 @@ const cfg = config.getdefault_config('liulian', 'botname', 'config');
 
 // 检查 AI 服务是否启用，只有启用时才注册 AI 相关规则
 const aiEnabled = Cfg.get('ai.enabled', false);
+
+// 动态导入AI模块，只有启用时才导入
+let ai = null;
+let ai_reset_memory = null;
+if (aiEnabled) {
+  try {
+    const aiModule = await import('./ai.js');
+    ai = aiModule.ai;
+    ai_reset_memory = aiModule.ai_reset_memory;
+  } catch (error) {
+    console.error('[AI模块] 导入失败:', error);
+  }
+}
 
 let rule = {
 
@@ -1584,11 +1594,16 @@ const exportedFunctions = {
     enableHotPush, disableHotPush, setHotPushTime, setHotPushPlatform, getHotPushList,
     hotPushScheduleJob, bilibilihelp, hothelp, YZversionInfo, EndCheck, musicanswerCheck,
     guessmusic, 运势, 小黑子, updateRes, cj, Robacat,
-    Loseacat, Resetcat, Bouncecat, mapnumber, 上传, ai,
-    ai_reset_memory, daihua, guangbo, guangboHelp,
+    Loseacat, Resetcat, Bouncecat, mapnumber, 上传, daihua, guangbo, guangboHelp,
     starguessAvatar, starguessAvatarCheck, toShutUp,
     determineIfYouShutUp, openYourMouth, replace, sjclassic,
     zdclassic, liulian_status
+}
+
+// 如果AI模块启用，动态添加AI函数到exportedFunctions
+if (aiEnabled && ai && ai_reset_memory) {
+    exportedFunctions.ai = ai;
+    exportedFunctions.ai_reset_memory = ai_reset_memory;
 }
 
 for (let fnName in exportedFunctions) {
