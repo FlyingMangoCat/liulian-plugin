@@ -1,6 +1,3 @@
-import pg from 'pg';
-import Redis from 'ioredis';
-const { Pool } = pg;
 import config from '../../../config/ai.js';
 
 class DatabaseManager {
@@ -12,30 +9,44 @@ class DatabaseManager {
 
     async connect() {
         try {
+            let pg, Redis;
+            try {
+                pg = await import('pg');
+                Redis = (await import('ioredis')).default;
+            } catch {
+                console.warn('[Database] pg 或 ioredis 未安装，数据库功能不可用');
+                return;
+            }
+            const Pool = pg.default?.Pool || pg.Pool;
+
+            const dbConfig = config?.ai?.database || config?.database;
+            if (!dbConfig?.postgres) {
+                console.warn('[Database] 未找到数据库配置，跳过连接');
+                return;
+            }
+
             // 连接PostgreSQL (主数据库)
-            this.pgPool = new Pool(config.database.postgres);
+            this.pgPool = new Pool(dbConfig.postgres);
             await this.pgPool.query('SELECT 1');
             console.log('[Database] PostgreSQL连接成功');
-            
+
             // 连接Redis (专用缓存)
             this.redis = new Redis({
-                host: config.database.redis.host,
-                port: config.database.redis.port,
-                password: config.database.redis.password,
-                // Redis专用缓存配置
+                host: dbConfig.redis.host,
+                port: dbConfig.redis.port,
+                password: dbConfig.redis.password,
                 keyPrefix: 'liulian:cache:',
-                ttl: config.database.redis.ttl || 3600,
-                enableOfflineQueue: false // 禁用离线队列，缓存失败不应阻塞主流程
+                ttl: dbConfig.redis.ttl || 3600,
+                enableOfflineQueue: false
             });
-            
+
             await this.redis.ping();
             console.log('[Database] Redis缓存连接成功');
-            
+
             this.isConnected = true;
             await this.initTables();
         } catch (error) {
             console.error('[Database] 连接失败:', error);
-            // 即使缓存失败，也不应影响主数据库功能
             if (this.pgPool) {
                 this.isConnected = true;
                 console.log('[Database] 主数据库连接成功，但缓存不可用');
@@ -116,7 +127,7 @@ class DatabaseManager {
             if (this.redis && memories.length > 0) {
                 this.redis.setex(
                     `user:${userId}:memories`,
-                    config.database.redis.ttl,
+                    (config?.ai?.database || config?.database)?.redis?.ttl || 3600,
                     JSON.stringify(memories)
                 ).catch(err => {
                     console.warn('[Database] 缓存设置失败:', err.message);

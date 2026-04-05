@@ -22,7 +22,7 @@ export class liulian extends plugin {
   }
 
   async dispatch(e) {
-    let msg = e.original_msg || "not original_msg";
+    let msg = e.msg || "";
     if (!msg) {
       return false;
     }
