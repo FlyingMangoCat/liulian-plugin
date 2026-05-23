@@ -29,7 +29,7 @@ pnpm install -P
 |[提瓦特图研所](https://m.bilibili.com/space/1872522256?share_from=space&share_medium=android&share_plat=android&share_session_id=246f71fc-347b-4371-b8cf-2e51df9d0572&share_source=COPY&share_tag=s_i&timestamp=1665512676&unique_k=nXaICOt) | 提供原神地下地图来源 |
 |[喵喵](https://gitee.com/yoimiya-kokomi) | 提供插件框架支持 |
 |[Yi0086](https://gitee.com/yi0086) | 提供技术支持 |
-|[释羽墨](https://b23.tv/ld4Grul) | 会飞的芒果猫御用画师 |
+|[释羽墨](https://space.bilibili.com/637665039) | 会飞的芒果猫御用画师 |
 |[萧枘（会飞的橘子猫）](https://gitee.com/xiaoxiaorurui) | 上传、整理仓库内容及解答问题 |
 |[星光（会飞的星光猫）]() | 宣传及教程配音 |
 |[会飞的苹果猫]() | 宣传 |
