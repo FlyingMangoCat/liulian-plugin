@@ -69,7 +69,7 @@ export const rule = {
     describe: '',
   },
    bbAvatar: {
-    reg: '^#(邦布)?猜(邦布|绝区零邦布)(普通|困难|地狱)?(模式)?',
+    reg: '^#(绝区零)?猜(角色|角色绝区零)(普通|困难|地狱)?(模式)?',
     priority: 99,
     describe: '猜邦布',
   },
@@ -463,7 +463,7 @@ export async function starguessAvatarCheck(e) {
     export async function bbguessAvatar(e) {
   let guessConfig = getGuessConfig(e);
   if (guessConfig.playing) {
-    e.reply('猜邦布游戏正在进行哦');
+    e.reply('猜角色游戏正在进行哦');
     return true;
   }
   let hardMode = e.msg.includes('困难');
@@ -480,7 +480,7 @@ export async function starguessAvatarCheck(e) {
     size = lodash.random(80, 120);
     helpText = '%s';
   }
-  helpText = helpText.replace('%s', `即将发送一张『随机邦布』的『随机一角』，${GAME_TIME_OUT}秒之后揭晓答案！\n回答格式：#我猜[邦布名]`);
+  helpText = helpText.replace('%s', `即将发送一张『随机角色』的『随机一角』，${GAME_TIME_OUT}秒之后揭晓答案！\n回答格式：#我猜[角色名]`);
   e.reply(helpText);
   let fileNames = [];
   let ffn = (n) => !/(未知)/.test(n);
@@ -524,7 +524,7 @@ export async function starguessAvatarCheck(e) {
       guessConfig.answer = render(templateName, 'answer', props);
       guessConfig.timer = setTimeout(() => {
         if (guessConfig.playing) {
-          replayAnswer(e, ['很遗憾，还没有人答对哦，正确答案是：' + roleName + '\n(如有邦布未收录或名称错误，请联系我们)'], guessConfig);
+          replayAnswer(e, ['很遗憾，还没有人答对哦，正确答案是：' + roleName + '\n(如有角色未收录或名称错误，请联系我们)'], guessConfig);
         }
       }, GAME_TIME_OUT * 1000);
     } else {
@@ -543,7 +543,7 @@ export async function bbguessAvatarCheck(e) {
     if (zzzroleId === id) {
       await replayAnswer(e, ['恭喜你答对了！'], guessConfig, true);
       if (normalMode && lodash.random(0, 100) <= 8) {
-        e.reply('如果感觉太简单了的话，可以对我说“#猜邦布困难模式”或者“#猜邦布地狱模式”哦！');
+        e.reply('如果感觉太简单了的话，可以对我说“#绝区零猜角色困难模式”或者“#绝区零猜角色地狱模式”哦！');
       }
       return true;
     }
