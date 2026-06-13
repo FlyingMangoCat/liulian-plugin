@@ -1,5 +1,5 @@
 import { OllamaHandler } from '#liulian.ollama';
-import connectionRetry from '#liulian.core/connectionRetry.js';
+import connectionRetry from './connectionRetry.js';
 import config from '#liulian.config';
 
 class ImageProcessor {
