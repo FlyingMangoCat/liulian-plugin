@@ -2,7 +2,6 @@ import fs from 'fs'
 import { Cfg, Common, liulianSafe } from '#liulian'
 import lodash from 'lodash'
 import { exec } from 'child_process'
-import { EnvironmentDetector, sessionManager } from '#liulian.core'
 
 let cfgMap = {
   渲染: 'sys.scale',
@@ -68,6 +67,8 @@ const resPath = `${_path}/plugins/liulian-plugin/resources/`
 const imgPath = `${resPath}/liulian-res-plus/`
 
 export async function sysCfg (e, { render }) {
+  const { EnvironmentDetector, sessionManager } = await import('./ai/core/envDetector.js');
+
   if (!e.isMaster) {
     e.reply('只有主人才能命令榴莲哦~')
     return true

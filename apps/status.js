@@ -1,8 +1,6 @@
 // @liulian-middleware
 // 状态模块 - 支持中间件模式
 
-import { AIManager } from './ai/index.js';
-import DatabaseManager from './ai/core/database.js';
 import { Cfg } from '#liulian';
 import axios from 'axios';
 
@@ -109,6 +107,8 @@ async function checkAPIStatus(url, method = 'GET') {
 // 导出中间件模式下的状态获取函数
 export async function getMiddlewareStatus() {
     try {
+        const { AIManager } = await import('./ai/index.js');
+        const { default: DatabaseManager } = await import('./ai/core/database.js');
         const aiStatus = AIManager.getServiceStatus();
         const dbStatus = await DatabaseManager.healthCheck();
         
@@ -149,6 +149,9 @@ export async function liulian_status(e) {
     console.log('[状态模块] 收到状态检查请求');
 
     try {
+        // 动态导入数据库模块
+        const { default: DatabaseManager } = await import('./ai/core/database.js');
+
         // 发送"正在检查"提示
         await e.reply("正在检查榴莲插件状态，请稍候...", true);
 
@@ -160,6 +163,7 @@ export async function liulian_status(e) {
 
         // AI服务状态
         if (isAIEnabled) {
+            const { AIManager } = await import('./ai/index.js');
             const aiStatus = AIManager.getServiceStatus();
             message += `AI服务: ${AIManager.isAIAvailable() ? '✅' : '❌'}\n`;
             message += `Ollama: ${(aiStatus && aiStatus.ollama && aiStatus.ollama.available) ? '✅' : '❌'}\n`;

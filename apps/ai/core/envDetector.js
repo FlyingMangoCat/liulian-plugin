@@ -395,8 +395,10 @@ export const sessionManager = {
 };
 
 // 定期清理过期会话（每5分钟）
-setInterval(() => {
-  sessionManager.cleanupExpired();
-}, 5 * 60 * 1000);
+export function startCleanupTimer () {
+  setInterval(() => {
+    sessionManager.cleanupExpired();
+  }, 5 * 60 * 1000);
+}
 
 export default EnvironmentDetector;
