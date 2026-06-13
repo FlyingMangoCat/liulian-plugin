@@ -57,18 +57,6 @@ const externalAPIs = {
             'http://ovooa.com/API/chouq/api.php'
         ]
     },
-    vvhan: {
-        name: 'VVHAN(翻译)',
-        urls: [
-            'https://api.vvhan.com/api/fy'
-        ]
-    },
-    wordnik: {
-        name: 'Wordnik(英语)',
-        urls: [
-            'http://api.wordnik.com:80/v4/words.json/randomWords'
-        ]
-    },
     yxyos: {
         name: 'YXYOS(经典语录)',
         urls: [
@@ -109,7 +97,6 @@ export async function getMiddlewareStatus() {
     try {
         const { AIManager } = await import('./ai/index.js');
         const { default: DatabaseManager } = await import('./ai/core/database.js');
-        const aiStatus = AIManager.getServiceStatus();
         const dbStatus = await DatabaseManager.healthCheck();
         
         return {
@@ -117,9 +104,7 @@ export async function getMiddlewareStatus() {
             status: 'running',
             timestamp: new Date().toISOString(),
             ai: {
-                available: AIManager.isAIAvailable(),
-                ollama: aiStatus.ollama ? '✅' : '❌',
-                models: aiStatus.models
+                available: AIManager.isAIAvailable()
             },
             database: {
                 postgres: dbStatus.postgres.available ? '✅' : '❌',
@@ -164,12 +149,7 @@ export async function liulian_status(e) {
         // AI服务状态
         if (isAIEnabled) {
             const { AIManager } = await import('./ai/index.js');
-            const aiStatus = AIManager.getServiceStatus();
-            message += `AI服务: ${AIManager.isAIAvailable() ? '✅' : '❌'}\n`;
-            message += `Ollama: ${(aiStatus && aiStatus.ollama && aiStatus.ollama.available) ? '✅' : '❌'}\n`;
-            message += `通用模型: ${(aiStatus && aiStatus.models && aiStatus.models.general && aiStatus.models.general.available) ? '✅' : '❌'}\n`;
-            message += `代码模型: ${(aiStatus && aiStatus.models && aiStatus.models.code && aiStatus.models.code.available) ? '✅' : '❌'}\n`;
-            message += `视觉模型: ${(aiStatus && aiStatus.models && aiStatus.models.vision && aiStatus.models.vision.available) ? '✅' : '❌'}\n\n`;
+            message += `AI服务: ${AIManager.isAIAvailable() ? '✅' : '❌'}\n\n`;
         } else {
             message += `AI服务: ❌ (已关闭)\n\n`;
         }
@@ -183,8 +163,8 @@ export async function liulian_status(e) {
         message += `📡 外部API状态\n`;
         message += `━━━━━━━━━━━━━━━━\n`;
         
-        // 只检查几个关键的API，避免超时
-        const keyAPIs = ['bilibili', 'alapi', 'tianapi', 'iw233'];
+        // 检查所有在用的外部API
+        const keyAPIs = ['bilibili', 'alapi', 'tianapi', 'oick', 'iw233', 'xiaoapi', 'ovooa', 'yxyos'];
         let apiCheckCount = 0;
         let apiSuccessCount = 0;
         
