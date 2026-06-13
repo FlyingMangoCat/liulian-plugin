@@ -14,14 +14,14 @@ const externalAPIs = {
         ]
     },
     alapi: {
-        name: 'ALAPI(天气/早报)',
+        name: '天气/早报',
         urls: [
             'https://v3.alapi.cn/api/tianqi',
             'https://v3.alapi.cn/api/zaobao'
         ]
     },
     tianapi: {
-        name: '天行数据(娱乐)',
+        name: '娱乐',
         urls: [
             'http://api.tianapi.com/caihongpi/index',
             'http://api.tianapi.com/saylove/index',
@@ -30,26 +30,26 @@ const externalAPIs = {
         ]
     },
     oick: {
-        name: 'OICK API',
+        name: 'API',
         urls: [
             'https://api.oick.cn/dutang/api.php',
             'https://api.oick.cn/dog/api.php'
         ]
     },
     xiaoapi: {
-        name: '小API(星座)',
+        name: '星座',
         urls: [
             'http://xiaoapi.cn/API/xzys_pic.php'
         ]
     },
     iw233: {
-        name: 'IW233(随机图)',
+        name: '随机图',
         urls: [
             'https://iw233.cn/api.php'
         ]
     },
     ovooa: {
-        name: 'OVOOA(娱乐)',
+        name: '娱乐',
         urls: [
             'http://ovooa.com/API/Ser/api',
             'http://ovooa.com/API/name/api.php',
@@ -58,7 +58,7 @@ const externalAPIs = {
         ]
     },
     yxyos: {
-        name: 'YXYOS(经典语录)',
+        name: '经典语录',
         urls: [
             'https://api.yxyos.com/liulian/classic'
         ]
