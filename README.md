@@ -1,5 +1,5 @@
-![输入图片说明](resources/common/cont/liulian-plugin.png)
-#  **榴莲插件**
+![liulian-plugin](resources/common/cont/liulian-plugin.png)
+#        **榴莲插件**
 [中文](README.md) | [English](README_EN.md) 
 
 ### **说明**
