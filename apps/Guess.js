@@ -43,7 +43,7 @@ export const rule = {
     priority: 98,
     describe: '',
   },
-    guessmusic: {
+  guessmusic: {
     reg: "^#?猜歌名$", //匹配消息正则，命令正则
     priority: 100, //优先级，越小优先度越高
     describe: "【猜歌名】", //【命令】功能说明
@@ -59,7 +59,7 @@ export const rule = {
     describe: "",
   },
    starguessAvatar: {
-    reg: '^#(星铁)?猜(角色|角色星铁)(普通|困难|地狱)?(模式)?',
+    reg: '^(星铁|*|#|#星铁|*星铁)?猜(角色|角色星铁)(普通|困难|地狱)?(模式)?',
     priority: 99,
     describe: '猜星铁角色',
   },
@@ -68,12 +68,12 @@ export const rule = {
     priority: 98,
     describe: '',
   },
-   bbAvatar: {
-    reg: '^#(绝区零)?猜(角色|角色绝区零)(普通|困难|地狱)?(模式)?',
+   zzzAvatar: {
+    reg: '^(绝区零|%|#|#绝区零|%绝区零)?猜(角色|角色ZZZ|角色绝区零)(普通|困难|地狱)?(模式)?',
     priority: 99,
-    describe: '猜邦布',
+    describe: '猜ZZZ角色',
   },
-  bbAvatarCheck: {
+  zzzAvatarCheck: {
     reg: '(.*)',
     priority: 98,
     describe: '',
@@ -460,7 +460,7 @@ export async function starguessAvatarCheck(e) {
     }
     
     
-    export async function bbguessAvatar(e) {
+    export async function zzzguessAvatar(e) {
   let guessConfig = getGuessConfig(e);
   if (guessConfig.playing) {
     e.reply('猜角色游戏正在进行哦');
@@ -484,7 +484,7 @@ export async function starguessAvatarCheck(e) {
   e.reply(helpText);
   let fileNames = [];
   let ffn = (n) => !/(未知)/.test(n);
-  let imgPath = lodash.random(0, 100) <= 30 ? bblogoPath : bbgachaPath;
+  let imgPath = lodash.random(0, 100) <= 30 ? zzzlogoPath : zzzgachaPath;
   fs.readdirSync(imgPath).filter(ffn).forEach(n => fileNames.push(n));
   let fileName = fileNames[Math.round(Math.random() * (fileNames.length - 1))];
   let roleName = fileName.replace(/\..+$/, '').replace(/\d/g, '');
@@ -497,7 +497,7 @@ export async function starguessAvatarCheck(e) {
   console.groupEnd();
   let imgSrc = path.join(imgPath, fileName);
   let minTop = 0, limitTop = 0, minLeft = 0, limitLeft = 0;
-  if (imgPath === bbgachaPath) {
+  if (imgPath === zzzgachaPath) {
     minTop = 50;
   } else {
     minLeft = 30;
@@ -534,7 +534,7 @@ export async function starguessAvatarCheck(e) {
   }, 1500);
   return true;
 }
-export async function bbguessAvatarCheck(e) {
+export async function zzzguessAvatarCheck(e) {
   let guessConfig = getGuessConfig(e);
   let {playing, zzzroleId, normalMode} = guessConfig;
   if (playing && zzzroleId && e.msg) {

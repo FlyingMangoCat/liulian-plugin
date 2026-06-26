@@ -77,8 +77,8 @@ guessAvatar,
 guessAvatarCheck,
 starguessAvatar,
 starguessAvatarCheck,
-bbguessAvatar,
-bbguessAvatarCheck,
+zzzguessAvatar,
+zzzguessAvatarCheck,
 miyu,
 miyuCheck
 } from "./Guess.js"
@@ -273,8 +273,8 @@ export {
     FuckingChatterbox,
     guessAvatar,
     guessAvatarCheck,
-    bbguessAvatar,
-    bbguessAvatarCheck,
+    zzzguessAvatar,
+    zzzguessAvatarCheck,
     groupRest,
     godEyesFUN,
     headPortraitFUN,
@@ -904,22 +904,22 @@ yl21: {
         describe: ''
     },
         starguessAvatar: {
-        reg: '^#(星铁)?猜(角色|角色星铁)(普通|困难|地狱)?(模式)?',
+        reg: '^(星铁|*|#|#星铁|*星铁)?猜(角色|角色星铁)(普通|困难|地狱)?(模式)?',
         priority: 10,
         describe: '猜星铁角色',
     },
         starguessAvatarCheck: {
-        reg: "^#?我猜(.*)",
+        reg: "^(星铁|*|#|#星铁|*星铁)?我猜(.*)",
         priority: 98,
         describe: ''
     },
-        bbAvatar: {
-        reg: '^#(邦布)?猜(邦布|绝区零邦布)(普通|困难|地狱)?(模式)?',
+        zzzAvatar: {
+        reg: '^(绝区零|%|#|#绝区零|%绝区零)?猜(角色|角色ZZZ|角色绝区零)(普通|困难|地狱)?(模式)?',
         priority: 99,
-        describe: '猜邦布',
+        describe: '猜ZZZ角色',
     },
-        bbAvatarCheck: {
-        reg: "^#?我猜(.*)",
+        zzzAvatarCheck: {
+        reg: "^(绝区零|%|#|#绝区零|%绝区零)?我猜(.*)",
         priority: 98,
         describe: ''
     },
@@ -1570,7 +1570,7 @@ const exportedFunctions = {
     sm11, sm12, sm13, sm14, sm15, sm16, sm17, sm18, sm19,
     sm20, sm21, sm22, sm23, fakeMessage, random, chuochuo,
     FuckingChatterbox, guessAvatar, guessAvatarCheck,
-    bbguessAvatar, bbguessAvatarCheck, groupRest, godEyesFUN,
+    zzzguessAvatar, zzzguessAvatarCheck, groupRest, godEyesFUN,
     headPortraitFUN, qmp, biaoQing, biaoQingHelp, fabing,
     lp, setu, dailyword, sentence, dailywordCheck, sentenceCheck, HitMe, CeShi, dutang,
     caihongpi, saylove, joke, 早报, xzys, ercyFUN,
