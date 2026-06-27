@@ -6,6 +6,7 @@ config/*
 
 node_modules/
 IFLOW.md
+.atomcode.md
 
 # AI模块配置文件（已在config/目录下，但明确列出）
 config/ai.js
