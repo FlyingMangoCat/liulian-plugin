@@ -11,7 +11,7 @@ IFLOW.md
 config/ai.js
 
 # 参考内容文件夹 - 不提交到版本控制
-参考内容/
+references/
 
 # 允许跟踪的配置文件
 !config/default_config/liulian/plugininfo.yaml
