@@ -59,7 +59,7 @@ export const rule = {
     describe: "",
   },
    starguessAvatar: {
-    reg: '^(星铁|*|#|#星铁|*星铁)?猜(角色|角色星铁)(普通|困难|地狱)?(模式)?',
+    reg: '^*?(星铁|#|#星铁)?猜(角色|角色星铁)(普通|困难|地狱)?(模式)?',
     priority: 99,
     describe: '猜星铁角色',
   },
