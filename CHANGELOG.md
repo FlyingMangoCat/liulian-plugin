@@ -1,3 +1,10 @@
+# 0.15.6
+
+* 新增 liulianModels 模块
+    * 新增 model/liulianModels.js，提供 Character.get() / Weapon.get() 角色武器查询接口
+    * 支持通过角色名、别名快速获取角色头像（face）和抽卡图（gacha）
+    * 复用已有 logo/role、gacha/character 资源
+
 # 0.15.5
 
 * 修复正则表达式错误
