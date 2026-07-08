@@ -913,12 +913,12 @@ yl21: {
         priority: 98,
         describe: ''
     },
-        zzzAvatar: {
+        zzzguessAvatar: {
         reg: '^(?:绝区零|%|[Zz][Zz][Zz]|#绝区零|#[Zz][Zz][Zz]|%绝区零|(?=.*(?:绝区零|[Zz][Zz][Zz]|%)))猜角色(?:ZZZ|绝区零)?(?:普通|困难|地狱)?(?:模式)?',
         priority: 99,
         describe: '猜ZZZ角色',
     },
-        zzzAvatarCheck: {
+        zzzguessAvatarCheck: {
         reg: "^(?:绝区零|%|[Zz][Zz][Zz]|#绝区零|#[Zz][Zz][Zz]|%绝区零|(?=.*(?:绝区零|[Zz][Zz][Zz]|%)))我猜(.*)",
         priority: 98,
         describe: ''
