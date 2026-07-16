@@ -101,10 +101,10 @@ async function initBiliCookie() {
         const configData = JSON.parse(fs.readFileSync(_path + "/data/PushNews/BilibiliPushConfig.json", "utf8"));
         if (configData.bilibiliCookie && configData.bilibiliCookie.cookie && configData.bilibiliCookie.cookie.trim() !== '') {
           BiliCookie = configData.bilibiliCookie.cookie;
-          Bot.logger.mark(`B站推送：从配置文件加载 Cookie (长度: ${BiliCookie.length})`);
+          Bot.logger?.mark(`B站推送：从配置文件加载 Cookie (长度: ${BiliCookie.length})`);
         }
       } catch (err) {
-        Bot.logger.warn(`B站推送：从配置文件加载 Cookie 失败: ${err.message}`);
+        Bot.logger?.warn(`B站推送：从配置文件加载 Cookie 失败: ${err.message}`);
       }
     }
   }
