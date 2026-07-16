@@ -1437,7 +1437,7 @@ async function adaptiveBiliPushSchedule() {
   try {
     // 记录开始时间
     const startTime = Date.now();
-    Bot.logger.mark(`B站推送：开始执行自适应推送任务`);
+    Bot.logger?.mark(`B站推送：开始执行自适应推送任务`);
     
     // 执行推送任务，获取结果
     const result = await pushScheduleJob();
@@ -1460,7 +1460,7 @@ async function adaptiveBiliPushSchedule() {
       nextInterval = executionTime + 1; // 至少间隔1分钟
     }
     
-    Bot.logger.mark(`B站推送：上一轮执行耗时${executionTime}分钟，${result && result.hasNewDynamic ? '有新动态' : '无新动态'}，下次间隔${nextInterval}分钟`);
+    Bot.logger?.mark(`B站推送：上一轮执行耗时${executionTime}分钟，${result && result.hasNewDynamic ? '有新动态' : '无新动态'}，下次间隔${nextInterval}分钟`);
     
     // 清除旧的定时器
     if (biliPushScheduleTimer) {
@@ -1473,7 +1473,7 @@ async function adaptiveBiliPushSchedule() {
     biliPushScheduleTimer = setTimeout(adaptiveBiliPushSchedule, nextDelay);
     
   } catch (err) {
-    Bot.logger.error(`B站推送：自适应定时任务异常: ${err.message}`);
+    Bot.logger?.error(`B站推送：自适应定时任务异常: ${err.message}`);
     // 发生异常，使用随机间隔重试（5-15分钟）
     if (biliPushScheduleTimer) {
       clearTimeout(biliPushScheduleTimer);
