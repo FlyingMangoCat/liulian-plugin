@@ -112,15 +112,15 @@ async function initBiliCookie() {
   // 检查是否有有效的Cookie
   if (!BiliCookie || BiliCookie.trim() === '') {
     if (Bot?.logger) {
-      Bot.logger.mark('B站推送：未配置有效的 Cookie，B站推送功能无法使用');
-      Bot.logger.mark('B站推送：请主人发送 #B站扫码登录 进行配置');
+      Bot.logger?.mark('B站推送：未配置有效的 Cookie，B站推送功能无法使用');
+      Bot.logger?.mark('B站推送：请主人发送 #B站扫码登录 进行配置');
     }
     return false;
   }
 
   BiliReqHeaders.cookie = BiliCookie;
   if (Bot?.logger) {
-    Bot.logger.mark(`B站推送：使用扫码登录的 Cookie (长度: ${BiliCookie.length})`);
+    Bot.logger?.mark(`B站推送：使用扫码登录的 Cookie (长度: ${BiliCookie.length})`);
   }
   
   // 获取当前登录用户的 UID
@@ -143,22 +143,22 @@ async function getLoginUserInfo() {
     const res = response.data;
 
     if (res.code === -352) {
-      Bot.logger.warn('B站推送：Cookie 已过期或无效，请重新扫码登录');
+      Bot.logger?.warn('B站推送：Cookie 已过期或无效，请重新扫码登录');
       return;
     }
 
     if (res.code !== 0) {
-      Bot.logger.warn(`B站推送：获取登录用户信息失败，错误码: ${res.code}`);
+      Bot.logger?.warn(`B站推送：获取登录用户信息失败，错误码: ${res.code}`);
       return;
     }
 
     const data = res?.data;
     if (data && data.mid) {
       BiliUID = data.mid;
-      Bot.logger.mark(`B站推送：当前登录用户 UID: ${BiliUID}`);
+      Bot.logger?.mark(`B站推送：当前登录用户 UID: ${BiliUID}`);
     }
   } catch (err) {
-    Bot.logger.error(`B站推送：获取登录用户信息异常: ${err.message}`);
+    Bot.logger?.error(`B站推送：获取登录用户信息异常: ${err.message}`);
   }
 }
 
@@ -171,7 +171,7 @@ function generateRandomId() {
 async function getUserInfo(uid, retryCount = 0) {
   // 检查是否配置了有效的 Cookie
   if (!BiliCookie || BiliCookie.trim() === '') {
-    Bot.logger.warn('B站推送：未配置有效的 Cookie');
+    Bot.logger?.warn('B站推送：未配置有效的 Cookie');
     return null;
   }
 
@@ -184,32 +184,32 @@ async function getUserInfo(uid, retryCount = 0) {
     const res = response.data;
 
     if (res.code === -352) {
-      Bot.logger.warn('B站推送：Cookie 已过期或无效，请重新扫码登录');
+      Bot.logger?.warn('B站推送：Cookie 已过期或无效，请重新扫码登录');
       return null;
     }
 
     if (res.code === 799) {
-      Bot.logger.warn(`B站推送：接口访问受限（错误码799），第${retryCount + 1}次遇到`);
+      Bot.logger?.warn(`B站推送：接口访问受限（错误码799），第${retryCount + 1}次遇到`);
       // 重试机制：最多重试3次，每次等待5-10秒
       if (retryCount < 3) {
         let retryDelay = Math.floor(Math.random() * 5) + 5;
-        Bot.logger.mark(`B站推送：等待${retryDelay}秒后重试获取用户[${uid}]信息`);
+        Bot.logger?.mark(`B站推送：等待${retryDelay}秒后重试获取用户[${uid}]信息`);
         await common.sleep(retryDelay * 1000);
         return getUserInfo(uid, retryCount + 1);
       } else {
-        Bot.logger.warn('B站推送：达到最大重试次数，仍然受限');
+        Bot.logger?.warn('B站推送：达到最大重试次数，仍然受限');
         return { error: 799, message: '接口访问受限' };
       }
     }
 
     if (res.code !== 0) {
-      Bot.logger.warn(`B站推送：获取用户信息失败，错误码: ${res.code}, 消息: ${res.message}`);
+      Bot.logger?.warn(`B站推送：获取用户信息失败，错误码: ${res.code}, 消息: ${res.message}`);
       return null;
     }
 
     const data = res?.data;
     if (!data) {
-      Bot.logger.warn('B站推送：用户信息数据为空');
+      Bot.logger?.warn('B站推送：用户信息数据为空');
       return null;
     }
 
@@ -219,7 +219,7 @@ async function getUserInfo(uid, retryCount = 0) {
       sign: data.sign || ''
     };
   } catch (err) {
-    Bot.logger.error(`B站推送：获取用户信息异常: ${err.message}`);
+    Bot.logger?.error(`B站推送：获取用户信息异常: ${err.message}`);
     return null;
   }
 }
@@ -228,7 +228,7 @@ async function getUserInfo(uid, retryCount = 0) {
 async function getUserDynamicList(uid, retryCount = 0) {
   // 检查是否配置了有效的 Cookie
   if (!BiliCookie || BiliCookie.trim() === '') {
-    Bot.logger.warn('B站推送：未配置有效的 Cookie');
+    Bot.logger?.warn('B站推送：未配置有效的 Cookie');
     return null;
   }
 
@@ -241,32 +241,32 @@ async function getUserDynamicList(uid, retryCount = 0) {
     const res = response.data;
 
     if (res.code === -352) {
-      Bot.logger.warn('B站推送：Cookie 已过期或无效，请重新扫码登录');
+      Bot.logger?.warn('B站推送：Cookie 已过期或无效，请重新扫码登录');
       return null;
     }
 
     if (res.code === 799) {
-      Bot.logger.warn(`B站推送：接口访问受限（错误码799），第${retryCount + 1}次遇到`);
+      Bot.logger?.warn(`B站推送：接口访问受限（错误码799），第${retryCount + 1}次遇到`);
       // 重试机制：最多重试3次，每次等待5-10秒
       if (retryCount < 3) {
         let retryDelay = Math.floor(Math.random() * 5) + 5;
-        Bot.logger.mark(`B站推送：等待${retryDelay}秒后重试获取用户[${uid}]动态`);
+        Bot.logger?.mark(`B站推送：等待${retryDelay}秒后重试获取用户[${uid}]动态`);
         await common.sleep(retryDelay * 1000);
         return getUserDynamicList(uid, retryCount + 1);
       } else {
-        Bot.logger.warn('B站推送：达到最大重试次数，仍然受限');
+        Bot.logger?.warn('B站推送：达到最大重试次数，仍然受限');
         return { error: 799, message: '接口访问受限' };
       }
     }
 
     if (res.code !== 0) {
-      Bot.logger.warn(`B站推送：获取用户动态列表失败，错误码: ${res.code}, 消息: ${res.message}`);
+      Bot.logger?.warn(`B站推送：获取用户动态列表失败，错误码: ${res.code}, 消息: ${res.message}`);
       return null;
     }
 
     return res.data;
   } catch (err) {
-    Bot.logger.error(`B站推送：获取用户动态列表异常: ${err.message}`);
+    Bot.logger?.error(`B站推送：获取用户动态列表异常: ${err.message}`);
     return null;
   }
 }
@@ -314,7 +314,7 @@ export async function biliLogin(e) {
         }
       });
     } catch (err) {
-      Bot.logger.error(`B站推送：生成二维码失败: ${err.message}`);
+      Bot.logger?.error(`B站推送：生成二维码失败: ${err.message}`);
       e.reply("哎呀，生成二维码失败了，是不是少装了什么依赖？");
       return true;
     }
@@ -393,18 +393,18 @@ export async function biliLogin(e) {
           } else if (dataCode === 86090) {
             // 等待扫码
             if (!isScanned) {
-              Bot.logger.mark("B站推送：等待扫码...");
+              Bot.logger?.mark("B站推送：等待扫码...");
             }
           } else if (dataCode === 86101) {
             // 已扫码，等待确认
             if (!isScanned) {
-              Bot.logger.mark("B站推送：已扫码，等待确认...");
+              Bot.logger?.mark("B站推送：已扫码，等待确认...");
               isScanned = true;
             }
           }
         }
       } catch (err) {
-        Bot.logger.error(`B站推送：轮询登录状态异常: ${err.message}`);
+        Bot.logger?.error(`B站推送：轮询登录状态异常: ${err.message}`);
       }
 
       // 继续轮询
@@ -428,7 +428,7 @@ export async function biliLogin(e) {
     pollLogin();
 
   } catch (err) {
-    Bot.logger.error(`B站推送：扫码登录异常: ${err.message}`);
+    Bot.logger?.error(`B站推送：扫码登录异常: ${err.message}`);
     e.reply("哎呀，扫码登录失败了，等会再试试吧~");
   }
 
@@ -450,7 +450,7 @@ async function handleLoginSuccess(pollResponse, e, qrMessageId) {
       try {
         await cookieJar.setCookie(cookieStr, 'https://passport.bilibili.com');
       } catch (err) {
-        Bot.logger.warn(`B站推送：设置Cookie失败: ${err.message}`);
+        Bot.logger?.warn(`B站推送：设置Cookie失败: ${err.message}`);
       }
     }
 
@@ -465,7 +465,7 @@ async function handleLoginSuccess(pollResponse, e, qrMessageId) {
 
     BiliUID = parseInt(DedeUserID);
 
-    Bot.logger.mark(`B站推送：登录成功，DedeUserID=${BiliUID}`);
+    Bot.logger?.mark(`B站推送：登录成功，DedeUserID=${BiliUID}`);
 
     // 获取并保存UID
     await getLoginUserInfo();
@@ -485,9 +485,9 @@ async function handleLoginSuccess(pollResponse, e, qrMessageId) {
       }
       BilibiliPushConfig.bilibiliCookie.cookie = cookieString;
       await saveConfigJson();
-      Bot.logger.mark('B站推送：Cookie已保存到配置文件');
+      Bot.logger?.mark('B站推送：Cookie已保存到配置文件');
     } catch (err) {
-      Bot.logger.warn(`B站推送：保存Cookie到配置文件失败: ${err.message}`);
+      Bot.logger?.warn(`B站推送：保存Cookie到配置文件失败: ${err.message}`);
     }
 
     // 撤回二维码
@@ -506,7 +506,7 @@ async function handleLoginSuccess(pollResponse, e, qrMessageId) {
     e.reply(`✅ 扫码登录成功！\n当前登录用户ID：${BiliUID}\nCookie已保存，可以开始使用B站推送功能`);
 
   } catch (err) {
-    Bot.logger.error(`B站推送：处理登录成功状态异常: ${err.message}`);
+    Bot.logger?.error(`B站推送：处理登录成功状态异常: ${err.message}`);
     e.reply("登录是成功了，但是处理Cookie的时候出错了，重新试试吧~");
   }
 }
@@ -552,8 +552,8 @@ initBiliPushJson(); // 初始化配置
 const cookieStatus = await initBiliCookie();
 if (!cookieStatus) {
   if (Bot?.logger) {
-    Bot.logger.mark('B站推送：未配置有效的 Cookie，B站推送功能无法使用');
-    Bot.logger.mark('B站推送：请主人发送 #B站扫码登录 进行配置');
+    Bot.logger?.mark('B站推送：未配置有效的 Cookie，B站推送功能无法使用');
+    Bot.logger?.mark('B站推送：请主人发送 #B站扫码登录 进行配置');
   }
 }
 
@@ -604,7 +604,7 @@ export async function changeBilibiliPush(e) {
       PushBilibiliDynamic[pushID].isNewsPush = true;
     }
     savePushJson();
-    Bot.logger.mark(`开启B站动态推送:${pushID}`);
+    Bot.logger?.mark(`开启B站动态推送:${pushID}`);
     e.reply(`B站动态推送开启了哦~\n每间隔${pushTimeInterval}分钟会自动检测一次有没有新动态\n如果有的话会自动发送动态内容到这里的~`);
   }
 
@@ -612,7 +612,7 @@ export async function changeBilibiliPush(e) {
     if (PushBilibiliDynamic[pushID]) {
       PushBilibiliDynamic[pushID].isNewsPush = false;
       savePushJson();
-      Bot.logger.mark(`关闭B站动态推送:${pushID}`);
+      Bot.logger?.mark(`关闭B站动态推送:${pushID}`);
       e.reply(`这里的B站动态推送已经关闭了，${botname}再也不会提醒你动态更新了，哼！`);
     } else {
       e.reply("你还没有在这里开启过B站动态推送呢");
@@ -1113,7 +1113,7 @@ export async function pushScheduleJob(e = {}) {
       dynamicPushHistory = JSON.parse(temp);
     }
   }
-  Bot.logger.mark("liulian-plugin —— B站动态定时推送");
+  Bot.logger?.mark("liulian-plugin —— B站动态定时推送");
   // 将上一次推送的动态全部合并到历史记录中
   let hisMap = new Map();
   // 从已有历史记录初始化Map
@@ -1217,7 +1217,7 @@ async function processBatchPush(allPushTasks) {
         
         // 估算阅读时间，用于延迟
         let readingTime = estimateReadingTime(pushList);
-        Bot.logger.mark(`B站推送：用户[${biliUID}]有 ${pushList.length} 条新动态，估算阅读时间=${readingTime}秒`);
+        Bot.logger?.mark(`B站推送：用户[${biliUID}]有 ${pushList.length} 条新动态，估算阅读时间=${readingTime}秒`);
         
         // 基于估算阅读时间调整下次查询的随机延迟，避免被检测
         // 在估算时间的50%-150%之间波动，增加规律性
@@ -1226,12 +1226,12 @@ async function processBatchPush(allPushTasks) {
         let maxDelay = Math.floor(delayRange * 1.5);  // 上限：150%
         let actualDelay = Math.floor(Math.random() * (maxDelay - minDelay + 1)) + minDelay;
         
-        Bot.logger.mark(`B站推送：等待${actualDelay}秒后处理下一个用户（基于估算阅读时间${readingTime}秒）`);
+        Bot.logger?.mark(`B站推送：等待${actualDelay}秒后处理下一个用户（基于估算阅读时间${readingTime}秒）`);
         await common.sleep(actualDelay * 1000);
       } else {
         // 没有新动态，使用基础随机延迟30-60秒
         let baseDelay = Math.floor(Math.random() * 30) + 30;
-        Bot.logger.mark(`B站推送：等待${baseDelay}秒后处理下一个用户（无新动态）`);
+        Bot.logger?.mark(`B站推送：等待${baseDelay}秒后处理下一个用户（无新动态）`);
         await common.sleep(baseDelay * 1000);
       }
     }
@@ -1243,13 +1243,13 @@ async function processBatchPush(allPushTasks) {
     dynamicIndex++;
     let { dynamic, biliUser, pushTargets } = dynamicData;
     
-    Bot.logger.mark(`B站推送：开始推送动态[${dynamicIndex}/${allDynamics.size}] [${dynamicId}] 到 ${pushTargets.length} 个群`);
+    Bot.logger?.mark(`B站推送：开始推送动态[${dynamicIndex}/${allDynamics.size}] [${dynamicId}] 到 ${pushTargets.length} 个群`);
     
     // 构建消息
     let msg = buildSendDynamic(biliUser, dynamic, { sendType: 'default' });
     
     if (!msg || msg === "can't push transmit") {
-      Bot.logger.warn(`B站推送：动态信息解析失败或跳过转发 [${dynamicId}]`);
+      Bot.logger?.warn(`B站推送：动态信息解析失败或跳过转发 [${dynamicId}]`);
       continue;
     }
     
@@ -1270,26 +1270,26 @@ async function processBatchPush(allPushTasks) {
           await Bot.pickGroup(pushTarget)
             .sendMsg(finalMsg)
             .catch((err) => {
-              Bot.logger.error(`B站推送：群[${pushTarget}]推送失败: ${err.message}`);
+              Bot.logger?.error(`B站推送：群[${pushTarget}]推送失败: ${err.message}`);
               return pushAgain(pushTarget, finalMsg);
             });
         } else {
           await common.relpyPrivate(pushTarget, finalMsg);
         }
         
-        Bot.logger.mark(`B站推送：成功推送动态 [${dynamicId}] 到 群[${pushTarget}]`);
+        Bot.logger?.mark(`B站推送：成功推送动态 [${dynamicId}] 到 群[${pushTarget}]`);
         
         // 群之间有短暂延迟（500ms）
         await common.sleep(500);
       } catch (err) {
-        Bot.logger.error(`B站推送：发送动态异常 [${dynamicId}]: ${err.message}`);
+        Bot.logger?.error(`B站推送：发送动态异常 [${dynamicId}]: ${err.message}`);
       }
     }
     
     // 动态之间有延迟（30-60秒）
     if (dynamicIndex < allDynamics.size) {
       let delayBetweenDynamics = Math.floor(Math.random() * 30) + 30;
-      Bot.logger.mark(`B站推送：等待${delayBetweenDynamics}秒后推送下一条动态`);
+      Bot.logger?.mark(`B站推送：等待${delayBetweenDynamics}秒后推送下一条动态`);
       await common.sleep(delayBetweenDynamics * 1000);
     }
   }
@@ -1309,13 +1309,13 @@ async function fetchUserDynamicWithRetry(pushInfo, user, biliUID, retryCount = 0
     return pushList; // 返回动态列表，不发送
   } catch (err) {
     if (retryCount < maxRetries) {
-      Bot.logger.warn(`B站推送：获取用户[${biliUID}]动态失败，第${retryCount + 1}次重试，错误: ${err.message}`);
+      Bot.logger?.warn(`B站推送：获取用户[${biliUID}]动态失败，第${retryCount + 1}次重试，错误: ${err.message}`);
       // 失败后等待5-15秒重试
       let retryDelay = Math.floor(Math.random() * 10) + 5;
       await common.sleep(retryDelay * 1000);
       return fetchUserDynamicWithRetry(pushInfo, user, biliUID, retryCount + 1);
     } else {
-      Bot.logger.error(`B站推送：获取用户[${biliUID}]动态失败，已达最大重试次数，错误: ${err.message}`);
+      Bot.logger?.error(`B站推送：获取用户[${biliUID}]动态失败，已达最大重试次数，错误: ${err.message}`);
       nowDynamicPushList.set(biliUID, []);
       return []; // 返回空数组
     }
@@ -1327,8 +1327,8 @@ async function fetchUserDynamic(pushInfo, user, biliUID) {
   let url = `${BiliDynamicApiUrl}?host_mid=${biliUID}&timezone_offset=-480&features=itemOpusStyle`;
   let pushList = [];
 
-  Bot.logger.mark(`B站推送：准备获取用户[${biliUID}]的动态`);
-  Bot.logger.mark(`B站推送：当前Cookie: ${BiliReqHeaders.cookie ? BiliReqHeaders.cookie.substring(0, 20) + '...' : '未配置'}`);
+  Bot.logger?.mark(`B站推送：准备获取用户[${biliUID}]的动态`);
+  Bot.logger?.mark(`B站推送：当前Cookie: ${BiliReqHeaders.cookie ? BiliReqHeaders.cookie.substring(0, 20) + '...' : '未配置'}`);
 
   // 使用BiliReqHeaders，Cookie已经包含了DedeUserID
   const response = await httpClient.get(url, {
@@ -1338,12 +1338,12 @@ async function fetchUserDynamic(pushInfo, user, biliUID) {
   const res = response.data;
 
   if (res.code === -352) {
-    Bot.logger.warn('B站推送：Cookie 已过期或无效，请重新扫码登录');
+    Bot.logger?.warn('B站推送：Cookie 已过期或无效，请重新扫码登录');
     return [];
   }
 
   if (res.code === 799) {
-    Bot.logger.warn(`B站推送：获取动态接口访问受限（错误码799），用户[${biliUID}]`);
+    Bot.logger?.warn(`B站推送：获取动态接口访问受限（错误码799），用户[${biliUID}]`);
     throw new Error(`接口访问受限（错误码799）`);
   }
 
@@ -1353,7 +1353,7 @@ async function fetchUserDynamic(pushInfo, user, biliUID) {
 
   let data = res?.data?.items || [];
   if (data.length === 0) {
-    Bot.logger.mark(`B站推送：用户[${biliUID}]暂无新动态`);
+    Bot.logger?.mark(`B站推送：用户[${biliUID}]暂无新动态`);
     return [];
   }
 
@@ -1375,13 +1375,13 @@ async function fetchUserDynamic(pushInfo, user, biliUID) {
   pushList = rmDuplicatePushList(pushList);
   
   if (pushList.length > 0) {
-    Bot.logger.mark(`B站推送：用户[${biliUID}]有 ${pushList.length} 条新动态待推送`);
+    Bot.logger?.mark(`B站推送：用户[${biliUID}]有 ${pushList.length} 条新动态待推送`);
     // 记录每条动态的详细信息
     pushList.forEach((item, index) => {
       let author = item?.modules?.module_author || {};
       let pubTime = author?.pub_ts || 0;
       let pubDate = new Date(pubTime * 1000).toLocaleString('zh-CN');
-      Bot.logger.mark(`B站推送：动态[${index + 1}] ID=${item.id_str}, 发布时间=${pubDate}`);
+      Bot.logger?.mark(`B站推送：动态[${index + 1}] ID=${item.id_str}, 发布时间=${pubDate}`);
     });
   }
   
@@ -1478,19 +1478,19 @@ function rmDuplicatePushList(newList) {
 // 发送动态内容
 async function sendDynamic(info, biliUser, list) {
   let pushID = info.pushTarget;
-  Bot.logger.mark(`B站推送[${pushID}] - 用户[${biliUser.name}]`);
+  Bot.logger?.mark(`B站推送[${pushID}] - 用户[${biliUser.name}]`);
 
   for (let val of list) {
     try {
       let msg = buildSendDynamic(biliUser, val, info);
 
       if (msg === "can't push transmit") {
-        Bot.logger.mark(`B站推送：跳过转发动态 [${val.id_str}]`);
+        Bot.logger?.mark(`B站推送：跳过转发动态 [${val.id_str}]`);
         continue;
       }
 
       if (!msg) {
-        Bot.logger.warn(`B站推送：动态信息解析失败 [${val.id_str}]`);
+        Bot.logger?.warn(`B站推送：动态信息解析失败 [${val.id_str}]`);
         continue;
       }
 
@@ -1503,19 +1503,19 @@ async function sendDynamic(info, biliUser, list) {
         await Bot.pickGroup(pushID)
           .sendMsg(msg)
           .catch((err) => {
-            Bot.logger.error(`B站推送：群[${pushID}]推送失败: ${err.message}`);
+            Bot.logger?.error(`B站推送：群[${pushID}]推送失败: ${err.message}`);
             return pushAgain(pushID, msg);
           });
       } else {
         await common.relpyPrivate(pushID, msg);
       }
 
-      Bot.logger.mark(`B站推送：成功推送动态 [${val.id_str}]`);
+      Bot.logger?.mark(`B站推送：成功推送动态 [${val.id_str}]`);
       // 固定延迟，避免一次性发送太多消息
       await common.sleep(BotHaveARest);
 
     } catch (err) {
-      Bot.logger.error(`B站推送：发送动态异常 [${val.id_str}]: ${err.message}`);
+      Bot.logger?.error(`B站推送：发送动态异常 [${val.id_str}]: ${err.message}`);
     }
   }
 
@@ -1527,7 +1527,7 @@ async function pushAgain(groupId, msg, retryCount = 0) {
   const maxRetries = 2; // 最多重试 2 次
 
   if (retryCount >= maxRetries) {
-    Bot.logger.error(`B站推送：群[${groupId}]推送失败，已达最大重试次数`);
+    Bot.logger?.error(`B站推送：群[${groupId}]推送失败，已达最大重试次数`);
     return false;
   }
 
@@ -1535,10 +1535,10 @@ async function pushAgain(groupId, msg, retryCount = 0) {
 
   try {
     await Bot.pickGroup(groupId).sendMsg(msg);
-    Bot.logger.mark(`B站推送：群[${groupId}]重试推送成功 (第${retryCount + 1}次)`);
+    Bot.logger?.mark(`B站推送：群[${groupId}]重试推送成功 (第${retryCount + 1}次)`);
     return true;
   } catch (err) {
-    Bot.logger.warn(`B站推送：群[${groupId}]重试推送失败 (第${retryCount + 1}次): ${err.message}`);
+    Bot.logger?.warn(`B站推送：群[${groupId}]重试推送失败 (第${retryCount + 1}次): ${err.message}`);
     return pushAgain(groupId, msg, retryCount + 1);
   }
 }
@@ -1554,7 +1554,7 @@ function buildSendDynamic(biliUser, dynamic, info) {
       case "DYNAMIC_TYPE_AV":
         desc = dynamic?.modules?.module_dynamic?.major?.archive;
         if (!desc) {
-          Bot.logger.warn(`B站推送：视频动态数据不完整 [${dynamic.id_str}]`);
+          Bot.logger?.warn(`B站推送：视频动态数据不完整 [${dynamic.id_str}]`);
           return null;
         }
         title = `${biliUser.name}「视频」推送：\n`;
@@ -1566,7 +1566,7 @@ function buildSendDynamic(biliUser, dynamic, info) {
         desc = dynamic?.modules?.module_dynamic?.major?.opus || {};
         opusDesc = desc?.summary?.text || '';
         if (!opusDesc) {
-          Bot.logger.warn(`B站推送：文字动态数据不完整 [${dynamic.id_str}]`);
+          Bot.logger?.warn(`B站推送：文字动态数据不完整 [${dynamic.id_str}]`);
           return null;
         }
         if (!contentFilter(opusDesc)) return null;
@@ -1603,7 +1603,7 @@ function buildSendDynamic(biliUser, dynamic, info) {
       case "DYNAMIC_TYPE_ARTICLE":
         desc = dynamic?.modules?.module_dynamic?.major?.article;
         if (!desc) {
-          Bot.logger.warn(`B站推送：文章动态数据不完整 [${dynamic.id_str}]`);
+          Bot.logger?.warn(`B站推送：文章动态数据不完整 [${dynamic.id_str}]`);
           return null;
         }
         pics = [];
@@ -1623,12 +1623,12 @@ function buildSendDynamic(biliUser, dynamic, info) {
 
         desc = dynamic?.modules?.module_dynamic?.desc;
         if (!desc) {
-          Bot.logger.warn(`B站推送：转发动态数据不完整 [${dynamic.id_str}]`);
+          Bot.logger?.warn(`B站推送：转发动态数据不完整 [${dynamic.id_str}]`);
           return null;
         }
 
         if (!dynamic.orig) {
-          Bot.logger.warn(`B站推送：转发动态缺少原始内容 [${dynamic.id_str}]`);
+          Bot.logger?.warn(`B站推送：转发动态缺少原始内容 [${dynamic.id_str}]`);
           return null;
         }
 
@@ -1639,7 +1639,7 @@ function buildSendDynamic(biliUser, dynamic, info) {
           orig.shift();
           orig.pop();
         } else {
-          Bot.logger.warn(`B站推送：转发动态原始内容解析失败 [${dynamic.id_str}]`);
+          Bot.logger?.warn(`B站推送：转发动态原始内容解析失败 [${dynamic.id_str}]`);
           return null;
         }
 
@@ -1665,19 +1665,19 @@ function buildSendDynamic(biliUser, dynamic, info) {
       case "DYNAMIC_TYPE_LIVE_RCMD":
         desc = dynamic?.modules?.module_dynamic?.major?.live_rcmd?.content;
         if (!desc) {
-          Bot.logger.warn(`B站推送：直播动态数据不完整 [${dynamic.id_str}]`);
+          Bot.logger?.warn(`B站推送：直播动态数据不完整 [${dynamic.id_str}]`);
           return null;
         }
         try {
           desc = JSON.parse(desc);
           desc = desc?.live_play_info;
         } catch (e) {
-          Bot.logger.warn(`B站推送：直播动态数据解析失败 [${dynamic.id_str}]`);
+          Bot.logger?.warn(`B站推送：直播动态数据解析失败 [${dynamic.id_str}]`);
           return null;
         }
 
         if (!desc) {
-          Bot.logger.warn(`B站推送：直播动态播放信息不完整 [${dynamic.id_str}]`);
+          Bot.logger?.warn(`B站推送：直播动态播放信息不完整 [${dynamic.id_str}]`);
           return null;
         }
 
@@ -1686,11 +1686,11 @@ function buildSendDynamic(biliUser, dynamic, info) {
         return msg;
 
       default:
-        Bot.logger.warn(`B站推送：未处理的动态类型 [${dynamic.type}] [${dynamic.id_str}]`);
+        Bot.logger?.warn(`B站推送：未处理的动态类型 [${dynamic.type}] [${dynamic.id_str}]`);
         return null;
     }
   } catch (err) {
-    Bot.logger.error(`B站推送：构建动态消息异常 [${dynamic.id_str}]: ${err.message}`);
+    Bot.logger?.error(`B站推送：构建动态消息异常 [${dynamic.id_str}]: ${err.message}`);
     return null;
   }
 }
@@ -1767,7 +1767,7 @@ function contentFilter(inContent) {
    const cfg = config.getdefault_config('bilibiliPush', 'bilibiliPushFilter', 'config');
   for (const keyword of cfg.FilterKeyword) {
     if (RegExp(keyword).exec(inContent)) {
-      Bot.logger.mark(`B站动态推送拦截关键词: ${keyword}`);
+      Bot.logger?.mark(`B站动态推送拦截关键词: ${keyword}`);
       return false;
     }
   }
