@@ -111,13 +111,17 @@ async function initBiliCookie() {
   
   // 检查是否有有效的Cookie
   if (!BiliCookie || BiliCookie.trim() === '') {
-    Bot.logger.mark('B站推送：未配置有效的 Cookie，B站推送功能无法使用');
-    Bot.logger.mark('B站推送：请主人发送 #B站扫码登录 进行配置');
+    if (Bot?.logger) {
+      Bot.logger.mark('B站推送：未配置有效的 Cookie，B站推送功能无法使用');
+      Bot.logger.mark('B站推送：请主人发送 #B站扫码登录 进行配置');
+    }
     return false;
   }
 
   BiliReqHeaders.cookie = BiliCookie;
-  Bot.logger.mark(`B站推送：使用扫码登录的 Cookie (长度: ${BiliCookie.length})`);
+  if (Bot?.logger) {
+    Bot.logger.mark(`B站推送：使用扫码登录的 Cookie (长度: ${BiliCookie.length})`);
+  }
   
   // 获取当前登录用户的 UID
   await getLoginUserInfo();
@@ -547,8 +551,10 @@ initBiliPushJson(); // 初始化配置
 // 初始化 Cookie
 const cookieStatus = await initBiliCookie();
 if (!cookieStatus) {
-  Bot.logger.mark('B站推送：未配置有效的 Cookie，B站推送功能无法使用');
-  Bot.logger.mark('B站推送：请主人发送 #B站扫码登录 进行配置');
+  if (Bot?.logger) {
+    Bot.logger.mark('B站推送：未配置有效的 Cookie，B站推送功能无法使用');
+    Bot.logger.mark('B站推送：请主人发送 #B站扫码登录 进行配置');
+  }
 }
 
 // (开启|关闭)B站推送
