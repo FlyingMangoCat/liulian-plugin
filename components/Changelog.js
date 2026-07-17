@@ -71,6 +71,7 @@ try {
 }
 
 const yunzaiVersion = packageJson.version
+const yunzaiName = packageJson.name
 const isV3 = yunzaiVersion[0] === '3'
 
-export { currentVersion, yunzaiVersion, isV3, changelogs }
+export { currentVersion, yunzaiVersion, yunzaiName, isV3, changelogs }

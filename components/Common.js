@@ -1,5 +1,5 @@
 import Cfg from './Cfg.js'
-import { currentVersion, yunzaiVersion, isV3 } from './Changelog.js'
+import { currentVersion, yunzaiVersion, yunzaiName, isV3 } from './Changelog.js'
 
 // 安全获取segment对象
 const segment = global.segment || global.Bot?.segment || {}
@@ -17,7 +17,7 @@ export const render = async function (path, params, cfg) {
     elemLayout: layoutPath + 'elem.html',
     sys: {
       scale: Cfg.scale(cfg.scale || 1),
-      copyright: `Created By Yunzai-Bot<span class="version">${yunzaiVersion}</span> & Liulian-Plugin<span class="version">${currentVersion}</span>`
+      copyright: `Created By ${yunzaiName}<span class="version">${yunzaiVersion}</span> & Liulian-Plugin<span class="version">${currentVersion}</span>`
     }
   })
 
