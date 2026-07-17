@@ -595,6 +595,8 @@ export async function changeBilibiliPush(e) {
           { uid: "3546886017387331", name: "崩坏因缘精灵" },
           { uid: "27534330", name: "崩坏3第一偶像爱酱" },
           { uid: "3546720675826241", name: "妄想天使唯一指定官号" },
+          { uid: "12939237", name: "有棵里里" },
+          { uid: "38928389", name: "白日梦工厂official" },
           { uid: "609035442", name: "会飞的芒果猫" }
         ], // 默认推送多个B站官方账号
         pushTarget: pushID,
@@ -659,6 +661,8 @@ export async function changeGroupBilibiliPush(e) {
         { uid: "3546886017387331", name: "崩坏因缘精灵" },
         { uid: "27534330", name: "崩坏3第一偶像爱酱" },
         { uid: "3546720675826241", name: "妄想天使唯一指定官号" },
+        { uid: "12939237", name: "有棵里里" },
+        { uid: "38928389", name: "白日梦工厂official" },
         { uid: "609035442", name: "会飞的芒果猫" }
       ], // 默认推送多个B站官方账号
       pushTarget: groupID,
@@ -757,6 +761,8 @@ export async function bilibiliPushPermission(e) {
             { uid: "3546886017387331", name: "崩坏因缘精灵" },
             { uid: "27534330", name: "崩坏3第一偶像爱酱" },
             { uid: "3546720675826241", name: "妄想天使唯一指定官号" },
+            { uid: "12939237", name: "有棵里里" },
+            { uid: "38928389", name: "白日梦工厂official" },
             { uid: "609035442", name: "会飞的芒果猫" }
           ], // 默认推送多个B站官方账号
           pushTarget: groupID,
