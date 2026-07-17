@@ -1258,6 +1258,11 @@ yl21: {
        priority: 500,
        describe: "刷新B站推送列表，同步最新的默认用户",
   },
+       refreshAllBiliPushList: {
+       reg: "^#*刷新全部B站推送列表$",
+       priority: 500,
+       describe: "刷新全部群的B站推送列表，同步最新的默认用户",
+  },
        checkBiliCookie: {
        reg: "^#*检查B站Cookie$",
        priority: 500,

@@ -1810,6 +1810,53 @@ export async function checkBiliCookie(e) {
   return true;
 }
 
+// 刷新全部B站推送列表
+export async function refreshAllBiliPushList(e) {
+  if (!e.isMaster) {
+    e.reply("只有主人可以刷新B站推送列表");
+    return false;
+  }
+
+  let totalAdded = 0;
+  let totalUpdated = 0;
+  let details = [];
+
+  // 遍历所有推送配置
+  for (let key in PushBilibiliDynamic) {
+    let push = PushBilibiliDynamic[key];
+    let currentList = push.biliUserList || [];
+    let currentUIDs = new Set(currentList.map(u => u.uid));
+    let addedCount = 0;
+    let addedUsers = [];
+
+    for (let defaultUser of defaultBiliUserList) {
+      if (!currentUIDs.has(defaultUser.uid)) {
+        currentList.push(defaultUser);
+        currentUIDs.add(defaultUser.uid);
+        addedCount++;
+        addedUsers.push(defaultUser.name);
+      }
+    }
+
+    if (addedCount > 0) {
+      push.biliUserList = currentList;
+      totalAdded += addedCount;
+      totalUpdated++;
+      let name = push.pushTargetName || key;
+      details.push(`${name}（新增${addedCount}个：${addedUsers.join("、")}）`);
+    }
+  }
+
+  if (totalAdded > 0) {
+    savePushJson();
+    e.reply(`✅ 已刷新全部B站推送列表\n\n更新了 ${totalUpdated} 个群的推送列表\n共新增了 ${totalAdded} 个用户\n\n${details.join("\n")}`);
+  } else {
+    e.reply("所有B站推送列表已经是最新状态，无需更新");
+  }
+
+  return true;
+}
+
 // 默认B站用户列表
 const defaultBiliUserList = [
   { uid: "401742377", name: "原神" },
