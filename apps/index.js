@@ -142,6 +142,7 @@ setBiliPushSendType,
 pushScheduleJob,
 biliLogin,
 refreshBiliPushList,
+refreshAllBiliPushList,
 checkBiliCookie,
 } from "./bilibiliPush.js";
 import { bilibilihelp, YZversionInfo } from "./bilibilihelp.js"
@@ -1584,7 +1585,7 @@ const exportedFunctions = {
     bilibiliPushPermission, updateBilibiliPush,
     getBilibiliPushUserList, setBiliPushTimeInterval,
     setBiliPushFaultTime, changeBiliPushTransmit,
-    setBiliPushSendType, pushScheduleJob, biliLogin, refreshBiliPushList, checkBiliCookie, weather, dog, holiday, eventHistory, miyu, miyuCheck, fanyi, translateText, base64jiami, base64jiemi, wyyjx, wyyauto, qrcode, hotSearch, subscribeKeyword, unsubscribeKeyword, viewSubscriptions,
+    setBiliPushSendType, pushScheduleJob, biliLogin, refreshBiliPushList, refreshAllBiliPushList, checkBiliCookie, weather, dog, holiday, eventHistory, miyu, miyuCheck, fanyi, translateText, base64jiami, base64jiemi, wyyjx, wyyauto, qrcode, hotSearch, subscribeKeyword, unsubscribeKeyword, viewSubscriptions,
     addGlobalBlockedKeyword, removeGlobalBlockedKeyword, viewGlobalBlockedKeywords,
     addGroupBlockedKeyword, removeGroupBlockedKeyword, viewGroupBlockedKeywords,
     viewApplications, approveApplication, rejectApplication,
