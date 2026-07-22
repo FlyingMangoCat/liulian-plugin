@@ -172,17 +172,6 @@ export async function ai(e) {
     return;
   }
   
-  // 3. 服务购买提示检查 - AI服务已确认开启，检查是否需要显示购买提示
-  // 由于已在开头确认AI服务开启，这里只需要检查是否需要显示购买提示
-  if (e.isPrivate || e.at) {
-    await e.reply("⚠️ 您尚未购买榴莲AI服务，部分功能可能受限。\n" +
-                  "请联系管理员购买服务获取API密钥。\n" +
-                  "欢迎加入官方社群体验/获取最新生态消息/功能：806760403\n"+
-                  "提示：如需关闭此提示，可使用【#榴莲设置 购买提示关闭】");
-    return false;
-  }
-  
-  
   // 4. 确定消息类型和内容
   let messageType = 'text';
   let messageContent = '';
@@ -242,10 +231,9 @@ export async function ai(e) {
 
 // 重置记忆处理函数
 export async function ai_reset_memory(e) {
-  // 检查管理员权限
-  const adminUsers = ["123456789"]; // 替换为实际管理员ID
-  if (!adminUsers.includes(e.user_id.toString())) {
-    await e.reply("抱歉，您没有权限执行此操作", true);
+  // 检查主人权限
+  if (!e.isMaster) {
+    await e.reply("只有主人才能重置记忆哦~", true);
     return;
   }
   
