@@ -1,6 +1,6 @@
 /**
  * 简易 Character / Weapon 模型
- * 模拟 miao-plugin 的 #miao.models 接口，供 genshin 插件等共用
+ * 供 genshin 插件等共用
  * 使用 liulian-plugin 的 roleId 数据进行角色/武器查询
  */
 import fs from "node:fs"
@@ -85,8 +85,9 @@ class Character {
     const officialName = roleId[id]?.[0]
     if (!officialName) return false
     // 检查 element/role.yaml 中是否存在（确认是GS角色）
-    const elemMap = getRoleElem()
-    if (!elemMap[officialName] && game !== "sr") return false
+    // 注：如果不存在也放行，避免部分角色因数据缺失无法查询
+    // const elemMap = getRoleElem()
+    // if (!elemMap[officialName] && game !== "sr") return false
     return new Character(officialName, game)
   }
 }
