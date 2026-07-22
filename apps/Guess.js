@@ -10,8 +10,7 @@ import { Data } from "#liulian";
 import config from "../model/config/config.js"
 const GAME_TIME_OUT = 30//游戏时长(秒)
 const _path = process.cwd();
-let music = [7351920257]; //这里改网易云的歌单id
-
+let music = [14160207525]; //这里改网易云的歌单
 // 上传音频文件
 export async function uploadRecord(url) {
   try {
