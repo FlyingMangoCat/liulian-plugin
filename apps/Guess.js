@@ -325,19 +325,23 @@ export async function guessmusic(e) {
     e.reply('猜歌名正在进行哦!')
     return true;
   }
-   let res = await(await fetch(`https://api.yimian.xyz/msc/?type=playlist&id=${music}&random=true`)).json(); 
-   console.log("歌名是:"+res[0].name);
+   let res = await(await fetch('https://free.wqwlkj.cn/wqwlapi/wyy_random.php?type=json')).json(); 
+   if (!res || res.code !== 1 || !res.data) {
+     e.reply('获取歌曲失败，请稍后重试');
+     return true;
+   }
+   console.log("歌名是:"+res.data.name);
     e.reply( `游戏开始啦,请听语音猜出歌名！\n游戏区分大小写,猜的歌名必须跟答案一样才算你对噢~\n结束游戏指令【投降】`,true);
-    e.reply(await uploadRecord(res[0].url));
+    e.reply(await uploadRecord(res.data.url));
     setTimeout(() => {
-      e.reply(`提示：\n歌手:${res[0].artist}`);
+      e.reply(`提示：\n歌手:${res.data.artistsname}`);
     }, 2000)//毫秒数
   guessConfig.gameing = true;
-  guessConfig.current = res[0].name;
+  guessConfig.current = res.data.name;
     guessConfig.timer = setTimeout(() => {
       if (guessConfig.gameing) {
         guessConfig.gameing = false;
-        e.reply(`嘿嘿,猜歌名结束啦,很遗憾没有人猜中噢！歌名是【${res[0].name}】`);
+        e.reply(`嘿嘿,猜歌名结束啦,很遗憾没有人猜中噢！歌名是【${res.data.name}】`);
 		return true;
       }
     }, 120000)//毫秒数
