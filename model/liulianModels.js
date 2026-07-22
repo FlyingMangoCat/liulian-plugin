@@ -74,9 +74,15 @@ class Character {
     return this._imgs
   }
 
-  /** 通过角色名查询 */
+  /** 通过角色名或ID查询 */
   static get(val, game = "gs") {
     if (!val || typeof val !== "string") return false
+    // 如果传入的是数字ID，直接从 roleId 取名称
+    if (/^\d+$/.test(val)) {
+      const names = roleId[val]
+      if (names) return new Character(names[0], game)
+      return false
+    }
     const map = getNameToId()
     // 支持别名查询（roleId 里已有别名映射）
     const id = map[val]
@@ -84,10 +90,6 @@ class Character {
     // 取官方名称（roleId 数组第一个）
     const officialName = roleId[id]?.[0]
     if (!officialName) return false
-    // 检查 element/role.yaml 中是否存在（确认是GS角色）
-    // 注：如果不存在也放行，避免部分角色因数据缺失无法查询
-    // const elemMap = getRoleElem()
-    // if (!elemMap[officialName] && game !== "sr") return false
     return new Character(officialName, game)
   }
 }
