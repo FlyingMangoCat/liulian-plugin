@@ -990,22 +990,22 @@ yl21: {
        describe: "",
     },
        hotSearch: {
-       reg: "^#*(热搜|热搜榜|热点)(.*)$",
+       reg: "^#*(热搜|热搜榜|热点)(.*)$|^#*(.+)热搜$",
        priority: 495,
        describe: "全网热搜榜",
     },
        subscribeKeyword: {
-       reg: "^#*(订阅关键词|添加订阅)(.*)$",
+       reg: "^#*(热搜订阅|订阅关键词|添加订阅)(.*)$",
        priority: 500,
        describe: "订阅关键词",
     },
        unsubscribeKeyword: {
-       reg: "^#*(取消订阅|删除订阅)(.*)$",
+       reg: "^#*(热搜取消订阅|取消订阅|删除订阅)(.*)$",
        priority: 500,
        describe: "取消订阅",
     },
        viewSubscriptions: {
-       reg: "^#*(查看订阅|我的订阅|订阅列表)$",
+       reg: "^#*(热搜查看订阅|查看订阅|我的订阅|订阅列表)$",
        priority: 500,
        describe: "查看订阅",
     },

@@ -25,23 +25,23 @@ let HotSubscriptions = {};
 // 导出规则
 export const rule = {
   hotSearch: {
-    reg: "^#*(热搜|热搜榜|热点)(.*)$",
+    reg: "^#*(热搜|热搜榜|热点)(.*)$|^#*(.+)热搜$",
     priority: 495,
     describe: "全网热搜榜",
   },
   // 订阅功能
   subscribeKeyword: {
-    reg: "^#*(订阅关键词|添加订阅)(.*)$",
+    reg: "^#*(热搜订阅|订阅关键词|添加订阅)(.*)$",
     priority: 500,
     describe: "订阅关键词",
   },
   unsubscribeKeyword: {
-    reg: "^#*(取消订阅|删除订阅)(.*)$",
+    reg: "^#*(热搜取消订阅|取消订阅|删除订阅)(.*)$",
     priority: 500,
     describe: "取消订阅",
   },
   viewSubscriptions: {
-    reg: "^#*(查看订阅|我的订阅|订阅列表)$",
+    reg: "^#*(热搜查看订阅|查看订阅|我的订阅|订阅列表)$",
     priority: 502,
     describe: "查看订阅",
   },
@@ -169,8 +169,14 @@ export async function hotSearch(e) {
     'sspai': 'sspai',
   };
   
-  // 获取用户指定的平台
-  let userPlatform = e.msg.replace(/^#*(热搜|热搜榜|热点)/, '').trim();
+  // 获取用户指定的平台（支持两种格式：热搜xx 和 xx热搜）
+  let msg = e.msg.replace(/^#*/, '').trim();
+  let userPlatform = '';
+  if (/^(热搜|热搜榜|热点)/.test(msg)) {
+    userPlatform = msg.replace(/^(热搜|热搜榜|热点)/, '').trim();
+  } else if (/.+热搜$/.test(msg)) {
+    userPlatform = msg.replace(/热搜$/, '').trim();
+  }
   
   // 检查是否是特殊关键词（帮助、词云、趋势、更新等），如果是则返回false让其他规则匹配
   const specialKeywords = ['帮助', 'help', '说明', '词云', '趋势', '推送', '时间', '平台', '更新'];
@@ -272,7 +278,7 @@ export async function subscribeKeyword(e) {
     return true;
   }
 
-  let keyword = e.msg.replace(/^#*(订阅关键词|添加订阅)/, '').trim();
+  let keyword = e.msg.replace(/^#*(热搜订阅|订阅关键词|添加订阅)/, '').trim();
   if (!keyword) {
     e.reply('请输入要订阅的关键词\n示例：#订阅关键词 原神');
     return true;
@@ -306,7 +312,7 @@ export async function unsubscribeKeyword(e) {
     return true;
   }
 
-  let keyword = e.msg.replace(/^#*(取消订阅|删除订阅)/, '').trim();
+  let keyword = e.msg.replace(/^#*(热搜取消订阅|取消订阅|删除订阅)/, '').trim();
   if (!keyword) {
     e.reply('请输入要取消订阅的关键词\n示例：#取消订阅 原神');
     return true;
