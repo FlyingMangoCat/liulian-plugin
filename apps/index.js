@@ -910,7 +910,7 @@ yl21: {
         describe: '猜星铁角色',
     },
         starguessAvatarCheck: {
-        reg: "^#?(?:\\*|星铁)?我猜(.*)",
+        reg: "^#?我猜(.*)",
         priority: 98,
         describe: ''
     },
@@ -920,7 +920,7 @@ yl21: {
         describe: '猜ZZZ角色',
     },
         zzzguessAvatarCheck: {
-        reg: "^#?(?:绝区零|%|[Zz][Zz][Zz])?我猜(.*)",
+        reg: "^#?我猜(.*)",
         priority: 98,
         describe: ''
     },
