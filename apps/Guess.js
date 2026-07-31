@@ -107,7 +107,10 @@ function getGuessConfig(e) {
   if (config == null) {
     config = {
       playing: false,
+      gameType: '',   // 当前游戏类型：genshin/star/zzz，避免不同游戏状态混淆
       roleId: '',
+      starroleId: '',
+      zzzroleId: '',
       timer: null,
       answer: null,
       delete: () => guessConfigMap.delete(key),
@@ -158,6 +161,10 @@ export async function guessAvatar(e) {
   let fileName = fileNames[Math.round(Math.random() * (fileNames.length - 1))];
   let roleName = fileName.replace(/\..+$/, '').replace(/\d/g, '');
   let roleId = roleIdToName(roleName);
+  // 清空其他游戏残留ID，设置当前游戏类型，避免不同游戏状态混淆
+  guessConfig.starroleId = '';
+  guessConfig.zzzroleId = '';
+  guessConfig.gameType = 'genshin';
   guessConfig.playing = true;
   guessConfig.roleId = roleId;
   console.group('猜角色');
@@ -206,8 +213,9 @@ export async function guessAvatar(e) {
 }
 export async function guessAvatarCheck(e) {
   let guessConfig = getGuessConfig(e);
-  let {playing, roleId, normalMode} = guessConfig;
-  if (playing && roleId && e.msg) {
+  let {playing, roleId, normalMode, gameType} = guessConfig;
+  // 只处理原神猜角色，避免与其他游戏状态混淆
+  if (playing && gameType === 'genshin' && roleId && e.msg) {
     let answer = e.msg.replace(/^#?我猜/, '').trim();
     let id = roleIdToName(answer);
     if (roleId === id) {
@@ -457,8 +465,12 @@ export async function starguessAvatar(e) {
   let fileName = fileNames[Math.round(Math.random() * (fileNames.length - 1))];
   let roleName = fileName.replace(/\..+$/, '').replace(/\d/g, '');
   let roleId = starroleIdToName(roleName);
+  // 清空其他游戏残留ID，设置当前游戏类型，避免不同游戏状态混淆
+  guessConfig.roleId = '';
+  guessConfig.zzzroleId = '';
+  guessConfig.gameType = 'star';
   guessConfig.playing = true;
-  guessConfig.roleId = roleId;
+  guessConfig.starroleId = roleId;
   console.group('猜角色');
   console.log('ID:', roleId);
   console.log('角色:', roleName);
@@ -505,8 +517,9 @@ export async function starguessAvatar(e) {
 }
 export async function starguessAvatarCheck(e) {
   let guessConfig = getGuessConfig(e);
-  let {playing, starroleId, normalMode} = guessConfig;
-  if (playing && starroleId && e.msg) {
+  let {playing, starroleId, normalMode, gameType} = guessConfig;
+  // 只处理星铁猜角色，避免与其他游戏状态混淆
+  if (playing && gameType === 'star' && starroleId && e.msg) {
     let answer = e.msg.replace(/^#?我猜/, '').trim();
     let id = starroleIdToName(answer);
     if (starroleId === id) {
@@ -560,6 +573,10 @@ export async function starguessAvatarCheck(e) {
     }
   }
   guessConfig.playing = true;
+  // 清空其他游戏残留ID，设置当前游戏类型，避免不同游戏状态混淆
+  guessConfig.roleId = '';
+  guessConfig.starroleId = '';
+  guessConfig.gameType = 'zzz';
   guessConfig.zzzroleId = roleId;
   console.group('猜角色');
   console.log('ID:', roleId);
@@ -607,8 +624,9 @@ export async function starguessAvatarCheck(e) {
 }
 export async function zzzguessAvatarCheck(e) {
   let guessConfig = getGuessConfig(e);
-  let {playing, zzzroleId, normalMode} = guessConfig;
-  if (playing && zzzroleId && e.msg) {
+  let {playing, zzzroleId, normalMode, gameType} = guessConfig;
+  // 只处理绝区零猜角色，避免与其他游戏状态混淆
+  if (playing && gameType === 'zzz' && zzzroleId && e.msg) {
     let answer = e.msg.replace(/^#?我猜/, '').trim();
     let id = zzzroleIdToName(answer);
     if (zzzroleId === id) {
