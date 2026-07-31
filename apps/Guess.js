@@ -140,7 +140,8 @@ export async function guessAvatar(e) {
   }
   let hardMode = e.msg.includes('困难');
   let hellMode = e.msg.includes('地狱');
-  let normalMode = (!hardMode && !hellMode);
+  let purgatoryMode = e.msg.includes('炼狱');
+  let normalMode = (!hardMode && !hellMode && !purgatoryMode);
   let size, helpText;
   if (hardMode) {
     size = lodash.random(35, 45);
@@ -148,6 +149,9 @@ export async function guessAvatar(e) {
   } else if (hellMode) {
     size = lodash.random(25, 35);
     helpText = '%s\n在『地狱模式』下，发送的图片将会变成反色。';
+  } else if (purgatoryMode) {
+    size = lodash.random(25, 35);
+    helpText = '%s\n在『炼狱模式』下，发送的图片将会变成反色并随机旋转。';
   } else {
     size = lodash.random(35, 55);
     helpText = '%s';
@@ -188,7 +192,8 @@ export async function guessAvatar(e) {
     size, imgTop, imgLeft, imgColor,
     imgWidth: imgSize.width,
     imgHeight: imgSize.height,
-    hardMode, hellMode, normalMode,
+    hardMode, hellMode, normalMode, purgatoryMode,
+    rotate: purgatoryMode ? lodash.random(-180, 180) : 0,
     minTop, limitTop, minLeft, limitLeft
   };
   let base64 = null;
@@ -290,6 +295,8 @@ const imgHeight = {{imgHeight}};
 const imgColor = "{{imgColor}}";
 const hardMode = {{hardMode}};
 const hellMode = {{hellMode}};
+const purgatoryMode = {{purgatoryMode}};
+const rotate = {{rotate}};
 // 裁切框可选范围的上下界（来自 Guess.js 的 minTop/minLeft/limitTop/limitLeft）
 const minTop = {{minTop}};
 const limitTop = {{limitTop}};
@@ -353,6 +360,9 @@ if (flag) {
     controlEl.classList.add('grayscale')
   } else if (hellMode) {
     controlEl.classList.add('invert')
+  } else if (purgatoryMode) {
+    controlEl.classList.add('invert')
+    controlEl.style.transform = 'rotate(' + rotate + 'deg)'
   }
   const imgEl = controlEl;
   if (imgEl.complete && imgEl.naturalWidth) {
@@ -444,7 +454,8 @@ export async function starguessAvatar(e) {
   }
   let hardMode = e.msg.includes('困难');
   let hellMode = e.msg.includes('地狱');
-  let normalMode = (!hardMode && !hellMode);
+  let purgatoryMode = e.msg.includes('炼狱');
+  let normalMode = (!hardMode && !hellMode && !purgatoryMode);
   let size, helpText;
   if (hardMode) {
     size = lodash.random(80, 90);
@@ -452,6 +463,9 @@ export async function starguessAvatar(e) {
   } else if (hellMode) {
     size = lodash.random(70, 80);
     helpText = '%s\n在『地狱模式』下，发送的图片将会变成反色。';
+  } else if (purgatoryMode) {
+    size = lodash.random(70, 80);
+    helpText = '%s\n在『炼狱模式』下，发送的图片将会变成反色并随机旋转。';
   } else {
     size = lodash.random(80, 120);
     helpText = '%s';
@@ -492,7 +506,8 @@ export async function starguessAvatar(e) {
     size, imgTop, imgLeft, imgColor,
     imgWidth: imgSize.width,
     imgHeight: imgSize.height,
-    hardMode, hellMode, normalMode,
+    hardMode, hellMode, normalMode, purgatoryMode,
+    rotate: purgatoryMode ? lodash.random(-180, 180) : 0,
     minTop, limitTop, minLeft, limitLeft
   };
   let base64 = null;
@@ -542,7 +557,8 @@ export async function starguessAvatarCheck(e) {
   }
   let hardMode = e.msg.includes('困难');
   let hellMode = e.msg.includes('地狱');
-  let normalMode = (!hardMode && !hellMode);
+  let purgatoryMode = e.msg.includes('炼狱');
+  let normalMode = (!hardMode && !hellMode && !purgatoryMode);
   let size, helpText;
   if (hardMode) {
     size = lodash.random(80, 90);
@@ -550,6 +566,9 @@ export async function starguessAvatarCheck(e) {
   } else if (hellMode) {
     size = lodash.random(70, 80);
     helpText = '%s\n在『地狱模式』下，发送的图片将会变成反色。';
+  } else if (purgatoryMode) {
+    size = lodash.random(70, 80);
+    helpText = '%s\n在『炼狱模式』下，发送的图片将会变成反色并随机旋转。';
   } else {
     size = lodash.random(80, 120);
     helpText = '%s';
@@ -599,7 +618,8 @@ export async function starguessAvatarCheck(e) {
     size, imgTop, imgLeft, imgColor,
     imgWidth: imgSize.width,
     imgHeight: imgSize.height,
-    hardMode, hellMode, normalMode,
+    hardMode, hellMode, normalMode, purgatoryMode,
+    rotate: purgatoryMode ? lodash.random(-180, 180) : 0,
     minTop, limitTop, minLeft, limitLeft
   };
   let base64 = null;
