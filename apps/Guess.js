@@ -559,14 +559,8 @@ export async function starguessAvatarCheck(e) {
       if (roleId) roleName = stripped;
     }
   }
-  // 调试日志：打印文件名、roleName、roleId 的实际值和类型
-  console.log('[ZZZ调试] fileName=', JSON.stringify(fileName));
-  console.log('[ZZZ调试] roleName=', JSON.stringify(roleName));
-  console.log('[ZZZ调试] roleId=', JSON.stringify(roleId), 'type=', typeof roleId);
   guessConfig.playing = true;
   guessConfig.zzzroleId = roleId;
-  // 调试日志：打印 guessConfig.zzzroleId 的实际值和类型
-  console.log('[ZZZ调试] guessConfig.zzzroleId=', JSON.stringify(guessConfig.zzzroleId), 'type=', typeof guessConfig.zzzroleId);
   console.group('猜角色');
   console.log('ID:', roleId);
   console.log('角色:', roleName);
@@ -614,15 +608,9 @@ export async function starguessAvatarCheck(e) {
 export async function zzzguessAvatarCheck(e) {
   let guessConfig = getGuessConfig(e);
   let {playing, zzzroleId, normalMode} = guessConfig;
-  // 调试日志：打印进入 check 时的状态
-  console.log('[ZZZ调试-check] playing=', playing, 'zzzroleId=', JSON.stringify(zzzroleId), 'type=', typeof zzzroleId, 'msg=', JSON.stringify(e.msg));
   if (playing && zzzroleId && e.msg) {
     let answer = e.msg.replace(/^#?我猜/, '').trim();
     let id = zzzroleIdToName(answer);
-    // 调试日志：打印 answer、id 的实际值和类型，以及判断结果
-    console.log('[ZZZ调试-check] answer=', JSON.stringify(answer));
-    console.log('[ZZZ调试-check] id=', JSON.stringify(id), 'type=', typeof id);
-    console.log('[ZZZ调试-check] zzzroleId===id ?', zzzroleId === id, 'String相等?', String(zzzroleId) === String(id));
     if (zzzroleId === id) {
       await replayAnswer(e, ['恭喜你答对了！'], guessConfig, true);
       if (normalMode && lodash.random(0, 100) <= 8) {
