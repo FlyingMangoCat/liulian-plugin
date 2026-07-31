@@ -193,7 +193,7 @@ export async function guessAvatar(e) {
       guessConfig.answer = render(templateName, 'answer', props);
       guessConfig.timer = setTimeout(() => {
         if (guessConfig.playing) {
-          replayAnswer(e, ['很遗憾，还没有人答对哦，正确答案是：' + roleName + '\n(如有角色未收录或角色名称错误，请联系我们)'], guessConfig);
+          replayAnswer(e, ['很遗憾，还没有人答对哦，正确答案是：' + (roleIdToName(String(roleId), true) || roleName) + '\n(如有角色未收录或角色名称错误，请联系我们)'], guessConfig);
         }
       }, GAME_TIME_OUT * 1000);
     } else {
@@ -435,7 +435,7 @@ export async function starguessAvatar(e) {
       guessConfig.answer = render(templateName, 'answer', props);
       guessConfig.timer = setTimeout(() => {
         if (guessConfig.playing) {
-          replayAnswer(e, ['很遗憾，还没有人答对哦，正确答案是：' + roleName + '\n(如有角色未收录或名称错误，请联系我们)'], guessConfig);
+          replayAnswer(e, ['很遗憾，还没有人答对哦，正确答案是：' + (starroleIdToName(String(roleId), true) || roleName) + '\n(如有角色未收录或名称错误，请联系我们)'], guessConfig);
         }
       }, GAME_TIME_OUT * 1000);
     } else {
@@ -527,7 +527,7 @@ export async function starguessAvatarCheck(e) {
       guessConfig.answer = render(templateName, 'answer', props);
       guessConfig.timer = setTimeout(() => {
         if (guessConfig.playing) {
-          replayAnswer(e, ['很遗憾，还没有人答对哦，正确答案是：' + roleName + '\n(如有角色未收录或名称错误，请联系我们)'], guessConfig);
+          replayAnswer(e, ['很遗憾，还没有人答对哦，正确答案是：' + (zzzroleIdToName(String(roleId), true) || roleName) + '\n(如有角色未收录或名称错误，请联系我们)'], guessConfig);
         }
       }, GAME_TIME_OUT * 1000);
     } else {
