@@ -236,13 +236,12 @@ function init() {
   let templatePath = path.join(pluginPath, `resources`, templateName);
   let questionPath = path.join(templatePath, 'question.html');
   let answerPath = path.join(templatePath, 'answer.html');
-  if (!fs.existsSync(questionPath)) {
-    if (!fs.existsSync(templatePath)) {
-      Data.createDir(_path, `/plugins/${pluginName}/resources/${templateName}`);
-    }
-    fs.writeFileSync(questionPath, getTemplate());
-    fs.writeFileSync(answerPath, getTemplate(false));
+  if (!fs.existsSync(templatePath)) {
+    Data.createDir(_path, `/plugins/${pluginName}/resources/${templateName}`);
   }
+  // 每次启动都用最新模板覆盖，避免更新代码后仍用老模板
+  fs.writeFileSync(questionPath, getTemplate());
+  fs.writeFileSync(answerPath, getTemplate(false));
 }
 function getTemplate(flag = true) {
   return `
@@ -549,8 +548,17 @@ export async function starguessAvatarCheck(e) {
   let imgPath = lodash.random(0, 100) <= 30 ? zzzlogoPath : zzzgachaPath;
   fs.readdirSync(imgPath).filter(ffn).forEach(n => fileNames.push(n));
   let fileName = fileNames[Math.round(Math.random() * (fileNames.length - 1))];
-  let roleName = fileName.replace(/\..+$/, '').replace(/\d/g, '');
+  // 绝区零角色名本身可能带数字（如「11号」「零号·安比」），不能删数字
+  // 只去扩展名，查不到再去末尾数字后缀重试（如「简01」→「简」）
+  let roleName = fileName.replace(/\..+$/, '');
   let roleId = zzzroleIdToName(roleName);
+  if (!roleId) {
+    let stripped = roleName.replace(/\d+$/, '');
+    if (stripped !== roleName) {
+      roleId = zzzroleIdToName(stripped);
+      if (roleId) roleName = stripped;
+    }
+  }
   guessConfig.playing = true;
   guessConfig.zzzroleId = roleId;
   console.group('猜角色');
