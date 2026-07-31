@@ -181,7 +181,8 @@ export async function guessAvatar(e) {
     size, imgTop, imgLeft, imgColor,
     imgWidth: imgSize.width,
     imgHeight: imgSize.height,
-    hardMode, hellMode, normalMode
+    hardMode, hellMode, normalMode,
+    minTop, limitTop, minLeft, limitLeft
   };
   let base64 = null;
   let promise = render(templateName, 'question', props);
@@ -282,6 +283,48 @@ const imgHeight = {{imgHeight}};
 const imgColor = "{{imgColor}}";
 const hardMode = {{hardMode}};
 const hellMode = {{hellMode}};
+// 裁切框可选范围的上下界（来自 Guess.js 的 minTop/minLeft/limitTop/limitLeft）
+const minTop = {{minTop}};
+const limitTop = {{limitTop}};
+const minLeft = {{minLeft}};
+const limitLeft = {{limitLeft}};
+
+// 等图片加载完后，用 canvas 读 alpha，从非透明像素池随机选裁切框中心
+function pickCenterOnRole(imgEl, cb) {
+  // 裁切框左上角可选范围（保护下界，避免负数）
+  const maxTop = Math.max(minTop, imgHeight - size - limitTop);
+  const maxLeft = Math.max(minLeft, imgWidth - size - limitLeft);
+  try {
+    const cvs = document.createElement('canvas');
+    cvs.width = imgWidth; cvs.height = imgHeight;
+    const ctx = cvs.getContext('2d');
+    ctx.drawImage(imgEl, 0, 0);
+    const data = ctx.getImageData(0, 0, imgWidth, imgHeight).data;
+    // 收集所有"裁切框中心落在非透明像素上"的合法裁切框
+    const threshold = 128;
+    const candidates = [];
+    const half = size >> 1;
+    for (let y = minTop; y <= maxTop; y++) {
+      const cy = y + half;
+      if (cy < 0 || cy >= imgHeight) continue;
+      for (let x = minLeft; x <= maxLeft; x++) {
+        const cx = x + half;
+        if (cx < 0 || cx >= imgWidth) continue;
+        const idx = (imgWidth * cy + cx) * 4;
+        if (data[idx + 3] > threshold) {
+          candidates.push([x, y]);
+        }
+      }
+    }
+    if (candidates.length > 0) {
+      const pick = candidates[Math.floor(Math.random() * candidates.length)];
+      cb(pick[0], pick[1]);
+      return;
+    }
+  } catch (e) {}
+  // 兜底：用原 imgTop/imgLeft
+  cb(imgLeft, imgTop);
+}
 
 const boxEl = document.getElementById("container");
 if (flag) {
@@ -299,12 +342,27 @@ boxEl.style.backgroundColor = imgColor;
 let controlEl ;
 if (flag) {
   controlEl = document.getElementById('img');
-  controlEl.style.top = "-" + imgTop + "px";
-  controlEl.style.left = "-" + imgLeft + "px";
   if (hardMode) {
     controlEl.classList.add('grayscale')
   } else if (hellMode) {
     controlEl.classList.add('invert')
+  }
+  const imgEl = controlEl;
+  if (imgEl.complete && imgEl.naturalWidth) {
+    pickCenterOnRole(imgEl, function (lx, ty) {
+      imgEl.style.top = "-" + ty + "px";
+      imgEl.style.left = "-" + lx + "px";
+    });
+  } else {
+    imgEl.onload = function () {
+      pickCenterOnRole(imgEl, function (lx, ty) {
+        imgEl.style.top = "-" + ty + "px";
+        imgEl.style.left = "-" + lx + "px";
+      });
+    };
+    // 兜底先用原坐标
+    imgEl.style.top = "-" + imgTop + "px";
+    imgEl.style.left = "-" + imgLeft + "px";
   }
 } else {
   controlEl = document.getElementById('mask');
@@ -423,7 +481,8 @@ export async function starguessAvatar(e) {
     size, imgTop, imgLeft, imgColor,
     imgWidth: imgSize.width,
     imgHeight: imgSize.height,
-    hardMode, hellMode, normalMode
+    hardMode, hellMode, normalMode,
+    minTop, limitTop, minLeft, limitLeft
   };
   let base64 = null;
   let promise = render(templateName, 'question', props);
@@ -515,7 +574,8 @@ export async function starguessAvatarCheck(e) {
     size, imgTop, imgLeft, imgColor,
     imgWidth: imgSize.width,
     imgHeight: imgSize.height,
-    hardMode, hellMode, normalMode
+    hardMode, hellMode, normalMode,
+    minTop, limitTop, minLeft, limitLeft
   };
   let base64 = null;
   let promise = render(templateName, 'question', props);
