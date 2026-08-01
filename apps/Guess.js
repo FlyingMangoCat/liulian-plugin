@@ -103,6 +103,7 @@ const templateName = `guessAvatar_${templateVersion}`;
 const pluginName = 'games-template-plugin-zolay-liulian';
 const render = getPluginRender(pluginName);
 // 猜角色专用渲染：等裁切校验完成（#guess-ready 出现）再截图，避免盲选坐标被截图
+// 题图（type=question）返回 {base64, lx, ty}，答案图返回 base64 字符串
 async function guessRender(type, data, imgType = "jpeg") {
   const browser = await browserInit();
   if (!browser) return false;
@@ -118,6 +119,7 @@ async function guessRender(type, data, imgType = "jpeg") {
   let tmpHtml = template.render(tplContent, data);
   fs.writeFileSync(savePath, tmpHtml);
   let base64 = "";
+  let cropCoord = null;
   try {
     const page = await browser.newPage();
     // 转发页面内 console.log 到主进程，便于调试裁切校验逻辑
@@ -126,6 +128,16 @@ async function guessRender(type, data, imgType = "jpeg") {
     await page.waitForSelector("#container");
     // 等裁切校验完成标记出现，最多等 15 秒（兜底避免死等，给大图校验留足时间）
     await page.waitForSelector("#guess-ready", { visible: true, timeout: 15000 });
+    // 题图阶段：读出校验后的裁切框坐标，供答案图高亮用
+    if (type === 'question') {
+      cropCoord = await page.evaluate(() => {
+        const imgEl = document.getElementById('img');
+        // style.top/left 是 "-typx"/"-lxpx"，转回数字坐标
+        const ty = parseInt(imgEl.style.top) || 0;
+        const lx = parseInt(imgEl.style.left) || 0;
+        return { lx: -lx, ty: -ty };
+      });
+    }
     let body = await page.$("#container");
     let randData = { type: imgType, encoding: "base64" };
     if (imgType === "jpeg") randData.quality = 90;
@@ -136,7 +148,8 @@ async function guessRender(type, data, imgType = "jpeg") {
     console.error(`猜角色渲染失败:${type}:${error}`);
     base64 = "";
   }
-  return base64;
+  // 题图返回坐标+图片，答案图只返回图片
+  return type === 'question' ? { base64, coord: cropCoord } : base64;
 }
 init();
 const guessConfigMap = new Map();
@@ -240,8 +253,14 @@ export async function guessAvatar(e) {
   let base64 = null;
   let promise = guessRender('question', props);
   setTimeout(async () => {
-    base64 = await promise;
+    const result = await promise;
+    base64 = result ? result.base64 : null;
     if (base64) {
+      // 题图校验后的裁切坐标写回 props，答案图高亮框与题图实际位置对齐
+      if (result.coord) {
+        props.imgTop = result.coord.ty;
+        props.imgLeft = result.coord.lx;
+      }
       e.reply(segment.image(`base64://${base64}`));
       guessConfig.normalMode = normalMode;
       guessConfig.answer = guessRender('answer', props);
@@ -602,8 +621,14 @@ export async function starguessAvatar(e) {
   let base64 = null;
   let promise = guessRender('question', props);
   setTimeout(async () => {
-    base64 = await promise;
+    const result = await promise;
+    base64 = result ? result.base64 : null;
     if (base64) {
+      // 题图校验后的裁切坐标写回 props，答案图高亮框与题图实际位置对齐
+      if (result.coord) {
+        props.imgTop = result.coord.ty;
+        props.imgLeft = result.coord.lx;
+      }
       e.reply(segment.image(`base64://${base64}`));
       guessConfig.normalMode = normalMode;
       guessConfig.answer = guessRender('answer', props);
@@ -714,8 +739,14 @@ export async function starguessAvatarCheck(e) {
   let base64 = null;
   let promise = guessRender('question', props);
   setTimeout(async () => {
-    base64 = await promise;
+    const result = await promise;
+    base64 = result ? result.base64 : null;
     if (base64) {
+      // 题图校验后的裁切坐标写回 props，答案图高亮框与题图实际位置对齐
+      if (result.coord) {
+        props.imgTop = result.coord.ty;
+        props.imgLeft = result.coord.lx;
+      }
       e.reply(segment.image(`base64://${base64}`));
       guessConfig.normalMode = normalMode;
       guessConfig.answer = guessRender('answer', props);
