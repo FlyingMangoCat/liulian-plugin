@@ -5,7 +5,8 @@ import lodash from 'lodash';
 import fetch from "node-fetch";
 import sizeOf from 'image-size';
 import { roleIdToName, starroleIdToName, zzzroleIdToName } from "../components/mysInfo.js";
-import { getPluginRender } from '../model/render.js';
+import { getPluginRender, browserInit } from '../model/render.js';
+import template from "art-template";
 import { Data } from "#liulian";
 import config from "../model/config/config.js"
 const GAME_TIME_OUT = 30//游戏时长(秒)
@@ -101,6 +102,39 @@ const templateVersion = '2.0';
 const templateName = `guessAvatar_${templateVersion}`;
 const pluginName = 'games-template-plugin-zolay-liulian';
 const render = getPluginRender(pluginName);
+// 猜角色专用渲染：等裁切校验完成（#guess-ready 出现）再截图，避免盲选坐标被截图
+async function guessRender(type, data, imgType = "jpeg") {
+  if (!(await browserInit())) return false;
+  data._plugin = pluginName;
+  if (lodash.isUndefined(data._res_path)) data._res_path = `../../../../../plugins/${pluginName}/resources/`;
+  if (lodash.isUndefined(data._sys_res_path)) data._sys_res_path = `../../../../../resources/`;
+  let saveId = data.save_id || type;
+  let tplFile = _path + `/plugins/${pluginName}/resources/${templateName}/${type}.html`;
+  Data.createDir(_path + '/data/', `html/plugin_${pluginName}/${templateName}/${type}`);
+  let savePath = _path + `/data/html/plugin_${pluginName}/${templateName}/${type}/${saveId}.html`;
+  // 读模板并替换
+  let tplContent = fs.readFileSync(tplFile, "utf8");
+  let tmpHtml = template.render(tplContent, data);
+  fs.writeFileSync(savePath, tmpHtml);
+  let base64 = "";
+  try {
+    const page = await browser.newPage();
+    await page.goto("file://" + savePath);
+    await page.waitForSelector("#container");
+    // 等裁切校验完成标记出现，最多等 5 秒（兜底避免死等）
+    await page.waitForSelector("#guess-ready", { visible: true, timeout: 5000 });
+    let body = await page.$("#container");
+    let randData = { type: imgType, encoding: "base64" };
+    if (imgType === "jpeg") randData.quality = 90;
+    if (imgType === "png") randData.omitBackground = true;
+    base64 = await body.screenshot(randData);
+    page.close().catch(() => {});
+  } catch (error) {
+    console.error(`猜角色渲染失败:${type}:${error}`);
+    base64 = "";
+  }
+  return base64;
+}
 init();
 const guessConfigMap = new Map();
 function getGuessConfig(e) {
@@ -201,13 +235,13 @@ export async function guessAvatar(e) {
     minTop, limitTop, minLeft, limitLeft
   };
   let base64 = null;
-  let promise = render(templateName, 'question', props);
+  let promise = guessRender(templateName, 'question', props);
   setTimeout(async () => {
     base64 = await promise;
     if (base64) {
       e.reply(segment.image(`base64://${base64}`));
       guessConfig.normalMode = normalMode;
-      guessConfig.answer = render(templateName, 'answer', props);
+      guessConfig.answer = guessRender(templateName, 'answer', props);
       guessConfig.timer = setTimeout(() => {
         if (guessConfig.playing) {
           replayAnswer(e, ['很遗憾，还没有人答对哦，正确答案是：' + (roleIdToName(String(roleId), true) || roleName) + '\n(如有角色未收录或角色名称错误，请联系我们)'], guessConfig);
@@ -288,6 +322,8 @@ function getTemplate(flag = true) {
     <div id="mask"></div>
   </div>
 </div>
+<!-- 裁切校验完成标记，puppeteer 等它出现再截图 -->
+<div id="guess-ready" style="display:none"></div>
 <script>
 // 图片大小
 const flag = ${flag};
@@ -307,40 +343,85 @@ const limitTop = {{limitTop}};
 const minLeft = {{minLeft}};
 const limitLeft = {{limitLeft}};
 
-// 等图片加载完后，用 canvas 读 alpha，从非透明像素池随机选裁切框中心
+// 等图片加载完后，用 canvas 读像素，优先 alpha 校验，失效时用 RGB 方差兜底
 function pickCenterOnRole(imgEl, cb) {
   // 裁切框左上角可选范围（保护下界，避免负数）
   const maxTop = Math.max(minTop, imgHeight - size - limitTop);
   const maxLeft = Math.max(minLeft, imgWidth - size - limitLeft);
+  let cvs, ctx, data;
   try {
-    const cvs = document.createElement('canvas');
+    cvs = document.createElement('canvas');
     cvs.width = imgWidth; cvs.height = imgHeight;
-    const ctx = cvs.getContext('2d');
+    ctx = cvs.getContext('2d');
     ctx.drawImage(imgEl, 0, 0);
-    const data = ctx.getImageData(0, 0, imgWidth, imgHeight).data;
-    // 收集所有"裁切框中心落在非透明像素上"的合法裁切框
-    const threshold = 128;
-    const candidates = [];
-    const half = size >> 1;
-    for (let y = minTop; y <= maxTop; y++) {
-      const cy = y + half;
-      if (cy < 0 || cy >= imgHeight) continue;
-      for (let x = minLeft; x <= maxLeft; x++) {
-        const cx = x + half;
-        if (cx < 0 || cx >= imgWidth) continue;
-        const idx = (imgWidth * cy + cx) * 4;
-        if (data[idx + 3] > threshold) {
-          candidates.push([x, y]);
-        }
+    data = ctx.getImageData(0, 0, imgWidth, imgHeight).data;
+  } catch (e) {
+    // canvas 读不了（如 webp 解码失败），兜底用原坐标
+    cb(imgLeft, imgTop);
+    return;
+  }
+  // 主逻辑：收集"裁切框中心落在非透明像素上"的候选
+  const threshold = 128;
+  const candidates = [];
+  const half = size >> 1;
+  for (let y = minTop; y <= maxTop; y++) {
+    const cy = y + half;
+    if (cy < 0 || cy >= imgHeight) continue;
+    for (let x = minLeft; x <= maxLeft; x++) {
+      const cx = x + half;
+      if (cx < 0 || cx >= imgWidth) continue;
+      const idx = (imgWidth * cy + cx) * 4;
+      if (data[idx + 3] > threshold) {
+        candidates.push([x, y]);
       }
     }
-    if (candidates.length > 0) {
-      const pick = candidates[Math.floor(Math.random() * candidates.length)];
-      cb(pick[0], pick[1]);
-      return;
+  }
+  // alpha 校验有效（有候选且没占满整张图）→ 从候选里随机选
+  const total = (maxTop - minTop + 1) * (maxLeft - minLeft + 1);
+  if (candidates.length > 0 && candidates.length < total * 0.8) {
+    const pick = candidates[Math.floor(Math.random() * candidates.length)];
+    cb(pick[0], pick[1]);
+    return;
+  }
+  // 兜底：alpha 校验失效（全透明或全非透明如 Splash 插画）→ 用 RGB 方差判断角色区
+  // 随机抽样若干候选位置，算 RGB 方差，从方差达标的里选
+  const varianceThreshold = 1000;  // RGB 三通道方差之和阈值，低于此说明颜色单一（背景区）
+  const sampleSize = 30;           // 抽样数量，避免遍历所有位置的性能开销
+  const validPicks = [];
+  for (let i = 0; i < sampleSize; i++) {
+    const x = minLeft + Math.floor(Math.random() * (maxLeft - minLeft + 1));
+    const y = minTop + Math.floor(Math.random() * (maxTop - minTop + 1));
+    // 算这块 size×size 区域的 RGB 方差
+    let sumR = 0, sumG = 0, sumB = 0, count = 0;
+    for (let py = y; py < y + size && py < imgHeight; py++) {
+      for (let px = x; px < x + size && px < imgWidth; px++) {
+        const idx = (imgWidth * py + px) * 4;
+        sumR += data[idx]; sumG += data[idx + 1]; sumB += data[idx + 2];
+        count++;
+      }
     }
-  } catch (e) {}
-  // 兜底：用原 imgTop/imgLeft
+    if (count === 0) continue;
+    const avgR = sumR / count, avgG = sumG / count, avgB = sumB / count;
+    let varR = 0, varG = 0, varB = 0;
+    for (let py = y; py < y + size && py < imgHeight; py++) {
+      for (let px = x; px < x + size && px < imgWidth; px++) {
+        const idx = (imgWidth * py + px) * 4;
+        varR += (data[idx] - avgR) * (data[idx] - avgR);
+        varG += (data[idx + 1] - avgG) * (data[idx + 1] - avgG);
+        varB += (data[idx + 2] - avgB) * (data[idx + 2] - avgB);
+      }
+    }
+    const variance = varR + varG + varB;
+    if (variance > varianceThreshold) {
+      validPicks.push([x, y]);
+    }
+  }
+  if (validPicks.length > 0) {
+    const pick = validPicks[Math.floor(Math.random() * validPicks.length)];
+    cb(pick[0], pick[1]);
+    return;
+  }
+  // 最终兜底：用原 imgTop/imgLeft
   cb(imgLeft, imgTop);
 }
 
@@ -369,21 +450,22 @@ if (flag) {
     controlEl.style.transform = 'rotate(' + rotate + 'deg)'
   }
   const imgEl = controlEl;
+  // 等图片加载完后校验裁切框坐标，加载完前不设置坐标，避免用盲选坐标截图
+  const readyEl = document.getElementById('guess-ready');
   if (imgEl.complete && imgEl.naturalWidth) {
     pickCenterOnRole(imgEl, function (lx, ty) {
       imgEl.style.top = "-" + ty + "px";
       imgEl.style.left = "-" + lx + "px";
+      readyEl.style.display = 'block';
     });
   } else {
     imgEl.onload = function () {
       pickCenterOnRole(imgEl, function (lx, ty) {
         imgEl.style.top = "-" + ty + "px";
         imgEl.style.left = "-" + lx + "px";
+        readyEl.style.display = 'block';
       });
     };
-    // 兜底先用原坐标
-    imgEl.style.top = "-" + imgTop + "px";
-    imgEl.style.left = "-" + imgLeft + "px";
   }
 } else {
   controlEl = document.getElementById('mask');
@@ -391,6 +473,8 @@ if (flag) {
   controlEl.style.left =  imgLeft + "px";
   controlEl.style.width =  size + "px";
   controlEl.style.height =  size + "px";
+  // 答案图不需要校验，直接标记完成
+  document.getElementById('guess-ready').style.display = 'block';
 }
 </script>
 </body>
@@ -517,13 +601,13 @@ export async function starguessAvatar(e) {
     minTop, limitTop, minLeft, limitLeft
   };
   let base64 = null;
-  let promise = render(templateName, 'question', props);
+  let promise = guessRender(templateName, 'question', props);
   setTimeout(async () => {
     base64 = await promise;
     if (base64) {
       e.reply(segment.image(`base64://${base64}`));
       guessConfig.normalMode = normalMode;
-      guessConfig.answer = render(templateName, 'answer', props);
+      guessConfig.answer = guessRender(templateName, 'answer', props);
       guessConfig.timer = setTimeout(() => {
         if (guessConfig.playing) {
           replayAnswer(e, ['很遗憾，还没有人答对哦，正确答案是：' + (starroleIdToName(String(roleId), true) || roleName) + '\n(如有角色未收录或名称错误，请联系我们)'], guessConfig);
@@ -629,13 +713,13 @@ export async function starguessAvatarCheck(e) {
     minTop, limitTop, minLeft, limitLeft
   };
   let base64 = null;
-  let promise = render(templateName, 'question', props);
+  let promise = guessRender(templateName, 'question', props);
   setTimeout(async () => {
     base64 = await promise;
     if (base64) {
       e.reply(segment.image(`base64://${base64}`));
       guessConfig.normalMode = normalMode;
-      guessConfig.answer = render(templateName, 'answer', props);
+      guessConfig.answer = guessRender(templateName, 'answer', props);
       guessConfig.timer = setTimeout(() => {
         if (guessConfig.playing) {
           replayAnswer(e, ['很遗憾，还没有人答对哦，正确答案是：' + (zzzroleIdToName(String(roleId), true) || roleName) + '\n(如有角色未收录或名称错误，请联系我们)'], guessConfig);
