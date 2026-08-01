@@ -235,13 +235,13 @@ export async function guessAvatar(e) {
     minTop, limitTop, minLeft, limitLeft
   };
   let base64 = null;
-  let promise = guessRender(templateName, 'question', props);
+  let promise = guessRender('question', props);
   setTimeout(async () => {
     base64 = await promise;
     if (base64) {
       e.reply(segment.image(`base64://${base64}`));
       guessConfig.normalMode = normalMode;
-      guessConfig.answer = guessRender(templateName, 'answer', props);
+      guessConfig.answer = guessRender('answer', props);
       guessConfig.timer = setTimeout(() => {
         if (guessConfig.playing) {
           replayAnswer(e, ['很遗憾，还没有人答对哦，正确答案是：' + (roleIdToName(String(roleId), true) || roleName) + '\n(如有角色未收录或角色名称错误，请联系我们)'], guessConfig);
@@ -601,13 +601,13 @@ export async function starguessAvatar(e) {
     minTop, limitTop, minLeft, limitLeft
   };
   let base64 = null;
-  let promise = guessRender(templateName, 'question', props);
+  let promise = guessRender('question', props);
   setTimeout(async () => {
     base64 = await promise;
     if (base64) {
       e.reply(segment.image(`base64://${base64}`));
       guessConfig.normalMode = normalMode;
-      guessConfig.answer = guessRender(templateName, 'answer', props);
+      guessConfig.answer = guessRender('answer', props);
       guessConfig.timer = setTimeout(() => {
         if (guessConfig.playing) {
           replayAnswer(e, ['很遗憾，还没有人答对哦，正确答案是：' + (starroleIdToName(String(roleId), true) || roleName) + '\n(如有角色未收录或名称错误，请联系我们)'], guessConfig);
@@ -713,13 +713,13 @@ export async function starguessAvatarCheck(e) {
     minTop, limitTop, minLeft, limitLeft
   };
   let base64 = null;
-  let promise = guessRender(templateName, 'question', props);
+  let promise = guessRender('question', props);
   setTimeout(async () => {
     base64 = await promise;
     if (base64) {
       e.reply(segment.image(`base64://${base64}`));
       guessConfig.normalMode = normalMode;
-      guessConfig.answer = guessRender(templateName, 'answer', props);
+      guessConfig.answer = guessRender('answer', props);
       guessConfig.timer = setTimeout(() => {
         if (guessConfig.playing) {
           replayAnswer(e, ['很遗憾，还没有人答对哦，正确答案是：' + (zzzroleIdToName(String(roleId), true) || roleName) + '\n(如有角色未收录或名称错误，请联系我们)'], guessConfig);
