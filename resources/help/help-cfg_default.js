@@ -102,8 +102,8 @@ export const helpList = [{
     desc: "猜歌曲名称，需要ffmpeg"
   }, {
     icon: 78,
-    title: "#猜角色",
-    desc: "支持原神/星铁/邦布，回答格式：#我猜[角色名]"
+    title: "#/*/%/异环/~猜角色",
+    desc: "支持原神/星铁/绝区零/异环/鸣潮（不同前缀代表不同游戏），回答格式：#我猜[角色名]"
   }, {
     icon: 71,
     title: "#芒果问答",
@@ -111,7 +111,7 @@ export const helpList = [{
   }, {
     icon: 79,
     title: "#帮助 #版本 #榴莲版本",
-    desc: "查看留恋帮助/版本"
+    desc: "查看榴莲帮助/版本"
   }, {
     icon: 93,
     title: "运势",
