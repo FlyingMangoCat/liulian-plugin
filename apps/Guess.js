@@ -122,8 +122,8 @@ async function guessRender(type, data, imgType = "jpeg") {
     const page = await browser.newPage();
     await page.goto("file://" + savePath);
     await page.waitForSelector("#container");
-    // 等裁切校验完成标记出现，最多等 5 秒（兜底避免死等）
-    await page.waitForSelector("#guess-ready", { visible: true, timeout: 5000 });
+    // 等裁切校验完成标记出现，最多等 15 秒（兜底避免死等，给大图校验留足时间）
+    await page.waitForSelector("#guess-ready", { visible: true, timeout: 15000 });
     let body = await page.$("#container");
     let randData = { type: imgType, encoding: "base64" };
     if (imgType === "jpeg") randData.quality = 90;
@@ -324,7 +324,7 @@ function getTemplate(flag = true) {
   </div>
 </div>
 <!-- 裁切校验完成标记，puppeteer 等它出现再截图 -->
-<div id="guess-ready" style="display:none"></div>
+<div id="guess-ready" style="display:none;width:1px;height:1px;"></div>
 <script>
 // 图片大小
 const flag = ${flag};
