@@ -4,7 +4,7 @@ import ffmpeg from 'ffmpeg';
 import lodash from 'lodash';
 import fetch from "node-fetch";
 import sizeOf from 'image-size';
-import { roleIdToName, starroleIdToName, zzzroleIdToName } from "../components/mysInfo.js";
+import { roleIdToName, starroleIdToName, zzzroleIdToName, nteroleIdToName, wwroleIdToName } from "../components/mysInfo.js";
 import { getPluginRender, browserInit } from '../model/render.js';
 import template from "art-template";
 import { Data } from "#liulian";
@@ -97,6 +97,10 @@ const stargachaPath = path.join(_path, 'plugins/liulian-plugin/resources/星铁/
 const starSplashPath = path.join(_path, 'plugins/liulian-plugin/resources/星铁/splash');
 const zzzlogoPath = path.join(_path, 'plugins/liulian-plugin/resources/zzz/role');
 const zzzgachaPath = path.join(_path, 'plugins/liulian-plugin/resources/zzz/gacha');
+const wwlogoPath = path.join(_path, 'plugins/liulian-plugin/resources/wwroleId/role');
+const wwgachaPath = path.join(_path, 'plugins/liulian-plugin/resources/wwroleId/character');
+const wwSplashPath = path.join(_path, 'plugins/liulian-plugin/resources/wwroleId/splash');
+const nteSplashPath = path.join(_path, 'plugins/liulian-plugin/resources/nteroleId/splash');
 const version = '2.0';
 const templateVersion = '2.0';
 const templateName = `guessAvatar_${templateVersion}`;
@@ -159,10 +163,12 @@ function getGuessConfig(e) {
   if (config == null) {
     config = {
       playing: false,
-      gameType: '',   // 当前游戏类型：genshin/star/zzz，避免不同游戏状态混淆
+      gameType: '',   // 当前游戏类型：genshin/star/zzz/nte/ww，避免不同游戏状态混淆
       roleId: '',
       starroleId: '',
       zzzroleId: '',
+      nteroleId: '',
+      wwroleId: '',
       timer: null,
       answer: null,
       delete: () => guessConfigMap.delete(key),
@@ -773,6 +779,245 @@ export async function zzzguessAvatarCheck(e) {
       await replayAnswer(e, ['恭喜你答对了！'], guessConfig, true);
       if (normalMode && lodash.random(0, 100) <= 8) {
         e.reply('如果感觉太简单了的话，可以对我说“#绝区零猜角色困难模式”或者“#绝区零猜角色地狱模式”哦！');
+      }
+      return true;
+    }
+  }
+  return false;
+}
+
+export async function wwguessAvatar(e) {
+  let guessConfig = getGuessConfig(e);
+  if (guessConfig.playing) {
+    e.reply('猜角色游戏正在进行哦');
+    return true;
+  }
+  let hardMode = e.msg.includes('困难');
+  let hellMode = e.msg.includes('地狱');
+  let purgatoryMode = e.msg.includes('炼狱');
+  let normalMode = (!hardMode && !hellMode && !purgatoryMode);
+  let size, helpText;
+  if (hardMode) {
+    size = lodash.random(80, 90);
+    helpText = '%s\n在『困难模式』下，发送的图片将会变成黑白色。';
+  } else if (hellMode) {
+    size = lodash.random(70, 80);
+    helpText = '%s\n在『地狱模式』下，发送的图片将会变成反色。';
+  } else if (purgatoryMode) {
+    size = lodash.random(70, 80);
+    helpText = '%s\n在『炼狱模式』下，发送的图片将会变成反色并随机旋转。';
+  } else {
+    size = lodash.random(80, 120);
+    helpText = '%s';
+  }
+  helpText = helpText.replace('%s', `即将发送一张『随机角色』的『随机一角』，${GAME_TIME_OUT}秒之后揭晓答案！\n回答格式：~我猜[角色名]`);
+  e.reply(helpText);
+  let fileNames = [];
+  let ffn = (n) => !/(未知)/.test(n);
+  // 随机选图目录：头像、抽卡图、立绘
+  let imgPaths = [wwlogoPath, wwgachaPath, wwSplashPath];
+  let imgPath = imgPaths[lodash.random(0, imgPaths.length - 1)];
+  fs.readdirSync(imgPath).filter(ffn).forEach(n => fileNames.push(n));
+  let fileName = fileNames[Math.round(Math.random() * (fileNames.length - 1))];
+  // 鸣潮角色名可能带数字（如「漂泊者·湮灭」），不能删数字
+  // 只去扩展名，查不到再去末尾数字后缀重试（如「椿01」→「椿」）
+  let roleName = fileName.replace(/\..+$/, '');
+  let roleId = wwroleIdToName(roleName);
+  if (!roleId) {
+    let stripped = roleName.replace(/\d+$/, '');
+    if (stripped !== roleName) {
+      roleId = wwroleIdToName(stripped);
+      if (roleId) roleName = stripped;
+    }
+  }
+  guessConfig.playing = true;
+  // 清空其他游戏残留ID，设置当前游戏类型，避免不同游戏状态混淆
+  guessConfig.roleId = '';
+  guessConfig.starroleId = '';
+  guessConfig.zzzroleId = '';
+  guessConfig.nteroleId = '';
+  guessConfig.gameType = 'ww';
+  guessConfig.wwroleId = roleId;
+  console.group('猜角色');
+  console.log('ID:', roleId);
+  console.log('角色:', roleName);
+  console.groupEnd();
+  let imgSrc = path.join(imgPath, fileName);
+  let minTop = 0, limitTop = 0, minLeft = 0, limitLeft = 0;
+  if (imgPath === wwgachaPath) {
+    minTop = 50;
+  } else {
+    minLeft = 30;
+    limitLeft = 30;
+  }
+  let imgSize = sizeOf(imgSrc);
+  let imgTop = lodash.random(minTop, imgSize.height - size - limitTop);
+  let imgLeft = lodash.random(minLeft, imgSize.width - size - limitLeft);
+  let imgColor = colors[lodash.random(0, colors.length - 1)];
+  let props = {
+    src: `file:///${imgSrc}`,
+    size, imgTop, imgLeft, imgColor,
+    imgWidth: imgSize.width,
+    imgHeight: imgSize.height,
+    hardMode, hellMode, normalMode, purgatoryMode,
+    rotate: purgatoryMode ? lodash.random(-180, 180) : 0,
+    minTop, limitTop, minLeft, limitLeft
+  };
+  let base64 = null;
+  let promise = guessRender('question', props);
+  setTimeout(async () => {
+    const result = await promise;
+    base64 = result ? result.base64 : null;
+    if (base64) {
+      // 题图校验后的裁切坐标写回 props，答案图高亮框与题图实际位置对齐
+      if (result.coord) {
+        props.imgTop = result.coord.ty;
+        props.imgLeft = result.coord.lx;
+      }
+      e.reply(segment.image(`base64://${base64}`));
+      guessConfig.normalMode = normalMode;
+      guessConfig.answer = guessRender('answer', props);
+      guessConfig.timer = setTimeout(() => {
+        if (guessConfig.playing) {
+          replayAnswer(e, ['很遗憾，还没有人答对哦，正确答案是：' + (wwroleIdToName(String(roleId), true) || roleName) + '\n(如有角色未收录或名称错误，请联系我们)'], guessConfig);
+        }
+      }, GAME_TIME_OUT * 1000);
+    } else {
+      guessConfig.playing = false;
+      e.reply('呜~ 图片生成失败了… 请稍后重试 〒▽〒');
+    }
+  }, 1500);
+  return true;
+}
+
+export async function wwguessAvatarCheck(e) {
+  let guessConfig = getGuessConfig(e);
+  let {playing, wwroleId, normalMode, gameType} = guessConfig;
+  // 只处理鸣潮猜角色，避免与其他游戏状态混淆
+  if (playing && gameType === 'ww' && wwroleId && e.msg) {
+    let answer = e.msg.replace(/^[~#]?我猜/, '').trim();
+    let id = wwroleIdToName(answer);
+    if (wwroleId === id) {
+      await replayAnswer(e, ['恭喜你答对了！'], guessConfig, true);
+      if (normalMode && lodash.random(0, 100) <= 8) {
+        e.reply('如果感觉太简单了的话，可以对我说“~猜角色困难模式”或者“~猜角色地狱模式”哦！');
+      }
+      return true;
+    }
+  }
+  return false;
+}
+
+export async function nteguessAvatar(e) {
+  let guessConfig = getGuessConfig(e);
+  if (guessConfig.playing) {
+    e.reply('猜角色游戏正在进行哦');
+    return true;
+  }
+  let hardMode = e.msg.includes('困难');
+  let hellMode = e.msg.includes('地狱');
+  let purgatoryMode = e.msg.includes('炼狱');
+  let normalMode = (!hardMode && !hellMode && !purgatoryMode);
+  let size, helpText;
+  if (hardMode) {
+    size = lodash.random(80, 90);
+    helpText = '%s\n在『困难模式』下，发送的图片将会变成黑白色。';
+  } else if (hellMode) {
+    size = lodash.random(70, 80);
+    helpText = '%s\n在『地狱模式』下，发送的图片将会变成反色。';
+  } else if (purgatoryMode) {
+    size = lodash.random(70, 80);
+    helpText = '%s\n在『炼狱模式』下，发送的图片将会变成反色并随机旋转。';
+  } else {
+    size = lodash.random(80, 120);
+    helpText = '%s';
+  }
+  helpText = helpText.replace('%s', `即将发送一张『随机角色』的『随机一角』，${GAME_TIME_OUT}秒之后揭晓答案！\n回答格式：#我猜[角色名]`);
+  e.reply(helpText);
+  let fileNames = [];
+  let ffn = (n) => !/(未知)/.test(n);
+  // 异环只有立绘目录
+  let imgPath = nteSplashPath;
+  fs.readdirSync(imgPath).filter(ffn).forEach(n => fileNames.push(n));
+  let fileName = fileNames[Math.round(Math.random() * (fileNames.length - 1))];
+  // 异环角色名可能带数字（如「11号」），不能删数字
+  // 只去扩展名，查不到再去末尾数字后缀重试（如「零01」→「零」）
+  let roleName = fileName.replace(/\..+$/, '');
+  let roleId = nteroleIdToName(roleName);
+  if (!roleId) {
+    let stripped = roleName.replace(/\d+$/, '');
+    if (stripped !== roleName) {
+      roleId = nteroleIdToName(stripped);
+      if (roleId) roleName = stripped;
+    }
+  }
+  guessConfig.playing = true;
+  // 清空其他游戏残留ID，设置当前游戏类型，避免不同游戏状态混淆
+  guessConfig.roleId = '';
+  guessConfig.starroleId = '';
+  guessConfig.zzzroleId = '';
+  guessConfig.wwroleId = '';
+  guessConfig.gameType = 'nte';
+  guessConfig.nteroleId = roleId;
+  console.group('猜角色');
+  console.log('ID:', roleId);
+  console.log('角色:', roleName);
+  console.groupEnd();
+  let imgSrc = path.join(imgPath, fileName);
+  let minTop = 0, limitTop = 0, minLeft = 0, limitLeft = 0;
+  minLeft = 30;
+  limitLeft = 30;
+  let imgSize = sizeOf(imgSrc);
+  let imgTop = lodash.random(minTop, imgSize.height - size - limitTop);
+  let imgLeft = lodash.random(minLeft, imgSize.width - size - limitLeft);
+  let imgColor = colors[lodash.random(0, colors.length - 1)];
+  let props = {
+    src: `file:///${imgSrc}`,
+    size, imgTop, imgLeft, imgColor,
+    imgWidth: imgSize.width,
+    imgHeight: imgSize.height,
+    hardMode, hellMode, normalMode, purgatoryMode,
+    rotate: purgatoryMode ? lodash.random(-180, 180) : 0,
+    minTop, limitTop, minLeft, limitLeft
+  };
+  let base64 = null;
+  let promise = guessRender('question', props);
+  setTimeout(async () => {
+    const result = await promise;
+    base64 = result ? result.base64 : null;
+    if (base64) {
+      // 题图校验后的裁切坐标写回 props，答案图高亮框与题图实际位置对齐
+      if (result.coord) {
+        props.imgTop = result.coord.ty;
+        props.imgLeft = result.coord.lx;
+      }
+      e.reply(segment.image(`base64://${base64}`));
+      guessConfig.normalMode = normalMode;
+      guessConfig.answer = guessRender('answer', props);
+      guessConfig.timer = setTimeout(() => {
+        if (guessConfig.playing) {
+          replayAnswer(e, ['很遗憾，还没有人答对哦，正确答案是：' + (nteroleIdToName(String(roleId), true) || roleName) + '\n(如有角色未收录或名称错误，请联系我们)'], guessConfig);
+        }
+      }, GAME_TIME_OUT * 1000);
+    } else {
+      guessConfig.playing = false;
+      e.reply('呜~ 图片生成失败了… 请稍后重试 〒▽〒');
+    }
+  }, 1500);
+  return true;
+}
+
+export async function nteguessAvatarCheck(e) {
+  let guessConfig = getGuessConfig(e);
+  let {playing, nteroleId, normalMode, gameType} = guessConfig;
+  // 只处理异环猜角色，避免与其他游戏状态混淆
+  if (playing && gameType === 'nte' && nteroleId && e.msg) {
+    let answer = e.msg.replace(/^#?我猜/, '').trim();
+    let id = nteroleIdToName(answer);
+    if (nteroleId === id) {
+      await replayAnswer(e, ['恭喜你答对了！'], guessConfig, true);
+      if (normalMode && lodash.random(0, 100) <= 8) {
+        e.reply('如果感觉太简单了的话，可以对我说“#异环猜角色困难模式”或者“#异环猜角色地狱模式”哦！');
       }
       return true;
     }

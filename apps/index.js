@@ -79,6 +79,10 @@ starguessAvatar,
 starguessAvatarCheck,
 zzzguessAvatar,
 zzzguessAvatarCheck,
+wwguessAvatar,
+wwguessAvatarCheck,
+nteguessAvatar,
+nteguessAvatarCheck,
 miyu,
 miyuCheck
 } from "./Guess.js"
@@ -276,6 +280,10 @@ export {
     guessAvatarCheck,
     zzzguessAvatar,
     zzzguessAvatarCheck,
+    wwguessAvatar,
+    wwguessAvatarCheck,
+    nteguessAvatar,
+    nteguessAvatarCheck,
     groupRest,
     godEyesFUN,
     headPortraitFUN,
@@ -920,6 +928,26 @@ yl21: {
         describe: '猜ZZZ角色',
     },
         zzzguessAvatarCheck: {
+        reg: "^#?我猜(.*)",
+        priority: 98,
+        describe: ''
+    },
+        wwguessAvatar: {
+        reg: '^(?:鸣潮|~|ww|#鸣潮|#ww|(?=.*(?:鸣潮|ww)))猜角色(?:鸣潮)?(?:普通|困难|地狱|炼狱)?(?:模式)?',
+        priority: 10,
+        describe: '猜鸣潮角色',
+    },
+        wwguessAvatarCheck: {
+        reg: "^[~#]?我猜(.*)",
+        priority: 98,
+        describe: ''
+    },
+        nteguessAvatar: {
+        reg: '^(?:异环|nte|#异环|#nte)猜角色(?:异环)?(?:普通|困难|地狱|炼狱)?(?:模式)?',
+        priority: 10,
+        describe: '猜异环角色',
+    },
+        nteguessAvatarCheck: {
         reg: "^#?我猜(.*)",
         priority: 98,
         describe: ''
@@ -1576,7 +1604,7 @@ const exportedFunctions = {
     sm11, sm12, sm13, sm14, sm15, sm16, sm17, sm18, sm19,
     sm20, sm21, sm22, sm23, fakeMessage, random, chuochuo,
     FuckingChatterbox, guessAvatar, guessAvatarCheck,
-    zzzguessAvatar, zzzguessAvatarCheck, groupRest, godEyesFUN,
+    zzzguessAvatar, zzzguessAvatarCheck, wwguessAvatar, wwguessAvatarCheck, nteguessAvatar, nteguessAvatarCheck, groupRest, godEyesFUN,
     headPortraitFUN, qmp, biaoQing, biaoQingHelp, fabing,
     lp, setu, dailyword, sentence, dailywordCheck, sentenceCheck, HitMe, CeShi, dutang,
     caihongpi, saylove, joke, 早报, xzys, ercyFUN,

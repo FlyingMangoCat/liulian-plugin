@@ -454,4 +454,4 @@ let actWeapon = ["腐殖之剑", "风花之颂", "嘟嘟可故事集", "「渔�
 //皮肤
 let costumes = ['海风之梦', "闪耀协奏", "纱中幽兰", "霓裾翩跹", "极夜真梦", "殷红终夜"];
 
-export { roleId, starroleId, zzzroleId, wifeData, abbr, abbr2, roleId5, roleId4, actWeapon, costumes };
+export { roleId, starroleId, zzzroleId, nteroleId, wwroleId, wifeData, abbr, abbr2, roleId5, roleId4, actWeapon, costumes };

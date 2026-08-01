@@ -93,3 +93,49 @@ export function zzzroleIdToName (keyword, search_val = false) {
   let name = nameID.get(keyword);
   return name ? name : "";
 }
+
+export function nteroleIdToName (keyword, search_val = false) {
+  if (!keyword) {
+    return false;
+  }
+  if (search_val) {
+    if (genshin.nteroleId[keyword] && genshin.nteroleId[keyword][0]) {
+      return genshin.nteroleId[keyword][0];
+    } else {
+      return "";
+    }
+  }
+
+  if (!nameID.get(keyword)) {
+    for (let i in genshin.nteroleId) {
+      for (let val of genshin.nteroleId[i]) {
+        nameID.set(val, i);
+      }
+    }
+  }
+  let name = nameID.get(keyword);
+  return name ? name : "";
+}
+
+export function wwroleIdToName (keyword, search_val = false) {
+  if (!keyword) {
+    return false;
+  }
+  if (search_val) {
+    if (genshin.wwroleId[keyword] && genshin.wwroleId[keyword][0]) {
+      return genshin.wwroleId[keyword][0];
+    } else {
+      return "";
+    }
+  }
+
+  if (!nameID.get(keyword)) {
+    for (let i in genshin.wwroleId) {
+      for (let val of genshin.wwroleId[i]) {
+        nameID.set(val, i);
+      }
+    }
+  }
+  let name = nameID.get(keyword);
+  return name ? name : "";
+}
