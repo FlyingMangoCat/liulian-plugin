@@ -191,6 +191,8 @@ const colors = [// 随机背景颜色
   '#D9D6FF',
 ];
 export async function guessAvatar(e) {
+  // 原神猜角色：消息含其他游戏名/前缀时跳过，交给对应游戏处理
+  if (/[异环nte鸣潮ww~%*星铁]/.test(e.msg)) return false;
   let guessConfig = getGuessConfig(e);
   if (guessConfig.playing) {
     e.reply('猜角色游戏正在进行哦');
@@ -565,6 +567,8 @@ export async function musicanswerCheck(e) {
   }
 
 export async function starguessAvatar(e) {
+  // 星铁猜角色：消息含其他游戏名/前缀时跳过，交给对应游戏处理
+  if (/[异环nte鸣潮ww~绝区零%]/.test(e.msg)) return false;
   let guessConfig = getGuessConfig(e);
   if (guessConfig.playing) {
     e.reply('猜角色游戏正在进行哦');
@@ -676,6 +680,8 @@ export async function starguessAvatarCheck(e) {
     
     
     export async function zzzguessAvatar(e) {
+  // 绝区零猜角色：消息含其他游戏名/前缀时跳过，交给对应游戏处理
+  if (/[异环nte鸣潮ww~星铁]/.test(e.msg)) return false;
   let guessConfig = getGuessConfig(e);
   if (guessConfig.playing) {
     e.reply('猜角色游戏正在进行哦');
@@ -793,6 +799,8 @@ export async function zzzguessAvatarCheck(e) {
 }
 
 export async function wwguessAvatar(e) {
+  // 鸣潮猜角色：消息含其他游戏名/前缀时跳过，交给对应游戏处理
+  if (/[异环nte绝区零%Zz星铁]/.test(e.msg)) return false;
   let guessConfig = getGuessConfig(e);
   if (guessConfig.playing) {
     e.reply('猜角色游戏正在进行哦');
@@ -915,6 +923,8 @@ export async function wwguessAvatarCheck(e) {
 }
 
 export async function nteguessAvatar(e) {
+  // 异环猜角色：消息含其他游戏名/前缀时跳过，交给对应游戏处理
+  if (/[鸣潮ww~绝区零%Zz星铁]/.test(e.msg)) return false;
   let guessConfig = getGuessConfig(e);
   if (guessConfig.playing) {
     e.reply('猜角色游戏正在进行哦');

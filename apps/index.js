@@ -903,7 +903,7 @@ yl21: {
         describe: "寻找大水逼",
     },
         guessAvatar: {
-        reg: '^#猜(头像|角色)(普通|困难|地狱)?(模式)?',
+        reg: '^#猜(头像|角色)(普通|困难|地狱|炼狱)?(模式)?',
         priority: 10,
         describe: '#猜头像、#猜角色、#猜角色困难模式',
     },
@@ -937,6 +937,11 @@ yl21: {
         priority: 10,
         describe: '猜鸣潮角色',
     },
+        wwguessAvatar2: {
+        reg: '^#猜角色(鸣潮|ww|~)(?:普通|困难|地狱|炼狱)?(?:模式)?$',
+        priority: 10,
+        describe: '猜鸣潮角色（游戏名在后）',
+    },
         wwguessAvatarCheck: {
         reg: "^[~#]?我猜(.*)",
         priority: 98,
@@ -946,6 +951,11 @@ yl21: {
         reg: '^(?:异环|nte|#异环|#nte)猜角色(?:异环)?(?:普通|困难|地狱|炼狱)?(?:模式)?',
         priority: 10,
         describe: '猜异环角色',
+    },
+        nteguessAvatar2: {
+        reg: '^#猜角色(异环|nte)(?:普通|困难|地狱|炼狱)?(?:模式)?$',
+        priority: 10,
+        describe: '猜异环角色（游戏名在后）',
     },
         nteguessAvatarCheck: {
         reg: "^#?我猜(.*)",
