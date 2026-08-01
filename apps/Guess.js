@@ -104,7 +104,8 @@ const pluginName = 'games-template-plugin-zolay-liulian';
 const render = getPluginRender(pluginName);
 // 猜角色专用渲染：等裁切校验完成（#guess-ready 出现）再截图，避免盲选坐标被截图
 async function guessRender(type, data, imgType = "jpeg") {
-  if (!(await browserInit())) return false;
+  const browser = await browserInit();
+  if (!browser) return false;
   data._plugin = pluginName;
   if (lodash.isUndefined(data._res_path)) data._res_path = `../../../../../plugins/${pluginName}/resources/`;
   if (lodash.isUndefined(data._sys_res_path)) data._sys_res_path = `../../../../../resources/`;
