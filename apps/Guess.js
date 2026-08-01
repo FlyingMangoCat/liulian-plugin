@@ -359,6 +359,7 @@ function pickCenterOnRole(imgEl) {
     data = ctx.getImageData(0, 0, imgWidth, imgHeight).data;
   } catch (e) {
     // canvas 读不了，兜底用原坐标
+    console.log('[guess-debug] canvas读取失败走兜底, err:', e.message, '坐标:', imgLeft, imgTop);
     return [imgLeft, imgTop];
   }
   // 主逻辑：收集"裁切框中心落在非透明像素上"的候选
@@ -380,8 +381,11 @@ function pickCenterOnRole(imgEl) {
   // alpha 校验有效（有候选且没占满整张图）→ 从候选里随机选
   const total = (maxTop - minTop + 1) * (maxLeft - minLeft + 1);
   if (candidates.length > 0 && candidates.length < total * 0.8) {
-    return candidates[Math.floor(Math.random() * candidates.length)];
+    const pick = candidates[Math.floor(Math.random() * candidates.length)];
+    console.log('[guess-debug] alpha校验生效, 候选数:', candidates.length, '/', total, '坐标:', pick[0], pick[1]);
+    return pick;
   }
+  console.log('[guess-debug] alpha校验失效, candidates:', candidates.length, '/', total, '走RGB方差兜底');
   // 兜底：alpha 校验失效（全透明或全非透明如 Splash 插画）→ 用 RGB 方差判断角色区
   const varianceThreshold = 1000;
   const sampleSize = 30;
@@ -413,9 +417,12 @@ function pickCenterOnRole(imgEl) {
     }
   }
   if (validPicks.length > 0) {
-    return validPicks[Math.floor(Math.random() * validPicks.length)];
+    const pick = validPicks[Math.floor(Math.random() * validPicks.length)];
+    console.log('[guess-debug] RGB方差兜底生效, 有效候选:', validPicks.length, '/', sampleSize, '坐标:', pick[0], pick[1]);
+    return pick;
   }
   // 最终兜底：用原 imgTop/imgLeft
+  console.log('[guess-debug] RGB方差兜底也失效, 用原坐标:', imgLeft, imgTop);
   return [imgLeft, imgTop];
 }
 
