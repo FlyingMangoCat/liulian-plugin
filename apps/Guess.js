@@ -120,6 +120,8 @@ async function guessRender(type, data, imgType = "jpeg") {
   let base64 = "";
   try {
     const page = await browser.newPage();
+    // 转发页面内 console.log 到主进程，便于调试裁切校验逻辑
+    page.on('console', msg => console.log(msg.text()));
     await page.goto("file://" + savePath);
     await page.waitForSelector("#container");
     // 等裁切校验完成标记出现，最多等 15 秒（兜底避免死等，给大图校验留足时间）
