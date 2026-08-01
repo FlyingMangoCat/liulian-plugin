@@ -345,21 +345,21 @@ const minLeft = {{minLeft}};
 const limitLeft = {{limitLeft}};
 
 // 等图片加载完后，用 canvas 读像素，优先 alpha 校验，失效时用 RGB 方差兜底
-function pickCenterOnRole(imgEl, cb) {
+// 同步返回裁切框左上角坐标 [lx, ty]，不再用回调异步
+function pickCenterOnRole(imgEl) {
   // 裁切框左上角可选范围（保护下界，避免负数）
   const maxTop = Math.max(minTop, imgHeight - size - limitTop);
   const maxLeft = Math.max(minLeft, imgWidth - size - limitLeft);
-  let cvs, ctx, data;
+  let data;
   try {
-    cvs = document.createElement('canvas');
+    const cvs = document.createElement('canvas');
     cvs.width = imgWidth; cvs.height = imgHeight;
-    ctx = cvs.getContext('2d');
+    const ctx = cvs.getContext('2d');
     ctx.drawImage(imgEl, 0, 0);
     data = ctx.getImageData(0, 0, imgWidth, imgHeight).data;
   } catch (e) {
-    // canvas 读不了（如 webp 解码失败），兜底用原坐标
-    cb(imgLeft, imgTop);
-    return;
+    // canvas 读不了，兜底用原坐标
+    return [imgLeft, imgTop];
   }
   // 主逻辑：收集"裁切框中心落在非透明像素上"的候选
   const threshold = 128;
@@ -380,19 +380,15 @@ function pickCenterOnRole(imgEl, cb) {
   // alpha 校验有效（有候选且没占满整张图）→ 从候选里随机选
   const total = (maxTop - minTop + 1) * (maxLeft - minLeft + 1);
   if (candidates.length > 0 && candidates.length < total * 0.8) {
-    const pick = candidates[Math.floor(Math.random() * candidates.length)];
-    cb(pick[0], pick[1]);
-    return;
+    return candidates[Math.floor(Math.random() * candidates.length)];
   }
   // 兜底：alpha 校验失效（全透明或全非透明如 Splash 插画）→ 用 RGB 方差判断角色区
-  // 随机抽样若干候选位置，算 RGB 方差，从方差达标的里选
-  const varianceThreshold = 1000;  // RGB 三通道方差之和阈值，低于此说明颜色单一（背景区）
-  const sampleSize = 30;           // 抽样数量，避免遍历所有位置的性能开销
+  const varianceThreshold = 1000;
+  const sampleSize = 30;
   const validPicks = [];
   for (let i = 0; i < sampleSize; i++) {
     const x = minLeft + Math.floor(Math.random() * (maxLeft - minLeft + 1));
     const y = minTop + Math.floor(Math.random() * (maxTop - minTop + 1));
-    // 算这块 size×size 区域的 RGB 方差
     let sumR = 0, sumG = 0, sumB = 0, count = 0;
     for (let py = y; py < y + size && py < imgHeight; py++) {
       for (let px = x; px < x + size && px < imgWidth; px++) {
@@ -412,18 +408,15 @@ function pickCenterOnRole(imgEl, cb) {
         varB += (data[idx + 2] - avgB) * (data[idx + 2] - avgB);
       }
     }
-    const variance = varR + varG + varB;
-    if (variance > varianceThreshold) {
+    if (varR + varG + varB > varianceThreshold) {
       validPicks.push([x, y]);
     }
   }
   if (validPicks.length > 0) {
-    const pick = validPicks[Math.floor(Math.random() * validPicks.length)];
-    cb(pick[0], pick[1]);
-    return;
+    return validPicks[Math.floor(Math.random() * validPicks.length)];
   }
   // 最终兜底：用原 imgTop/imgLeft
-  cb(imgLeft, imgTop);
+  return [imgLeft, imgTop];
 }
 
 const boxEl = document.getElementById("container");
@@ -451,20 +444,19 @@ if (flag) {
     controlEl.style.transform = 'rotate(' + rotate + 'deg)'
   }
   const imgEl = controlEl;
-  // 等图片加载完后校验裁切框坐标，加载完前不设置坐标，避免用盲选坐标截图
+  // 等图片解码完，同步跑校验，跑完设置标记让 puppeteer 截图
   const readyEl = document.getElementById('guess-ready');
-  function runPick() {
-    pickCenterOnRole(imgEl, function (lx, ty) {
-      imgEl.style.top = "-" + ty + "px";
-      imgEl.style.left = "-" + lx + "px";
-      readyEl.style.display = 'block';
-    });
-  }
-  // 先绑 onload，再检查 complete，避免图片已加载完但 onload 绑定过晚导致漏触发
-  imgEl.onload = runPick;
-  if (imgEl.complete && imgEl.naturalWidth) {
-    runPick();
-  }
+  imgEl.decode().then(() => {
+    const [lx, ty] = pickCenterOnRole(imgEl);
+    imgEl.style.top = "-" + ty + "px";
+    imgEl.style.left = "-" + lx + "px";
+    readyEl.style.display = 'block';
+  }).catch(() => {
+    // 解码失败兜底：用原坐标，并标记完成避免 puppeteer 死等
+    imgEl.style.top = "-" + imgTop + "px";
+    imgEl.style.left = "-" + imgLeft + "px";
+    readyEl.style.display = 'block';
+  });
 } else {
   controlEl = document.getElementById('mask');
   controlEl.style.top =  imgTop + "px";
