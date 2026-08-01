@@ -90,8 +90,10 @@ export const rule = {
 };
 const logoPath = path.join(_path, 'plugins/liulian-plugin/resources/genshin/logo/role');
 const gachaPath = path.join(_path, 'plugins/liulian-plugin/resources/genshin/gacha/character');
+const genshinSplashPath = path.join(_path, 'plugins/liulian-plugin/resources/genshin/logo/splash');
 const starlogoPath = path.join(_path, 'plugins/liulian-plugin/resources/星铁/role');
 const stargachaPath = path.join(_path, 'plugins/liulian-plugin/resources/星铁/side');
+const starSplashPath = path.join(_path, 'plugins/liulian-plugin/resources/星铁/splash');
 const zzzlogoPath = path.join(_path, 'plugins/liulian-plugin/resources/zzz/role');
 const zzzgachaPath = path.join(_path, 'plugins/liulian-plugin/resources/zzz/gacha');
 const version = '2.0';
@@ -160,7 +162,9 @@ export async function guessAvatar(e) {
   e.reply(helpText);
   let fileNames = [];
   let ffn = (n) => !/(未知)/.test(n);
-  let imgPath = lodash.random(0, 100) <= 30 ? logoPath : gachaPath;
+  // 随机选图目录：logo头像、gacha立绘、splash Splash插画
+  let imgPaths = [logoPath, gachaPath, genshinSplashPath];
+  let imgPath = imgPaths[lodash.random(0, imgPaths.length - 1)];
   fs.readdirSync(imgPath).filter(ffn).forEach(n => fileNames.push(n));
   let fileName = fileNames[Math.round(Math.random() * (fileNames.length - 1))];
   let roleName = fileName.replace(/\..+$/, '').replace(/\d/g, '');
@@ -474,7 +478,9 @@ export async function starguessAvatar(e) {
   e.reply(helpText);
   let fileNames = [];
   let ffn = (n) => !/(未知)/.test(n);
-  let imgPath = lodash.random(0, 100) <= 30 ? starlogoPath : stargachaPath;
+  // 随机选图目录：logo头像、gacha立绘、splash Splash插画
+  let imgPaths = [starlogoPath, stargachaPath, starSplashPath];
+  let imgPath = imgPaths[lodash.random(0, imgPaths.length - 1)];
   fs.readdirSync(imgPath).filter(ffn).forEach(n => fileNames.push(n));
   let fileName = fileNames[Math.round(Math.random() * (fileNames.length - 1))];
   let roleName = fileName.replace(/\..+$/, '').replace(/\d/g, '');
