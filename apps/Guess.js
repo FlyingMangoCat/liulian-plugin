@@ -339,7 +339,7 @@ function getTemplate(flag = true) {
       .container img {position: absolute;}
       .container .invert {filter: invert(100%);}
       .container .grayscale {filter: grayscale(100%);}
-      #answer-wrap {margin:auto;display: flex;align-items: center;justify-content: center;}
+      #answer-wrap {position:absolute;top:0;left:0;width:100%;height:100%;display: flex;align-items: center;justify-content: center;}
       #answer-wrap #mask{position:absolute;z-index: 1;border: 1px solid white;box-shadow: 0 0 0 2000px rgba(0,0,0,0.6);}
   </style>
 </head>
