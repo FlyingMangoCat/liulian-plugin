@@ -208,6 +208,7 @@ async function browserInit () {
         "--no-sandbox",
         "--no-zygote",
         "--single-process",
+        "--disable-web-security",
       ],
     })
     .catch((err) => {
