@@ -346,7 +346,7 @@ function getTemplate(flag = true) {
 <div class="container" id="container">
   <img id="img" src="{{src}}" alt="头像">
   <div id="answer-wrap" style="display: none;">
-    <img src="{{src}}" alt="头像">
+    <img id="answer-img" src="{{src}}" alt="头像">
     <div id="mask"></div>
   </div>
 </div>
@@ -492,6 +492,12 @@ if (flag) {
     readyEl.style.display = 'block';
   });
 } else {
+  // 答案图底图铺满 container，和 mask 同坐标系，避免底图默认堆在左上角露出多余方块
+  const answerImg = document.getElementById('answer-img');
+  answerImg.style.top = '0px';
+  answerImg.style.left = '0px';
+  answerImg.style.width = imgWidth + 'px';
+  answerImg.style.height = imgHeight + 'px';
   controlEl = document.getElementById('mask');
   controlEl.style.top =  imgTop + "px";
   controlEl.style.left =  imgLeft + "px";

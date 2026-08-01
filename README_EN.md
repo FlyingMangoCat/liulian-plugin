@@ -6,7 +6,8 @@
 [![Visits](https://profile-counter.glitch.me/liulian-plugin/count.svg)](https://gitee.com/huifeidemangguomaocoder/liulian-plugin)
 
 ### Description
-`liulian-plugin` is a Yunzai-Bot plugin that provides extended features including Genshin Impact underground maps, Bilibili push notifications, plugin management, and group chat functions such as Genshin/HSR character guessing, marry group members, Liulian AI, random expressions, horoscope, chat statistics, weather, multi-group broadcasts, and group muting. For more features and details, please read `说明.txt`. Some functions can be configured using the `#榴莲设置` command.
+`liulian-plugin` is a Yunzai-Bot plugin that provides extended features including Genshin Impact underground maps, Bilibili push notifications, plugin management, and group chat functions such as Genshin/HSR/ZZZ/NTE/WW character guessing, marry group members, Liulian AI, random expressions, horoscope, chat statistics, weather, multi-group broadcasts, and group muting. For more features and details, please read `说明.txt`. Some functions can be configured using the `#榴莲设置` command.
+⚠ Since the author is not familiar with Neverness to Everness and Wuthering Waves characters, if there are issues (such as character name errors / aliases not included, etc.), please PR.
 
 ### Installation
 
@@ -34,8 +35,10 @@ pnpm install -P
 | [喵喵](https://gitee.com/yoimiya-kokomi) | Plugin framework support |
 | [Yi0086](https://gitee.com/yi0086) | Technical support |
 | [叶殇](https://gitee.com/maple-leaf-sweeping) | Bilibili push maintenance |
+| [释羽墨](https://space.bilibili.com/637665039) | Flying Mango Cat's exclusive illustrator |
 | [萧枘（会飞的橘子猫）](https://gitee.com/xiaoxiaorurui) | Repository management and Q&A |
 | [星光（会飞的星光猫）] | Promotion and tutorial dubbing |
+| [会飞的苹果猫] | Promotion |
 | [会飞的芒果猫](https://b23.tv/RsZvCWJ) | Promotion, tutorials, and Q&A |
 | [二坑言] | - |
 
