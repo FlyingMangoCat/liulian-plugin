@@ -453,20 +453,17 @@ if (flag) {
   const imgEl = controlEl;
   // 等图片加载完后校验裁切框坐标，加载完前不设置坐标，避免用盲选坐标截图
   const readyEl = document.getElementById('guess-ready');
-  if (imgEl.complete && imgEl.naturalWidth) {
+  function runPick() {
     pickCenterOnRole(imgEl, function (lx, ty) {
       imgEl.style.top = "-" + ty + "px";
       imgEl.style.left = "-" + lx + "px";
       readyEl.style.display = 'block';
     });
-  } else {
-    imgEl.onload = function () {
-      pickCenterOnRole(imgEl, function (lx, ty) {
-        imgEl.style.top = "-" + ty + "px";
-        imgEl.style.left = "-" + lx + "px";
-        readyEl.style.display = 'block';
-      });
-    };
+  }
+  // 先绑 onload，再检查 complete，避免图片已加载完但 onload 绑定过晚导致漏触发
+  imgEl.onload = runPick;
+  if (imgEl.complete && imgEl.naturalWidth) {
+    runPick();
   }
 } else {
   controlEl = document.getElementById('mask');
