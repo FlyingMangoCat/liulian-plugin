@@ -9,6 +9,7 @@
 * 修复猜角色正则冲突：各游戏出题函数加关键词检测，含其他游戏名就跳过，鸣潮异环加游戏名在后写法
 * 修复答案揭晓图脚下多出高亮方块的问题，底图未铺满 container 导致露边
 * 修复答案图四周露纯色背景：answer-wrap 改为铺满 container 不靠 flex 居中
+* 答案图底图和 answer-wrap 尺寸固定为 imgWidth×imgHeight，object-fit:fill 强制铺满不露边
 * README 英文版同步更新异环/鸣潮猜角色说明及贡献者列表
 
 # 0.16.7
