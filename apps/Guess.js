@@ -339,7 +339,7 @@ function getTemplate(flag = true) {
       .container img {position: absolute;}
       .container .invert {filter: invert(100%);}
       .container .grayscale {filter: grayscale(100%);}
-      #answer-wrap {position:absolute;top:0;left:0;width:100%;height:100%;display: flex;align-items: center;justify-content: center;}
+      #answer-wrap {position:absolute;top:0;left:0;width:100%;height:100%;overflow:hidden;}
       #answer-wrap #mask{position:absolute;z-index: 1;border: 1px solid white;box-shadow: 0 0 0 2000px rgba(0,0,0,0.6);}
   </style>
 </head>
@@ -494,12 +494,13 @@ if (flag) {
     readyEl.style.display = 'block';
   });
 } else {
-  // 答案图底图铺满 container，和 mask 同坐标系，避免底图默认堆在左上角露出多余方块
+  // 答案图：container、answer-wrap、底图都用 imgWidth×imgHeight 像素值，尺寸完全一致不露边
   const answerImg = document.getElementById('answer-img');
   answerImg.style.top = '0px';
   answerImg.style.left = '0px';
   answerImg.style.width = imgWidth + 'px';
   answerImg.style.height = imgHeight + 'px';
+  answerImg.style.objectFit = 'fill';
   controlEl = document.getElementById('mask');
   controlEl.style.top =  imgTop + "px";
   controlEl.style.left =  imgLeft + "px";
