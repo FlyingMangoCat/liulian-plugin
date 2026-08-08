@@ -1226,11 +1226,14 @@ async function processBatchPush(allPushTasks) {
         Bot.logger?.mark(`B站推送：用户[${biliUID}]有 ${pushList.length} 条新动态，估算阅读时间=${readingTime}秒`);
         
         // 基于估算阅读时间调整下次查询的随机延迟，避免被检测
-        // 在估算时间的50%-150%之间波动，增加规律性
+        // 使用双层随机：先取阅读时间的50%-150%为基础，再叠加额外随机偏移，仿真真人阅读节奏
         let delayRange = Math.max(15, readingTime); // 至少15秒
         let minDelay = Math.floor(delayRange * 0.5);  // 下限：50%
         let maxDelay = Math.floor(delayRange * 1.5);  // 上限：150%
-        let actualDelay = Math.floor(Math.random() * (maxDelay - minDelay + 1)) + minDelay;
+        let baseDelay = Math.floor(Math.random() * (maxDelay - minDelay + 1)) + minDelay;
+        // 叠加额外随机偏移（0-30秒），模拟真人查看完动态后停留的随机时间
+        let extraDelay = Math.floor(Math.random() * 30);
+        let actualDelay = baseDelay + extraDelay;
         
         Bot.logger?.mark(`B站推送：等待${actualDelay}秒后处理下一个用户（基于估算阅读时间${readingTime}秒）`);
         await common.sleep(actualDelay * 1000);
@@ -1285,8 +1288,13 @@ async function processBatchPush(allPushTasks) {
         
         Bot.logger?.mark(`B站推送：成功推送动态 [${dynamicId}] 到 群[${pushTarget}]`);
         
-        // 群之间有短暂延迟（500ms）
-        await common.sleep(500);
+        // 群之间的间隔采用双重纯随机偏移，避免固定节奏被检测，仿照真人切换群聊的节奏
+        // 第一层：100-800ms随机偏移
+        let groupShortDelay = Math.floor(Math.random() * 700) + 100;
+        await common.sleep(groupShortDelay);
+        // 第二层：1-5s随机延迟
+        let groupLongDelay = Math.floor(Math.random() * 4000) + 1000;
+        await common.sleep(groupLongDelay);
       } catch (err) {
         Bot.logger?.error(`B站推送：发送动态异常 [${dynamicId}]: ${err.message}`);
       }
@@ -1397,7 +1405,7 @@ async function fetchUserDynamic(pushInfo, user, biliUID) {
 // 估算动态内容的阅读时间（秒）
 function estimateReadingTime(pushList) {
   if (!pushList || pushList.length === 0) {
-    return 10; // 默认10秒
+    return 20; // 默认20秒
   }
   
   let totalTextLength = 0;
@@ -1429,15 +1437,15 @@ function estimateReadingTime(pushList) {
     totalTextLength += textLength;
   }
   
-  // 估算阅读时间：文字每100字5秒，每张图片10秒
-  let textTime = Math.ceil(totalTextLength / 100) * 5;
-  let imageTime = totalImageCount * 10;
-  let baseTime = 10; // 基础时间10秒
+  // 估算阅读时间：文字每100字15秒（约每分钟400字），每张图片15秒
+  let textTime = Math.ceil(totalTextLength / 100) * 15;
+  let imageTime = totalImageCount * 15;
+  let baseTime = 20; // 基础时间20秒
   
   let totalReadingTime = baseTime + textTime + imageTime;
   
-  // 限制在10-60秒之间
-  return Math.max(10, Math.min(60, totalReadingTime));
+  // 限制在20-300秒之间（上限放宽到5分钟，避免长内容截断影响随机规避）
+  return Math.max(20, Math.min(300, totalReadingTime));
 }
 
 // 定时任务是否给这个QQ对象推送B站动态
@@ -1517,8 +1525,13 @@ async function sendDynamic(info, biliUser, list) {
       }
 
       Bot.logger?.mark(`B站推送：成功推送动态 [${val.id_str}]`);
-      // 固定延迟，避免一次性发送太多消息
-      await common.sleep(BotHaveARest);
+      // 每条消息间隔采用双层随机延迟，避免一次性发送太多消息触发风控
+      // 第一层：100-800ms随机偏移
+      let shortDelay = Math.floor(Math.random() * 700) + 100;
+      await common.sleep(shortDelay);
+      // 第二层：1-5s随机延迟
+      let longDelay = Math.floor(Math.random() * 4000) + 1000;
+      await common.sleep(longDelay);
 
     } catch (err) {
       Bot.logger?.error(`B站推送：发送动态异常 [${val.id_str}]: ${err.message}`);
