@@ -1442,7 +1442,7 @@ function estimateReadingTime(pushList) {
 
 // 定时任务是否给这个QQ对象推送B站动态
 function isAllowSchedulePush(user) {
-  if (botConfig.masterQQ.includes(Number(user.pushTarget))) return true; // 主人的命令就是一切！
+  if ((botConfig.masterQQ || []).includes(Number(user.pushTarget))) return true; // 主人的命令就是一切！
   if (!user.isNewsPush) return false; // 不推那当然。。不推咯
   if (user.allowPush === false) return false; // 信息里边禁止使用推送功能了，那直接禁止
   if (!BilibiliPushConfig.allowPrivate && !user.isGroup) return false; // 禁止私聊推送并且不是群聊，直接禁止

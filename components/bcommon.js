@@ -15,7 +15,12 @@ if (isV3) {
   let other = YAML.parse(fs.readFileSync(`${configUrl}/other.yaml`, "utf8"));
   let group = YAML.parse(fs.readFileSync(`${configUrl}/group.yaml`, "utf8"));
 
-  config = { other, group, masterQQ: other.masterQQ };
+  // masterQQ 兜底：兼容 null/未配置/单值数字/数组，避免 .includes 崩溃
+  let masterQQ = other?.masterQQ;
+  if (masterQQ == null) masterQQ = [];
+  else if (!Array.isArray(masterQQ)) masterQQ = [masterQQ];
+
+  config = { other, group, masterQQ };
 } else {
   // 尝试获取 BotConfig，如果不存在则使用默认配置
   config = typeof BotConfig !== 'undefined' ? BotConfig : {
