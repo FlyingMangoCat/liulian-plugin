@@ -20,6 +20,7 @@ references
 # 记忆系统数据（本地用户记忆）
 data/memory/
 *.db
+.atomcode/
 
 # 服务端部署相关（仅服务端使用，客户端不需要）
 server-deployment/
