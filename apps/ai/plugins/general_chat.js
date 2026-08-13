@@ -1,4 +1,4 @@
-import config from '../../../config/ai.js';
+import config from '#liulian.config';
 import provider from '#liulian.provider';
 
 /**

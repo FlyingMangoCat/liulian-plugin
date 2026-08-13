@@ -1,14 +1,14 @@
 // @liulian-middleware
 // 榴莲AI模块 - 支持中间件模式
 
-import { AIManager } from './ai/index.js';
-import config from '../config/ai.js';
+import { AIManager } from '#liulian.ai';
+import config from '#liulian.config';
 import { Cfg } from '#liulian'
 
 // 延迟初始化函数
 async function ensureInitialized() {
   try {
-    const { initializeServices } = await import('./ai/index.js');
+    const { initializeServices } = await import('#liulian.ai');
     await initializeServices();
   } catch (error) {
     console.error('[AI模块] 初始化失败:', error);

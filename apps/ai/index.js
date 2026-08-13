@@ -2,7 +2,7 @@ import { ModelRouter } from './core/modelRouter.js';
 import serviceDetector from './core/serviceDetector.js';
 import DatabaseManager from './core/database.js';
 import moodSystem from './core/moodSystem.js';
-import config from '../../config/ai.js';
+import config from '#liulian.config';
 import { Cfg } from '#liulian';
 
 // 环境检测

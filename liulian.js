@@ -18,7 +18,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const PORT = process.env.PORT || 3000;
 
 // 加载配置
-const config = await import('./config/ai.js').then(m => m.config);
+const config = await import('#liulian.config').then(m => m.config);
 console.log('🥭 榴莲AI中间件初始化...');
 
 class LiulianMiddleware {
@@ -34,12 +34,12 @@ class LiulianMiddleware {
         console.log(`✅ 共加载 ${this.modules.length} 个模块`);
         
         // 初始化数据库
-        const DatabaseManager = await import('./ai/core/database.js').then(m => m.default);
+        const { DatabaseManager } = await import('#liulian.core');
         await DatabaseManager.connect();
         console.log('✅ 数据库连接完成');
         
         // 初始化AI服务
-        const { AIManager } = await import('./ai/index.js');
+        const { AIManager } = await import('#liulian.ai');
         await AIManager.initializeServices();
         console.log('✅ AI服务初始化完成');
         
@@ -127,7 +127,7 @@ class LiulianMiddleware {
                 }
                 
                 // 导入AI管理器
-                const { AIManager } = await import('./ai/index.js');
+                const { AIManager } = await import('#liulian.ai');
                 
                 // 调用AI处理
                 const reply = await AIManager.generalChat(
@@ -153,8 +153,8 @@ class LiulianMiddleware {
     async handleStatus(req, res) {
         try {
             // 导入状态管理器
-            const { AIManager } = await import('./ai/index.js');
-            const DatabaseManager = await import('./ai/core/database.js').then(m => m.default);
+            const { AIManager } = await import('#liulian.ai');
+            const { DatabaseManager } = await import('#liulian.core');
             
             // 获取AI服务状态
             const aiStatus = AIManager.getServiceStatus();
