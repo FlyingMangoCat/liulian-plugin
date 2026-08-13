@@ -28,26 +28,26 @@ export const config = {
         vision: "" // 视觉模型
       }
     },
-    // 远程数据库配置
+    // 数据库配置（未配置真实服务时快速失败，不阻塞对话）
     database: {
       postgres: {
-        host: 'your-server.com', // 远程PostgreSQL地址
+        host: '127.0.0.1', // 本地地址，未配置服务时快速失败
         port: 5432,           // 端口
         user: 'liulian_user',
         password: 'your_secure_password_here', // 改为实际密码
         database: 'liulian_db',
         max: 20,
         idleTimeoutMillis: 30000,
-        ssl: true, // 远程连接启用SSL
-        connectionTimeoutMillis: 10000
+        ssl: false,
+        connectionTimeoutMillis: 1500
       },
       redis: {
-        host: 'your-server.com', // 远程redis地址
+        host: '127.0.0.1', // 本地地址，未配置服务时快速失败
         port: 6379,           // 端口
         password: 'your_redis_password', // 改为实际密码
         ttl: 3600,
-        ssl: true, // 远程连接启用SSL
-        connectTimeout: 10000
+        ssl: false,
+        connectTimeout: 1500
       }
     },
     // 触发配置

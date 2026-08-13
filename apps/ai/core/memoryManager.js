@@ -1,4 +1,4 @@
-import { OpenMemory } from "openmemory-js";
+import { Memory } from "openmemory-js";
 import _ from "lodash";
 import path from "path";
 import fs from "fs";
@@ -54,31 +54,18 @@ class MemoryManager {
       
       if (this.mode === "local") {
         // 本地模式：使用本地向量嵌入
-        this.memory = new OpenMemory({
-          mode: config.mode,
-          path: config.path,
-          embeddings: config.embeddings
-        });
+        this.memory = new Memory(this.userId);
         logger.mark(`[记忆系统] 用户 ${this.userId} 使用本地记忆模式`);
       } else {
         // 云端模式：连接到OpenMemory服务
-        this.memory = new OpenMemory({
-          mode: config.mode,
-          url: config.url,
-          apiKey: config.apiKey,
-          embeddings: config.embeddings
-        });
+        this.memory = new Memory(this.userId);
         logger.mark(`[记忆系统] 用户 ${this.userId} 使用云端记忆模式`);
       }
     } catch (error) {
       logger.error(`[记忆系统] 初始化失败: ${error.message}`);
       // 降级到本地模式
       this.mode = "local";
-      this.memory = new OpenMemory({
-        mode: "local",
-        path: path.join(process.cwd(), "data", "memory", `user_${userId}.db`),
-        embeddings: { provider: "ollama", model: "nomic-embed-text" }
-      });
+      this.memory = new Memory(this.userId);
     }
   }
 
@@ -100,9 +87,9 @@ class MemoryManager {
       const content = `[${chatType}] 群${groupId}\n用户: ${userMessage}\n榴莲: ${botReply}`;
       
       await this.memory.add(content, {
-        userId: this.userId,
-        groupId,
-        chatType: isPrivate ? "private" : "group",
+        user_id: this.userId,
+        group_id: groupId,
+        chat_type: isPrivate ? "private" : "group",
         timestamp: new Date().toISOString()
       });
       
@@ -130,23 +117,15 @@ class MemoryManager {
       
       if (query) {
         // 使用语义检索
-        results = await this.memory.query(query, {
-          filters: {
-            user_id: this.userId,
-            group_id: groupId
-          },
+        results = await this.memory.search(query, {
+          user_id: this.userId,
           limit
         });
       } else {
         // 获取最近的记忆
-        results = await this.memory.query("", {
-          filters: {
-            user_id: this.userId,
-            group_id: groupId
-          },
-          limit,
-          sortBy: "timestamp",
-          sortOrder: "desc"
+        results = await this.memory.search("", {
+          user_id: this.userId,
+          limit
         });
       }
 
@@ -172,7 +151,7 @@ class MemoryManager {
 
     try {
       await this.memory.add(`偏好: ${key} = ${value}`, {
-        userId: this.userId,
+        user_id: this.userId,
         type: "preference",
         timestamp: new Date().toISOString()
       });
@@ -190,11 +169,8 @@ class MemoryManager {
     if (!this.memory) return null;
 
     try {
-      const results = await this.memory.query(`偏好: ${key}`, {
-        filters: {
-          user_id: this.userId,
-          type: "preference"
-        },
+      const results = await this.memory.search(`偏好: ${key}`, {
+        user_id: this.userId,
         limit: 1
       });
 
@@ -244,9 +220,7 @@ class MemoryManager {
     if (!this.memory) return;
 
     try {
-      await this.memory.delete({
-        filters: { user_id: this.userId }
-      });
+      await this.memory.delete_all(this.userId);
       logger.mark(`[记忆系统] 已清空用户 ${this.userId} 的所有记忆`);
     } catch (error) {
       logger.error(`[记忆系统] 清空记忆失败: ${error.message}`);
