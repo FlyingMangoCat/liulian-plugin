@@ -85,7 +85,10 @@ class ServiceDetector {
     }
 
     isServiceAvailable() {
-        return this.isAvailable;
+        // 检测已通过，服务可用
+        if (this.isAvailable) return true;
+        // 检测未通过但存在有效配置时不阻断对话，交由实际请求兜底
+        return provider.isApiMode || !!config.ai?.local?.api_url;
     }
 
     getLastCheckTime() {
