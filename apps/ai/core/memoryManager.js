@@ -53,7 +53,7 @@ class MemoryManager {
       const config = this.config[this.mode];
       
       if (this.mode === "local") {
-        // 本地模式：使用SQLite + Ollama embedding
+        // 本地模式：使用本地向量嵌入
         this.memory = new OpenMemory({
           mode: config.mode,
           path: config.path,

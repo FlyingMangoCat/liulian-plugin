@@ -1,11 +1,12 @@
-import { OllamaHandler } from '#liulian.ollama';
+import provider from '#liulian.provider';
 import connectionRetry from './connectionRetry.js';
 import config from '#liulian.config';
 
 class ImageProcessor {
   constructor() {
-    this.ollama = new OllamaHandler(config.ai.ollama.api_url);
-    this.model = config.ai.ollama.models.vision;
+    this.model = config.ai?.api?.base_url
+      ? (config.ai?.api?.models?.vision || config.ai?.local?.models?.vision)
+      : config.ai?.local?.models?.vision;
   }
 
   // 简化的图片处理流程
@@ -15,7 +16,7 @@ class ImageProcessor {
       
       // 使用带重试的处理
       const analysis = await connectionRetry.modelGenerateWithRetry(
-        this.ollama,
+        provider,
         this.model,
         await this.getSmartPrompt(imageDescription)
       );
@@ -77,7 +78,7 @@ class ImageProcessor {
     const prompt = `图片:${description}→简述`;
     
     try {
-      return await this.ollama.generate(this.model, prompt);
+      return await provider.generate(this.model, prompt);
     } catch (error) {
       return "一张图片";
     }

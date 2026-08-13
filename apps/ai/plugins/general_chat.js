@@ -1,5 +1,5 @@
-import fetch from 'node-fetch';
 import config from '../../../config/ai.js';
+import provider from '#liulian.provider';
 
 /**
  * 通用聊天插件
@@ -19,27 +19,12 @@ export class GeneralChatPlugin {
     // 注意：为了后续微调，我们依然保留系统提示词，但这是最后一步了。
     const fullPrompt = `${config.ai.system_prompt}\n\n用户说: ${e.msg}`;
 
-    const requestData = {
-      model: config.ai.ollama.models.general,
-      prompt: fullPrompt,
-      stream: false,
-    };
+    const model = config.ai?.api?.base_url
+      ? (config.ai?.api?.models?.general || config.ai?.local?.models?.general)
+      : config.ai?.local?.models?.general;
 
     try {
-      const response = await fetch(config.ai.ollama.api_url, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(requestData),
-      });
-
-      if (!response.ok) {
-        throw new Error(`Ollama API 错误: ${response.status}`);
-      }
-
-      const data = await response.json();
-      const botReply = data.response?.trim();
+      const botReply = await provider.generate(model, fullPrompt, { stream: false });
 
       // 确保有有效回复再返回
       if (botReply) {

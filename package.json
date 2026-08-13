@@ -39,6 +39,7 @@
     "#liulian.config": "./config/ai.js",
     "#liulian.ai": "./apps/ai/index.js",
     "#liulian.core": "./apps/ai/core/index.js",
+    "#liulian.provider": "./apps/ai/core/providers/index.js",
     "#liulian.ollama": "./apps/ai/ollama.js"
   }
 }

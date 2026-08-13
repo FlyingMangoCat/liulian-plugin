@@ -1,4 +1,4 @@
-import { default as ollama } from '#liulian.ollama';
+import { default as provider } from '#liulian.provider';
 import config from '#liulian.config';
 
 class ServiceDetector {
@@ -9,31 +9,34 @@ class ServiceDetector {
         this.checkTimer = null;
     }
 
-    async checkOllama() {
+    async checkService() {
         try {
             // 尝试获取模型列表来检查服务是否可用
-            await ollama.listModels();
+            await provider.listModels();
             this.isAvailable = true;
             this.lastCheckTime = new Date();
-            console.log('[ServiceDetector] Ollama服务可用');
+            console.log('[ServiceDetector] AI服务可用');
             return true;
         } catch (error) {
             this.isAvailable = false;
             this.lastCheckTime = new Date();
-            console.log('[ServiceDetector] Ollama服务不可用:', error.message);
+            console.log('[ServiceDetector] AI服务不可用:', error.message);
             return false;
         }
     }
 
     async checkModels() {
         try {
-            const models = await ollama.listModels();
+            const models = await provider.listModels();
             const availableModels = models.map(m => m.name);
             
-            const configModels = config.ai?.ollama?.models || {};
+            const configModels = provider.isApiMode
+                ? (config.ai?.api?.models || {})
+                : (config.ai?.local?.models || {});
             const modelStatus = {};
 
             for (const [key, modelName] of Object.entries(configModels)) {
+                if (!modelName) continue;
                 modelStatus[key] = {
                     name: modelName,
                     available: availableModels.includes(modelName)
@@ -44,10 +47,13 @@ class ServiceDetector {
         } catch (error) {
             console.error('[ServiceDetector] 检查模型状态失败:', error);
             // 即使检查失败，也返回默认的模型状态结构
-            const configModels = config.ai?.ollama?.models || {};
+            const configModels = provider.isApiMode
+                ? (config.ai?.api?.models || {})
+                : (config.ai?.local?.models || {});
             const modelStatus = {};
 
             for (const [key, modelName] of Object.entries(configModels)) {
+                if (!modelName) continue;
                 modelStatus[key] = {
                     name: modelName,
                     available: false
@@ -64,7 +70,7 @@ class ServiceDetector {
         }
 
         this.checkTimer = setInterval(async () => {
-            await this.checkOllama();
+            await this.checkService();
         }, this.checkInterval);
 
         console.log('[ServiceDetector] 启动定期检查，间隔:', this.checkInterval + 'ms');
@@ -92,8 +98,10 @@ class ServiceDetector {
         return {
             available: this.isAvailable,
             lastCheck: this.lastCheckTime,
-            ollama: {
-                url: config.ai?.ollama?.api_url || 'http://localhost:11434',
+            service: {
+                url: provider.isApiMode
+                    ? (config.ai?.api?.base_url || '')
+                    : (config.ai?.local?.api_url || ''),
                 available: this.isAvailable
             },
             models: modelStatus
@@ -104,7 +112,7 @@ class ServiceDetector {
         const startTime = Date.now();
         
         while (Date.now() - startTime < timeout) {
-            const available = await this.checkOllama();
+            const available = await this.checkService();
             if (available) {
                 return true;
             }

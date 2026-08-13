@@ -1,13 +1,28 @@
-import ollama from '#liulian.ollama';
+import provider from '#liulian.provider';
 import config from '#liulian.config';
 
 export class ModelRouter {
     constructor() {
-        this.models = config.ai?.ollama?.models || {
+        this.models = this.getModels();
+    }
+
+    // 获取当前生效的模型配置（通用接口优先，缺失项回退本地）
+    getModels() {
+        const apiModels = config.ai?.api?.models || {};
+        const localModels = config.ai?.local?.models || {
             general: 'deepseek-llm:7b',
             code: 'deepseek-coder:6.7b',
             vision: 'moondream:latest'
         };
+
+        if (config.ai?.api?.base_url && config.ai?.api?.api_key) {
+            return {
+                general: apiModels.general || localModels.general,
+                code: apiModels.code || localModels.code,
+                vision: apiModels.vision || localModels.vision
+            };
+        }
+        return localModels;
     }
 
     async processMessage(message, messageType = 'text', context = {}) {
@@ -19,7 +34,7 @@ export class ModelRouter {
             const prompt = this.buildPrompt(message, context);
             
             // 调用模型
-            const response = await ollama.generate(model, prompt, {
+            const response = await provider.generate(model, prompt, {
                 temperature: this.getTemperature(message, context),
                 num_predict: this.getMaxTokens(message)
             });
@@ -49,7 +64,7 @@ export class ModelRouter {
             
             const prompt = `请描述这张图片的内容。${imageDescription ? '用户说明：' + imageDescription : ''}`;
             
-            const response = await ollama.generateWithImage(model, prompt, image);
+            const response = await provider.generateWithImage(model, prompt, image);
             
             return {
                 success: true,
@@ -131,7 +146,7 @@ export class ModelRouter {
 
     async getAvailableModels() {
         try {
-            const models = await ollama.listModels();
+            const models = await provider.listModels();
             return models.map(m => m.name);
         } catch (error) {
             console.error('[ModelRouter] 获取可用模型失败:', error);

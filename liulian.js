@@ -166,7 +166,7 @@ class LiulianMiddleware {
                 timestamp: new Date().toISOString(),
                 ai: {
                     available: AIManager.isAIAvailable(),
-                    ollama: aiStatus.ollama ? '✅' : '❌',
+                    service: aiStatus.service ? '✅' : '❌',
                     models: aiStatus.models
                 },
                 database: {

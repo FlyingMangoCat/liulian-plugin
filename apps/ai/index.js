@@ -1,4 +1,3 @@
-import { OllamaHandler } from './ollama.js';
 import { ModelRouter } from './core/modelRouter.js';
 import serviceDetector from './core/serviceDetector.js';
 import DatabaseManager from './core/database.js';
@@ -10,7 +9,6 @@ import { Cfg } from '#liulian';
 const isMiddlewareMode = process.env.LIULIAN_MODE === 'middleware';
 
 // 初始化服务
-const ollama = new OllamaHandler(config.ai.ollama.api_url);
 const modelRouter = new ModelRouter();
 
 // 服务初始化 - 延迟到第一次使用时再执行，避免导入时阻塞
@@ -29,7 +27,7 @@ async function initializeServices() {
       console.log('[AI模块] AI功能已开启，开始初始化相关组件');
       
       // 云崽模式下才自动初始化服务
-      serviceDetector.checkOllama().then(available => {
+      serviceDetector.checkService().then(available => {
         if (available) {
           serviceDetector.startPeriodicCheck();
         } else {
@@ -331,7 +329,7 @@ ${memoryContext}
         });
         
         // 初始化AI服务检测
-        const available = await serviceDetector.checkOllama();
+        const available = await serviceDetector.checkService();
         if (available) {
             serviceDetector.startPeriodicCheck();
             console.log('[AI模块] AI服务可用');

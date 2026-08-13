@@ -25,9 +25,9 @@ class ConnectionRetry {
   }
 
   // 专门用于模型调用的重试
-  async modelGenerateWithRetry(ollamaInstance, model, prompt) {
+  async modelGenerateWithRetry(providerInstance, model, prompt) {
     return this.withRetry(
-      () => ollamaInstance.generate(model, prompt),
+      () => providerInstance.generate(model, prompt),
       `模型调用 ${model}`
     );
   }

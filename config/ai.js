@@ -6,15 +6,26 @@ export const config = {
       private: 100, // 私聊100%回复
       group: 40     // 群聊40%概率回复
     },
-    // Ollama配置
-    ollama: {
-      api_url: "http://192.168.0.112:11435", // Ollama API地址
+    // 本地服务配置
+    local: {
+      api_url: "http://192.168.0.112:11435", // 服务地址
       model: "deepseek-llm:7b", // 默认模型
       // 多模型配置
       models: {
         general: "deepseek-llm:7b", // 通用模型
         code: "deepseek-coder:6.7b", // 代码模型
         vision: "moondream:latest" // 视觉模型
+      }
+    },
+    // 通用接口配置（配置后自动启用，优先于本地服务）
+    api: {
+      base_url: "", // 接口地址，形如 https://xxx/v1
+      api_key: "", // 密钥
+      model: "", // 默认模型
+      models: {
+        general: "", // 通用模型
+        code: "", // 代码模型
+        vision: "" // 视觉模型
       }
     },
     // 远程数据库配置
