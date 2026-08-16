@@ -25,6 +25,7 @@ export const rule = {
 
 export async function sjclassic(e) {
  let url = `https://api.yxyos.com/liulian/classic`;//请求api
+ try {
  let response = await fetch(url);
  let res = await response.json();//结果json字符串转对象
        let msg = [
@@ -32,12 +33,16 @@ export async function sjclassic(e) {
   ];
 
   e.reply(msg,true);
+  } catch (err) {
+  e.reply("接口暂时不可用", true);
+  }
   }
 export async function zdclassic(e) {
 let keyword = e.msg.replace("#","");
   keyword = keyword.replace("随机","");
   console.log(keyword);//控制台输出关键词
   let url = `https://api.yxyos.com/liulian/classic/?list=${keyword}&type=alias`;//请求api
+try {
 let response = await fetch(url);
  let res = await response.json();//结果json字符串转对象
        let msg = [
@@ -45,9 +50,13 @@ let response = await fetch(url);
   ];
 
   e.reply(msg,true);
+  } catch (err) {
+  e.reply("接口暂时不可用", true);
+  }
   }
 export async function allclassic(e) {
  let url = `https://api.yxyos.com/liulian/classic/?list=all`;//请求api
+ try {
  let response = await fetch(url);
  let res = await response.json();//结果json字符串转对象
        let msg = [
@@ -55,12 +64,16 @@ export async function allclassic(e) {
   ];
 
   e.reply(msg,true);
+  } catch (err) {
+  e.reply("接口暂时不可用", true);
+  }
   }
 export async function bmclassic(e) {
 let keyword = e.msg.replace("#","");
   keyword = keyword.replace("查看","");
   console.log(keyword);//控制台输出关键词
   let url = `https://api.yxyos.com/liulian/classic/?list=${keyword}&type=alias`;//请求api
+try {
 let response = await fetch(url);
  let res = await response.json();//结果json字符串转对象
        let msg = [
@@ -68,4 +81,7 @@ let response = await fetch(url);
   ];
 
   e.reply(msg,true);
+  } catch (err) {
+  e.reply("接口暂时不可用", true);
+  }
   }
