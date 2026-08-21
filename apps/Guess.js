@@ -230,14 +230,11 @@ export async function guessAvatar(e) {
   fs.readdirSync(imgPath).filter(ffn).forEach(n => fileNames.push(n));
   let fileName = fileNames[Math.round(Math.random() * (fileNames.length - 1))];
   let roleName = fileName.replace(/\.[^.]+$/, '');
+  // 皮肤后缀为固定格式（01/02…09），不影响角色名，先清洗皮肤后缀
+  let stripped = roleName.replace(/0\d$/, '');
+  if (stripped !== roleName) roleName = stripped;
+  // 首位精确匹配 → 别名兜底
   let roleId = findOfficialId(roleIdData, roleName) || roleIdToName(roleName);
-  if (!roleId) {
-    let stripped = roleName.replace(/\d+$/, '');
-    if (stripped !== roleName) {
-      roleId = findOfficialId(roleIdData, stripped) || roleIdToName(stripped);
-      if (roleId) roleName = stripped;
-    }
-  }
   // 清空其他游戏残留ID，设置当前游戏类型，避免不同游戏状态混淆
   guessConfig.starroleId = '';
   guessConfig.zzzroleId = '';
@@ -624,14 +621,11 @@ export async function starguessAvatar(e) {
   let fileName = fileNames[Math.round(Math.random() * (fileNames.length - 1))];
   // 只去扩展名，保留带点号/数字的角色名（如「银狼LV.999」），查不到再去末尾数字后缀重试
   let roleName = fileName.replace(/\.[^.]+$/, '');
+  // 皮肤后缀为固定格式（01/02…09），不影响角色名，先清洗皮肤后缀
+  let stripped = roleName.replace(/0\d$/, '');
+  if (stripped !== roleName) roleName = stripped;
+  // 首位精确匹配 → 别名兜底
   let roleId = findOfficialId(starroleIdData, roleName) || starroleIdToName(roleName);
-  if (!roleId) {
-    let stripped = roleName.replace(/\d+$/, '');
-    if (stripped !== roleName) {
-      roleId = findOfficialId(starroleIdData, stripped) || starroleIdToName(stripped);
-      if (roleId) roleName = stripped;
-    }
-  }
   // 清空其他游戏残留ID，设置当前游戏类型，避免不同游戏状态混淆
   guessConfig.roleId = '';
   guessConfig.zzzroleId = '';
@@ -748,14 +742,11 @@ export async function starguessAvatarCheck(e) {
   // 绝区零角色名本身可能带数字（如「11号」「零号·安比」），不能删数字
   // 只去扩展名，查不到再去末尾数字后缀重试（如「简01」→「简」）
   let roleName = fileName.replace(/\.[^.]+$/, '');
+  // 皮肤后缀为固定格式（01/02…09），不影响角色名，先清洗皮肤后缀
+  let stripped = roleName.replace(/0\d$/, '');
+  if (stripped !== roleName) roleName = stripped;
+  // 首位精确匹配 → 别名兜底
   let roleId = findOfficialId(zzzroleIdData, roleName) || zzzroleIdToName(roleName);
-  if (!roleId) {
-    let stripped = roleName.replace(/\d+$/, '');
-    if (stripped !== roleName) {
-      roleId = findOfficialId(zzzroleIdData, stripped) || zzzroleIdToName(stripped);
-      if (roleId) roleName = stripped;
-    }
-  }
   guessConfig.playing = true;
   // 清空其他游戏残留ID，设置当前游戏类型，避免不同游戏状态混淆
   guessConfig.roleId = '';
@@ -873,14 +864,11 @@ export async function wwguessAvatar(e) {
   // 鸣潮角色名可能带数字（如「漂泊者·湮灭」），不能删数字
   // 只去扩展名，查不到再去末尾数字后缀重试（如「椿01」→「椿」）
   let roleName = fileName.replace(/\.[^.]+$/, '');
+  // 皮肤后缀为固定格式（01/02…09），不影响角色名，先清洗皮肤后缀
+  let stripped = roleName.replace(/0\d$/, '');
+  if (stripped !== roleName) roleName = stripped;
+  // 首位精确匹配 → 别名兜底
   let roleId = findOfficialId(wwroleIdData, roleName) || wwroleIdToName(roleName);
-  if (!roleId) {
-    let stripped = roleName.replace(/\d+$/, '');
-    if (stripped !== roleName) {
-      roleId = findOfficialId(wwroleIdData, stripped) || wwroleIdToName(stripped);
-      if (roleId) roleName = stripped;
-    }
-  }
   guessConfig.playing = true;
   // 清空其他游戏残留ID，设置当前游戏类型，避免不同游戏状态混淆
   guessConfig.roleId = '';
@@ -1000,14 +988,11 @@ export async function nteguessAvatar(e) {
   // 异环角色名可能带数字（如「11号」），不能删数字
   // 只去扩展名，查不到再去末尾数字后缀重试（如「零01」→「零」）
   let roleName = fileName.replace(/\.[^.]+$/, '');
+  // 皮肤后缀为固定格式（01/02…09），不影响角色名，先清洗皮肤后缀
+  let stripped = roleName.replace(/0\d$/, '');
+  if (stripped !== roleName) roleName = stripped;
+  // 首位精确匹配 → 别名兜底
   let roleId = findOfficialId(nteroleIdData, roleName) || nteroleIdToName(roleName);
-  if (!roleId) {
-    let stripped = roleName.replace(/\d+$/, '');
-    if (stripped !== roleName) {
-      roleId = findOfficialId(nteroleIdData, stripped) || nteroleIdToName(stripped);
-      if (roleId) roleName = stripped;
-    }
-  }
   guessConfig.playing = true;
   // 清空其他游戏残留ID，设置当前游戏类型，避免不同游戏状态混淆
   guessConfig.roleId = '';
