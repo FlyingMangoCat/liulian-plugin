@@ -608,8 +608,16 @@ export async function starguessAvatar(e) {
   let imgPath = imgPaths[lodash.random(0, imgPaths.length - 1)];
   fs.readdirSync(imgPath).filter(ffn).forEach(n => fileNames.push(n));
   let fileName = fileNames[Math.round(Math.random() * (fileNames.length - 1))];
-  let roleName = fileName.replace(/\..+$/, '').replace(/\d/g, '');
+  // 只去扩展名，保留带点号/数字的角色名（如「银狼LV.999」），查不到再去末尾数字后缀重试
+  let roleName = fileName.replace(/\.[^.]+$/, '');
   let roleId = starroleIdToName(roleName);
+  if (!roleId) {
+    let stripped = roleName.replace(/\d+$/, '');
+    if (stripped !== roleName) {
+      roleId = starroleIdToName(stripped);
+      if (roleId) roleName = stripped;
+    }
+  }
   // 清空其他游戏残留ID，设置当前游戏类型，避免不同游戏状态混淆
   guessConfig.roleId = '';
   guessConfig.zzzroleId = '';
