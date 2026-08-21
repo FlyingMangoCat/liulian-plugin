@@ -202,18 +202,14 @@ export async function guessAvatar(e) {
   let hellMode = e.msg.includes('地狱');
   let purgatoryMode = e.msg.includes('炼狱');
   let normalMode = (!hardMode && !hellMode && !purgatoryMode);
-  let size, helpText;
+  let helpText;
   if (hardMode) {
-    size = lodash.random(35, 45);
     helpText = '%s\n在『困难模式』下，发送的图片将会变成黑白色。';
   } else if (hellMode) {
-    size = lodash.random(25, 35);
     helpText = '%s\n在『地狱模式』下，发送的图片将会变成反色。';
   } else if (purgatoryMode) {
-    size = lodash.random(25, 35);
     helpText = '%s\n在『炼狱模式』下，发送的图片将会变成反色并随机旋转。';
   } else {
-    size = lodash.random(35, 55);
     helpText = '%s';
   }
   helpText = helpText.replace('%s', `即将发送一张『随机角色』的『随机一角』，${GAME_TIME_OUT}秒之后揭晓答案！\n回答格式：#我猜[角色名]`);
@@ -246,8 +242,17 @@ export async function guessAvatar(e) {
     limitLeft = 30;
   }
   let imgSize = sizeOf(imgSrc);
-  let imgTop = lodash.random(minTop, imgSize.height - size - limitTop);
-  let imgLeft = lodash.random(minLeft, imgSize.width - size - limitLeft);
+  // 裁切框按图片短边比例动态计算：普通最大、困难次之、地狱炼狱更小，并限制上下限避免太小或几乎全图
+  let shortSide = Math.min(imgSize.width, imgSize.height);
+  let sizeRatio;
+  if (hardMode) sizeRatio = lodash.random(0.20, 0.30);
+  else if (hellMode) sizeRatio = lodash.random(0.16, 0.26);
+  else if (purgatoryMode) sizeRatio = lodash.random(0.14, 0.24);
+  else sizeRatio = lodash.random(0.25, 0.35);
+  let size = Math.round(shortSide * sizeRatio);
+  size = Math.max(30, Math.min(200, size));
+  let imgTop = lodash.random(minTop, Math.max(minTop, imgSize.height - size - limitTop));
+  let imgLeft = lodash.random(minLeft, Math.max(minLeft, imgSize.width - size - limitLeft));
   let imgColor = colors[lodash.random(0, colors.length - 1)];
   let props = {
     src: `file:///${imgSrc}`,
@@ -506,6 +511,11 @@ if (flag) {
   controlEl.style.left =  imgLeft + "px";
   controlEl.style.width =  size + "px";
   controlEl.style.height =  size + "px";
+  // 炼狱模式：题目图 img 旋转后，答案高亮框需以图片中心为原点反向旋转，与题图实际显示区域对齐
+  if (purgatoryMode && rotate !== 0) {
+    controlEl.style.transformOrigin = (imgWidth / 2 - imgLeft) + "px " + (imgHeight / 2 - imgTop) + "px";
+    controlEl.style.transform = 'rotate(' + (-rotate) + 'deg)';
+  }
   // 答案图不需要校验，直接标记完成
   document.getElementById('guess-ready').style.display = 'block';
 }
@@ -579,18 +589,14 @@ export async function starguessAvatar(e) {
   let hellMode = e.msg.includes('地狱');
   let purgatoryMode = e.msg.includes('炼狱');
   let normalMode = (!hardMode && !hellMode && !purgatoryMode);
-  let size, helpText;
+  let helpText;
   if (hardMode) {
-    size = lodash.random(80, 90);
     helpText = '%s\n在『困难模式』下，发送的图片将会变成黑白色。';
   } else if (hellMode) {
-    size = lodash.random(70, 80);
     helpText = '%s\n在『地狱模式』下，发送的图片将会变成反色。';
   } else if (purgatoryMode) {
-    size = lodash.random(70, 80);
     helpText = '%s\n在『炼狱模式』下，发送的图片将会变成反色并随机旋转。';
   } else {
-    size = lodash.random(80, 120);
     helpText = '%s';
   }
   helpText = helpText.replace('%s', `即将发送一张『随机角色』的『随机一角』，${GAME_TIME_OUT}秒之后揭晓答案！\n回答格式：#我猜[角色名]`);
@@ -623,8 +629,17 @@ export async function starguessAvatar(e) {
     limitLeft = 30;
   }
   let imgSize = sizeOf(imgSrc);
-  let imgTop = lodash.random(minTop, imgSize.height - size - limitTop);
-  let imgLeft = lodash.random(minLeft, imgSize.width - size - limitLeft);
+  // 裁切框按图片短边比例动态计算：普通最大、困难次之、地狱炼狱更小，并限制上下限避免太小或几乎全图
+  let shortSide = Math.min(imgSize.width, imgSize.height);
+  let sizeRatio;
+  if (hardMode) sizeRatio = lodash.random(0.20, 0.30);
+  else if (hellMode) sizeRatio = lodash.random(0.16, 0.26);
+  else if (purgatoryMode) sizeRatio = lodash.random(0.14, 0.24);
+  else sizeRatio = lodash.random(0.25, 0.35);
+  let size = Math.round(shortSide * sizeRatio);
+  size = Math.max(30, Math.min(200, size));
+  let imgTop = lodash.random(minTop, Math.max(minTop, imgSize.height - size - limitTop));
+  let imgLeft = lodash.random(minLeft, Math.max(minLeft, imgSize.width - size - limitLeft));
   let imgColor = colors[lodash.random(0, colors.length - 1)];
   let props = {
     src: `file:///${imgSrc}`,
@@ -692,18 +707,14 @@ export async function starguessAvatarCheck(e) {
   let hellMode = e.msg.includes('地狱');
   let purgatoryMode = e.msg.includes('炼狱');
   let normalMode = (!hardMode && !hellMode && !purgatoryMode);
-  let size, helpText;
+  let helpText;
   if (hardMode) {
-    size = lodash.random(80, 90);
     helpText = '%s\n在『困难模式』下，发送的图片将会变成黑白色。';
   } else if (hellMode) {
-    size = lodash.random(70, 80);
     helpText = '%s\n在『地狱模式』下，发送的图片将会变成反色。';
   } else if (purgatoryMode) {
-    size = lodash.random(70, 80);
     helpText = '%s\n在『炼狱模式』下，发送的图片将会变成反色并随机旋转。';
   } else {
-    size = lodash.random(80, 120);
     helpText = '%s';
   }
   helpText = helpText.replace('%s', `即将发送一张『随机角色』的『随机一角』，${GAME_TIME_OUT}秒之后揭晓答案！\n回答格式：#我猜[角色名]`);
@@ -743,8 +754,17 @@ export async function starguessAvatarCheck(e) {
     limitLeft = 30;
   }
   let imgSize = sizeOf(imgSrc);
-  let imgTop = lodash.random(minTop, imgSize.height - size - limitTop);
-  let imgLeft = lodash.random(minLeft, imgSize.width - size - limitLeft);
+  // 裁切框按图片短边比例动态计算：普通最大、困难次之、地狱炼狱更小，并限制上下限避免太小或几乎全图
+  let shortSide = Math.min(imgSize.width, imgSize.height);
+  let sizeRatio;
+  if (hardMode) sizeRatio = lodash.random(0.20, 0.30);
+  else if (hellMode) sizeRatio = lodash.random(0.16, 0.26);
+  else if (purgatoryMode) sizeRatio = lodash.random(0.14, 0.24);
+  else sizeRatio = lodash.random(0.25, 0.35);
+  let size = Math.round(shortSide * sizeRatio);
+  size = Math.max(30, Math.min(200, size));
+  let imgTop = lodash.random(minTop, Math.max(minTop, imgSize.height - size - limitTop));
+  let imgLeft = lodash.random(minLeft, Math.max(minLeft, imgSize.width - size - limitLeft));
   let imgColor = colors[lodash.random(0, colors.length - 1)];
   let props = {
     src: `file:///${imgSrc}`,
@@ -811,18 +831,14 @@ export async function wwguessAvatar(e) {
   let hellMode = e.msg.includes('地狱');
   let purgatoryMode = e.msg.includes('炼狱');
   let normalMode = (!hardMode && !hellMode && !purgatoryMode);
-  let size, helpText;
+  let helpText;
   if (hardMode) {
-    size = lodash.random(80, 90);
     helpText = '%s\n在『困难模式』下，发送的图片将会变成黑白色。';
   } else if (hellMode) {
-    size = lodash.random(70, 80);
     helpText = '%s\n在『地狱模式』下，发送的图片将会变成反色。';
   } else if (purgatoryMode) {
-    size = lodash.random(70, 80);
     helpText = '%s\n在『炼狱模式』下，发送的图片将会变成反色并随机旋转。';
   } else {
-    size = lodash.random(80, 120);
     helpText = '%s';
   }
   helpText = helpText.replace('%s', `即将发送一张『随机角色』的『随机一角』，${GAME_TIME_OUT}秒之后揭晓答案！\n回答格式：~我猜[角色名]`);
@@ -866,8 +882,17 @@ export async function wwguessAvatar(e) {
     limitLeft = 30;
   }
   let imgSize = sizeOf(imgSrc);
-  let imgTop = lodash.random(minTop, imgSize.height - size - limitTop);
-  let imgLeft = lodash.random(minLeft, imgSize.width - size - limitLeft);
+  // 裁切框按图片短边比例动态计算：普通最大、困难次之、地狱炼狱更小，并限制上下限避免太小或几乎全图
+  let shortSide = Math.min(imgSize.width, imgSize.height);
+  let sizeRatio;
+  if (hardMode) sizeRatio = lodash.random(0.20, 0.30);
+  else if (hellMode) sizeRatio = lodash.random(0.16, 0.26);
+  else if (purgatoryMode) sizeRatio = lodash.random(0.14, 0.24);
+  else sizeRatio = lodash.random(0.25, 0.35);
+  let size = Math.round(shortSide * sizeRatio);
+  size = Math.max(30, Math.min(200, size));
+  let imgTop = lodash.random(minTop, Math.max(minTop, imgSize.height - size - limitTop));
+  let imgLeft = lodash.random(minLeft, Math.max(minLeft, imgSize.width - size - limitLeft));
   let imgColor = colors[lodash.random(0, colors.length - 1)];
   let props = {
     src: `file:///${imgSrc}`,
@@ -935,18 +960,14 @@ export async function nteguessAvatar(e) {
   let hellMode = e.msg.includes('地狱');
   let purgatoryMode = e.msg.includes('炼狱');
   let normalMode = (!hardMode && !hellMode && !purgatoryMode);
-  let size, helpText;
+  let helpText;
   if (hardMode) {
-    size = lodash.random(80, 90);
     helpText = '%s\n在『困难模式』下，发送的图片将会变成黑白色。';
   } else if (hellMode) {
-    size = lodash.random(70, 80);
     helpText = '%s\n在『地狱模式』下，发送的图片将会变成反色。';
   } else if (purgatoryMode) {
-    size = lodash.random(70, 80);
     helpText = '%s\n在『炼狱模式』下，发送的图片将会变成反色并随机旋转。';
   } else {
-    size = lodash.random(80, 120);
     helpText = '%s';
   }
   helpText = helpText.replace('%s', `即将发送一张『随机角色』的『随机一角』，${GAME_TIME_OUT}秒之后揭晓答案！\n回答格式：#我猜[角色名]`);
@@ -985,8 +1006,17 @@ export async function nteguessAvatar(e) {
   minLeft = 30;
   limitLeft = 30;
   let imgSize = sizeOf(imgSrc);
-  let imgTop = lodash.random(minTop, imgSize.height - size - limitTop);
-  let imgLeft = lodash.random(minLeft, imgSize.width - size - limitLeft);
+  // 裁切框按图片短边比例动态计算：普通最大、困难次之、地狱炼狱更小，并限制上下限避免太小或几乎全图
+  let shortSide = Math.min(imgSize.width, imgSize.height);
+  let sizeRatio;
+  if (hardMode) sizeRatio = lodash.random(0.20, 0.30);
+  else if (hellMode) sizeRatio = lodash.random(0.16, 0.26);
+  else if (purgatoryMode) sizeRatio = lodash.random(0.14, 0.24);
+  else sizeRatio = lodash.random(0.25, 0.35);
+  let size = Math.round(shortSide * sizeRatio);
+  size = Math.max(30, Math.min(200, size));
+  let imgTop = lodash.random(minTop, Math.max(minTop, imgSize.height - size - limitTop));
+  let imgLeft = lodash.random(minLeft, Math.max(minLeft, imgSize.width - size - limitLeft));
   let imgColor = colors[lodash.random(0, colors.length - 1)];
   let props = {
     src: `file:///${imgSrc}`,
