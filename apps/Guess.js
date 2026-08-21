@@ -5,6 +5,7 @@ import lodash from 'lodash';
 import fetch from "node-fetch";
 import sizeOf from 'image-size';
 import { roleIdToName, starroleIdToName, zzzroleIdToName, nteroleIdToName, wwroleIdToName } from "../components/mysInfo.js";
+import { roleId as roleIdData, starroleId as starroleIdData, zzzroleId as zzzroleIdData, nteroleId as nteroleIdData, wwroleId as wwroleIdData } from "../config/roleId.js";
 import { getPluginRender, browserInit } from '../model/render.js';
 import template from "art-template";
 import { Data } from "#liulian";
@@ -12,6 +13,13 @@ import config from "../model/config/config.js"
 const GAME_TIME_OUT = 30//游戏时长(秒)
 const _path = process.cwd();
 let music = [14160207525]; //这里改网易云的歌单
+// 出题解析辅助：按条目首位（官方名）精确匹配 ID，图片名=官方名=首位强对应，不走会被覆盖的全局别名表
+function findOfficialId(map, name) {
+  for (const [id, names] of Object.entries(map)) {
+    if (names[0] === name) return id;
+  }
+  return '';
+}
 // 上传音频文件
 export async function uploadRecord(url) {
   try {
@@ -221,8 +229,15 @@ export async function guessAvatar(e) {
   let imgPath = imgPaths[lodash.random(0, imgPaths.length - 1)];
   fs.readdirSync(imgPath).filter(ffn).forEach(n => fileNames.push(n));
   let fileName = fileNames[Math.round(Math.random() * (fileNames.length - 1))];
-  let roleName = fileName.replace(/\..+$/, '').replace(/\d/g, '');
-  let roleId = roleIdToName(roleName);
+  let roleName = fileName.replace(/\.[^.]+$/, '');
+  let roleId = findOfficialId(roleIdData, roleName) || roleIdToName(roleName);
+  if (!roleId) {
+    let stripped = roleName.replace(/\d+$/, '');
+    if (stripped !== roleName) {
+      roleId = findOfficialId(roleIdData, stripped) || roleIdToName(stripped);
+      if (roleId) roleName = stripped;
+    }
+  }
   // 清空其他游戏残留ID，设置当前游戏类型，避免不同游戏状态混淆
   guessConfig.starroleId = '';
   guessConfig.zzzroleId = '';
@@ -295,8 +310,7 @@ export async function guessAvatarCheck(e) {
   // 只处理原神猜角色，避免与其他游戏状态混淆
   if (playing && gameType === 'genshin' && roleId && e.msg) {
     let answer = e.msg.replace(/^#?我猜/, '').trim();
-    let id = roleIdToName(answer);
-    if (roleId === id) {
+    if (roleIdData[roleId] && roleIdData[roleId].includes(answer)) {
       await replayAnswer(e, ['恭喜你答对了！'], guessConfig, true);
       if (normalMode && lodash.random(0, 100) <= 8) {
         e.reply('如果感觉太简单了的话，可以对我说“#猜角色困难模式”或者“#猜角色地狱模式”哦！');
@@ -610,11 +624,11 @@ export async function starguessAvatar(e) {
   let fileName = fileNames[Math.round(Math.random() * (fileNames.length - 1))];
   // 只去扩展名，保留带点号/数字的角色名（如「银狼LV.999」），查不到再去末尾数字后缀重试
   let roleName = fileName.replace(/\.[^.]+$/, '');
-  let roleId = starroleIdToName(roleName);
+  let roleId = findOfficialId(starroleIdData, roleName) || starroleIdToName(roleName);
   if (!roleId) {
     let stripped = roleName.replace(/\d+$/, '');
     if (stripped !== roleName) {
-      roleId = starroleIdToName(stripped);
+      roleId = findOfficialId(starroleIdData, stripped) || starroleIdToName(stripped);
       if (roleId) roleName = stripped;
     }
   }
@@ -690,8 +704,7 @@ export async function starguessAvatarCheck(e) {
   // 只处理星铁猜角色，避免与其他游戏状态混淆
   if (playing && gameType === 'star' && starroleId && e.msg) {
     let answer = e.msg.replace(/^#?我猜/, '').trim();
-    let id = starroleIdToName(answer);
-    if (starroleId === id) {
+    if (starroleIdData[starroleId] && starroleIdData[starroleId].includes(answer)) {
       await replayAnswer(e, ['恭喜你答对了！'], guessConfig, true);
       if (normalMode && lodash.random(0, 100) <= 8) {
         e.reply('如果感觉太简单了的话，可以对我说“#星铁猜角色困难模式”或者“#星铁猜角色地狱模式”哦！');
@@ -734,12 +747,12 @@ export async function starguessAvatarCheck(e) {
   let fileName = fileNames[Math.round(Math.random() * (fileNames.length - 1))];
   // 绝区零角色名本身可能带数字（如「11号」「零号·安比」），不能删数字
   // 只去扩展名，查不到再去末尾数字后缀重试（如「简01」→「简」）
-  let roleName = fileName.replace(/\..+$/, '');
-  let roleId = zzzroleIdToName(roleName);
+  let roleName = fileName.replace(/\.[^.]+$/, '');
+  let roleId = findOfficialId(zzzroleIdData, roleName) || zzzroleIdToName(roleName);
   if (!roleId) {
     let stripped = roleName.replace(/\d+$/, '');
     if (stripped !== roleName) {
-      roleId = zzzroleIdToName(stripped);
+      roleId = findOfficialId(zzzroleIdData, stripped) || zzzroleIdToName(stripped);
       if (roleId) roleName = stripped;
     }
   }
@@ -815,8 +828,7 @@ export async function zzzguessAvatarCheck(e) {
   // 只处理绝区零猜角色，避免与其他游戏状态混淆
   if (playing && gameType === 'zzz' && zzzroleId && e.msg) {
     let answer = e.msg.replace(/^#?我猜/, '').trim();
-    let id = zzzroleIdToName(answer);
-    if (zzzroleId === id) {
+    if (zzzroleIdData[zzzroleId] && zzzroleIdData[zzzroleId].includes(answer)) {
       await replayAnswer(e, ['恭喜你答对了！'], guessConfig, true);
       if (normalMode && lodash.random(0, 100) <= 8) {
         e.reply('如果感觉太简单了的话，可以对我说“#绝区零猜角色困难模式”或者“#绝区零猜角色地狱模式”哦！');
@@ -860,12 +872,12 @@ export async function wwguessAvatar(e) {
   let fileName = fileNames[Math.round(Math.random() * (fileNames.length - 1))];
   // 鸣潮角色名可能带数字（如「漂泊者·湮灭」），不能删数字
   // 只去扩展名，查不到再去末尾数字后缀重试（如「椿01」→「椿」）
-  let roleName = fileName.replace(/\..+$/, '');
-  let roleId = wwroleIdToName(roleName);
+  let roleName = fileName.replace(/\.[^.]+$/, '');
+  let roleId = findOfficialId(wwroleIdData, roleName) || wwroleIdToName(roleName);
   if (!roleId) {
     let stripped = roleName.replace(/\d+$/, '');
     if (stripped !== roleName) {
-      roleId = wwroleIdToName(stripped);
+      roleId = findOfficialId(wwroleIdData, stripped) || wwroleIdToName(stripped);
       if (roleId) roleName = stripped;
     }
   }
@@ -944,8 +956,7 @@ export async function wwguessAvatarCheck(e) {
   // 只处理鸣潮猜角色，避免与其他游戏状态混淆
   if (playing && gameType === 'ww' && wwroleId && e.msg) {
     let answer = e.msg.replace(/^[~#]?我猜/, '').trim();
-    let id = wwroleIdToName(answer);
-    if (wwroleId === id) {
+    if (wwroleIdData[wwroleId] && wwroleIdData[wwroleId].includes(answer)) {
       await replayAnswer(e, ['恭喜你答对了！'], guessConfig, true);
       if (normalMode && lodash.random(0, 100) <= 8) {
         e.reply('如果感觉太简单了的话，可以对我说“~猜角色困难模式”或者“~猜角色地狱模式”哦！');
@@ -988,12 +999,12 @@ export async function nteguessAvatar(e) {
   let fileName = fileNames[Math.round(Math.random() * (fileNames.length - 1))];
   // 异环角色名可能带数字（如「11号」），不能删数字
   // 只去扩展名，查不到再去末尾数字后缀重试（如「零01」→「零」）
-  let roleName = fileName.replace(/\..+$/, '');
-  let roleId = nteroleIdToName(roleName);
+  let roleName = fileName.replace(/\.[^.]+$/, '');
+  let roleId = findOfficialId(nteroleIdData, roleName) || nteroleIdToName(roleName);
   if (!roleId) {
     let stripped = roleName.replace(/\d+$/, '');
     if (stripped !== roleName) {
-      roleId = nteroleIdToName(stripped);
+      roleId = findOfficialId(nteroleIdData, stripped) || nteroleIdToName(stripped);
       if (roleId) roleName = stripped;
     }
   }
@@ -1068,8 +1079,7 @@ export async function nteguessAvatarCheck(e) {
   // 只处理异环猜角色，避免与其他游戏状态混淆
   if (playing && gameType === 'nte' && nteroleId && e.msg) {
     let answer = e.msg.replace(/^#?我猜/, '').trim();
-    let id = nteroleIdToName(answer);
-    if (nteroleId === id) {
+    if (nteroleIdData[nteroleId] && nteroleIdData[nteroleId].includes(answer)) {
       await replayAnswer(e, ['恭喜你答对了！'], guessConfig, true);
       if (normalMode && lodash.random(0, 100) <= 8) {
         e.reply('如果感觉太简单了的话，可以对我说“#异环猜角色困难模式”或者“#异环猜角色地狱模式”哦！');
