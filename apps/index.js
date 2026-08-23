@@ -1555,7 +1555,7 @@ class LiulianV3 extends plugin {
         rules.push({
           reg: cfg.reg,
           fnc: key,
-          priority: cfg.priority || 5000
+          priority: cfg.priority ?? 5000
         })
         
         // 如果有 check 字段，添加到 checkList
