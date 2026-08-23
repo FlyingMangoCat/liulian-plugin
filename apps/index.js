@@ -1557,14 +1557,14 @@ class LiulianV3 extends plugin {
           fnc: key,
           priority: cfg.priority ?? 5000
         })
-        
-        // 如果有 check 字段，添加到 checkList
-        if (cfg.check) {
-          checkList.push({
-            key: key,
-            check: cfg.check
-          })
-        }
+      }
+      
+      // 有 check 字段的规则（包括 reg 为空的）通过 accept 机制触发
+      if (cfg.check) {
+        checkList.push({
+          key: key,
+          check: cfg.check
+        })
       }
     }
     
