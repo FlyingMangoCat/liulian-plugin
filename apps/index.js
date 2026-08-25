@@ -1568,6 +1568,12 @@ class LiulianV3 extends plugin {
       }
     }
     
+    // 闭嘴相关规则前置，确保闭嘴判断优先于所有命令执行
+    const shutKeys = ['toShutUp', 'determineIfYouShutUp', 'openYourMouth']
+    const shutRules = rules.filter(r => shutKeys.includes(r.fnc))
+    const otherRules = rules.filter(r => !shutKeys.includes(r.fnc))
+    rules = [...shutRules, ...otherRules]
+    
     super({
       name: 'liulian-plugin',
       desc: '榴莲插件',
@@ -1582,15 +1588,6 @@ class LiulianV3 extends plugin {
   
   // 接受方法，执行所有 check 函数
   async accept(e) {
-    // 闭嘴状态下拦截所有消息（优先于规则匹配执行）
-    try {
-      if (!/#(闭嘴|自爆)/.test(e.msg) && !/#(张嘴|色色|复活)/.test(e.msg) && e.isGroup && (await redis.get(`Yunzai:ShutUp${e.group_id}`))) {
-        return "return"
-      }
-    } catch (error) {
-      console.error('[闭嘴判断] Redis操作失败:', error)
-    }
-    
     if (!this.checkList || this.checkList.length === 0) {
       return false
     }
