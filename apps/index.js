@@ -1581,7 +1581,16 @@ class LiulianV3 extends plugin {
   }
   
   // 接受方法，执行所有 check 函数
-  accept(e) {
+  async accept(e) {
+    // 闭嘴状态下拦截所有消息（优先于规则匹配执行）
+    try {
+      if (!/#闭嘴/.test(e.msg) && !/#张嘴/.test(e.msg) && e.isGroup && (await redis.get(`Yunzai:ShutUp${e.group_id}`))) {
+        return "return"
+      }
+    } catch (error) {
+      console.error('[闭嘴判断] Redis操作失败:', error)
+    }
+    
     if (!this.checkList || this.checkList.length === 0) {
       return false
     }
