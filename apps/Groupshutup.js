@@ -55,7 +55,7 @@ let limit=Cfg.get('sys.limit');
 }
 export async function determineIfYouShutUp(e) {
   try {
-    if (!/#闭嘴/.test(e.msg) && !/#张嘴/.test(e.msg) && e.isGroup && (await redis.get(`Yunzai:ShutUp${e.group_id}`))) {
+    if (!/#(闭嘴|自爆)/.test(e.msg) && !/#(张嘴|色色|复活)/.test(e.msg) && e.isGroup && (await redis.get(`Yunzai:ShutUp${e.group_id}`))) {
       return true;
     }
   } catch (error) {

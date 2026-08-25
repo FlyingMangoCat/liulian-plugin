@@ -1584,7 +1584,7 @@ class LiulianV3 extends plugin {
   async accept(e) {
     // 闭嘴状态下拦截所有消息（优先于规则匹配执行）
     try {
-      if (!/#闭嘴/.test(e.msg) && !/#张嘴/.test(e.msg) && e.isGroup && (await redis.get(`Yunzai:ShutUp${e.group_id}`))) {
+      if (!/#(闭嘴|自爆)/.test(e.msg) && !/#(张嘴|色色|复活)/.test(e.msg) && e.isGroup && (await redis.get(`Yunzai:ShutUp${e.group_id}`))) {
         return "return"
       }
     } catch (error) {
