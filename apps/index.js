@@ -351,7 +351,7 @@ export {
     liulian_status,
 }
 
-const cfg = config.getdefault_config('liulian', 'botname', 'config');
+const cfg = config.getconfig('liulian', 'botname', 'config');
   const botname = cfg.botname
 
 // 检查 AI 服务是否启用，只有启用时才注册 AI 相关规则

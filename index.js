@@ -14,7 +14,7 @@ if (isV3) {
 
 export const liulian = index.liulian || {}
 
-const plugininfo_default = config.getdefault_config('liulian', 'plugininfo')
+const plugininfo_default = config.getconfig('liulian', 'plugininfo')
 
 await redis.set('Yz:liulian:config:pluginname', plugininfo_default.pluginname)
 await redis.set('Yz:liulian:config:version', plugininfo_default.version)

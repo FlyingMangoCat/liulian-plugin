@@ -138,7 +138,7 @@ export const rule = {
 
 // 全网热搜榜
 export async function hotSearch(e) {
-  const cfg = config.getdefault_config('liulian', 'token', 'config');
+  const cfg = config.getconfig('liulian', 'token', 'config');
   const apikeys = cfg?.apikeys || {};
   const apikey = apikeys.resou_apikey || '';
   
@@ -607,7 +607,7 @@ export async function rejectApplication(e) {
 
 // 生成热搜词云图
 export async function hotWordCloud(e, { render }) {
-  const hotConfig = config.getdefault_config('liulian', 'hot', 'config');
+  const hotConfig = config.getconfig('liulian', 'hot', 'config');
   if (!hotConfig.charts.wordcloud_enabled) {
     e.reply('⚠️ 词云图功能未启用');
     return true;
@@ -665,7 +665,7 @@ export async function hotTrendChart(e, { render }) {
     'sspai': 'sspai',
   };
 
-  const hotConfig = config.getdefault_config('liulian', 'hot', 'config');
+  const hotConfig = config.getconfig('liulian', 'hot', 'config');
   if (!hotConfig.charts.wordcloud_enabled) {
     e.reply('⚠️ 趋势图功能未启用');
     return true;
@@ -746,7 +746,7 @@ export async function hotUpdate(e) {
 
   for (let platform of platforms) {
     try {
-      const apikey = config.getdefault_config('liulian', 'hot', 'apikey') || '';
+      const apikey = config.getconfig('liulian', 'hot', 'apikey') || '';
       const url = `https://api.oick.cn/api/hot?type=${platform}&apikey=${apikey}`;
       
       let response = await fetch(url);

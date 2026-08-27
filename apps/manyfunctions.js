@@ -8,7 +8,7 @@ import config from "../model/config/config.js"
 
 // 安全获取segment对象
 const segment = global.segment || global.Bot?.segment || {}
-const cfg = config.getdefault_config('liulian', 'botname', 'config');
+const cfg = config.getconfig('liulian', 'botname', 'config');
   const botname = cfg.botname
 let godeye = true;
 let headPortrait = true;
@@ -136,7 +136,7 @@ export async function joke(e) {
   return true; //返回true 阻挡消息不再往下
 }
 export async function dog(e) {
-  const cfg = config.getdefault_config('liulian', 'token', 'config');
+  const cfg = config.getconfig('liulian', 'token', 'config');
   const apikeys = cfg.apikeys;
   const apikey = apikeys.dog_apikey || '';
   
@@ -153,7 +153,7 @@ export async function dog(e) {
 }
 
 export async function holiday(e) {
-  const cfg = config.getdefault_config('liulian', 'token', 'config');
+  const cfg = config.getconfig('liulian', 'token', 'config');
   const token = cfg.token
   
   // 获取年份参数
@@ -246,7 +246,7 @@ export async function weather(e) {
   let keyword = e.msg.replace("#","");
   keyword = keyword.replace("天气","");
   console.log(keyword);
-   const cfg = config.getdefault_config('liulian', 'token', 'config');
+   const cfg = config.getconfig('liulian', 'token', 'config');
   const token = cfg.token
   let url = `https://v3.alapi.cn/api/tianqi`;
   
@@ -291,7 +291,7 @@ if (res.code == 429) {
   }
 
 export async function 早报(e) {
-const cfg = config.getdefault_config('liulian', 'token', 'config');
+const cfg = config.getconfig('liulian', 'token', 'config');
   const token = cfg.token
   
   // 使用v3 POST接口
@@ -492,7 +492,7 @@ else  if(keyword == `射手` || keyword == `射手座` ){
 export async function headPortraitFUN(e) {
   if (!e.isGroup || !headPortrait) return false;
 
-  const cfg = config.getdefault_config('liulian', 'token', 'config');
+  const cfg = config.getconfig('liulian', 'token', 'config');
   const apikeys = cfg.apikeys;
   const apikey = apikeys.qq头像_apikey || '';
 

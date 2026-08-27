@@ -1084,7 +1084,7 @@ export async function miyu(e) {
     return true;
   }
   
-  const cfg = config.getdefault_config('liulian', 'token', 'config');
+  const cfg = config.getconfig('liulian', 'token', 'config');
   const apikeys = cfg.apikeys;
   const apikey = apikeys.miyu_apikey || '';
   

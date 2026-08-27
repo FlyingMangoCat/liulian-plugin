@@ -23,7 +23,7 @@ export async function 骚扰电话(e) {
   }
   
   // 获取API密钥
-  const cfg = config.getdefault_config('liulian', 'token', 'config');
+  const cfg = config.getconfig('liulian', 'token', 'config');
   const apikeys = cfg.apikeys;
   const apikey = apikeys.骚扰电话_apikey || '';
   

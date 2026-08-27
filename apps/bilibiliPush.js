@@ -24,7 +24,7 @@ async function getCookieValue(cookieName) {
 }
 
 const _path = process.cwd();
-const cfg = config.getdefault_config('liulian', 'botname', 'config');
+const cfg = config.getconfig('liulian', 'botname', 'config');
 const botname = cfg.botname
 
 if (!fs.existsSync(`${_path}/data/PushNews/`)) {
@@ -1783,7 +1783,7 @@ function getSendType(info) {
 
 // B站推送拦截关键词
 function contentFilter(inContent) {
-   const cfg = config.getdefault_config('bilibiliPush', 'bilibiliPushFilter', 'config');
+   const cfg = config.getconfig('bilibiliPush', 'bilibiliPushFilter', 'config');
   for (const keyword of cfg.FilterKeyword) {
     if (RegExp(keyword).exec(inContent)) {
       Bot.logger?.mark(`[liulian-plugin]B站动态推送拦截关键词: ${keyword}`);

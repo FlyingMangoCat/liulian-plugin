@@ -4,7 +4,7 @@ import config from "../model/config/config.js"
 // 通用的翻译函数，可以被其他模块调用
 export async function translateText(text) {
   try {
-    const cfg = config.getdefault_config('liulian', 'token', 'config');
+    const cfg = config.getconfig('liulian', 'token', 'config');
     const apikeys = cfg.apikeys;
     const apikey = apikeys.fanyi_apikey || '';
     
@@ -87,7 +87,7 @@ export async function base64jiami(e) {
     return true;
   }
 
-  const cfg = config.getdefault_config('liulian', 'token', 'config');
+  const cfg = config.getconfig('liulian', 'token', 'config');
   const apikeys = cfg.apikeys;
   const apikey = apikeys.base64_apikey || '';
 
@@ -116,7 +116,7 @@ export async function base64jiemi(e) {
     return true;
   }
 
-  const cfg = config.getdefault_config('liulian', 'token', 'config');
+  const cfg = config.getconfig('liulian', 'token', 'config');
   const apikeys = cfg.apikeys;
   const apikey = apikeys.base64_apikey || '';
 
@@ -153,7 +153,7 @@ export async function wyyjx(e) {
     songId = match[1];
   }
 
-  const cfg = config.getdefault_config('liulian', 'token', 'config');
+  const cfg = config.getconfig('liulian', 'token', 'config');
   const apikeys = cfg.apikeys;
   const apikey = apikeys.网易云_apikey || '';
 
@@ -180,7 +180,7 @@ export async function wyyauto(e) {
   if (!match) return false;
 
   const songId = match[1];
-  const cfg = config.getdefault_config('liulian', 'token', 'config');
+  const cfg = config.getconfig('liulian', 'token', 'config');
   const apikeys = cfg.apikeys;
   const apikey = apikeys.网易云_apikey || '';
 
@@ -216,7 +216,7 @@ export async function qrcode(e) {
     text = text.replace(/\s*\d+px$/, '').trim();
   }
 
-  const cfg = config.getdefault_config('liulian', 'token', 'config');
+  const cfg = config.getconfig('liulian', 'token', 'config');
   const apikeys = cfg.apikeys;
   const apikey = apikeys.qrcode_apikey || '';
 

@@ -30,8 +30,6 @@ class config {
         /** 读取默认配置模块文件夹 */
         const defCfgfiles = fs.readdirSync(this.defCfgPath)
         for (let defCfgfile of defCfgfiles) {
-            if (defCfgfile === 'liulian')
-                continue
             let path = `${this.configPath}${defCfgfile}`
             let defaultpath = `${this.defCfgPath}${defCfgfile}`
             /** 检查模块文件夹是否存在，不存在则创建 */
@@ -54,7 +52,11 @@ class config {
      * @param name 配置文件名称
      */
     getconfig(app, name) {
-        return this.getYaml(app, name, 'config')
+        let file = this.getFilePath(app, name, 'config')
+        if (fs.existsSync(file)) {
+            return this.getYaml(app, name, 'config')
+        }
+        return this.getdefault_config(app, name)
     }
 
     /** 

@@ -1,6 +1,6 @@
 import { Cfg } from '#liulian'
 import config from "../model/config/config.js"
-const cfg = config.getdefault_config('liulian', 'botname', 'config');
+const cfg = config.getconfig('liulian', 'botname', 'config');
   const botname = cfg.botname
 const _path = process.cwd();
 

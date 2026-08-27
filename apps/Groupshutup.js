@@ -1,6 +1,6 @@
 import config from "../model/config/config.js"
 import { Cfg } from '#liulian'
-const cfg = config.getdefault_config('liulian', 'botname', 'config');
+const cfg = config.getconfig('liulian', 'botname', 'config');
   const botname = cfg.botname
 
 export const rule = {

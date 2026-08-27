@@ -46,7 +46,7 @@ export const rule = {
 
 // 翻译函数
 async function translate(text) {
-  const cfg = config.getdefault_config('liulian', 'token', 'config');
+  const cfg = config.getconfig('liulian', 'token', 'config');
   const apikeys = cfg.apikeys;
   const apikey = apikeys.fanyi_apikey || '';
   
@@ -71,7 +71,7 @@ export async function dailyword(e) {
     return true;
   }
   
-  const cfg = config.getdefault_config('liulian', 'token', 'config');
+  const cfg = config.getconfig('liulian', 'token', 'config');
   const apikeys = cfg.apikeys;
   const apikey = apikeys.english_apikey || '';
   
