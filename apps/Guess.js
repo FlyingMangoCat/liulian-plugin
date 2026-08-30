@@ -8,11 +8,11 @@ import { roleIdToName, starroleIdToName, zzzroleIdToName, nteroleIdToName, wwrol
 import { roleId as roleIdData, starroleId as starroleIdData, zzzroleId as zzzroleIdData, nteroleId as nteroleIdData, wwroleId as wwroleIdData } from "../config/roleId.js";
 import { getPluginRender, browserInit } from '../model/render.js';
 import template from "art-template";
-import { Data } from "#liulian";
+import { Data, Cfg } from "#liulian";
 import config from "../model/config/config.js"
 const GAME_TIME_OUT = 30//游戏时长(秒)
 const _path = process.cwd();
-let music = [14160207525]; //这里改网易云的歌单
+let music = Cfg.get('sys.musicList'); //这里改网易云的歌单
 // 出题解析辅助：按条目首位（官方名）精确匹配 ID，图片名=官方名=首位强对应，不走会被覆盖的全局别名表
 function findOfficialId(map, name) {
   for (const [id, names] of Object.entries(map)) {

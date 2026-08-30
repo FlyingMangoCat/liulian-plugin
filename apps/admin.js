@@ -21,6 +21,7 @@ let cfgMap = {
   群聊闭嘴限制:'sys.limit',
   群聊闭嘴:'sys.shutup',
   购买提示:'sys.aits',
+  网易云歌单:'sys.musicList',
 }
 let aiCfgMap = {
   // 榴莲AI相关配置
@@ -105,11 +106,20 @@ export async function sysCfg (e, { render }) {
 			val= Math.min(2,Math.max(val,0));
 		} else if(cfgKey === "sys.adProbability"){
 			val= Math.min(10,Math.max(val,0));
+		} else if(cfgKey === "sys.musicList"){
+      // 处理网易云歌单，支持逗号分隔的多个歌单ID，空值不修改保持原配置
+      if (val.includes(',')) {
+        val = val.split(',').map(id => id.trim()).filter(id => id);
+      } else if (val) {
+        val = [val.trim()];
+      } else {
+        val = null;
+      }
 		} else {
       val = !/关闭/.test(val)
     }
 
-    if (cfgKey) {
+    if (cfgKey && val !== null) {
       Cfg.set(cfgKey, val);
     }
   }
@@ -132,6 +142,7 @@ export async function sysCfg (e, { render }) {
     limit: Cfg.get('sys.limit', 0),
     shutup: getStatus('sys.shutup', false),
     aits: getStatus('sys.aits', true),
+    musicList: (Cfg.get('sys.musicList') || []).join(','),
   }
 
   // 渲染图像
