@@ -27,6 +27,7 @@ qiuqianFUN } from "./other.js"
 import { rule as adminRule,
 updateRes,
 sysCfg,
+aiCfg,
 updateLiulianPlugin,
 profileCfg,
 cj
@@ -416,6 +417,11 @@ let rule = {
         reg: "^#?(榴莲|留恋)设置(.*)$",
         priority: 1,
         describe: "设置",
+    },
+        aiCfg: {
+        reg: "^#?(榴莲|留恋)(ai|AI|Ai|aI|智能|人工智能)(设置)?.*$",
+        priority: 1,
+        describe: "AI设置",
     },
         versionInfo: {
         reg: '^#?(榴莲|留恋)版本$',
@@ -1606,7 +1612,7 @@ class LiulianV3 extends plugin {
 
 // 将所有导出的函数添加到LiulianV3类中
 const exportedFunctions = {
-    help, maphelp, pluginhelp, tangyuanhelp, sysCfg, 哪个群友是我老婆,
+    help, maphelp, pluginhelp, tangyuanhelp, sysCfg, aiCfg, 哪个群友是我老婆,
     checkIn, randomQA, answerCheck, updateLiulianPlugin,
     JsPlugins, PluginsList, WarehPluginsList, RemovePlugins,
     LoadPlugins, DeletePlugins, HelpMenu, v3JsPlugins,

@@ -20,8 +20,9 @@ let cfgMap = {
   娶群友:'sys.qqy',
   群聊闭嘴限制:'sys.limit',
   群聊闭嘴:'sys.shutup',
-  插件名:'sys.PiuginName',
   购买提示:'sys.aits',
+}
+let aiCfgMap = {
   // 榴莲AI相关配置
   AI服务:'liulian.ai.enabled',
   API地址:'liulian.api.endpoint',
@@ -34,6 +35,7 @@ let cfgMap = {
   云端记忆:'liulian.memory.cloud',
 }
 let sysCfgReg = `^#榴莲设置\\s*(${lodash.keys(cfgMap).join('|')})?\\s*(.*)$`
+let aiCfgReg = `^#?(榴莲|留恋)(ai|AI|Ai|aI|智能|人工智能)\\s*(设置)?\\s*(${lodash.keys(aiCfgMap).join('|')})?\\s*(.*)$`
 export const rule = {
   updateRes: {
     hashMark: true,
@@ -49,6 +51,11 @@ export const rule = {
     hashMark: true,
     reg: sysCfgReg,
     describe: '【#管理】系统设置'
+  },
+  aiCfg: {
+    hashMark: true,
+    reg: aiCfgReg,
+    describe: '【#管理】AI设置'
   },
   profileCfg: {
     hashMark: true,
@@ -67,6 +74,73 @@ const resPath = `${_path}/plugins/liulian-plugin/resources/`
 const imgPath = `${resPath}/liulian-res-plus/`
 
 export async function sysCfg (e, { render }) {
+  if (!e.isMaster) {
+    e.reply('只有主人才能命令榴莲哦~')
+    return true
+  }
+
+  let cfgReg = new RegExp(sysCfgReg)
+  let regRet = cfgReg.exec(e.msg)
+
+  if (!regRet) {
+    return true
+  }
+
+  if (regRet[1]) {
+    // 设置模式
+    let val = regRet[2] || ''
+
+    let cfgKey = cfgMap[regRet[1]]
+    if (cfgKey === 'sys.scale') {
+      val = Math.min(200, Math.max(50, val * 1 || 100))
+    } else if(cfgKey === "sys.wife"){
+			val= Math.min(100,Math.max(val,0));
+		} else if(cfgKey === "sys.gl"){
+			val= Math.min(100,Math.max(val,0));
+		} else if(cfgKey === "sys.expression"){
+			val= Math.min(2,Math.max(val,0));
+		} else if(cfgKey === "sys.limit"){
+			val= Math.min(2,Math.max(val,0));
+		} else if(cfgKey === "sys.PluginName"){
+			val= Math.min(2,Math.max(val,0));
+		} else if(cfgKey === "sys.adProbability"){
+			val= Math.min(10,Math.max(val,0));
+		} else {
+      val = !/关闭/.test(val)
+    }
+
+    if (cfgKey) {
+      Cfg.set(cfgKey, val);
+    }
+  }
+
+  let cfg = {
+    help: getStatus('sys.help', false),
+    bq: getStatus('sys.bq', true),
+    dk: getStatus('sys.dk', true),
+    dw: getStatus('sys.dw', true),
+    qmp: getStatus('sys.qmp', true),
+    wife: Cfg.get('sys.wife', 1),
+    imgPlus: fs.existsSync(imgPath),
+    xx: getStatus('sys.xx', true),
+    forge: getStatus('sys.forge', true),
+    jtm: getStatus('sys.jtm', true),
+    qqy: getStatus('sys.qqy', true),
+    expression: Cfg.get('sys.expression', 1),
+    gl: Cfg.get('sys.gl', 5),
+    scale: Cfg.get('sys.scale', 100),
+    limit: Cfg.get('sys.limit', 0),
+    shutup: getStatus('sys.shutup', false),
+    aits: getStatus('sys.aits', true),
+  }
+
+  // 渲染图像
+  return await Common.render('admin/index', {
+    ...cfg
+  }, { e, render, scale: 1.4 })
+}
+
+export async function aiCfg (e, { render }) {
   const { EnvironmentDetector, sessionManager } = await import('./ai/core/envDetector.js');
 
   if (!e.isMaster) {
@@ -114,37 +188,23 @@ export async function sysCfg (e, { render }) {
     }
   }
 
-  let cfgReg = new RegExp(sysCfgReg)
+  let cfgReg = new RegExp(aiCfgReg)
   let regRet = cfgReg.exec(e.msg)
 
   if (!regRet) {
     return true
   }
 
-  if (regRet[1]) {
+  if (regRet[4]) {
     // 设置模式
-    let val = regRet[2] || ''
+    let val = regRet[5] || ''
 
-    let cfgKey = cfgMap[regRet[1]]
-    if (cfgKey === 'sys.scale') {
-      val = Math.min(200, Math.max(50, val * 1 || 100))
-    } else if(cfgKey === "sys.wife"){
-			val= Math.min(100,Math.max(val,0));
-		} else if(cfgKey === "sys.gl"){
-			val= Math.min(100,Math.max(val,0));
-		} else if(cfgKey === "sys.expression"){
-			val= Math.min(2,Math.max(val,0));
-		} else if(cfgKey === "sys.limit"){
-			val= Math.min(2,Math.max(val,0));
-		} else if(cfgKey === "sys.PluginName"){
-			val= Math.min(2,Math.max(val,0));
-		} else if(cfgKey === "liulian.ai.probability"){
-			val= Math.min(100,Math.max(val,0));
-		} else if(cfgKey === "liulian.ai.reply_length"){
-			val= Math.min(500,Math.max(val,50));
-		} else if(cfgKey === "sys.adProbability"){
-			val= Math.min(10,Math.max(val,0));
-		} else if(cfgKey === "liulian.blacklist.groups"){
+    let cfgKey = aiCfgMap[regRet[4]]
+    if(cfgKey === "liulian.ai.probability"){
+      val= Math.min(100,Math.max(val,0));
+    } else if(cfgKey === "liulian.ai.reply_length"){
+      val= Math.min(500,Math.max(val,50));
+    } else if(cfgKey === "liulian.blacklist.groups"){
       // 处理黑名单群组，支持逗号分隔的多个群号
       if (val.includes(',')) {
         val = val.split(',').map(id => id.trim()).filter(id => id);
@@ -162,7 +222,7 @@ export async function sysCfg (e, { render }) {
       } else {
         val = [];
       }
-		} else {
+    } else {
       val = !/关闭/.test(val)
     }
 
@@ -205,24 +265,6 @@ export async function sysCfg (e, { render }) {
   }
 
   let cfg = {
-    help: getStatus('sys.help', false),
-    bq: getStatus('sys.bq', true),
-    dk: getStatus('sys.dk', true),
-    dw: getStatus('sys.dw', true),
-    qmp: getStatus('sys.qmp', true),
-    wife: Cfg.get('sys.wife', 1),
-    imgPlus: fs.existsSync(imgPath),
-    xx: getStatus('sys.xx', true),
-    forge: getStatus('sys.forge', true),
-    jtm: getStatus('sys.jtm', true),
-    qqy: getStatus('sys.qqy', true),
-    expression: Cfg.get('sys.expression', 1),
-    gl: Cfg.get('sys.gl', 5),
-    scale: Cfg.get('sys.scale', 100),
-    limit: Cfg.get('sys.limit', 0),
-    shutup: getStatus('sys.shutup', false),
-    PluginName: Cfg.get('sys.PluginName', 1),
-    aits: getStatus('sys.aits', true),
     // 榴莲AI配置显示
     aiEnabled: getStatus('liulian.ai.enabled', false),
     apiEndpoint: Cfg.get('liulian.api.endpoint', 'https://api.liulian.ai/v1'),
@@ -238,7 +280,7 @@ export async function sysCfg (e, { render }) {
   }
 
   // 渲染图像
-  return await Common.render('admin/index', {
+  return await Common.render('admin/ai', {
     ...cfg
   }, { e, render, scale: 1.4 })
 }
