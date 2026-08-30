@@ -159,5 +159,9 @@ export const helpList = [{
     icon: 32,
     title: "#榴莲设置",
     desc: "配置榴莲功能"
+  },{
+    icon: 33,
+    title: "#榴莲AI帮助",
+    desc: "配置榴莲AI功能"
   }]
 }];
