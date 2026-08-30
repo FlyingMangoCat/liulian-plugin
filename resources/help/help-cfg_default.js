@@ -157,11 +157,7 @@ export const helpList = [{
     desc: "更新榴莲插件"
   },{   
     icon: 32,
-    title: "#榴莲设置",
-    desc: "配置榴莲功能"
-  },{
-    icon: 33,
-    title: "#榴莲(ai)设置",
-    desc: "#榴莲ai设置设置ai相关功能"
+    title: "#榴莲设置/#榴莲ai设置",
+    desc: "配置榴莲功能/#榴莲ai设置可配置榴莲ai功能"
   }]
 }];
