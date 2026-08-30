@@ -17,7 +17,7 @@
     "limit": 2,
     "PluginName": 1,
     "scale": 100,
-    "musicList": [14160207525],
+    "musicList": [3923881300],
     "ai": {
       "enabled": false,
       "endpoint": "https://api.liulian.ai/v1",
