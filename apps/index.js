@@ -419,7 +419,7 @@ let rule = {
         describe: "设置",
     },
         aiCfg: {
-        reg: "^#?(榴莲|留恋)(ai|AI|Ai|aI|智能|人工智能)(设置)?.*$",
+        reg: "^#?榴莲(ai|AI|Ai|aI|智能|人工智能)(设置)?.*$",
         priority: 1,
         describe: "AI设置",
     },
