@@ -34,7 +34,7 @@ export async function sjclassic(e) {
 
   e.reply(msg,true);
   } catch (err) {
-  e.reply("接口暂时不可用", true);
+  console.log("[经典发言] 接口暂时不可用", err);
   }
   }
 export async function zdclassic(e) {
@@ -51,7 +51,7 @@ let response = await fetch(url);
 
   e.reply(msg,true);
   } catch (err) {
-  e.reply("接口暂时不可用", true);
+  console.log("[经典发言] 接口暂时不可用", err);
   }
   }
 export async function allclassic(e) {
@@ -65,7 +65,7 @@ export async function allclassic(e) {
 
   e.reply(msg,true);
   } catch (err) {
-  e.reply("接口暂时不可用", true);
+  console.log("[经典发言] 接口暂时不可用", err);
   }
   }
 export async function bmclassic(e) {
@@ -82,6 +82,6 @@ let response = await fetch(url);
 
   e.reply(msg,true);
   } catch (err) {
-  e.reply("接口暂时不可用", true);
+  console.log("[经典发言] 接口暂时不可用", err);
   }
   }
