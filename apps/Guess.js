@@ -548,25 +548,47 @@ export async function guessmusic(e) {
     return true;
   }
   let pid = playlists[Math.floor(Math.random() * playlists.length)]
-  let listRes = await(await fetch(`https://music.163.com/api/v6/playlist/detail?id=${pid}`, { headers: { 'User-Agent': 'Mozilla/5.0' } })).json()
-  let allIds = listRes && listRes.playlist && listRes.playlist.trackIds ? listRes.playlist.trackIds.map(t => t.id) : []
-  if (!allIds.length) {
+  let song = null
+  // 主接口取歌
+  try {
+    let listRes = await(await fetch(`https://music.163.com/api/v6/playlist/detail?id=${pid}`, { headers: { 'User-Agent': 'Mozilla/5.0' } })).json()
+    let allIds = listRes && listRes.playlist && listRes.playlist.trackIds ? listRes.playlist.trackIds.map(t => t.id) : []
+    if (allIds.length) {
+      // 批量获取歌单全部歌曲信息
+      let c = JSON.stringify(allIds.map(id => ({ id })))
+      let detailRes = await(await fetch(`https://music.163.com/api/v3/song/detail?c=${encodeURIComponent(c)}`, { headers: { 'User-Agent': 'Mozilla/5.0', 'Referer': 'https://music.163.com' } })).json()
+      let songs = detailRes && detailRes.songs ? detailRes.songs : []
+      if (songs.length) {
+        let track = songs[Math.floor(Math.random() * songs.length)]
+        song = {
+          name: track.name,
+          url: `https://music.163.com/song/media/outer/url?id=${track.id}.mp3`,
+          artist: (track.ar || []).map(a => a.name).join('/')
+        }
+      }
+    }
+  } catch (err) {
+    song = null
+  }
+  // 主接口不可用时，使用备用歌单接口取歌（同样按歌单取歌，不降级功能）
+  if (!song) {
+    try {
+      let backupRes = await(await fetch(`https://api.injahow.cn/meting/?type=playlist&id=${pid}`, { headers: { 'User-Agent': 'Mozilla/5.0' } })).json()
+      if (Array.isArray(backupRes) && backupRes.length) {
+        let track = backupRes[Math.floor(Math.random() * backupRes.length)]
+        song = {
+          name: track.name,
+          url: track.url,
+          artist: track.artist
+        }
+      }
+    } catch (err) {
+      song = null
+    }
+  }
+  if (!song) {
     e.reply('获取歌曲失败，请稍后重试');
     return true;
-  }
-  // 批量获取歌单全部歌曲信息
-  let c = JSON.stringify(allIds.map(id => ({ id })))
-  let detailRes = await(await fetch(`https://music.163.com/api/v3/song/detail?c=${encodeURIComponent(c)}`, { headers: { 'User-Agent': 'Mozilla/5.0', 'Referer': 'https://music.163.com' } })).json()
-  let songs = detailRes && detailRes.songs ? detailRes.songs : []
-  if (!songs.length) {
-    e.reply('获取歌曲失败，请稍后重试');
-    return true;
-  }
-  let track = songs[Math.floor(Math.random() * songs.length)]
-  let song = {
-    name: track.name,
-    url: `https://music.163.com/song/media/outer/url?id=${track.id}.mp3`,
-    artist: (track.ar || []).map(a => a.name).join('/')
   }
    console.log("歌名是:"+song.name);
     e.reply( `游戏开始啦,请听语音猜出歌名！\n游戏区分大小写,猜的歌名必须跟答案一样才算你对噢~\n结束游戏指令【投降】`,true);
