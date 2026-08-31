@@ -541,23 +541,45 @@ export async function guessmusic(e) {
     e.reply('猜歌名正在进行哦!')
     return true;
   }
-   let res = await(await fetch('https://free.wqwlkj.cn/wqwlapi/wyy_random.php?type=json')).json(); 
-   if (!res || res.code !== 1 || !res.data) {
-     e.reply('获取歌曲失败，请稍后重试');
-     return true;
-   }
-   console.log("歌名是:"+res.data.name);
+  // 从配置的网易云歌单中随机取歌
+  let playlists = music && music.length ? music : null
+  if (!playlists) {
+    e.reply('未配置网易云歌单，请先通过 #榴莲设置网易云歌单 配置');
+    return true;
+  }
+  let pid = playlists[Math.floor(Math.random() * playlists.length)]
+  let listRes = await(await fetch(`https://music.163.com/api/v6/playlist/detail?id=${pid}`, { headers: { 'User-Agent': 'Mozilla/5.0' } })).json()
+  let allIds = listRes && listRes.playlist && listRes.playlist.trackIds ? listRes.playlist.trackIds.map(t => t.id) : []
+  if (!allIds.length) {
+    e.reply('获取歌曲失败，请稍后重试');
+    return true;
+  }
+  // 批量获取歌单全部歌曲信息
+  let c = JSON.stringify(allIds.map(id => ({ id })))
+  let detailRes = await(await fetch(`https://music.163.com/api/v3/song/detail?c=${encodeURIComponent(c)}`, { headers: { 'User-Agent': 'Mozilla/5.0', 'Referer': 'https://music.163.com' } })).json()
+  let songs = detailRes && detailRes.songs ? detailRes.songs : []
+  if (!songs.length) {
+    e.reply('获取歌曲失败，请稍后重试');
+    return true;
+  }
+  let track = songs[Math.floor(Math.random() * songs.length)]
+  let song = {
+    name: track.name,
+    url: `https://music.163.com/song/media/outer/url?id=${track.id}.mp3`,
+    artist: (track.ar || []).map(a => a.name).join('/')
+  }
+   console.log("歌名是:"+song.name);
     e.reply( `游戏开始啦,请听语音猜出歌名！\n游戏区分大小写,猜的歌名必须跟答案一样才算你对噢~\n结束游戏指令【投降】`,true);
-    e.reply(await uploadRecord(res.data.url));
+    e.reply(await uploadRecord(song.url));
     setTimeout(() => {
-      e.reply(`提示：\n歌手:${res.data.artistsname}`);
+      e.reply(`提示：\n歌手:${song.artist}`);
     }, 2000)//毫秒数
   guessConfig.gameing = true;
-  guessConfig.current = res.data.name;
+  guessConfig.current = song.name;
     guessConfig.timer = setTimeout(() => {
       if (guessConfig.gameing) {
         guessConfig.gameing = false;
-        e.reply(`嘿嘿,猜歌名结束啦,很遗憾没有人猜中噢！歌名是【${res.data.name}】`);
+        e.reply(`嘿嘿,猜歌名结束啦,很遗憾没有人猜中噢！歌名是【${song.name}】`);
 		return true;
       }
     }, 120000)//毫秒数
