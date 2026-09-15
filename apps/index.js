@@ -1026,11 +1026,13 @@ yl21: {
        dailywordCheck: {
        reg: "(.*)",
        priority: 999,
+       log: false, // 全量监听规则，不打匹配日志避免刷屏
        describe: "",
     },
        sentenceCheck: {
        reg: "(.*)",
        priority: 999,
+       log: false, // 全量监听规则，不打匹配日志避免刷屏
        describe: "",
     },
        hotSearch: {
@@ -1221,6 +1223,7 @@ yl21: {
        miyuCheck: {
        reg: "(.*)",
        priority: 99,
+       log: false, // 全量监听规则，不打匹配日志避免刷屏
        describe: "",
     },
        fanyi: {
@@ -1321,6 +1324,7 @@ yl21: {
        musicanswerCheck: {
        reg: "(.*)",
        priority: 1000,
+       log: false, // 全量监听规则，不打匹配日志避免刷屏
        describe: "",
   },
        EndCheck: {
@@ -1416,6 +1420,7 @@ yl21: {
     determineIfYouShutUp: {
     reg: "(.*)", //匹配消息正则，命令正则
     priority: 0, //优先级，越小优先度越高
+    log: false, // 全量监听规则，不打匹配日志避免刷屏
     describe: "闭嘴判断", //【命令】功能说明
     },
     openYourMouth: {
@@ -1561,7 +1566,8 @@ class LiulianV3 extends plugin {
         rules.push({
           reg: cfg.reg,
           fnc: key,
-          priority: cfg.priority ?? 5000
+          priority: cfg.priority ?? 5000,
+          log: cfg.log // 透传log开关，false时框架不打匹配日志
         })
       }
       
