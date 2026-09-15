@@ -456,6 +456,7 @@ let rule = {
         answerCheck: {
         reg: "^(?!#).*",
         priority: 5,
+        log: false, // 全量监听规则，不打匹配日志避免刷屏
         describe: "",
     },
         updateLiulianPlugin: {
@@ -1455,6 +1456,7 @@ if (aiEnabled) {
   rule.ai = {
     reg: "(.*)", // 匹配所有消息
     priority: 99999, // 极低优先级，确保所有其他指令优先处理
+    log: false, // 全量监听规则，不打匹配日志避免刷屏
     describe: "AI自动回复", // 功能说明
   };
   rule.ai_reset_memory = {
