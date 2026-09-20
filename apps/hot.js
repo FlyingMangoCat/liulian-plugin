@@ -686,13 +686,23 @@ export async function hotTrendChart(e, { render }) {
     }
 
     // 统计每天的热度数据
+    // hot_value 来自接口的展示字段（如"456.2万"），需先解析为数值
+    const parseHotValue = (v) => {
+      if (typeof v === 'number') return v;
+      if (typeof v !== 'string') return 0;
+      const m = v.match(/^([\d.]+)\s*万?$/);
+      if (!m) return 0;
+      const n = parseFloat(m[1]);
+      return v.includes('万') ? n * 10000 : n;
+    };
+
     const trendData = {};
     history.forEach(item => {
       const date = item.record_time.split('T')[0];
       if (!trendData[date]) {
         trendData[date] = [];
       }
-      trendData[date].push(item.hot_value || 0);
+      trendData[date].push(parseHotValue(item.hot_value));
     });
 
     // 计算每天的平均热度

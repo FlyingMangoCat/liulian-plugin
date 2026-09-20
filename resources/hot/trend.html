@@ -50,8 +50,9 @@
   </div>
 
   <script>
+    try {
     const chartData = JSON.parse(document.getElementById('trendChart').dataset.chart);
-    
+
     const ctx = document.getElementById('trendChart').getContext('2d');
     
     // 创建渐变填充
@@ -133,23 +134,6 @@
               font: {
                 size: 14,
                 weight: 'bold'
-              }
-            },
-            grid: {
-              color: 'rgba(230, 126, 34, 0.1)'
-            },
-            ticks: {
-              color: '#495057'
-            }
-          },
-          y: {
-            display: true,
-            title: {
-              display: true,
-              text: '{{ axisYTitle }}',
-              font: {
-                size: 14,
-                weight: 'bold'
               },
               color: '#e67e22'
             },
@@ -163,6 +147,9 @@
         }
       }
     });
+    } catch (err) {
+      document.querySelector('.chart-container').innerHTML = '<p style="text-align: center; color: #e74c3c; padding: 50px;">趋势图生成失败：' + err.message + '</p>';
+    }
   </script>
 </body>
 </html>
