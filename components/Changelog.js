@@ -7,7 +7,7 @@ const _logPath = `${_path}/plugins/liulian-plugin/CHANGELOG.md`
 let logs = {}
 let changelogs = []
 let currentVersion
-let versionCount = 4
+let versionCount = 10
 
 let packageJson = JSON.parse(fs.readFileSync('package.json', 'utf8'))
 
