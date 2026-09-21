@@ -25,7 +25,7 @@ export const helpList = [{
     title: "关闭B站推送",
     desc: "默认推送原神官方动态，默认不推送转发动态"
   }]
-},{
+}, {
   group: "订阅与转发",
   list: [{
     icon: 95,
@@ -43,8 +43,12 @@ export const helpList = [{
     icon: 10,
     title: "关闭B站转发推送",
     desc: "好滴，这就关闭"
-  }]
-},{
+  },{
+      icon: 72,
+      title: "刷新B站推送列表",
+      desc: "同步最新的默认用户列表"
+    }]
+}, {
   group: "其他指令/功能",
   list: [{
     icon: 95,
@@ -70,10 +74,6 @@ export const helpList = [{
     icon: 30,
       title: "设置B站推送合并",
       desc: "合并为消息合并转发"
-    },{
-      icon: 72,
-      title: "刷新B站推送列表",
-      desc: "同步最新的默认用户列表"
     }]
 }, {
   group: "其他帮助",
