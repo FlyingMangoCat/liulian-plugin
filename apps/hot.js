@@ -343,7 +343,7 @@ export async function viewSubscriptions(e) {
     return true;
   }
   
-  let msg = ['📋 当前群订阅的关键词：\n'];
+  let msg = ['当前群订阅的关键词：\n'];
   subscriptions.forEach((sub, index) => {
     msg.push(`${index + 1}. ${sub.keyword} (${sub.platform})`);
   });
@@ -414,7 +414,7 @@ export async function viewGlobalBlockedKeywords(e) {
     return true;
   }
   
-  let msg = ['🚫 全局屏蔽词列表：\n'];
+  let msg = ['全局屏蔽词列表：\n'];
   keywords.forEach((keyword, index) => {
     msg.push(`${index + 1}. ${keyword}`);
   });
@@ -504,7 +504,7 @@ export async function viewGroupBlockedKeywords(e) {
     return true;
   }
   
-  let msg = ['🚫 当前群屏蔽词列表：\n'];
+  let msg = ['当前群屏蔽词列表：\n'];
   keywords.forEach((keyword, index) => {
     msg.push(`${index + 1}. ${keyword}`);
   });
@@ -527,7 +527,7 @@ export async function viewApplications(e) {
     return true;
   }
   
-  let msg = ['📋 待审核的订阅申请：\n\n'];
+  let msg = ['待审核的订阅申请：\n\n'];
   applications.forEach((app, index) => {
     msg.push(`${index + 1}. 群号：${app.group_id}`);
     msg.push(`   关键词：${app.keyword}`);
@@ -624,8 +624,8 @@ export async function hotWordCloud(e, { render }) {
       return true;
     }
 
-    // 只取前30个高频关键词
-    const topKeywords = keywords.slice(0, 30);
+    // 只取前35个高频关键词
+    const topKeywords = keywords.slice(0, 35);
 
     // 转换为词云数据格式 (getTopKeywords返回的是{text, count}对象数组)
     const wordCloudData = topKeywords.map(k => ({
@@ -1041,6 +1041,3 @@ export async function hotPushScheduleJob(e = {}) {
 
 // 初始化
 initHotPushConfig();
-
-// 文字版热搜帮助
-// 文字版本的热搜帮助已删除，只保留图片版本
