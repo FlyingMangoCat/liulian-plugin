@@ -83,9 +83,9 @@
         
         WordCloud(element, {
           list: wordList,
-          gridSize: 6,
+          gridSize: 8,
           weightFactor: function (size) {
-            return Math.pow(size, 0.8) * element.width / 1024 * 15;
+            return Math.pow(size, 0.8) * element.width / 1024 * 16;
           },
           fontFamily: 'Microsoft YaHei, SimHei, Arial',
           color: function (word, weight, fontSize, distance, theta) {
