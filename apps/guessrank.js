@@ -165,6 +165,8 @@ export function parseRankArgs(str = '') {
 
   let scope = 'group';
   if (/全服|全域|全区/.test(str)) scope = 'server';
+  // 总排名：跨机器人所有用户的大排名（中央接口，需会员）
+  else if (/总排名|总榜|全平台/.test(str)) scope = 'total';
 
   let period = 'day';
   if (/周/.test(str)) period = 'week';

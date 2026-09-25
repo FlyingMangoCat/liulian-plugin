@@ -22,6 +22,7 @@ let cfgMap = {
   群聊闭嘴:'sys.shutup',
   购买提示:'sys.aits',
   网易云歌单:'sys.musicList',
+  排名提示:'sys.guessRankHint',
 }
 let aiCfgMap = {
   // 榴莲AI相关配置
@@ -142,6 +143,7 @@ export async function sysCfg (e, { render }) {
     limit: Cfg.get('sys.limit', 0),
     shutup: getStatus('sys.shutup', false),
     aits: getStatus('sys.aits', true),
+    guessRankHint: getStatus('sys.guessRankHint', true),
     musicList: (Cfg.get('sys.musicList') || []).join(','),
   }
 

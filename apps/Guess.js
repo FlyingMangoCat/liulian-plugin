@@ -209,6 +209,8 @@ const colors = [// 随机背景颜色
 export async function guessAvatar(e) {
   // 原神猜角色：消息含其他游戏名/前缀时跳过，交给对应游戏处理
   if (/[异环nte鸣潮ww~%*星铁]/.test(e.msg)) return false;
+  // 查排名的消息绝不新开一局
+  if (/排名/.test(e.msg)) return false;
   let guessConfig = getGuessConfig(e);
   if (guessConfig.playing) {
     e.reply('猜角色游戏正在进行哦');
@@ -650,6 +652,8 @@ export async function musicanswerCheck(e) {
 export async function starguessAvatar(e) {
   // 星铁猜角色：消息含其他游戏名/前缀时跳过，交给对应游戏处理
   if (/[异环nte鸣潮ww~绝区零%]/.test(e.msg)) return false;
+  // 查排名的消息绝不新开一局
+  if (/排名/.test(e.msg)) return false;
   let guessConfig = getGuessConfig(e);
   if (guessConfig.playing) {
     e.reply('猜角色游戏正在进行哦');
@@ -779,6 +783,8 @@ export async function starguessAvatarCheck(e) {
     export async function zzzguessAvatar(e) {
   // 绝区零猜角色：消息含其他游戏名/前缀时跳过，交给对应游戏处理
   if (/[异环nte鸣潮ww~星铁]/.test(e.msg)) return false;
+  // 查排名的消息绝不新开一局
+  if (/排名/.test(e.msg)) return false;
   let guessConfig = getGuessConfig(e);
   if (guessConfig.playing) {
     e.reply('猜角色游戏正在进行哦');
@@ -906,6 +912,8 @@ export async function zzzguessAvatarCheck(e) {
 export async function wwguessAvatar(e) {
   // 鸣潮猜角色：消息含其他游戏名/前缀时跳过，交给对应游戏处理
   if (/[异环nte绝区零%Zz星铁]/.test(e.msg)) return false;
+  // 查排名的消息绝不新开一局
+  if (/排名/.test(e.msg)) return false;
   let guessConfig = getGuessConfig(e);
   if (guessConfig.playing) {
     e.reply('猜角色游戏正在进行哦');
@@ -1038,6 +1046,8 @@ export async function wwguessAvatarCheck(e) {
 export async function nteguessAvatar(e) {
   // 异环猜角色：消息含其他游戏名/前缀时跳过，交给对应游戏处理
   if (/[鸣潮ww~绝区零%Zz星铁]/.test(e.msg)) return false;
+  // 查排名的消息绝不新开一局
+  if (/排名/.test(e.msg)) return false;
   let guessConfig = getGuessConfig(e);
   if (guessConfig.playing) {
     e.reply('猜角色游戏正在进行哦');
@@ -1269,9 +1279,47 @@ function getRankName(e, userId) {
   return uid.length > 6 ? `QQ${uid.slice(-4)}` : uid;
 }
 
+// ============ 总排名接口钩子 ============
+// 后端就绪后在此配置接口地址与密钥，请求时带密钥做验证，按返回错误码给出对应提示
+const TOTAL_RANK_API = {
+  url: '',    // TODO: 后端就绪后填入拉取总排名数据的接口地址
+  key: '',    // TODO: 后端就绪后填入验证密钥
+  cacheMs: 60 * 1000, // 1分钟内直接用缓存返回
+};
+let totalRankCache = { data: null, time: 0 };
+
+// 拉取总排名：命中缓存直接返回；请求失败/返回错误码时返回 null，由调用方给出提示
+async function fetchTotalRank({ game, period, topN }) {
+  if (!TOTAL_RANK_API.url) return null;
+  const now = Date.now();
+  if (totalRankCache.data && now - totalRankCache.time < TOTAL_RANK_API.cacheMs) {
+    return totalRankCache.data;
+  }
+  try {
+    const res = await fetch(TOTAL_RANK_API.url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: TOTAL_RANK_API.key },
+      body: JSON.stringify({ game, period, topN }),
+    });
+    const ret = await res.json();
+    // TODO: 后端就绪后按约定错误码分支处理（无权限提示购买榴莲会员等）
+    if (ret.code !== 0 && ret.code !== 200) {
+      logger.warn(`[猜角色排名] 总排名接口返回错误码: ${ret.code}`);
+      return null;
+    }
+    totalRankCache = { data: ret.data, time: now };
+    return ret.data;
+  } catch (err) {
+    logger.warn(`[猜角色排名] 总排名接口请求失败: ${err.message}`);
+    return null;
+  }
+}
+
 export async function guessRankCmd(e, { render }) {
   // 关键词可能出现在"排名"前后（如 星铁猜角色排名 / 猜角色星铁全服周排名），全量交给解析器
   const rest = e.msg.replace(/^[#*~%]+/, '').replace('排名', ' ');
+  // 是否带了任何参数（用于提示语跳过"参数组合"这条）
+  const hasArg = /[^\s#*~%]/.test(rest);
   const parsed = parseRankArgs(rest);
   let { game, scope, period, topN } = parsed;
   // 前缀游戏约定（与各猜角色入口一致）：*=星铁、~=鸣潮、%=绝区零
@@ -1282,6 +1330,18 @@ export async function guessRankCmd(e, { render }) {
 
   // 私聊没有群维度，自动转全服
   if (scope === 'group' && !e.group_id) scope = 'server';
+
+  // 总排名：走中央接口（会员资格），接口未接入前先引导
+  if (scope === 'total') {
+    const totalRank = await fetchTotalRank({ game, period, topN });
+    if (totalRank) {
+      // TODO: 后端就绪后按返回结构渲染总排名榜
+      return true;
+    }
+    e.reply('总排名需榴莲会员获取资格，功能即将开放，敬请期待～\n可先发送 #猜角色排名全服 查看全服榜');
+    return true;
+  }
+
   const scopeLabel = scope === 'server' ? '全服' : '本群';
   const groupId = scope === 'group' ? e.group_id : undefined;
 
@@ -1325,5 +1385,37 @@ export async function guessRankCmd(e, { render }) {
     updateTime: new Date().toLocaleString('zh-CN', { hour12: false })
   }, { e, render, scale: 1.2 });
 
+  sendRankHint(e, { scope, period, game, topN, hasArg });
   return true;
+}
+
+// 发排名图后随机附带一条玩法提示（开关控制），跳过与本次查询重复的（查了全服就不推全服，互补范围的照发）
+const RANK_HINTS = [
+  { key: 'server', text: '发送 #猜角色排名全服 可查看全服榜' },
+  { key: 'group', text: '发送 #猜角色群排名 可查看群友榜' },
+  { key: 'week', text: '发送 #猜角色排名周 可查看周榜（日/周/月/年均可查）' },
+  { key: 'game', text: '发送 #猜角色排名星铁 可查看指定游戏的排名' },
+  { key: 'combo', text: '排名参数可组合，如 #猜角色排名星铁 全服 周' },
+  { key: 'score', text: '使用官方名称答对得3分，别名答对得1分' },
+  { key: 'top', text: '发送 #猜角色排名前20 可查看更多名次' },
+  { key: 'total', text: '总排名需榴莲会员资格，敬请期待' },
+];
+
+function sendRankHint(e, { scope, period, game, topN, hasArg }) {
+  try {
+    if (Cfg.get('sys.guessRankHint', true) === false) return;
+    const pool = RANK_HINTS.filter(h => {
+      if (h.key === 'server') return scope !== 'server';
+      if (h.key === 'group') return scope !== 'group' && !!e.group_id;
+      if (h.key === 'week') return period !== 'week';
+      if (h.key === 'game') return game === 'all';
+      if (h.key === 'combo') return !hasArg;
+      if (h.key === 'top') return topN < 20;
+      return true;
+    });
+    if (!pool.length) return;
+    e.reply(pool[Math.floor(Math.random() * pool.length)].text);
+  } catch (err) {
+    logger.warn(`[猜角色排名] 提示语发送失败: ${err.message}`);
+  }
 }
