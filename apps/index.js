@@ -85,7 +85,8 @@ wwguessAvatarCheck,
 nteguessAvatar,
 nteguessAvatarCheck,
 miyu,
-miyuCheck
+miyuCheck,
+guessRankCmd
 } from "./Guess.js"
 import{ yl总,
 yl1,
@@ -350,6 +351,7 @@ export {
     sjclassic,
     zdclassic,
     liulian_status,
+    guessRankCmd,
 }
 
 const cfg = config.getconfig('liulian', 'botname', 'config');
@@ -908,6 +910,11 @@ yl21: {
         reg: "^#*(话痨统计|话痨检测|水逼检测|水逼统计)$", 
         priority: 600,
         describe: "寻找大水逼",
+    },
+        guessRankCmd: {
+        reg: '^[#~]?(?:原神|星铁|星穹|[Hh][Ss][Rr]|绝区零|[Zz]{3}|鸣潮|[Ww]{2}|异环|[Nn][Tt][Ee]|全服|本群|综合|总榜|总分|总计)?猜角色排名[\\s\\S]*$',
+        priority: 5, // 需先于各猜角色入口规则，避免"排名"被当成答题
+        describe: '猜角色排名，如 #猜角色排名星铁 全服 周',
     },
         guessAvatar: {
         reg: '^#猜(头像|角色)(普通|困难|地狱|炼狱)?(模式)?',
@@ -1653,6 +1660,7 @@ const exportedFunctions = {
     guessmusic, 运势, 小黑子, updateRes, cj, Robacat,
     Loseacat, Resetcat, Bouncecat, mapnumber, 上传, daihua, guangbo, guangboHelp,
     starguessAvatar, starguessAvatarCheck, toShutUp,
+    guessRankCmd,
     determineIfYouShutUp, openYourMouth, replace, sjclassic,
     zdclassic, liulian_status
 }

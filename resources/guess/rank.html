@@ -1,0 +1,38 @@
+{{extend elemLayout}}
+
+{{block 'css'}}
+<link rel="stylesheet" type="text/css" href="{{_res_path}}/guess/rank.css"/>
+{{/block}}
+
+{{block 'main'}}
+<div class="rank-header">
+  <div class="title">{{title}}</div>
+  <div class="sub">
+    <span class="badge">{{scopeLabel}}</span>
+    <span class="badge period-{{period}}">{{periodLabel}}</span>
+  </div>
+</div>
+{{each groups g}}
+<div class="rank-cont">
+  <div class="rank-cont-title {{g.game === 'total' ? 'total-title' : ''}}">{{g.title}}</div>
+  {{if g.rows.length === 0}}
+  <div class="empty">暂无数据，快开始猜角色吧～</div>
+  {{else}}
+  {{each g.rows row}}
+  <div class="rank-row {{row.me ? 'me-row' : ''}}">
+    <div class="rank-badge rank-{{row.rank}}">{{row.rank}}</div>
+    <img class="avatar" src="{{row.avatar}}" onerror="this.style.visibility='hidden'"/>
+    <div class="info">
+      <div class="name">{{row.name}}</div>
+      <div class="stats">参与 {{row.parts}} 次 · 答对 {{row.wins}} 次 · <span class="score">{{row.score}} 分</span></div>
+    </div>
+  </div>
+  {{/each}}
+  {{/if}}
+  {{if g.mine && !g.mine.inList}}
+  <div class="empty me-line">我的排名 #{{g.mine.rank}} · 参与 {{g.mine.parts}} 次 · 答对 {{g.mine.wins}} 次 · <span class="score">{{g.mine.score}} 分</span></div>
+  {{/if}}
+</div>
+{{/each}}
+<div class="update-time">{{updateTime}}</div>
+{{/block}}

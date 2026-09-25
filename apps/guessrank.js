@@ -152,6 +152,32 @@ class GuessRankDB {
   }
 }
 
+// 排名命令参数解析（纯函数）：游戏/范围/周期/条数
+// 示例："星铁 全服 周 top20" → { game:'star', scope:'server', period:'week', topN:20 }
+export function parseRankArgs(str = '') {
+  let game = 'all'; // all=各游戏分组+综合一起展示
+  if (/星铁|星穹|hsr/i.test(str)) game = 'star';
+  else if (/绝区零|zzz/i.test(str)) game = 'zzz';
+  else if (/鸣潮|ww/i.test(str)) game = 'ww';
+  else if (/异环|nte/i.test(str)) game = 'nte';
+  else if (/综合|总分|总榜|总计/.test(str)) game = 'total';
+  else if (/原神/.test(str)) game = 'genshin';
+
+  let scope = 'group';
+  if (/全服|全域|全区/.test(str)) scope = 'server';
+
+  let period = 'day';
+  if (/周/.test(str)) period = 'week';
+  else if (/月/.test(str)) period = 'month';
+  else if (/年/.test(str)) period = 'year';
+
+  let topN = 10;
+  const m = str.match(/(?:top|前)\s*(\d{1,2})/i);
+  if (m) topN = Math.min(Math.max(parseInt(m[1]), 3), 20);
+
+  return { game, scope, period, topN };
+}
+
 const guessRank = new GuessRankDB();
 process.on('exit', () => guessRank.flushSync());
 

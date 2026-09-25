@@ -6,10 +6,10 @@ import fetch from "node-fetch";
 import sizeOf from 'image-size';
 import { roleIdToName, starroleIdToName, zzzroleIdToName, nteroleIdToName, wwroleIdToName } from "../components/mysInfo.js";
 import { roleId as roleIdData, starroleId as starroleIdData, zzzroleId as zzzroleIdData, nteroleId as nteroleIdData, wwroleId as wwroleIdData } from "../config/roleId.js";
-import { guessRank } from "./guessrank.js";
+import { guessRank, parseRankArgs } from "./guessrank.js";
 import { getPluginRender, browserInit } from '../model/render.js';
 import template from "art-template";
-import { Data, Cfg } from "#liulian";
+import { Data, Cfg, Common } from "#liulian";
 import config from "../model/config/config.js"
 const GAME_TIME_OUT = 30//游戏时长(秒)
 const _path = process.cwd();
@@ -1235,6 +1235,90 @@ export async function miyuCheck(e) {
     miyuGames.delete(e.group_id);
     return true;
   }
-  
+
   return false;
+}
+
+// ============ 猜角色排名查询 ============
+const RANK_GAME_NAMES = { genshin: '原神', star: '星穹铁道', zzz: '绝区零', ww: '鸣潮', nte: '异环', total: '综合' };
+const RANK_PERIOD_NAMES = { day: '日榜', week: '周榜', month: '月榜', year: '年榜' };
+
+// 实时取用户昵称：群名片优先，其次各Bot的群成员/好友缓存，取不到用QQ号兜底
+function getRankName(e, userId) {
+  const uid = String(userId);
+  try {
+    if (e.group && e.group.pickMember) {
+      const info = e.group.pickMember(uid)?.info;
+      if (info && (info.card || info.nickname)) return info.card || info.nickname;
+    }
+  } catch {}
+  try {
+    const Bot = global.Bot;
+    const bots = (Bot?.uin ? Bot.uin.map(u => Bot[u]) : Object.values(Bot || {})).filter(b => b && (b.fl || b.gml));
+    for (const bot of bots) {
+      const f = bot.fl?.get?.(uid);
+      if (f?.nickname) return f.nickname;
+      if (bot.gml) {
+        for (const members of bot.gml.values()) {
+          const info = members?.get?.(uid);
+          if (info && (info.card || info.nickname)) return info.card || info.nickname;
+        }
+      }
+    }
+  } catch {}
+  return uid.length > 6 ? `QQ${uid.slice(-4)}` : uid;
+}
+
+export async function guessRankCmd(e, { render }) {
+  // 关键词可能出现在"排名"前后（如 星铁猜角色排名 / 猜角色排名星铁 全服 周），全量交给解析器
+  const rest = e.msg.replace(/^#*/, '').replace('排名', ' ');
+  const parsed = parseRankArgs(rest);
+  let { game, scope, period, topN } = parsed;
+
+  // 私聊没有群维度，自动转全服
+  if (scope === 'group' && !e.group_id) scope = 'server';
+  const scopeLabel = scope === 'server' ? '全服' : '本群';
+  const groupId = scope === 'group' ? e.group_id : undefined;
+
+  const gameList = game === 'all' ? ['genshin', 'star', 'zzz', 'ww', 'nte', 'total'] : [game];
+  const myId = String(e.user_id);
+  const groups = [];
+
+  for (const g of gameList) {
+    const list = guessRank.getRank({ period, scope, groupId, game: g, topN });
+    const rows = [];
+    for (let i = 0; i < list.length; i++) {
+      const u = list[i];
+      rows.push({
+        rank: i + 1,
+        name: getRankName(e, u.userId),
+        avatar: `https://q1.qlogo.cn/g?b=qq&nk=${u.userId}&s=100`,
+        score: u.score, wins: u.wins, parts: u.parts,
+        me: u.userId === myId,
+      });
+    }
+    // 进榜时行内高亮即可；未进榜但有数据时页尾补"我的排名"
+    let mine = null;
+    if (!rows.some(r => r.me)) {
+      const ur = guessRank.getUserRank({ period, scope, groupId, game: g, userId: myId });
+      if (ur) mine = { rank: ur.rank, score: ur.score, wins: ur.wins, parts: ur.parts, inList: false };
+    }
+    groups.push({ game: g, title: g === 'total' ? '综合排名' : RANK_GAME_NAMES[g], rows, mine });
+  }
+
+  if (groups.every(g => g.rows.length === 0)) {
+    e.reply(`暂无${scopeLabel}${RANK_PERIOD_NAMES[period]}数据，快开始猜角色吧～`);
+    return true;
+  }
+
+  await Common.render('guess/rank', {
+    title: '猜角色排名',
+    scopeLabel,
+    periodLabel: RANK_PERIOD_NAMES[period],
+    period,
+    groups,
+    updateTime: new Date().toLocaleString('zh-CN', { hour12: false })
+  }, { e, render, scale: 1.2 });
+
+  return true;
 }

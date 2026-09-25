@@ -1,0 +1,148 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  user-select: none;
+}
+
+body {
+  font-size: 18px;
+  color: #1e1f20;
+  width: 560px;
+  font-family: 'Microsoft YaHei', 'PingFang SC', sans-serif;
+  background: linear-gradient(135deg, #fef6ec 0%, #fdeedd 100%);
+}
+
+.container {
+  width: 560px;
+  padding: 14px 0 10px 0;
+}
+
+/* 标题区 */
+.rank-header {
+  text-align: center;
+  padding: 10px 0 16px;
+}
+.rank-header .title {
+  font-size: 26px;
+  font-weight: 700;
+  color: #d35400;
+}
+.rank-header .sub {
+  margin-top: 6px;
+  font-size: 14px;
+  color: #a08a76;
+}
+.badge {
+  display: inline-block;
+  padding: 2px 10px;
+  margin: 0 3px;
+  border-radius: 10px;
+  font-size: 13px;
+  color: #fff;
+  background: #e67e22;
+}
+.badge.scope-server { background: #8e44ad; }
+.badge.period-week { background: #2980b9; }
+.badge.period-month { background: #16a085; }
+.badge.period-year { background: #c0392b; }
+
+/* 每组卡片（单游戏/综合） */
+.rank-cont {
+  margin: 0 15px 12px 15px;
+  background: rgba(255, 255, 255, 0.94);
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(160, 120, 60, 0.12);
+  padding: 12px 16px;
+}
+.rank-cont-title {
+  font-size: 17px;
+  font-weight: 700;
+  color: #8a5a2b;
+  padding: 2px 0 10px;
+  border-bottom: 1px dashed rgba(160, 120, 60, 0.35);
+}
+.rank-cont-title.total-title { color: #b34700; }
+
+/* 行 */
+.rank-row {
+  display: flex;
+  align-items: center;
+  padding: 7px 4px;
+  border-radius: 8px;
+}
+.rank-row + .rank-row { border-top: 1px solid rgba(160, 120, 60, 0.1); }
+.rank-row.me-row { background: rgba(230, 126, 34, 0.1); }
+
+/* 名次徽章 */
+.rank-badge {
+  flex: none;
+  width: 30px;
+  height: 30px;
+  line-height: 30px;
+  text-align: center;
+  border-radius: 50%;
+  font-size: 15px;
+  font-weight: 700;
+  color: #fff;
+  background: #b8a68f;
+  margin-right: 10px;
+}
+.rank-1 { background: linear-gradient(135deg, #f7c948, #e67e22); box-shadow: 0 0 6px rgba(230, 126, 34, 0.5); }
+.rank-2 { background: linear-gradient(135deg, #cfd8dc, #90a4ae); }
+.rank-3 { background: linear-gradient(135deg, #d98843, #a0522d); }
+
+/* 头像 */
+.avatar {
+  flex: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  margin-right: 10px;
+  background: #efe4d5;
+  object-fit: cover;
+}
+
+/* 昵称与数据 */
+.info { flex: 1; min-width: 0; }
+.name {
+  font-size: 16px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.stats {
+  margin-top: 2px;
+  font-size: 12.5px;
+  color: #96836e;
+}
+.stats .score { color: #d35400; font-weight: 700; }
+
+/* 空榜 */
+.empty {
+  text-align: center;
+  color: #a08a76;
+  font-size: 14px;
+  padding: 18px 0 10px;
+}
+.empty .score { color: #d35400; font-weight: 700; }
+
+/* 我的排名（未进榜时页尾补充行） */
+.me-extra {
+  margin: 0 15px 12px 15px;
+  background: rgba(255, 255, 255, 0.94);
+  border-radius: 12px;
+  padding: 8px 16px;
+  font-size: 14px;
+  color: #8a5a2b;
+}
+.me-extra .score { color: #d35400; font-weight: 700; }
+
+/* 底部时间 */
+.update-time {
+  text-align: center;
+  font-size: 12px;
+  color: #b7a48d;
+  padding-bottom: 6px;
+}
