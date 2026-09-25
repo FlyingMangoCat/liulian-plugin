@@ -1,9 +1,26 @@
 import fs from 'fs';
 import path from 'path';
-import { fileURLToPath } from 'url';
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const DATA_DIR = path.join(__dirname, '..', '..', '..', 'data', 'hot');
+// 数据落在 Yunzai 根目录的 data 下（运行时 process.cwd() 即 Yunzai 根），与 ck/面板数据同位置
+const DATA_DIR = path.join(process.cwd(), 'data', 'hot');
+// 旧版数据曾存放在 plugins/data/hot，首次运行时迁移过来
+const LEGACY_DIR = path.join(process.cwd(), 'plugins', 'data', 'hot');
+
+function migrateLegacyData() {
+    try {
+        if (!fs.existsSync(LEGACY_DIR)) return;
+        if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
+        for (const f of fs.readdirSync(LEGACY_DIR)) {
+            if (!f.endsWith('.json')) continue;
+            const to = path.join(DATA_DIR, f);
+            if (!fs.existsSync(to)) {
+                fs.copyFileSync(path.join(LEGACY_DIR, f), to);
+            }
+        }
+    } catch (err) {
+        console.error('[HotDatabase] 旧数据迁移失败:', err.message);
+    }
+}
 
 class HotDatabase {
     constructor() {
@@ -12,6 +29,7 @@ class HotDatabase {
 
     async connect() {
         try {
+            migrateLegacyData();
             // 确保数据目录存在
             if (!fs.existsSync(DATA_DIR)) {
                 fs.mkdirSync(DATA_DIR, { recursive: true });
