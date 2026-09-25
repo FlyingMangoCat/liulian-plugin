@@ -1379,17 +1379,17 @@ export async function guessRankCmd(e, { render }) {
   // 群与群排名：本地数据按群汇总总分，需 bot 会员验证，不验证不给用
   if (scope === 'grouprank') {
     if (!(await checkMemberVerified())) {
-      e.reply('请购买榴莲会员获取群排名资格～');
+      e.reply('请购买榴莲会员获取群聊排名资格～');
       return true;
     }
     const list = guessRank.getGroupRank({ period, game: game === 'all' ? 'total' : game, topN });
     if (!list.length) {
-      e.reply(`暂无${RANK_PERIOD_NAMES[period]}群排名数据，快开始猜角色吧～`);
+      e.reply(`暂无${RANK_PERIOD_NAMES[period]}群聊排名数据，快开始猜角色吧～`);
       return true;
     }
     await Common.render('guess/rank', {
-      title: '猜角色群排名',
-      scopeLabel: '群排名',
+      title: '猜角色群聊排名',
+      scopeLabel: '群聊排名',
       periodLabel: RANK_PERIOD_NAMES[period],
       period,
       groups: [{

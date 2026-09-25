@@ -188,7 +188,7 @@ export function parseRankArgs(str = '') {
   let scope = 'group';
   if (/全服|全域|全区/.test(str)) scope = 'server';
   // 群与群排名：按群汇总总分的独立榜
-  else if (/群排名|群榜|群总分/.test(str)) scope = 'grouprank';
+  else if (/群聊排名|群聊榜|群聊总分/.test(str)) scope = 'grouprank';
   // 总排名：跨机器人所有用户的大排名（中央接口，需会员）
   else if (/总排名|总榜|全平台/.test(str)) scope = 'total';
 
