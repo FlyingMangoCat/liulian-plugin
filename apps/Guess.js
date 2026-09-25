@@ -1357,17 +1357,17 @@ export async function guessRankCmd(e, { render }) {
     game = { '*': 'star', '~': 'ww', '%': 'zzz' }[prefixRet[1]];
   }
 
-  // 会员验证总闸：验证失败时总排名/全服/群排名一律不提供
-  if (!(await checkMemberVerified())) {
-    e.reply('请购买榴莲会员获取排名查询资格～');
-    return true;
-  }
+  // 会员验证只管总排名（bot 自身会员），本地群/全服排名不设门槛
 
   // 私聊没有群维度，自动转全服
   if (scope === 'group' && !e.group_id) scope = 'server';
 
-  // 总排名：走中央接口（会员资格），接口返回数据为准，本地只做渲染
+  // 总排名：走中央接口，需 bot 会员验证；本地群/全服排名不设门槛
   if (scope === 'total') {
+    if (!(await checkMemberVerified())) {
+      e.reply('请购买榴莲会员获取总排名资格～\n可先发送 #猜角色排名全服 查看全服榜');
+      return true;
+    }
     const totalRank = await fetchTotalRank({ game, period, topN });
     if (totalRank) {
       // 接口返回结构：
