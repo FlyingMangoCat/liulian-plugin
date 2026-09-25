@@ -1270,10 +1270,15 @@ function getRankName(e, userId) {
 }
 
 export async function guessRankCmd(e, { render }) {
-  // 关键词可能出现在"排名"前后（如 星铁猜角色排名 / 猜角色排名星铁 全服 周），全量交给解析器
-  const rest = e.msg.replace(/^#*/, '').replace('排名', ' ');
+  // 关键词可能出现在"排名"前后（如 星铁猜角色排名 / 猜角色星铁全服周排名），全量交给解析器
+  const rest = e.msg.replace(/^[#*~%]+/, '').replace('排名', ' ');
   const parsed = parseRankArgs(rest);
   let { game, scope, period, topN } = parsed;
+  // 前缀游戏约定（与各猜角色入口一致）：*=星铁、~=鸣潮、%=绝区零
+  const prefixRet = e.msg.match(/^[#]*([*~%])/);
+  if (prefixRet && game === 'all') {
+    game = { '*': 'star', '~': 'ww', '%': 'zzz' }[prefixRet[1]];
+  }
 
   // 私聊没有群维度，自动转全服
   if (scope === 'group' && !e.group_id) scope = 'server';
