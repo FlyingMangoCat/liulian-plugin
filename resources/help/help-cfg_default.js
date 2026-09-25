@@ -18,14 +18,10 @@ export const helpList = [{
     title: "娶群友 娶老婆 ",
     desc: "根据发言时间抽群友老婆"
   }, {
-    icon: 18,
-    title: "姬霓太美 菜虚鲲",
-    desc: "开团"
-  }, {
     icon: 35,
     title: "打卡",
     desc: "私聊发送自动点赞"
-  },{
+  }, {
     icon: 75,
     title: "#伪造信/消息@群友+内容",
     desc: "指定群友伪造信息"
@@ -33,7 +29,7 @@ export const helpList = [{
     icon: 11,
     title: "#话痨统计",
     desc: "统计群里的话痨"
-  },{
+  }, {
     icon: 44,
     title: "#更新群名片",
     desc: "更新bot群昵称数据"
@@ -57,7 +53,7 @@ export const helpList = [{
     icon: 50,
     title: "#xx座运势",
     desc: "查看星座运势"
-  },{
+  }, {
     icon: 60,
     title: "#发病xxx",
     desc: "发病文学"
@@ -85,11 +81,11 @@ export const helpList = [{
     icon: 90,
     title: "#广播内容+内容",
     desc: "多群广播信息"
-  },{
+  }, {
     icon: 100,
     title: "#城市+天气",
     desc: "查看指定城市当日天气"
-  },{
+  }, {
     icon: 59,
     title: "随机表情(默认关闭）",
     desc: "群聊/私聊均可用，内容/触发都为随机"
@@ -103,7 +99,7 @@ export const helpList = [{
   }, {
     icon: 78,
     title: "#/*/%/异环/~猜角色",
-    desc: "支持原神/星铁/绝区零/异环/鸣潮（不同前缀代表不同游戏），回答格式：#我猜[角色名]"
+    desc: "支持原神/星铁/绝区零/异环/鸣潮，回答格式：#我猜[角色名]"
   }, {
     icon: 71,
     title: "#芒果问答",
@@ -151,11 +147,11 @@ export const helpList = [{
     icon: 29,
     title: "#榴莲更新+插件名",
     desc: "更新指定插件，例：#榴莲更新芒果插件"
-  },{   
+  }, {   
     icon: 97,
     title: "#榴莲更新/榴莲强制更新",
     desc: "更新榴莲插件"
-  },{   
+  }, {   
     icon: 32,
     title: "#榴莲设置/#榴莲ai设置",
     desc: "配置榴莲功能/#榴莲ai设置可配置榴莲ai功能"
