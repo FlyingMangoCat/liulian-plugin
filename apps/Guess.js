@@ -1315,6 +1315,35 @@ async function fetchTotalRank({ game, period, topN }) {
   }
 }
 
+// 会员身份验证：查任何排名（总/全服/群）都需先通过验证，验证失败一律不提供排名数据
+// 后端就绪后填入验证接口地址（密钥复用 TOTAL_RANK_API.key）
+const MEMBER_VERIFY_API = {
+  url: '',   // TODO: 后端就绪后填入会员验证接口地址
+};
+let memberVerifyCache = { ok: null, time: 0 };
+
+// 验证会员身份：接口未配置时不拦截（功能未上线）；验证通过或命中缓存返回 true
+async function checkMemberVerified() {
+  if (!MEMBER_VERIFY_API.url) return true;
+  const now = Date.now();
+  if (memberVerifyCache.ok !== null && now - memberVerifyCache.time < TOTAL_RANK_API.cacheMs) {
+    return memberVerifyCache.ok;
+  }
+  try {
+    const res = await fetch(MEMBER_VERIFY_API.url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: TOTAL_RANK_API.key },
+    });
+    const ret = await res.json();
+    // TODO: 后端就绪后按约定错误码分支处理（无权限/过期/其他）
+    memberVerifyCache = { ok: ret.code === 0 || ret.code === 200, time: now };
+  } catch (err) {
+    logger.warn(`[猜角色排名] 会员验证请求失败: ${err.message}`);
+    memberVerifyCache = { ok: false, time: now };
+  }
+  return memberVerifyCache.ok;
+}
+
 export async function guessRankCmd(e, { render }) {
   // 关键词可能出现在"排名"前后（如 星铁猜角色排名 / 猜角色星铁全服周排名），全量交给解析器
   const rest = e.msg.replace(/^[#*~%]+/, '').replace('排名', ' ');
@@ -1326,6 +1355,12 @@ export async function guessRankCmd(e, { render }) {
   const prefixRet = e.msg.match(/^[#]*([*~%])/);
   if (prefixRet && game === 'all') {
     game = { '*': 'star', '~': 'ww', '%': 'zzz' }[prefixRet[1]];
+  }
+
+  // 会员验证总闸：验证失败时总排名/全服/群排名一律不提供
+  if (!(await checkMemberVerified())) {
+    e.reply('请购买榴莲会员获取排名查询资格～');
+    return true;
   }
 
   // 私聊没有群维度，自动转全服
