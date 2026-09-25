@@ -1331,11 +1331,33 @@ export async function guessRankCmd(e, { render }) {
   // 私聊没有群维度，自动转全服
   if (scope === 'group' && !e.group_id) scope = 'server';
 
-  // 总排名：走中央接口（会员资格），接口未接入前先引导
+  // 总排名：走中央接口（会员资格），接口返回数据为准（含群排名），本地只做渲染
   if (scope === 'total') {
     const totalRank = await fetchTotalRank({ game, period, topN });
     if (totalRank) {
-      // TODO: 后端就绪后按返回结构渲染总排名榜
+      // 接口返回结构：{ groups: [{ game, title, avatar?, rows: [{ rank, name, avatar?, score, wins, parts }], mine? }] }
+      // avatar 缺省时群排名用群头像、用户行用 QQ 头像兜底
+      const groups = (totalRank.groups || []).map(g => ({
+        game: g.game,
+        title: g.title,
+        avatar: g.avatar || (g.game === 'group' && totalRank.groupId ? `https://p.qlogo.cn/gh/${totalRank.groupId}/${totalRank.groupId}/100` : ''),
+        rows: (g.rows || []).map(r => ({
+          rank: r.rank, name: r.name,
+          avatar: r.avatar || (r.userId ? `https://q1.qlogo.cn/g?b=qq&nk=${r.userId}&s=100` : ''),
+          score: r.score, wins: r.wins, parts: r.parts,
+          me: String(r.userId) === myId,
+        })),
+        mine: g.mine || null,
+      }));
+      await Common.render('guess/rank', {
+        title: '猜角色排名',
+        scopeLabel: '总排名',
+        periodLabel: RANK_PERIOD_NAMES[period],
+        period,
+        groups,
+        updateTime: new Date().toLocaleString('zh-CN', { hour12: false })
+      }, { e, render, scale: 1.2 });
+      sendRankHint(e, { scope, period, game, topN, hasArg });
       return true;
     }
     e.reply('总排名需榴莲会员获取资格，功能即将开放，敬请期待～\n可先发送 #猜角色排名全服 查看全服榜');
