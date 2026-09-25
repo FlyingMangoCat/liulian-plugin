@@ -20,6 +20,13 @@ function findOfficialId(map, name) {
   }
   return '';
 }
+// 答案分级判定：官方名（首位）命中得3分，别名命中得1分，未命中0分（分值供后续排名统计使用）
+function judgeAnswer(names, answer) {
+  if (!names || !answer) return 0;
+  if (names[0] === answer) return 3;
+  if (names.includes(answer)) return 1;
+  return 0;
+}
 // 上传音频文件
 export async function uploadRecord(url) {
   try {
@@ -307,7 +314,8 @@ export async function guessAvatarCheck(e) {
   // 只处理原神猜角色，避免与其他游戏状态混淆
   if (playing && gameType === 'genshin' && roleId && e.msg) {
     let answer = e.msg.replace(/^#?我猜/, '').trim();
-    if (roleIdData[roleId] && roleIdData[roleId].includes(answer)) {
+    let score = judgeAnswer(roleIdData[roleId], answer);
+    if (score > 0) {
       await replayAnswer(e, ['恭喜你答对了！'], guessConfig, true);
       if (normalMode && lodash.random(0, 100) <= 8) {
         e.reply('如果感觉太简单了的话，可以对我说“#猜角色困难模式”或者“#猜角色地狱模式”哦！');
@@ -742,7 +750,8 @@ export async function starguessAvatarCheck(e) {
   // 只处理星铁猜角色，避免与其他游戏状态混淆
   if (playing && gameType === 'star' && starroleId && e.msg) {
     let answer = e.msg.replace(/^#?我猜/, '').trim();
-    if (starroleIdData[starroleId] && starroleIdData[starroleId].includes(answer)) {
+    let score = judgeAnswer(starroleIdData[starroleId], answer);
+    if (score > 0) {
       await replayAnswer(e, ['恭喜你答对了！'], guessConfig, true);
       if (normalMode && lodash.random(0, 100) <= 8) {
         e.reply('如果感觉太简单了的话，可以对我说“#星铁猜角色困难模式”或者“#星铁猜角色地狱模式”哦！');
@@ -863,7 +872,8 @@ export async function zzzguessAvatarCheck(e) {
   // 只处理绝区零猜角色，避免与其他游戏状态混淆
   if (playing && gameType === 'zzz' && zzzroleId && e.msg) {
     let answer = e.msg.replace(/^#?我猜/, '').trim();
-    if (zzzroleIdData[zzzroleId] && zzzroleIdData[zzzroleId].includes(answer)) {
+    let score = judgeAnswer(zzzroleIdData[zzzroleId], answer);
+    if (score > 0) {
       await replayAnswer(e, ['恭喜你答对了！'], guessConfig, true);
       if (normalMode && lodash.random(0, 100) <= 8) {
         e.reply('如果感觉太简单了的话，可以对我说“#绝区零猜角色困难模式”或者“#绝区零猜角色地狱模式”哦！');
@@ -988,7 +998,8 @@ export async function wwguessAvatarCheck(e) {
   // 只处理鸣潮猜角色，避免与其他游戏状态混淆
   if (playing && gameType === 'ww' && wwroleId && e.msg) {
     let answer = e.msg.replace(/^[~#]?我猜/, '').trim();
-    if (wwroleIdData[wwroleId] && wwroleIdData[wwroleId].includes(answer)) {
+    let score = judgeAnswer(wwroleIdData[wwroleId], answer);
+    if (score > 0) {
       await replayAnswer(e, ['恭喜你答对了！'], guessConfig, true);
       if (normalMode && lodash.random(0, 100) <= 8) {
         e.reply('如果感觉太简单了的话，可以对我说“~猜角色困难模式”或者“~猜角色地狱模式”哦！');
@@ -1108,7 +1119,8 @@ export async function nteguessAvatarCheck(e) {
   // 只处理异环猜角色，避免与其他游戏状态混淆
   if (playing && gameType === 'nte' && nteroleId && e.msg) {
     let answer = e.msg.replace(/^#?我猜/, '').trim();
-    if (nteroleIdData[nteroleId] && nteroleIdData[nteroleId].includes(answer)) {
+    let score = judgeAnswer(nteroleIdData[nteroleId], answer);
+    if (score > 0) {
       await replayAnswer(e, ['恭喜你答对了！'], guessConfig, true);
       if (normalMode && lodash.random(0, 100) <= 8) {
         e.reply('如果感觉太简单了的话，可以对我说“#异环猜角色困难模式”或者“#异环猜角色地狱模式”哦！');
