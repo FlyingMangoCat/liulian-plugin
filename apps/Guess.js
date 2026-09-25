@@ -1254,6 +1254,20 @@ const RANK_GAME_NAMES = { genshin: '原神', star: '星穹铁道', zzz: '绝区�
 const RANK_PERIOD_NAMES = { day: '日榜', week: '周榜', month: '月榜', year: '年榜' };
 
 // 实时取用户昵称：群名片优先，其次各Bot的群成员/好友缓存，取不到用QQ号兜底
+// 实时取群名：各Bot的群列表缓存优先，取不到用群号兜底
+function getGroupName(e, groupId) {
+  const gid = String(groupId);
+  try {
+    const Bot = global.Bot;
+    const bots = (Bot?.uin ? Bot.uin.map(u => Bot[u]) : Object.values(Bot || {})).filter(b => b && (b.gl || b.fl));
+    for (const bot of bots) {
+      const g = bot.gl?.get?.(gid);
+      if (g && (g.group_name || g.groupName)) return g.group_name || g.groupName;
+    }
+  } catch {}
+  return `群${gid}`;
+}
+
 function getRankName(e, userId) {
   const uid = String(userId);
   try {
@@ -1362,6 +1376,39 @@ export async function guessRankCmd(e, { render }) {
   // 私聊没有群维度，自动转全服
   if (scope === 'group' && !e.group_id) scope = 'server';
 
+  // 群与群排名：本地数据按群汇总总分，需 bot 会员验证，不验证不给用
+  if (scope === 'grouprank') {
+    if (!(await checkMemberVerified())) {
+      e.reply('请购买榴莲会员获取群排名资格～');
+      return true;
+    }
+    const list = guessRank.getGroupRank({ period, game: game === 'all' ? 'total' : game, topN });
+    if (!list.length) {
+      e.reply(`暂无${RANK_PERIOD_NAMES[period]}群排名数据，快开始猜角色吧～`);
+      return true;
+    }
+    await Common.render('guess/rank', {
+      title: '猜角色群排名',
+      scopeLabel: '群排名',
+      periodLabel: RANK_PERIOD_NAMES[period],
+      period,
+      groups: [{
+        game: 'grouprank',
+        title: '群排名',
+        rows: list.map(r => ({
+          rank: r.rank,
+          name: getGroupName(e, r.groupId),
+          avatar: `https://p.qlogo.cn/gh/${r.groupId}/${r.groupId}/100`,
+          score: r.score, wins: r.wins, parts: r.parts,
+          me: String(r.groupId) === String(e.group_id),
+        })),
+        mine: null,
+      }],
+      updateTime: new Date().toLocaleString('zh-CN', { hour12: false })
+    }, { e, render, scale: 1.2 });
+    return true;
+  }
+
   // 总排名：走中央接口，需 bot 会员验证；本地群/全服排名不设门槛
   if (scope === 'total') {
     if (!(await checkMemberVerified())) {
@@ -1385,22 +1432,6 @@ export async function guessRankCmd(e, { render }) {
         })),
         mine: g.mine || null,
       }));
-      // 群总分榜：每行是一个群，头像用群头像
-      if (totalRank.groupRank && totalRank.groupRank.length) {
-        groups.push({
-          game: 'grouprank',
-          title: '群排名',
-          avatar: '',
-          rows: totalRank.groupRank.map(r => ({
-            rank: r.rank,
-            name: r.name || `群${r.groupId}`,
-            avatar: `https://p.qlogo.cn/gh/${r.groupId}/${r.groupId}/100`,
-            score: r.score, wins: r.wins || 0, parts: r.parts || 0,
-            me: String(r.groupId) === String(e.group_id),
-          })),
-          mine: null,
-        });
-      }
       if (groups.length) {
         await Common.render('guess/rank', {
           title: '猜角色排名',
