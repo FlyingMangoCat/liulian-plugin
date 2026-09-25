@@ -1406,6 +1406,7 @@ export async function guessRankCmd(e, { render }) {
       }],
       updateTime: new Date().toLocaleString('zh-CN', { hour12: false })
     }, { e, render, scale: 1.2 });
+    sendRankHint(e, { scope, period, game, topN, hasArg });
     return true;
   }
 
@@ -1500,14 +1501,27 @@ export async function guessRankCmd(e, { render }) {
 
 // 发排名图后随机附带一条玩法提示（开关控制），跳过与本次查询重复的（查了全服就不推全服，互补范围的照发）
 const RANK_HINTS = [
+  // 范围类
   { key: 'server', text: '发送 #猜角色排名全服 可查看全服榜' },
   { key: 'group', text: '发送 #猜角色群排名 可查看群友榜' },
+  { key: 'total', text: '发送 #猜角色总排名 可查看全网总排名（需榴莲会员）' },
+  { key: 'grouprank', text: '发送 #猜角色群聊排名 可查看群与群的总分比拼（需榴莲会员）' },
+  // 周期类
   { key: 'week', text: '发送 #猜角色排名周 可查看周榜（日/周/月/年均可查）' },
+  { key: 'month', text: '发送 #猜角色排名月 可查看月榜' },
+  { key: 'year', text: '发送 #猜角色排名年 可查看年榜' },
+  // 游戏类（含前缀写法）
   { key: 'game', text: '发送 #猜角色排名星铁 可查看指定游戏的排名' },
+  { key: 'game', text: '发送 #猜角色排名原神/绝区零/鸣潮/异环 均可单独查看' },
+  { key: 'game', text: '游戏名可用前缀代替：*星铁 ~鸣潮 %绝区零，如 *猜角色排名' },
+  // 组合类
   { key: 'combo', text: '排名参数可组合，如 #猜角色排名星铁 全服 周' },
-  { key: 'score', text: '使用官方名称答对得3分，别名答对得1分' },
+  { key: 'combo', text: '排名参数可组合，如 #猜角色排名全服 月 前20' },
   { key: 'top', text: '发送 #猜角色排名前20 可查看更多名次' },
-  { key: 'total', text: '总排名需榴莲会员资格，敬请期待' },
+  // 计分类
+  { key: 'score', text: '使用官方名称答对得3分，别名答对得1分' },
+  { key: 'score', text: '猜角色答错不扣分，放心大胆猜' },
+  { key: 'score', text: '群聊排名按群内成员总分计算，人多力量大' },
 ];
 
 function sendRankHint(e, { scope, period, game, topN, hasArg }) {
@@ -1516,7 +1530,11 @@ function sendRankHint(e, { scope, period, game, topN, hasArg }) {
     const pool = RANK_HINTS.filter(h => {
       if (h.key === 'server') return scope !== 'server';
       if (h.key === 'group') return scope !== 'group' && !!e.group_id;
+      if (h.key === 'total') return scope !== 'total';
+      if (h.key === 'grouprank') return scope !== 'grouprank';
       if (h.key === 'week') return period !== 'week';
+      if (h.key === 'month') return period !== 'month';
+      if (h.key === 'year') return period !== 'year';
       if (h.key === 'game') return game === 'all';
       if (h.key === 'combo') return !hasArg;
       if (h.key === 'top') return topN < 20;
