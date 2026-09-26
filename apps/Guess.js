@@ -1349,7 +1349,7 @@ function getRankName(e, userId) {
       }
     }
   } catch {}
-  return uid.length > 6 ? `QQ${uid.slice(-4)}` : uid;
+  return uid;
 }
 
 // ============ 总排名接口钩子 ============
