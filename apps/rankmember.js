@@ -138,8 +138,15 @@ export async function memberBindKey(e) {
     return true;
   }
 
+  // 主人 QQ 归属只认单主人配置：多个主人无法确定归属，不受理
+  const masters = Array.isArray(BotConfig?.masterQQ) ? BotConfig.masterQQ : (BotConfig?.masterQQ ? [BotConfig.masterQQ] : []);
+  if (masters.length > 1) {
+    e.reply('检测到多个主人配置，请联系会飞的芒果猫处理');
+    return true;
+  }
+
   // 主人 QQ 取自配置环境文件，随验证请求一并发送供服务端核对
-  const masterQQ = Array.isArray(BotConfig?.masterQQ) ? BotConfig.masterQQ[0] : BotConfig?.masterQQ;
+  const masterQQ = masters[0] || String(e.user_id);
   const ret = await verifyKey(key, masterQQ);
   if (!ret.ok) {
     recordBindFail();
