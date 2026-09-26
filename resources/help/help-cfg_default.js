@@ -156,11 +156,11 @@ export const helpList = [{
     title: "#榴莲设置/#榴莲ai设置",
     desc: "配置榴莲功能/#榴莲ai设置可配置榴莲ai功能"
   }, {
-    icon: 101,
+    icon: 6,
     title: "#榴莲会员绑定",
     desc: "私信发送榴莲会员绑定，按提示发送密钥完成绑定"
   }, {
-    icon: 102,
+    icon: 91,
     title: "#榴莲会员状态",
     desc: "查询榴莲会员剩余时长与到期时间"
   }]
