@@ -189,7 +189,7 @@ kt2,
 } from "./kun.js"
 import { groupRest } from "./groupRest.js"
 import { qmp } from "./updatecard.js"
-import { memberBind, memberBindKey } from "./rankmember.js"
+import { memberBind, memberBindKey, memberStatus } from "./rankmember.js"
 
 export {
     help,
@@ -469,6 +469,11 @@ let rule = {
         reg: '^榴莲会员绑定$',
         priority: 5,
         describe: '【#管理】榴莲会员绑定（仅主人私信）'
+    },
+        memberStatus: {
+        reg: '^#榴莲会员状态$',
+        priority: 5,
+        describe: '【#管理】榴莲会员状态查询'
     },
         memberBindKey: {
         reg: '[\\s\\S]*',
@@ -1655,7 +1660,7 @@ const exportedFunctions = {
     sm1, sm2, sm3, sm4, sm5, sm6, sm7, sm8, sm9, sm10,
     sm11, sm12, sm13, sm14, sm15, sm16, sm17, sm18, sm19,
     sm20, sm21, sm22, sm23, fakeMessage, random, chuochuo,
-    FuckingChatterbox, guessAvatar, guessAvatarCheck, memberBind, memberBindKey,
+    FuckingChatterbox, guessAvatar, guessAvatarCheck, memberBind, memberBindKey, memberStatus,
     zzzguessAvatar, zzzguessAvatarCheck, wwguessAvatar, wwguessAvatarCheck, nteguessAvatar, nteguessAvatarCheck, groupRest, godEyesFUN,
     headPortraitFUN, qmp, biaoQing, biaoQingHelp, fabing,
     lp, setu, dailyword, sentence, dailywordCheck, sentenceCheck, HitMe, CeShi, dutang,

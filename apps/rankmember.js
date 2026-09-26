@@ -250,6 +250,54 @@ export async function memberBindKey(e) {
   return true;
 }
 
+// 榴莲会员状态：查询会员是否生效、到期时间与剩余时长
+export async function memberStatus(e) {
+  if (!e.isMaster) {
+    e.reply('只有主人才能查询榴莲会员状态哦~');
+    return true;
+  }
+  const m = readMember();
+  if (!m || !m.secret) {
+    e.reply('尚未绑定榴莲会员，请私信发送 榴莲会员绑定 进行绑定~');
+    return true;
+  }
+  const ret = await fetchMembership();
+  if (!ret.ok) {
+    const msgMap = {
+      KEY_INVALID: '密钥已失效，请联系管理员重新授权',
+      QQ_MISMATCH: '主人 QQ 与授权留档不一致',
+      MEMBER_EXPIRED: '榴莲会员已过期，请续费',
+      MEMBER_BANNED: '榴莲会员已被封禁',
+      NETWORK_ERROR: '查询失败，请稍后再试',
+      RATE_LIMITED: '请求过频，请稍后再试',
+      NO_CREDENTIAL: '查询功能暂未开放，请稍后再试',
+    };
+    e.reply(`查询失败：${msgMap[ret.errorCode] || '接口异常，请稍后再试'}`);
+    return true;
+  }
+  const data = ret.data || {};
+  if (data.banned && data.banned.isBanned) {
+    e.reply('榴莲会员已被封禁');
+    return true;
+  }
+  if (!data.isActive) {
+    e.reply('榴莲会员当前未生效（可能已到期或未开始）');
+    return true;
+  }
+  // 剩余时长：天不足 1 天按小时展示
+  let remain = '';
+  if (data.remainingDays >= 1) {
+    remain = `${data.remainingDays} 天`;
+  } else if (data.remainingMs > 0) {
+    remain = `${Math.max(1, Math.ceil(data.remainingMs / 3600000))} 小时`;
+  } else {
+    remain = '不足 1 小时';
+  }
+  const expiry = data.expiresAt ? new Date(data.expiresAt).toLocaleString('zh-CN', { hour12: false }) : '未知';
+  e.reply(`榴莲会员状态：生效中\n剩余时长：${remain}\n到期时间：${expiry}`);
+  return true;
+}
+
 // ============ 对局上报 ============
 // roundId 持久化：进程崩溃后恢复仍可结算/弃局
 function loadRounds() {
