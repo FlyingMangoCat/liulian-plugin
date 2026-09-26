@@ -1327,12 +1327,21 @@ function getGroupName(e, groupId) {
   return `群${gid}`;
 }
 
-function getRankName(e, userId) {
+// 实时取用户昵称：群名片优先，其次群成员列表，取不到用QQ号兜底
+async function getRankName(e, userId) {
   const uid = String(userId);
   try {
     if (e.group && e.group.pickMember) {
-      const info = e.group.pickMember(uid)?.info;
-      if (info && (info.card || info.nickname)) return info.card || info.nickname;
+      const mem = e.group.pickMember(uid);
+      const name = mem?.card || mem?.nickname || mem?.info?.card || mem?.info?.nickname;
+      if (name) return name;
+    }
+  } catch {}
+  try {
+    if (e.group && e.group.getMemberMap) {
+      const mmap = await e.group.getMemberMap();
+      const mem = mmap?.get?.(uid);
+      if (mem && (mem.card || mem.nickname)) return mem.card || mem.nickname;
     }
   } catch {}
   try {
@@ -1415,12 +1424,15 @@ export async function guessRankCmd(e, { render }) {
     // 接口返回：{ total, list: [{rank, qq, points, parts}], me: {rank, qq, points, parts} }
     const ranking = await fetchRanking(topN, myId);
     if (ranking) {
-      const rows = (ranking.list || []).map(r => ({
-        rank: r.rank, name: getRankName(e, r.qq),
-        avatar: `https://q1.qlogo.cn/g?b=qq&nk=${r.qq}&s=100`,
-        score: r.points, wins: 0, parts: r.parts,
-        me: String(r.qq) === myId,
-      }));
+      const rows = [];
+      for (const r of (ranking.list || [])) {
+        rows.push({
+          rank: r.rank, name: await getRankName(e, r.qq),
+          avatar: `https://q1.qlogo.cn/g?b=qq&nk=${r.qq}&s=100`,
+          score: r.points, wins: 0, parts: r.parts,
+          me: String(r.qq) === myId,
+        });
+      }
       // 我的名次不在榜单内时页尾补"我的排名"
       const meRow = ranking.me && ranking.me.rank
         ? { rank: ranking.me.rank, score: ranking.me.points, wins: 0, parts: ranking.me.parts, inList: rows.some(r => r.me) }
@@ -1458,7 +1470,7 @@ export async function guessRankCmd(e, { render }) {
       const u = list[i];
       rows.push({
         rank: i + 1,
-        name: getRankName(e, u.userId),
+        name: await getRankName(e, u.userId),
         avatar: `https://q1.qlogo.cn/g?b=qq&nk=${u.userId}&s=100`,
         score: u.score, wins: u.wins, parts: u.parts,
         me: u.userId === myId,
