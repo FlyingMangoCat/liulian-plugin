@@ -160,7 +160,7 @@ export async function liulian_status(e) {
         message += `Redis缓存: ${(dbStatus && dbStatus.redis && dbStatus.redis.available) ? '✅' : '❌'}\n\n`;
 
         // 外部API状态检查
-        message += `📡 外部API状态\n`;
+        message += `外部API状态\n`;
         message += `━━━━━━━━━━━━━━━━\n`;
         
         // 检查所有在用的外部API

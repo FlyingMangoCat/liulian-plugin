@@ -1,4 +1,3 @@
-
 import fs from 'fs';
 import fetch from "node-fetch";
 import { promisify } from "util";

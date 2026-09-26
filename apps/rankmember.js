@@ -2,9 +2,10 @@ import fs from 'fs';
 import path from 'path';
 import crypto from 'crypto';
 import fetch from 'node-fetch';
+import { botConfig } from "../components/bcommon.js";
 
 // 会员密钥与排名系统对接（HMAC 签名，见接口规范）
-// secret 单独落盘存储，绝不随请求传输；主人 QQ 取自配置环境文件
+// secret 单独落盘存储，不随请求传输；主人 QQ 取自配置环境文件
 const DATA_DIR = path.join(process.cwd(), 'data', 'guessrank');
 const MEMBER_FILE = path.join(DATA_DIR, 'member.json');
 const ROUNDS_FILE = path.join(DATA_DIR, 'rounds.json');
@@ -44,7 +45,7 @@ function getMemberExpiry() {
 
 // 主人 QQ：只认单主人配置，多个主人无法确定归属
 function getOwnerQqs() {
-  const masters = Array.isArray(BotConfig?.masterQQ) ? BotConfig.masterQQ : (BotConfig?.masterQQ ? [BotConfig.masterQQ] : []);
+  const masters = Array.isArray(botConfig?.masterQQ) ? botConfig.masterQQ : (botConfig?.masterQQ ? [botConfig.masterQQ] : []);
   return masters.map(String);
 }
 
