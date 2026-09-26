@@ -132,28 +132,6 @@ class GuessRankDB {
     return { rank: idx + 1, ...list[idx] };
   }
 
-  // 群与群排名：本地数据按群汇总成员总分（仅总排名体系外的独立查询，需 bot 会员验证）
-  getGroupRank({ period = 'day', game = 'total', topN = 10 }) {
-    const keys = periodKeys();
-    const d = this.load();
-    const pd = d[period] && d[period][keys[period]];
-    if (!pd || !pd.group) return [];
-    const list = Object.entries(pd.group)
-      .map(([groupId, games]) => {
-        let score = 0, wins = 0, parts = 0;
-        const useGames = game === 'total' ? Object.keys(games) : [game];
-        for (const g of useGames) {
-          for (const v of Object.values(games[g] || {})) {
-            score += v.s || 0; wins += v.w || 0; parts += v.p || 0;
-          }
-        }
-        return { groupId, score, wins, parts };
-      })
-      .filter(u => u.parts > 0)
-      .sort((a, b) => b.score - a.score || b.wins - a.wins || a.groupId.localeCompare(b.groupId));
-    return list.slice(0, topN).map((u, i) => ({ rank: i + 1, ...u }));
-  }
-
   flushSoon() {
     if (this.flushTimer) return;
     this.flushTimer = setTimeout(() => {

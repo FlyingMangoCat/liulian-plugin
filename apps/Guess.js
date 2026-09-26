@@ -1377,41 +1377,53 @@ export async function guessRankCmd(e, { render }) {
   }
 
   // 会员验证只管总排名（bot 自身会员），本地群/全服排名不设门槛
+  const myId = String(e.user_id);
+  const apiGame = game === 'all' ? '' : game;
 
   // 私聊没有群维度，自动转全服
   if (scope === 'group' && !e.group_id) scope = 'server';
 
-  // 群与群排名：本地数据按群汇总总分，需 bot 会员验证，不验证不给用
+  // 群与群排名：走服务端群总分榜（群与群比），需 bot 会员验证，不验证不给用
   if (scope === 'grouprank') {
     if (!(await checkMember())) {
       e.reply('群聊排名需榴莲会员资格，请先绑定或续费榴莲会员～');
       return true;
     }
-    const list = guessRank.getGroupRank({ period, game: game === 'all' ? 'total' : game, topN });
-    if (!list.length) {
-      e.reply(`暂无${RANK_PERIOD_NAMES[period]}群聊排名数据，快开始猜角色吧～`);
+    // 接口返回：{ total, list: [{rank, groupId, points, parts}], me: {rank, groupId, ...} }
+    const granking = await fetchGroupRanking(topN, String(e.group_id || ''), apiGame, period);
+    if (granking) {
+      const rows = (granking.list || []).map(r => ({
+        rank: r.rank,
+        name: getGroupName(e, r.groupId),
+        avatar: `https://p.qlogo.cn/gh/${r.groupId}/${r.groupId}/100`,
+        score: r.points, wins: 0, parts: r.parts,
+        me: String(r.groupId) === String(e.group_id),
+      }));
+      // 本群名次不在榜内时页尾补"我的群排名"
+      const meRow = granking.me && granking.me.rank
+        ? { rank: granking.me.rank, score: granking.me.points, wins: 0, parts: granking.me.parts, inList: rows.some(r => r.me) }
+        : null;
+      if (!rows.length && !meRow) {
+        e.reply('群聊排名暂无数据，快开始猜角色吧～');
+        return true;
+      }
+      await Common.render('guess/rank', {
+        title: '猜角色群聊排名',
+        scopeLabel: '群聊排名',
+        periodLabel: RANK_PERIOD_NAMES[period],
+        period,
+        groups: [{
+          game: 'grouprank',
+          title: '群排名',
+          rows,
+          mine: meRow,
+        }],
+        updateTime: new Date().toLocaleString('zh-CN', { hour12: false })
+      }, { e, render, scale: 1.2 });
+      sendRankHint(e, { scope, period, game, topN, hasArg });
       return true;
     }
-    await Common.render('guess/rank', {
-      title: '猜角色群聊排名',
-      scopeLabel: '群聊排名',
-      periodLabel: RANK_PERIOD_NAMES[period],
-      period,
-      groups: [{
-        game: 'grouprank',
-        title: '群排名',
-        rows: list.map(r => ({
-          rank: r.rank,
-          name: getGroupName(e, r.groupId),
-          avatar: `https://p.qlogo.cn/gh/${r.groupId}/${r.groupId}/100`,
-          score: r.score, wins: r.wins, parts: r.parts,
-          me: String(r.groupId) === String(e.group_id),
-        })),
-        mine: null,
-      }],
-      updateTime: new Date().toLocaleString('zh-CN', { hour12: false })
-    }, { e, render, scale: 1.2 });
-    sendRankHint(e, { scope, period, game, topN, hasArg });
+    e.reply('群聊排名查询失败，请稍后再试～');
     return true;
   }
 
@@ -1422,7 +1434,7 @@ export async function guessRankCmd(e, { render }) {
       return true;
     }
     // 接口返回：{ total, list: [{rank, qq, points, parts}], me: {rank, qq, points, parts} }
-    const ranking = await fetchRanking(topN, myId);
+    const ranking = await fetchRanking(topN, myId, apiGame, period);
     if (ranking) {
       const rows = [];
       for (const r of (ranking.list || [])) {
@@ -1460,7 +1472,6 @@ export async function guessRankCmd(e, { render }) {
   const groupId = scope === 'group' ? e.group_id : undefined;
 
   const gameList = game === 'all' ? ['genshin', 'star', 'zzz', 'ww', 'nte', 'total'] : [game];
-  const myId = String(e.user_id);
   const groups = [];
 
   for (const g of gameList) {

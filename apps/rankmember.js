@@ -14,6 +14,7 @@ const MEMBER_VERIFY_PATH = '/api/rank/membership';
 const ROUND_START_PATH = '/api/rank/round/start';
 const ROUND_FINISH_PATH = '/api/rank/round/finish';
 const RANKING_PATH = '/api/rank/ranking';
+const GROUP_RANKING_PATH = '/api/rank/group-ranking';
 
 let memberCache = null;
 // 处于绑定等待态的主人（私信发过 榴莲会员绑定，正在等发密钥）
@@ -273,12 +274,14 @@ function saveRound(groupId, roundId) {
 }
 
 // 对局上报：开局登记，返回 roundId（未绑定/业务冲突时静默返回空，不打扰用户）
+// game 为开局必传枚举（genshin/star/zzz/ww/nte），结算自动沿用无需再传
 export async function startRound(e, gameType) {
   const ownerQqs = getOwnerQqs();
   if (!getSecret() || !ownerQqs.length) return '';
   const groupId = String(e.group_id || '');
   if (!/^\d{4,20}$/.test(groupId)) return '';
-  const ret = await signedRequest('POST', ROUND_START_PATH, { groupId });
+  if (!['genshin', 'star', 'zzz', 'ww', 'nte'].includes(gameType)) return '';
+  const ret = await signedRequest('POST', ROUND_START_PATH, { groupId, game: gameType });
   if (ret.ok) {
     const roundId = (ret.data && ret.data.roundId) || '';
     if (roundId) saveRound(groupId, roundId);
@@ -332,12 +335,34 @@ function cleanupRound(roundId) {
 }
 
 // ============ 排名榜 ============
-// 全局排名（服务端 60 秒缓存），可选 qq 返回本人名次
-export async function fetchRanking(top = 10, qq = '') {
-  const qqParam = qq ? `&qq=${qq}` : '';
-  const ret = await signedRequest('GET', `${RANKING_PATH}?top=${top}${qqParam}`);
+// 时区偏移（分钟，东八区=-480）：只用于服务端切自然边界
+function tzOffset() {
+  return new Date().getTimezoneOffset();
+}
+
+// 用户榜（服务端 60 秒缓存）：可选 game 分游戏榜、period+offset 时效榜
+export async function fetchRanking(top = 10, qq = '', game = '', period = '') {
+  let qs = `top=${top}`;
+  if (qq) qs += `&qq=${qq}`;
+  if (game) qs += `&game=${game}`;
+  if (period) qs += `&period=${period}&offset=${tzOffset()}`;
+  const ret = await signedRequest('GET', `${RANKING_PATH}?${qs}`);
   if (!ret.ok) {
     logger.mark(`[榴莲会员] 排名查询未通过: ${ret.errorCode}`);
+    return null;
+  }
+  return ret.data;
+}
+
+// 群总分榜（群与群比）：可选 groupId 返回本群名次，game/period 口径与用户榜一致
+export async function fetchGroupRanking(top = 10, groupId = '', game = '', period = '') {
+  let qs = `top=${top}`;
+  if (groupId) qs += `&groupId=${groupId}`;
+  if (game) qs += `&game=${game}`;
+  if (period) qs += `&period=${period}&offset=${tzOffset()}`;
+  const ret = await signedRequest('GET', `${GROUP_RANKING_PATH}?${qs}`);
+  if (!ret.ok) {
+    logger.mark(`[榴莲会员] 群榜查询未通过: ${ret.errorCode}`);
     return null;
   }
   return ret.data;
