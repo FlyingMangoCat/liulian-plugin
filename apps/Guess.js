@@ -7,10 +7,27 @@ import sizeOf from 'image-size';
 import { roleIdToName, starroleIdToName, zzzroleIdToName, nteroleIdToName, wwroleIdToName } from "../components/mysInfo.js";
 import { roleId as roleIdData, starroleId as starroleIdData, zzzroleId as zzzroleIdData, nteroleId as nteroleIdData, wwroleId as wwroleIdData } from "../config/roleId.js";
 import { guessRank, parseRankArgs } from "./guessrank.js";
+import { startRound, finishRound } from "./rankmember.js";
 import { getPluginRender, browserInit } from '../model/render.js';
 import template from "art-template";
 import { Data, Cfg, Common } from "#liulian";
 import config from "../model/config/config.js"
+// 对局上报辅助：本局结果收集（含0分参与），赢家结算时批量上报
+// 结构：guessConfig.roundId=对局编号，guessConfig.roundResults=[{qq,score}]
+function roundRecord(guessConfig, e, score) {
+  if (!guessConfig || !guessConfig.roundId) return;
+  guessConfig.roundResults.push({ qq: String(e.user_id), score });
+}
+
+// 赢家结算上报：一局恰好一个赢家，fire-and-forget 不阻塞回复
+function roundFinish(guessConfig) {
+  if (!guessConfig || !guessConfig.roundId) return;
+  const { roundId, roundResults } = guessConfig;
+  guessConfig.roundId = '';
+  guessConfig.roundResults = [];
+  finishRound(roundId, roundResults).catch(() => {});
+}
+
 const GAME_TIME_OUT = 30//游戏时长(秒)
 const _path = process.cwd();
 let music = Cfg.get('sys.musicList'); //这里改网易云的歌单
@@ -251,6 +268,10 @@ export async function guessAvatar(e) {
   guessConfig.gameType = 'genshin';
   guessConfig.playing = true;
   guessConfig.roleId = roleId;
+  // 对局上报登记（异步不阻塞出图），结算时上报本局结果
+  guessConfig.roundId = '';
+  guessConfig.roundResults = [];
+  startRound(e, 'genshin').then(id => { guessConfig.roundId = id; }).catch(() => {});
   console.group('猜角色');
   console.log('ID:', roleId);
   console.log('角色:', roleName);
@@ -322,6 +343,8 @@ export async function guessAvatarCheck(e) {
     let score = judgeAnswer(roleIdData[roleId], answer);
     if (score > 0) {
       guessRank.record({ gameType: 'genshin', e, score, isCorrect: true });
+      roundRecord(guessConfig, e, score);
+      roundFinish(guessConfig);
       await replayAnswer(e, ['恭喜你答对了！'], guessConfig, true);
       if (normalMode && lodash.random(0, 100) <= 8) {
         e.reply('如果感觉太简单了的话，可以对我说“#猜角色困难模式”或者“#猜角色地狱模式”哦！');
@@ -330,6 +353,7 @@ export async function guessAvatarCheck(e) {
     }
     if (isGuess) {
       guessRank.record({ gameType: 'genshin', e, score: 0, isCorrect: false });
+      roundRecord(guessConfig, e, 0);
     }
   }
   return false;
@@ -695,6 +719,10 @@ export async function starguessAvatar(e) {
   guessConfig.gameType = 'star';
   guessConfig.playing = true;
   guessConfig.starroleId = roleId;
+  // 对局上报登记（异步不阻塞出图），结算时上报本局结果
+  guessConfig.roundId = '';
+  guessConfig.roundResults = [];
+  startRound(e, 'star').then(id => { guessConfig.roundId = id; }).catch(() => {});
   console.group('猜角色');
   console.log('ID:', roleId);
   console.log('角色:', roleName);
@@ -766,6 +794,8 @@ export async function starguessAvatarCheck(e) {
     let score = judgeAnswer(starroleIdData[starroleId], answer);
     if (score > 0) {
       guessRank.record({ gameType: 'star', e, score, isCorrect: true });
+      roundRecord(guessConfig, e, score);
+      roundFinish(guessConfig);
       await replayAnswer(e, ['恭喜你答对了！'], guessConfig, true);
       if (normalMode && lodash.random(0, 100) <= 8) {
         e.reply('如果感觉太简单了的话，可以对我说“#星铁猜角色困难模式”或者“#星铁猜角色地狱模式”哦！');
@@ -774,6 +804,7 @@ export async function starguessAvatarCheck(e) {
     }
     if (isGuess) {
       guessRank.record({ gameType: 'star', e, score: 0, isCorrect: false });
+      roundRecord(guessConfig, e, 0);
     }
       }
       return false;
@@ -825,6 +856,10 @@ export async function starguessAvatarCheck(e) {
   guessConfig.starroleId = '';
   guessConfig.gameType = 'zzz';
   guessConfig.zzzroleId = roleId;
+  // 对局上报登记（异步不阻塞出图），结算时上报本局结果
+  guessConfig.roundId = '';
+  guessConfig.roundResults = [];
+  startRound(e, 'zzz').then(id => { guessConfig.roundId = id; }).catch(() => {});
   console.group('猜角色');
   console.log('ID:', roleId);
   console.log('角色:', roleName);
@@ -896,6 +931,8 @@ export async function zzzguessAvatarCheck(e) {
     let score = judgeAnswer(zzzroleIdData[zzzroleId], answer);
     if (score > 0) {
       guessRank.record({ gameType: 'zzz', e, score, isCorrect: true });
+      roundRecord(guessConfig, e, score);
+      roundFinish(guessConfig);
       await replayAnswer(e, ['恭喜你答对了！'], guessConfig, true);
       if (normalMode && lodash.random(0, 100) <= 8) {
         e.reply('如果感觉太简单了的话，可以对我说“#绝区零猜角色困难模式”或者“#绝区零猜角色地狱模式”哦！');
@@ -904,6 +941,7 @@ export async function zzzguessAvatarCheck(e) {
     }
     if (isGuess) {
       guessRank.record({ gameType: 'zzz', e, score: 0, isCorrect: false });
+      roundRecord(guessConfig, e, 0);
     }
   }
   return false;
@@ -958,6 +996,10 @@ export async function wwguessAvatar(e) {
   guessConfig.nteroleId = '';
   guessConfig.gameType = 'ww';
   guessConfig.wwroleId = roleId;
+  // 对局上报登记（异步不阻塞出图），结算时上报本局结果
+  guessConfig.roundId = '';
+  guessConfig.roundResults = [];
+  startRound(e, 'ww').then(id => { guessConfig.roundId = id; }).catch(() => {});
   console.group('猜角色');
   console.log('ID:', roleId);
   console.log('角色:', roleName);
@@ -1030,6 +1072,8 @@ export async function wwguessAvatarCheck(e) {
     let score = judgeAnswer(wwroleIdData[wwroleId], answer);
     if (score > 0) {
       guessRank.record({ gameType: 'ww', e, score, isCorrect: true });
+      roundRecord(guessConfig, e, score);
+      roundFinish(guessConfig);
       await replayAnswer(e, ['恭喜你答对了！'], guessConfig, true);
       if (normalMode && lodash.random(0, 100) <= 8) {
         e.reply('如果感觉太简单了的话，可以对我说“~猜角色困难模式”或者“~猜角色地狱模式”哦！');
@@ -1038,6 +1082,7 @@ export async function wwguessAvatarCheck(e) {
     }
     if (isGuess) {
       guessRank.record({ gameType: 'ww', e, score: 0, isCorrect: false });
+      roundRecord(guessConfig, e, 0);
     }
   }
   return false;
@@ -1091,6 +1136,10 @@ export async function nteguessAvatar(e) {
   guessConfig.wwroleId = '';
   guessConfig.gameType = 'nte';
   guessConfig.nteroleId = roleId;
+  // 对局上报登记（异步不阻塞出图），结算时上报本局结果
+  guessConfig.roundId = '';
+  guessConfig.roundResults = [];
+  startRound(e, 'nte').then(id => { guessConfig.roundId = id; }).catch(() => {});
   console.group('猜角色');
   console.log('ID:', roleId);
   console.log('角色:', roleName);
@@ -1159,6 +1208,8 @@ export async function nteguessAvatarCheck(e) {
     let score = judgeAnswer(nteroleIdData[nteroleId], answer);
     if (score > 0) {
       guessRank.record({ gameType: 'nte', e, score, isCorrect: true });
+      roundRecord(guessConfig, e, score);
+      roundFinish(guessConfig);
       await replayAnswer(e, ['恭喜你答对了！'], guessConfig, true);
       if (normalMode && lodash.random(0, 100) <= 8) {
         e.reply('如果感觉太简单了的话，可以对我说“#异环猜角色困难模式”或者“#异环猜角色地狱模式”哦！');
@@ -1167,6 +1218,7 @@ export async function nteguessAvatarCheck(e) {
     }
     if (isGuess) {
       guessRank.record({ gameType: 'nte', e, score: 0, isCorrect: false });
+      roundRecord(guessConfig, e, 0);
     }
   }
   return false;

@@ -189,6 +189,7 @@ kt2,
 } from "./kun.js"
 import { groupRest } from "./groupRest.js"
 import { qmp } from "./updatecard.js"
+import { memberBind, memberBindKey } from "./rankmember.js"
 
 export {
     help,
@@ -463,6 +464,17 @@ let rule = {
         priority: 5,
         log: false, // 全量监听规则，不打匹配日志避免刷屏
         describe: "",
+    },
+        memberBind: {
+        reg: '^榴莲会员绑定$',
+        priority: 5,
+        describe: '【#管理】榴莲会员绑定（仅主人私信）'
+    },
+        memberBindKey: {
+        reg: '[\\s\\S]*',
+        priority: 0,
+        log: false, // 全量监听规则，仅处理绑定等待态，不打匹配日志避免刷屏
+        describe: ""
     },
         updateLiulianPlugin: {
         reg: '^#(榴莲|留恋)(强制)?更新',
@@ -1643,7 +1655,7 @@ const exportedFunctions = {
     sm1, sm2, sm3, sm4, sm5, sm6, sm7, sm8, sm9, sm10,
     sm11, sm12, sm13, sm14, sm15, sm16, sm17, sm18, sm19,
     sm20, sm21, sm22, sm23, fakeMessage, random, chuochuo,
-    FuckingChatterbox, guessAvatar, guessAvatarCheck,
+    FuckingChatterbox, guessAvatar, guessAvatarCheck, memberBind, memberBindKey,
     zzzguessAvatar, zzzguessAvatarCheck, wwguessAvatar, wwguessAvatarCheck, nteguessAvatar, nteguessAvatarCheck, groupRest, godEyesFUN,
     headPortraitFUN, qmp, biaoQing, biaoQingHelp, fabing,
     lp, setu, dailyword, sentence, dailywordCheck, sentenceCheck, HitMe, CeShi, dutang,
