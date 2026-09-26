@@ -13,6 +13,8 @@ const ROUND_START_URL = '/api/rank/round/start';
 const ROUND_FINISH_URL = '/api/rank/round/finish';
 
 let memberCache = null;
+// 处于绑定等待态的主人（私信发过 榴莲会员绑定，正在等发密钥）
+const pendingBinds = new Map();
 
 function readMember() {
   if (memberCache) return memberCache;
@@ -157,8 +159,6 @@ export async function memberBindKey(e) {
   }
   return true;
 }
-
-const pendingBinds = new Map();
 
 // 对局上报：开局登记，返回 roundId（未配置/无密钥/业务冲突时静默返回空，不打扰用户）
 export async function startRound(e, gameType) {
