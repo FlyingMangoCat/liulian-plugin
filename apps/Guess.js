@@ -7,7 +7,7 @@ import sizeOf from 'image-size';
 import { roleIdToName, starroleIdToName, zzzroleIdToName, nteroleIdToName, wwroleIdToName } from "../components/mysInfo.js";
 import { roleId as roleIdData, starroleId as starroleIdData, zzzroleId as zzzroleIdData, nteroleId as nteroleIdData, wwroleId as wwroleIdData } from "../config/roleId.js";
 import { guessRank, parseRankArgs } from "./guessrank.js";
-import { startRound, finishRound } from "./rankmember.js";
+import { startRound, finishRound, checkMember, fetchRanking } from "./rankmember.js";
 import { getPluginRender, browserInit } from '../model/render.js';
 import template from "art-template";
 import { Data, Cfg, Common } from "#liulian";
@@ -361,6 +361,13 @@ export async function guessAvatarCheck(e) {
 export async function replayAnswer(e, message, cfg, isReply = false) {
   clearTimeout(cfg.timer);
   cfg.playing = false;
+  // roundId 仍在 = 超时无人获胜的弃局，上报空结果让服务端立即回收（赢家结算时已提前清空）
+  if (cfg.roundId) {
+    const rid = cfg.roundId;
+    cfg.roundId = '';
+    cfg.roundResults = [];
+    finishRound(rid, []).catch(() => {});
+  }
   let answer = await cfg.answer;
   if (answer) {
     message.push('\n');
@@ -1347,69 +1354,6 @@ function getRankName(e, userId) {
 
 // ============ 总排名接口钩子 ============
 // 后端就绪后在此配置接口地址与密钥，请求时带密钥做验证，按返回错误码给出对应提示
-const TOTAL_RANK_API = {
-  url: '',    // TODO: 后端就绪后填入拉取总排名数据的接口地址
-  key: '',    // TODO: 后端就绪后填入验证密钥
-  cacheMs: 60 * 1000, // 1分钟内直接用缓存返回
-};
-let totalRankCache = { data: null, time: 0 };
-
-// 拉取总排名：命中缓存直接返回；请求失败/返回错误码时返回 null，由调用方给出提示
-async function fetchTotalRank({ game, period, topN }) {
-  if (!TOTAL_RANK_API.url) return null;
-  const now = Date.now();
-  if (totalRankCache.data && now - totalRankCache.time < TOTAL_RANK_API.cacheMs) {
-    return totalRankCache.data;
-  }
-  try {
-    const res = await fetch(TOTAL_RANK_API.url, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', Authorization: TOTAL_RANK_API.key },
-      body: JSON.stringify({ game, period, topN }),
-    });
-    const ret = await res.json();
-    // TODO: 后端就绪后按约定错误码分支处理（无权限提示购买榴莲会员等）
-    if (ret.code !== 0 && ret.code !== 200) {
-      logger.warn(`[猜角色排名] 总排名接口返回错误码: ${ret.code}`);
-      return null;
-    }
-    totalRankCache = { data: ret.data, time: now };
-    return ret.data;
-  } catch (err) {
-    logger.warn(`[猜角色排名] 总排名接口请求失败: ${err.message}`);
-    return null;
-  }
-}
-
-// 会员身份验证：查任何排名（总/全服/群）都需先通过验证，验证失败一律不提供排名数据
-// 后端就绪后填入验证接口地址（密钥复用 TOTAL_RANK_API.key）
-const MEMBER_VERIFY_API = {
-  url: '',   // TODO: 后端就绪后填入会员验证接口地址
-};
-let memberVerifyCache = { ok: null, time: 0 };
-
-// 验证会员身份：接口未配置时不拦截（功能未上线）；验证通过或命中缓存返回 true
-async function checkMemberVerified() {
-  if (!MEMBER_VERIFY_API.url) return true;
-  const now = Date.now();
-  if (memberVerifyCache.ok !== null && now - memberVerifyCache.time < TOTAL_RANK_API.cacheMs) {
-    return memberVerifyCache.ok;
-  }
-  try {
-    const res = await fetch(MEMBER_VERIFY_API.url, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', Authorization: TOTAL_RANK_API.key },
-    });
-    const ret = await res.json();
-    // TODO: 后端就绪后按约定错误码分支处理（无权限/过期/其他）
-    memberVerifyCache = { ok: ret.code === 0 || ret.code === 200, time: now };
-  } catch (err) {
-    logger.warn(`[猜角色排名] 会员验证请求失败: ${err.message}`);
-    memberVerifyCache = { ok: false, time: now };
-  }
-  return memberVerifyCache.ok;
-}
-
 export async function guessRankCmd(e, { render }) {
   // 关键词可能出现在"排名"前后（如 星铁猜角色排名 / 猜角色星铁全服周排名），全量交给解析器
   const rest = e.msg.replace(/^[#*~%]+/, '').replace('排名', ' ');
@@ -1430,8 +1374,8 @@ export async function guessRankCmd(e, { render }) {
 
   // 群与群排名：本地数据按群汇总总分，需 bot 会员验证，不验证不给用
   if (scope === 'grouprank') {
-    if (!(await checkMemberVerified())) {
-      e.reply('请购买榴莲会员获取群聊排名资格～');
+    if (!(await checkMember())) {
+      e.reply('群聊排名需榴莲会员资格，请先绑定或续费榴莲会员～');
       return true;
     }
     const list = guessRank.getGroupRank({ period, game: game === 'all' ? 'total' : game, topN });
@@ -1464,43 +1408,39 @@ export async function guessRankCmd(e, { render }) {
 
   // 总排名：走中央接口，需 bot 会员验证；本地群/全服排名不设门槛
   if (scope === 'total') {
-    if (!(await checkMemberVerified())) {
-      e.reply('请购买榴莲会员获取总排名资格～\n可先发送 #猜角色排名全服 查看全服榜');
+    if (!(await checkMember())) {
+      e.reply('总排名需榴莲会员资格，请先绑定或续费榴莲会员～\n可先发送 #猜角色排名全服 查看全服榜');
       return true;
     }
-    const totalRank = await fetchTotalRank({ game, period, topN });
-    if (totalRank) {
-      // 接口返回结构：
-      // users: [{ game, title, rows: [{ rank, userId, name?, avatar?, score, wins, parts }], mine? }]
-      // groupRank: [{ rank, groupId, name?, score, parts? }] —— 群总分榜（仅总排名提供，本地无此数据）
-      const groups = (totalRank.users || []).map(g => ({
-        game: g.game,
-        title: g.title,
-        avatar: '',
-        rows: (g.rows || []).map(r => ({
-          rank: r.rank, name: r.name,
-          avatar: r.avatar || (r.userId ? `https://q1.qlogo.cn/g?b=qq&nk=${r.userId}&s=100` : ''),
-          score: r.score, wins: r.wins, parts: r.parts,
-          me: String(r.userId) === myId,
-        })),
-        mine: g.mine || null,
+    // 接口返回：{ total, list: [{rank, qq, points, parts}], me: {rank, qq, points, parts} }
+    const ranking = await fetchRanking(topN, myId);
+    if (ranking) {
+      const rows = (ranking.list || []).map(r => ({
+        rank: r.rank, name: getRankName(e, r.qq),
+        avatar: `https://q1.qlogo.cn/g?b=qq&nk=${r.qq}&s=100`,
+        score: r.points, wins: 0, parts: r.parts,
+        me: String(r.qq) === myId,
       }));
-      if (groups.length) {
-        await Common.render('guess/rank', {
-          title: '猜角色排名',
-          scopeLabel: '总排名',
-          periodLabel: RANK_PERIOD_NAMES[period],
-          period,
-          groups,
-          updateTime: new Date().toLocaleString('zh-CN', { hour12: false })
-        }, { e, render, scale: 1.2 });
-        sendRankHint(e, { scope, period, game, topN, hasArg });
-      } else {
+      // 我的名次不在榜单内时页尾补"我的排名"
+      const meRow = ranking.me && ranking.me.rank
+        ? { rank: ranking.me.rank, score: ranking.me.points, wins: 0, parts: ranking.me.parts, inList: rows.some(r => r.me) }
+        : null;
+      if (!rows.length && !meRow) {
         e.reply('总排名暂无数据');
+        return true;
       }
+      await Common.render('guess/rank', {
+        title: '猜角色排名',
+        scopeLabel: '总排名',
+        periodLabel: RANK_PERIOD_NAMES[period],
+        period,
+        groups: [{ game: 'total', title: '总排名', rows, mine: meRow }],
+        updateTime: new Date().toLocaleString('zh-CN', { hour12: false })
+      }, { e, render, scale: 1.2 });
+      sendRankHint(e, { scope, period, game, topN, hasArg });
       return true;
     }
-    e.reply('总排名需榴莲会员获取资格，功能即将开放，敬请期待～\n可先发送 #猜角色排名全服 查看全服榜');
+    e.reply('总排名查询失败，请稍后再试～');
     return true;
   }
 
