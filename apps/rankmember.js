@@ -43,7 +43,7 @@ function getMemberExpiry() {
   return m && m.expiry ? m.expiry : 0;
 }
 
-// 主人 QQ：只认单主人配置，多个主人无法确定归属
+// 主人 QQ
 function getOwnerQqs() {
   const masters = Array.isArray(botConfig?.masterQQ) ? botConfig.masterQQ : (botConfig?.masterQQ ? [botConfig.masterQQ] : []);
   return masters.map(String);
@@ -172,12 +172,7 @@ export async function memberBind(e) {
     e.reply('必须私信我才能绑定，请私信发送 榴莲会员绑定~');
     return true;
   }
-  // 主人 QQ 归属只认单主人配置：多个主人无法确定归属，不受理
   const masters = getOwnerQqs();
-  if (masters.length > 1) {
-    e.reply('检测到多个主人配置，请联系会飞的芒果猫处理');
-    return true;
-  }
   if (bindBlocked()) {
     const hours = Math.ceil((bindLimit.disabledUntil - Date.now()) / (60 * 60 * 1000));
     e.reply(`绑定失败次数过多，绑定功能已禁用，约 ${hours} 小时后再试`);
