@@ -1367,8 +1367,12 @@ export async function guessRankCmd(e, { render }) {
   // 关键词可能出现在"排名"前后（如 星铁猜角色排名 / 猜角色星铁全服周排名），全量交给解析器
   // 注意不能预删"排名"二字，否则"群聊排名/总排名"这类自带"排名"的范围词会被破坏
   const rest = e.msg.replace(/^[#*~%]+/, '');
-  // 是否带了任何参数（用于提示语跳过"参数组合"这条；裸命令剔除"猜角色/排名"后应无剩余字符）
-  const hasArg = /[^\s#*~%]/.test(rest.replace(/排名/g, '').replace(/猜角色/g, ''));
+  // 是否已组合多类参数（用于提示语跳过"参数组合"教学：已组合的不教，裸命令/单维度才教）
+  const hasGame = /原神|星铁|星穹|绝区零|鸣潮|异环|综合|总分|总榜|总计|genshin|star|zzz|ww|nte|hsr/i.test(rest);
+  const hasScope = /群聊|全服|全域|全区|全平台|总排名/.test(rest);
+  const hasPeriod = /周|月|年/.test(rest);
+  const hasTop = /(?:top|前)\s*\d{1,2}/i.test(rest);
+  const hasArg = [hasGame, hasScope, hasPeriod, hasTop].filter(Boolean).length >= 2;
   const parsed = parseRankArgs(rest);
   let { game, scope, period, topN } = parsed;
   // 前缀游戏约定（与各猜角色入口一致）：*=星铁、~=鸣潮、%=绝区零
