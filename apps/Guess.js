@@ -1476,7 +1476,7 @@ export async function guessRankCmd(e, { render }) {
   // 总排名：走中央接口，需 bot 会员验证；本地群/全服排名不设门槛
   if (scope === 'total') {
     if (!(await checkMember())) {
-      e.reply('总排名需榴莲会员资格，请先绑定或续费榴莲会员～\n可先发送 #猜角色排名全服 查看全服榜');
+      e.reply('总排名需榴莲会员资格，请先绑定或续费榴莲会员～\n可先发送 #猜角色全服排名 查看全服榜');
       return true;
     }
     // 接口返回：{ total, list: [{rank, qq, points, parts}], me: {rank, qq, points, parts} }
@@ -1568,22 +1568,22 @@ export async function guessRankCmd(e, { render }) {
 // 发排名图后随机附带一条玩法提示（开关控制），跳过与本次查询重复的（查了全服就不推全服，互补范围的照发）
 const RANK_HINTS = [
   // 范围类
-  { key: 'server', text: '发送 #猜角色排名全服 可查看全服榜' },
+  { key: 'server', text: '发送 #猜角色全服排名 可查看全服榜' },
   { key: 'group', text: '发送 #猜角色群排名 可查看群友榜' },
   { key: 'total', text: '发送 #猜角色总排名 可查看全网总排名（需榴莲会员）' },
   { key: 'grouprank', text: '发送 #猜角色群聊总排名 可查看群与群的总分比拼（需榴莲会员）' },
-  // 周期类
-  { key: 'week', text: '发送 #猜角色排名周 可查看周榜（日/周/月/年均可查）' },
-  { key: 'month', text: '发送 #猜角色排名月 可查看月榜' },
-  { key: 'year', text: '发送 #猜角色排名年 可查看年榜' },
+  // 周期类（后缀式，默认日榜）
+  { key: 'week', text: '发送 #猜角色全服排名周 可查看周榜（日/周/月/年均可查）' },
+  { key: 'month', text: '发送 #猜角色全服排名月 可查看月榜' },
+  { key: 'year', text: '发送 #猜角色全服排名年 可查看年榜' },
   // 游戏类（含前缀写法）
-  { key: 'game', text: '发送 #猜角色排名星铁 可查看指定游戏的排名' },
-  { key: 'game', text: '发送 #猜角色排名原神/绝区零/鸣潮/异环 均可单独查看' },
-  { key: 'game', text: '游戏名可用前缀代替：*星铁 ~鸣潮 %绝区零，如 *猜角色排名' },
+  { key: 'game', text: '发送 #猜角色全服排名星铁 可查看指定游戏的排名' },
+  { key: 'game', text: '发送 #猜角色总排名原神/绝区零/鸣潮/异环 均可单独查看' },
+  { key: 'game', text: '游戏名可用前缀代替：#星铁猜角色全服排名，或 *星铁 ~鸣潮 %绝区零' },
   // 组合类
-  { key: 'combo', text: '排名参数可组合，如 #猜角色排名星铁 全服 周' },
-  { key: 'combo', text: '排名参数可组合，如 #猜角色排名全服 月 前20' },
-  { key: 'top', text: '发送 #猜角色排名前20 可查看更多名次' },
+  { key: 'combo', text: '参数可组合，如 #猜角色总排名星铁 周' },
+  { key: 'combo', text: '参数可组合，如 #猜角色群聊全服排名原神 月 前20' },
+  { key: 'top', text: '发送 #猜角色全服排名前20 可查看更多名次' },
   // 计分类
   { key: 'score', text: '使用官方名称答对得3分，别名答对得1分' },
   { key: 'score', text: '猜角色答错不扣分，放心大胆猜' },
