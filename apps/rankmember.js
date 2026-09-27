@@ -319,8 +319,9 @@ const NOTICE_MSG = [
   '开通即解锁全网总排名、群聊总排名、群聊全服排名，群友答题即可参与全网竞技～',
   '私信发送「榴莲会员绑定」绑定会员，开通请联系会飞的芒果猫。',
 ].join('\n');
-const NOTICE_FILE = path.join(DATA_DIR, 'notice.json');
+const NOTICE_FILE = path.join(DATA_DIR, 'notice2.json');
 
+// 版本公告主流程：机器人上线后由轮询触发
 export async function sendMemberNotice() {
   try {
     const pkgPath = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', 'package.json');
@@ -330,15 +331,39 @@ export async function sendMemberNotice() {
     try {
       if (fs.existsSync(NOTICE_FILE)) mark = JSON.parse(fs.readFileSync(NOTICE_FILE, 'utf-8'));
     } catch {}
-    if (mark.version === NOTICE_VERSION) return;
+    if (mark.version === NOTICE_VERSION && mark.done) return;
     const masters = getOwnerQqs();
     if (!masters.length) return;
-    for (const qq of masters) {
-      try { await bcommon.relpyPrivate(Number(qq), NOTICE_MSG, true); } catch {}
+    // 逐人发送并确认结果：至少一人确认送达才落标记，失败者下个轮询周期自动补发
+    const sent = Array.isArray(mark.sent) ? mark.sent : [];
+    const pending = masters.filter(qq => !sent.includes(qq));
+    if (!pending.length) {
+      // 全部已送达但标记未完结：补写完结标记
+      mark = { version: NOTICE_VERSION, done: true, sent, time: new Date().toISOString() };
+      if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
+      fs.writeFileSync(NOTICE_FILE, JSON.stringify(mark, null, 2), 'utf-8');
+      return;
+    }
+    const okList = [], failList = [];
+    for (const qq of pending) {
+      try {
+        await bcommon.relpyPrivate(Number(qq), NOTICE_MSG, true);
+        okList.push(qq);
+      } catch {
+        failList.push(qq);
+      }
+    }
+    const sentAll = [...sent, ...okList];
+    if (okList.length) logger.mark(`[榴莲会员] 版本公告已发送给: ${okList.join(', ')}`);
+    if (failList.length) logger.mark(`[榴莲会员] 版本公告发送失败待重试: ${failList.join(', ')}`);
+    // 全员送达才完结标记；部分成功只记录进度，失败者自动重试
+    if (failList.length === 0) {
+      mark = { version: NOTICE_VERSION, done: true, sent: sentAll, time: new Date().toISOString() };
+    } else {
+      mark = { version: NOTICE_VERSION, done: false, sent: sentAll };
     }
     if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
-    fs.writeFileSync(NOTICE_FILE, JSON.stringify({ version: NOTICE_VERSION, time: new Date().toISOString() }, null, 2), 'utf-8');
-    logger.mark(`[榴莲会员] 版本公告已发送给 ${masters.length} 位主人`);
+    fs.writeFileSync(NOTICE_FILE, JSON.stringify(mark, null, 2), 'utf-8');
   } catch (err) {
     logger.warn(`[榴莲会员] 版本公告发送失败: ${err.message}`);
   }
