@@ -347,7 +347,15 @@ export async function sendMemberNotice() {
     const okList = [], failList = [];
     for (const qq of pending) {
       try {
-        await bcommon.relpyPrivate(Number(qq), NOTICE_MSG, true);
+        // 只走好友通道：非好友跳过，不发临时会话
+        const Bot = global.Bot;
+        const isFriend = (Bot?.uin ? Bot.uin.map(u => Bot[u]) : Object.values(Bot || {}))
+          .some(bot => bot && bot.fl && bot.fl.get(Number(qq)));
+        if (!isFriend) {
+          failList.push(qq);
+          continue;
+        }
+        await bcommon.relpyPrivate(Number(qq), NOTICE_MSG, false);
         okList.push(qq);
       } catch {
         failList.push(qq);
@@ -369,13 +377,14 @@ export async function sendMemberNotice() {
   }
 }
 
-// 机器人上线后触发（10秒轮询，未上线不发送，unref 不占用退出）
+// 机器人上线后延迟 3 分钟再发（等插件与协议端完全就绪），未上线不计时
 const _noticeTimer = setInterval(() => {
   const Bot = global.Bot;
   const bots = Bot?.uin ? Bot.uin.map(u => Bot[u]).filter(b => b && b.fl) : [];
   if (bots.length) {
     clearInterval(_noticeTimer);
-    sendMemberNotice();
+    logger.mark('[榴莲会员] 机器人已上线，3 分钟后发送版本公告');
+    setTimeout(() => sendMemberNotice(), 3 * 60 * 1000);
   }
 }, 10 * 1000);
 _noticeTimer.unref?.();
