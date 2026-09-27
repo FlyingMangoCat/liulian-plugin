@@ -88,9 +88,13 @@ async function signedRequest(method, apiPath, bodyObj, secretOverride, e) {
       try { ret = await res.json(); } catch {}
       if (ret && ret.success) return { ok: true, data: ret.data };
       const errorCode = (ret && ret.errorCode) || '';
-      // 无 errorCode 的响应（接口未部署/网关 404 页等）：服务暂不可用，不重试
+      // 无 errorCode 的响应（网关超时/非 JSON 错误页等）：视作网络类故障，退避后重新签名重试一次
       if (!errorCode) {
         logger.mark(`[榴莲会员] 排名系统接口异常响应: HTTP ${res.status}`);
+        if (attempt === 0) {
+          await new Promise(r => setTimeout(r, 5 * 1000));
+          continue;
+        }
         return { ok: false, errorCode: 'SERVICE_UNAVAILABLE' };
       }
       // 可重试：限流退避 ≥5 秒后重新签名重试一次；其余错误码直接返回
