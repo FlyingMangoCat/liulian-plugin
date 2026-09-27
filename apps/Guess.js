@@ -1477,7 +1477,8 @@ export async function guessRankCmd(e, { render }) {
   const scopeLabel = scope === 'server' ? '全服' : '本群';
   const groupId = scope === 'group' ? e.group_id : undefined;
 
-  const gameList = game === 'all' ? ['genshin', 'star', 'zzz', 'ww', 'nte', 'total'] : [game];
+  // 不带游戏名 = 五游戏分数加总的一张榜（total 桶），不是各游戏分组全展示；带游戏名 = 该游戏单独榜
+  const gameList = game === 'all' ? ['total'] : [game];
   const groups = [];
 
   for (const g of gameList) {
