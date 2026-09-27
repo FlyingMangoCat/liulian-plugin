@@ -218,18 +218,20 @@ export async function memberBindKey(e) {
   const ret = await fetchMembership(secret);
   if (!ret.ok) {
     recordBindFail();
+    // 真实原因只记日志供排查，用户侧只给友好提示，不暴露内部细节
+    logger.mark(`[榴莲会员] 绑定验证未通过: ${ret.errorCode || 'UNKNOWN'}`);
     const msgMap = {
-      KEY_INVALID: '密钥无效，请联系管理员重新授权',
-      QQ_MISMATCH: '主人 QQ 与授权留档不一致',
-      MEMBER_REQUIRED: '该密钥无会员资格',
-      MEMBER_EXPIRED: '会员已到期，请续费',
-      MEMBER_BANNED: '会员已被封禁',
-      NETWORK_ERROR: '验证请求失败，请稍后再试',
-      RATE_LIMITED: '请求过频，请稍后再试',
-      NO_CREDENTIAL: '绑定功能暂未开放，请稍后再试',
-      SERVICE_UNAVAILABLE: '排名系统接口暂不可用，请稍后再试',
+      KEY_INVALID: '密钥无效，请核对后重试',
+      QQ_MISMATCH: '当前机器人与授权信息不符，请联系发放方核对',
+      MEMBER_REQUIRED: '该密钥尚未开通会员',
+      MEMBER_EXPIRED: '会员已到期，请续费后重新绑定',
+      MEMBER_BANNED: '会员已被限制使用',
+      NETWORK_ERROR: '网络波动，请稍后再试',
+      RATE_LIMITED: '操作太频繁，请稍后再试',
+      NO_CREDENTIAL: '功能暂未开放，请稍后再试',
+      SERVICE_UNAVAILABLE: '服务暂时繁忙，请稍后再试',
     };
-    e.reply(`绑定失败：${msgMap[ret.errorCode] || `绑定失败(${ret.errorCode || '未知错误'})`}`);
+    e.reply(`绑定未成功：${msgMap[ret.errorCode] || '请确认密钥无误后再试，若多次失败请联系发放方'}`);
     return true;
   }
   const data = ret.data || {};
@@ -266,17 +268,19 @@ export async function memberStatus(e) {
   }
   const ret = await fetchMembership();
   if (!ret.ok) {
+    // 真实原因只记日志供排查，用户侧只给友好提示
+    logger.mark(`[榴莲会员] 状态查询未通过: ${ret.errorCode || 'UNKNOWN'}`);
     const msgMap = {
-      KEY_INVALID: '密钥已失效，请联系管理员重新授权',
-      QQ_MISMATCH: '主人 QQ 与授权留档不一致',
+      KEY_INVALID: '密钥已失效，请重新绑定',
+      QQ_MISMATCH: '当前机器人与授权信息不符，请联系发放方核对',
       MEMBER_EXPIRED: '榴莲会员已过期，请续费',
-      MEMBER_BANNED: '榴莲会员已被封禁',
+      MEMBER_BANNED: '榴莲会员已被限制使用',
       NETWORK_ERROR: '查询失败，请稍后再试',
-      RATE_LIMITED: '请求过频，请稍后再试',
-      NO_CREDENTIAL: '查询功能暂未开放，请稍后再试',
-      SERVICE_UNAVAILABLE: '排名系统接口暂不可用，请稍后再试',
+      RATE_LIMITED: '操作太频繁，请稍后再试',
+      NO_CREDENTIAL: '功能暂未开放，请稍后再试',
+      SERVICE_UNAVAILABLE: '服务暂时繁忙，请稍后再试',
     };
-    e.reply(`查询失败：${msgMap[ret.errorCode] || '接口异常，请稍后再试'}`);
+    e.reply(`查询未成功：${msgMap[ret.errorCode] || '请稍后再试，若多次失败请联系发放方'}`);
     return true;
   }
   const data = ret.data || {};
