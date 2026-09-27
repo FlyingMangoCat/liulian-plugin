@@ -2,7 +2,8 @@ import fs from 'fs';
 import path from 'path';
 import crypto from 'crypto';
 import fetch from 'node-fetch';
-import { botConfig } from "../components/bcommon.js";
+import { fileURLToPath } from 'url';
+import bcommon, { botConfig } from "../components/bcommon.js";
 
 // 会员密钥与排名系统对接（HMAC 签名，见接口规范）
 // secret 单独落盘存储，不随请求传输；主人 QQ 取自配置环境文件
@@ -309,6 +310,50 @@ export async function memberStatus(e) {
   e.reply(`榴莲会员状态：生效中\n剩余时长：${remain}\n到期时间：${expiry}`);
   return true;
 }
+
+// ============ 版本公告 ============
+// 更新到指定版本后首次启动，机器人上线时给全部主人私信一次（落标记，同版本不重发）
+const NOTICE_VERSION = '0.17.11';
+const NOTICE_MSG = [
+  '榴莲会员已上线！',
+  '开通即解锁全网总排名、群聊总排名、群聊全服排名，群友答题即可参与全网竞技～',
+  '私信发送「榴莲会员绑定」绑定会员，开通请联系会飞的芒果猫。',
+].join('\n');
+const NOTICE_FILE = path.join(DATA_DIR, 'notice.json');
+
+export async function sendMemberNotice() {
+  try {
+    const pkgPath = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', 'package.json');
+    const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf-8'));
+    if (pkg.version !== NOTICE_VERSION) return;
+    let mark = {};
+    try {
+      if (fs.existsSync(NOTICE_FILE)) mark = JSON.parse(fs.readFileSync(NOTICE_FILE, 'utf-8'));
+    } catch {}
+    if (mark.version === NOTICE_VERSION) return;
+    const masters = getOwnerQqs();
+    if (!masters.length) return;
+    for (const qq of masters) {
+      try { await bcommon.relpyPrivate(Number(qq), NOTICE_MSG, true); } catch {}
+    }
+    if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
+    fs.writeFileSync(NOTICE_FILE, JSON.stringify({ version: NOTICE_VERSION, time: new Date().toISOString() }, null, 2), 'utf-8');
+    logger.mark(`[榴莲会员] 版本公告已发送给 ${masters.length} 位主人`);
+  } catch (err) {
+    logger.warn(`[榴莲会员] 版本公告发送失败: ${err.message}`);
+  }
+}
+
+// 机器人上线后触发（10秒轮询，未上线不发送，unref 不占用退出）
+const _noticeTimer = setInterval(() => {
+  const Bot = global.Bot;
+  const bots = Bot?.uin ? Bot.uin.map(u => Bot[u]).filter(b => b && b.fl) : [];
+  if (bots.length) {
+    clearInterval(_noticeTimer);
+    sendMemberNotice();
+  }
+}, 10 * 1000);
+_noticeTimer.unref?.();
 
 // ============ 对局上报 ============
 // roundId 持久化：进程崩溃后恢复仍可结算/弃局
