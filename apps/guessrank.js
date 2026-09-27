@@ -132,6 +132,28 @@ class GuessRankDB {
     return { rank: idx + 1, ...list[idx] };
   }
 
+  // 群与群排名：本地数据按群汇总成员总分（群聊全服排名用）
+  getGroupRank({ period = 'day', game = 'total', topN = 10 }) {
+    const keys = periodKeys();
+    const d = this.load();
+    const pd = d[period] && d[period][keys[period]];
+    if (!pd || !pd.group) return [];
+    const list = Object.entries(pd.group)
+      .map(([groupId, games]) => {
+        let score = 0, wins = 0, parts = 0;
+        const useGames = game === 'total' ? Object.keys(games) : [game];
+        for (const g of useGames) {
+          for (const v of Object.values(games[g] || {})) {
+            score += v.s || 0; wins += v.w || 0; parts += v.p || 0;
+          }
+        }
+        return { groupId, score, wins, parts };
+      })
+      .filter(u => u.parts > 0)
+      .sort((a, b) => b.score - a.score || b.wins - a.wins || a.groupId.localeCompare(b.groupId));
+    return list.slice(0, topN).map((u, i) => ({ rank: i + 1, ...u }));
+  }
+
   flushSoon() {
     if (this.flushTimer) return;
     this.flushTimer = setTimeout(() => {
@@ -164,12 +186,15 @@ export function parseRankArgs(str = '') {
   else if (/原神/.test(str)) game = 'genshin';
 
   let scope = 'group';
-  // 群与群排名：按群汇总总分的独立榜
-  if (/群聊排名|群聊榜|群聊总分/.test(str)) scope = 'grouprank';
-  // 总排名：跨机器人所有用户的大排名（中央接口，需会员）
+  // 群与群排名：群聊总排名=接口群榜，群聊全服排名=本地群与群（须先于总排名/全服判断，避免子串误命中）
+  if (/群聊总排名/.test(str)) scope = 'grouptotal';
+  else if (/群聊全服排名/.test(str)) scope = 'groupserver';
+  else if (/群聊排名|群聊榜/.test(str)) scope = 'grouptotal';
+  // 用户总排名：跨机器人所有用户的大排名（中央接口，需会员）
   else if (/总排名|全平台/.test(str)) scope = 'total';
-  // 全服排名：本地用户榜（默认 group=群内个人排名）
+  // 用户全服排名：本地全服
   else if (/全服|全域|全区/.test(str)) scope = 'server';
+  // 其余=本群用户排名（默认）
 
   let period = 'day';
   if (/周/.test(str)) period = 'week';

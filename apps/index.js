@@ -375,7 +375,7 @@ if (aiEnabled) {
 }
 
 // 排名参数允许出现的字符（可夹在"猜角色"与"排名"前后，如 猜角色星铁全服周排名）
-const rankParamChars = '原神星穹铁绝区零鸣潮异环全服本周月年日综合总榜分计前群zZwWnNhHsSrR\\d\\s*~%';
+const rankParamChars = '原神星穹铁绝区零鸣潮异环全服本周月年日综合总榜分计前群聊zZwWnNhHsSrR\\d\\s*~%';
 
 let rule = {
 

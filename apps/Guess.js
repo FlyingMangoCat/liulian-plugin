@@ -1389,10 +1389,10 @@ export async function guessRankCmd(e, { render }) {
   // 私聊没有群维度，自动转全服
   if (scope === 'group' && !e.group_id) scope = 'server';
 
-  // 群与群排名：走服务端群总分榜（群与群比），需 bot 会员验证，不验证不给用
-  if (scope === 'grouprank') {
+  // 群聊总排名：跨机器人所有群的大排名（中央接口，需 bot 会员验证）
+  if (scope === 'grouptotal') {
     if (!(await checkMember())) {
-      e.reply('群聊排名需榴莲会员资格，请先绑定或续费榴莲会员～');
+      e.reply('群聊总排名需榴莲会员资格，请先绑定或续费榴莲会员～');
       return true;
     }
     // 接口返回：{ total, list: [{rank, groupId, points, parts}], me: {rank, groupId, ...} }
@@ -1411,19 +1411,19 @@ export async function guessRankCmd(e, { render }) {
         : null;
       if (!rows.length && !meRow) {
         const alt = period === 'year' ? '，快开始猜角色吧～'
-          : period === 'month' ? '，可发送 #猜角色群聊排名年 查看'
-          : '，可发送 #猜角色群聊排名月 或 #猜角色群聊排名年 查看';
-        e.reply(`群聊排名${RANK_PERIOD_NAMES[period]}暂无记录${alt}`);
+          : period === 'month' ? '，可发送 #猜角色群聊总排名年 查看'
+          : '，可发送 #猜角色群聊总排名月 或 #猜角色群聊总排名年 查看';
+        e.reply(`群聊总排名${RANK_PERIOD_NAMES[period]}暂无记录${alt}`);
         return true;
       }
       await Common.render('guess/rank', {
-        title: '猜角色群聊排名',
-        scopeLabel: '群聊排名',
+        title: '猜角色群聊总排名',
+        scopeLabel: '群聊总排名',
         periodLabel: RANK_PERIOD_NAMES[period],
         period,
         groups: [{
           game: 'grouprank',
-          title: '群排名',
+          title: '群聊总排名',
           rows,
           mine: meRow,
         }],
@@ -1432,7 +1432,44 @@ export async function guessRankCmd(e, { render }) {
       sendRankHint(e, { scope, period, game, topN, hasArg });
       return true;
     }
-    e.reply('群聊排名查询失败，请稍后再试～');
+    e.reply('群聊总排名查询失败，请稍后再试～');
+    return true;
+  }
+
+  // 群聊全服排名：本地数据按群汇总总分（本 bot 的群互相比），需 bot 会员验证
+  if (scope === 'groupserver') {
+    if (!(await checkMember())) {
+      e.reply('群聊全服排名需榴莲会员资格，请先绑定或续费榴莲会员～');
+      return true;
+    }
+    const list = guessRank.getGroupRank({ period, game: game === 'all' ? 'total' : game, topN });
+    if (!list.length) {
+      const alt = period === 'year' ? '，快开始猜角色吧～'
+        : period === 'month' ? '，可发送 #猜角色群聊全服排名年 查看'
+        : '，可发送 #猜角色群聊全服排名月 或 #猜角色群聊全服排名年 查看';
+      e.reply(`群聊全服排名${RANK_PERIOD_NAMES[period]}暂无记录${alt}`);
+      return true;
+    }
+    await Common.render('guess/rank', {
+      title: '猜角色群聊全服排名',
+      scopeLabel: '群聊全服排名',
+      periodLabel: RANK_PERIOD_NAMES[period],
+      period,
+      groups: [{
+        game: 'grouprank',
+        title: '群聊全服排名',
+        rows: list.map(r => ({
+          rank: r.rank,
+          name: getGroupName(e, r.groupId),
+          avatar: `https://p.qlogo.cn/gh/${r.groupId}/${r.groupId}/100`,
+          score: r.score, wins: r.wins, parts: r.parts,
+          me: String(r.groupId) === String(e.group_id),
+        })),
+        mine: null,
+      }],
+      updateTime: new Date().toLocaleString('zh-CN', { hour12: false })
+    }, { e, render, scale: 1.2 });
+    sendRankHint(e, { scope, period, game, topN, hasArg });
     return true;
   }
 
@@ -1534,7 +1571,7 @@ const RANK_HINTS = [
   { key: 'server', text: '发送 #猜角色排名全服 可查看全服榜' },
   { key: 'group', text: '发送 #猜角色群排名 可查看群友榜' },
   { key: 'total', text: '发送 #猜角色总排名 可查看全网总排名（需榴莲会员）' },
-  { key: 'grouprank', text: '发送 #猜角色群聊排名 可查看群与群的总分比拼（需榴莲会员）' },
+  { key: 'grouprank', text: '发送 #猜角色群聊总排名 可查看群与群的总分比拼（需榴莲会员）' },
   // 周期类
   { key: 'week', text: '发送 #猜角色排名周 可查看周榜（日/周/月/年均可查）' },
   { key: 'month', text: '发送 #猜角色排名月 可查看月榜' },
@@ -1560,7 +1597,7 @@ function sendRankHint(e, { scope, period, game, topN, hasArg }) {
       if (h.key === 'server') return scope !== 'server';
       if (h.key === 'group') return scope !== 'group' && !!e.group_id;
       if (h.key === 'total') return scope !== 'total';
-      if (h.key === 'grouprank') return scope !== 'grouprank';
+      if (h.key === 'grouprank') return scope !== 'grouptotal' && scope !== 'groupserver';
       if (h.key === 'week') return period !== 'week';
       if (h.key === 'month') return period !== 'month';
       if (h.key === 'year') return period !== 'year';
