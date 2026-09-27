@@ -84,9 +84,15 @@ async function signedRequest(method, apiPath, bodyObj, secretOverride, e) {
         headers: buildHeaders(method, secret, ownerQqs, bodyObj),
         body: method === 'GET' ? undefined : rawBody,
       });
-      const ret = await res.json();
-      if (ret.success) return { ok: true, data: ret.data };
-      const errorCode = ret.errorCode || '';
+      let ret = null;
+      try { ret = await res.json(); } catch {}
+      if (ret && ret.success) return { ok: true, data: ret.data };
+      const errorCode = (ret && ret.errorCode) || '';
+      // 无 errorCode 的响应（接口未部署/网关 404 页等）：服务暂不可用，不重试
+      if (!errorCode) {
+        logger.mark(`[榴莲会员] 排名系统接口异常响应: HTTP ${res.status}`);
+        return { ok: false, errorCode: 'SERVICE_UNAVAILABLE' };
+      }
       // 可重试：限流退避 ≥5 秒后重新签名重试一次；其余错误码直接返回
       if (errorCode === 'RATE_LIMITED' && attempt === 0) {
         await new Promise(r => setTimeout(r, 5 * 1000));
@@ -221,8 +227,9 @@ export async function memberBindKey(e) {
       NETWORK_ERROR: '验证请求失败，请稍后再试',
       RATE_LIMITED: '请求过频，请稍后再试',
       NO_CREDENTIAL: '绑定功能暂未开放，请稍后再试',
+      SERVICE_UNAVAILABLE: '排名系统接口暂不可用，请稍后再试',
     };
-    e.reply(`绑定失败：${msgMap[ret.errorCode] || '密钥无效'}`);
+    e.reply(`绑定失败：${msgMap[ret.errorCode] || `绑定失败(${ret.errorCode || '未知错误'})`}`);
     return true;
   }
   const data = ret.data || {};
@@ -267,6 +274,7 @@ export async function memberStatus(e) {
       NETWORK_ERROR: '查询失败，请稍后再试',
       RATE_LIMITED: '请求过频，请稍后再试',
       NO_CREDENTIAL: '查询功能暂未开放，请稍后再试',
+      SERVICE_UNAVAILABLE: '排名系统接口暂不可用，请稍后再试',
     };
     e.reply(`查询失败：${msgMap[ret.errorCode] || '接口异常，请稍后再试'}`);
     return true;
