@@ -311,39 +311,44 @@ export async function memberStatus(e) {
   return true;
 }
 
-// ============ 版本公告 ============
-// 更新到指定版本后首次启动，机器人上线时给全部主人私信一次（落标记，同版本不重发）
-const NOTICE_VERSION = '0.17.11';
-const NOTICE_MSG = [
-  '榴莲会员已上线！',
-  '开通即解锁全网总排名、群聊总排名、群聊全服排名，群友答题即可参与全网竞技～',
-  '私信发送「榴莲会员绑定」绑定会员，开通请联系会飞的芒果猫。',
-].join('\n');
+// ============ 会员公告 ============
+// 公告内容存于仓库 resources/member_notice.md，随更新分发；
+// 每 10 分钟检查一次内容哈希：变动即给全部主人私信一次，全员送达才记录指纹，失败自动补发
+const NOTICE_SRC = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', 'resources', 'member_notice.md');
 const NOTICE_FILE = path.join(DATA_DIR, 'notice2.json');
 
-// 版本公告主流程：机器人上线后由轮询触发
-export async function sendMemberNotice() {
+function noticeHash() {
   try {
-    const pkgPath = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', 'package.json');
-    const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf-8'));
-    if (pkg.version !== NOTICE_VERSION) return;
+    if (!fs.existsSync(NOTICE_SRC)) return '';
+    return crypto.createHash('sha256').update(fs.readFileSync(NOTICE_SRC, 'utf-8'), 'utf8').digest('hex');
+  } catch {
+    return '';
+  }
+}
+
+async function sendMemberNotice() {
+  try {
+    const hash = noticeHash();
+    if (!hash) return;
     let mark = {};
     try {
       if (fs.existsSync(NOTICE_FILE)) mark = JSON.parse(fs.readFileSync(NOTICE_FILE, 'utf-8'));
     } catch {}
-    if (mark.version === NOTICE_VERSION && mark.done) return;
+    const sameHash = mark.hash === hash;
+    // 进度只对同一份公告有效：公告变了则重新通知全员
+    const sent = sameHash && Array.isArray(mark.sent) ? mark.sent : [];
     const masters = getOwnerQqs();
     if (!masters.length) return;
-    // 逐人发送并确认结果：至少一人确认送达才落标记，失败者下个轮询周期自动补发
-    const sent = Array.isArray(mark.sent) ? mark.sent : [];
     const pending = masters.filter(qq => !sent.includes(qq));
     if (!pending.length) {
-      // 全部已送达但标记未完结：补写完结标记
-      mark = { version: NOTICE_VERSION, done: true, sent, time: new Date().toISOString() };
+      if (sameHash) return; // 已全员送达且公告未变
+      mark = { hash, sent, time: new Date().toISOString() };
       if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
       fs.writeFileSync(NOTICE_FILE, JSON.stringify(mark, null, 2), 'utf-8');
       return;
     }
+    const msg = fs.readFileSync(NOTICE_SRC, 'utf-8').trim();
+    if (!msg) return;
     const okList = [], failList = [];
     for (const qq of pending) {
       try {
@@ -355,38 +360,33 @@ export async function sendMemberNotice() {
           failList.push(qq);
           continue;
         }
-        await bcommon.relpyPrivate(Number(qq), NOTICE_MSG, false);
+        await bcommon.relpyPrivate(Number(qq), msg, false);
         okList.push(qq);
       } catch {
         failList.push(qq);
       }
     }
     const sentAll = [...sent, ...okList];
-    if (okList.length) logger.mark(`[榴莲会员] 版本公告已发送给: ${okList.join(', ')}`);
-    if (failList.length) logger.mark(`[榴莲会员] 版本公告发送失败待重试: ${failList.join(', ')}`);
-    // 全员送达才完结标记；部分成功只记录进度，失败者自动重试
-    if (failList.length === 0) {
-      mark = { version: NOTICE_VERSION, done: true, sent: sentAll, time: new Date().toISOString() };
-    } else {
-      mark = { version: NOTICE_VERSION, done: false, sent: sentAll };
-    }
+    if (okList.length) logger.mark(`[榴莲会员] 会员公告已发送给: ${okList.join(', ')}`);
+    if (failList.length) logger.mark(`[榴莲会员] 会员公告发送失败待重试: ${failList.join(', ')}`);
+    // 全员送达才记录指纹完结；部分成功只记进度，失败者下轮自动补发
+    mark = failList.length === 0
+      ? { hash, sent: sentAll, time: new Date().toISOString() }
+      : { hash, sent: sentAll };
     if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
     fs.writeFileSync(NOTICE_FILE, JSON.stringify(mark, null, 2), 'utf-8');
   } catch (err) {
-    logger.warn(`[榴莲会员] 版本公告发送失败: ${err.message}`);
+    logger.warn(`[榴莲会员] 会员公告检查失败: ${err.message}`);
   }
 }
 
-// 机器人上线后延迟 3 分钟再发（等插件与协议端完全就绪），未上线不计时
+// 每 10 分钟检查一次公告变动（未上线不发送；unref 不占用退出）
 const _noticeTimer = setInterval(() => {
   const Bot = global.Bot;
   const bots = Bot?.uin ? Bot.uin.map(u => Bot[u]).filter(b => b && b.fl) : [];
-  if (bots.length) {
-    clearInterval(_noticeTimer);
-    logger.mark('[榴莲会员] 机器人已上线，3 分钟后发送版本公告');
-    setTimeout(() => sendMemberNotice(), 3 * 60 * 1000);
-  }
-}, 10 * 1000);
+  if (!bots.length) return;
+  sendMemberNotice();
+}, 10 * 60 * 1000);
 _noticeTimer.unref?.();
 
 // ============ 对局上报 ============
