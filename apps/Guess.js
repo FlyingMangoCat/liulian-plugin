@@ -1365,9 +1365,10 @@ async function getRankName(e, userId) {
 // 后端就绪后在此配置接口地址与密钥，请求时带密钥做验证，按返回错误码给出对应提示
 export async function guessRankCmd(e, { render }) {
   // 关键词可能出现在"排名"前后（如 星铁猜角色排名 / 猜角色星铁全服周排名），全量交给解析器
-  const rest = e.msg.replace(/^[#*~%]+/, '').replace('排名', ' ');
-  // 是否带了任何参数（用于提示语跳过"参数组合"这条）
-  const hasArg = /[^\s#*~%]/.test(rest);
+  // 注意不能预删"排名"二字，否则"群聊排名/总排名"这类自带"排名"的范围词会被破坏
+  const rest = e.msg.replace(/^[#*~%]+/, '');
+  // 是否带了任何参数（用于提示语跳过"参数组合"这条；裸命令剔除"猜角色/排名"后应无剩余字符）
+  const hasArg = /[^\s#*~%]/.test(rest.replace(/排名/g, '').replace(/猜角色/g, ''));
   const parsed = parseRankArgs(rest);
   let { game, scope, period, topN } = parsed;
   // 前缀游戏约定（与各猜角色入口一致）：*=星铁、~=鸣潮、%=绝区零
@@ -1378,7 +1379,8 @@ export async function guessRankCmd(e, { render }) {
 
   // 会员验证只管总排名（bot 自身会员），本地群/全服排名不设门槛
   const myId = String(e.user_id);
-  const apiGame = game === 'all' ? '' : game;
+  // 接口只认五个游戏枚举，综合/未知一律查加总榜
+  const apiGame = ['genshin', 'star', 'zzz', 'ww', 'nte'].includes(game) ? game : '';
 
   // 私聊没有群维度，自动转全服
   if (scope === 'group' && !e.group_id) scope = 'server';
