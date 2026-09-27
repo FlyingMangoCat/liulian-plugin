@@ -466,7 +466,7 @@ let rule = {
         describe: "",
     },
         memberBind: {
-        reg: '^榴莲会员绑定$',
+        reg: '^#?榴莲会员绑定$',
         priority: 5,
         describe: '【#管理】榴莲会员绑定（仅主人私信）'
     },
