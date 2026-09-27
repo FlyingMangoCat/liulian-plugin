@@ -1385,6 +1385,8 @@ export async function guessRankCmd(e, { render }) {
   const myId = String(e.user_id);
   // 接口只认五个游戏枚举，综合/未知一律查加总榜
   const apiGame = ['genshin', 'star', 'zzz', 'ww', 'nte'].includes(game) ? game : '';
+  // 接口时效参数：仅当显式说周/月/年才透传；总排名/群聊排名默认=累计总榜（不带 period）
+  const apiPeriod = /周|月|年/.test(rest) ? period : '';
 
   // 私聊没有群维度，自动转全服
   if (scope === 'group' && !e.group_id) scope = 'server';
@@ -1396,7 +1398,7 @@ export async function guessRankCmd(e, { render }) {
       return true;
     }
     // 接口返回：{ total, list: [{rank, groupId, points, parts}], me: {rank, groupId, ...} }
-    const granking = await fetchGroupRanking(topN, String(e.group_id || ''), apiGame, period);
+    const granking = await fetchGroupRanking(topN, String(e.group_id || ''), apiGame, apiPeriod);
     if (granking) {
       const rows = (granking.list || []).map(r => ({
         rank: r.rank,
@@ -1416,7 +1418,7 @@ export async function guessRankCmd(e, { render }) {
       await Common.render('guess/rank', {
         title: '猜角色群聊排名',
         scopeLabel: '群聊排名',
-        periodLabel: RANK_PERIOD_NAMES[period],
+        periodLabel: apiPeriod ? RANK_PERIOD_NAMES[apiPeriod] : '累计总榜',
         period,
         groups: [{
           game: 'grouprank',
@@ -1440,7 +1442,7 @@ export async function guessRankCmd(e, { render }) {
       return true;
     }
     // 接口返回：{ total, list: [{rank, qq, points, parts}], me: {rank, qq, points, parts} }
-    const ranking = await fetchRanking(topN, myId, apiGame, period);
+    const ranking = await fetchRanking(topN, myId, apiGame, apiPeriod);
     if (ranking) {
       const rows = [];
       for (const r of (ranking.list || [])) {
@@ -1462,7 +1464,7 @@ export async function guessRankCmd(e, { render }) {
       await Common.render('guess/rank', {
         title: '猜角色排名',
         scopeLabel: '总排名',
-        periodLabel: RANK_PERIOD_NAMES[period],
+        periodLabel: apiPeriod ? RANK_PERIOD_NAMES[apiPeriod] : '累计总榜',
         period,
         groups: [{ game: 'total', title: '总排名', rows, mine: meRow }],
         updateTime: new Date().toLocaleString('zh-CN', { hour12: false })
