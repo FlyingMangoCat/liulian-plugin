@@ -7,7 +7,7 @@ import sizeOf from 'image-size';
 import { roleIdToName, starroleIdToName, zzzroleIdToName, nteroleIdToName, wwroleIdToName } from "../components/mysInfo.js";
 import { roleId as roleIdData, starroleId as starroleIdData, zzzroleId as zzzroleIdData, nteroleId as nteroleIdData, wwroleId as wwroleIdData } from "../config/roleId.js";
 import { guessRank, parseRankArgs } from "./guessrank.js";
-import { startRound, finishRound, checkMember, fetchRanking } from "./rankmember.js";
+import { startRound, finishRound, checkMember, fetchRanking, fetchGroupRanking } from "./rankmember.js";
 import { getPluginRender, browserInit } from '../model/render.js';
 import template from "art-template";
 import { Data, Cfg, Common } from "#liulian";
