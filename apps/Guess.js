@@ -16,7 +16,8 @@ import config from "../model/config/config.js"
 // 结构：guessConfig.roundId=对局编号，guessConfig.roundResults=[{qq,score}]
 function roundRecord(guessConfig, e, score) {
   if (!guessConfig || !guessConfig.roundId) return;
-  guessConfig.roundResults.push({ qq: String(e.user_id), score });
+  // correct=本次作答是否命中角色名（答对，供服务端核对答对数）
+  guessConfig.roundResults.push({ qq: String(e.user_id), score, correct: score > 0 });
 }
 
 // 赢家结算上报：一局恰好一个赢家，fire-and-forget 不阻塞回复
@@ -38,11 +39,22 @@ function findOfficialId(map, name) {
   }
   return '';
 }
-// 答案分级判定：官方名（首位）命中得3分，别名命中得1分，未命中0分（分值供后续排名统计使用）
-function judgeAnswer(names, answer) {
+// 难度档位：0=普通 1=困难 2=地狱 3=炼狱；答错任何档位都是 0 分
+function difficultyLevel(hardMode, hellMode, purgatoryMode) {
+  if (purgatoryMode) return 3;
+  if (hellMode) return 2;
+  if (hardMode) return 1;
+  return 0;
+}
+// 难度档位 → 上报标识（开局传给排名服务）
+function difficultyName(level) {
+  return ['normal', 'hard', 'hell', 'purgatory'][level] || 'normal';
+}
+// 答案分级判定：官方名（首位）命中得 3+难度 分，别名命中得 1+难度 分，未命中 0 分（分值供排名统计使用）
+function judgeAnswer(names, answer, level = 0) {
   if (!names || !answer) return 0;
-  if (names[0] === answer) return 3;
-  if (names.includes(answer)) return 1;
+  if (names[0] === answer) return 3 + level;
+  if (names.includes(answer)) return 1 + level;
   return 0;
 }
 // 上传音频文件
@@ -271,7 +283,8 @@ export async function guessAvatar(e) {
   // 对局上报登记（异步不阻塞出图），结算时上报本局结果
   guessConfig.roundId = '';
   guessConfig.roundResults = [];
-  startRound(e, 'genshin').then(id => { guessConfig.roundId = id; }).catch(() => {});
+  guessConfig.difficulty = difficultyLevel(hardMode, hellMode, purgatoryMode);
+  startRound(e, 'genshin', difficultyName(guessConfig.difficulty)).then(id => { guessConfig.roundId = id; }).catch(() => {});
   console.group('猜角色');
   console.log('ID:', roleId);
   console.log('角色:', roleName);
@@ -340,7 +353,7 @@ export async function guessAvatarCheck(e) {
     let guessed = e.msg.replace(/^#?我猜/, '');
     let isGuess = guessed !== e.msg; // 带"我猜"前缀=明确答题，未命中也计参与
     let answer = guessed.trim();
-    let score = judgeAnswer(roleIdData[roleId], answer);
+    let score = judgeAnswer(roleIdData[roleId], answer, guessConfig.difficulty || 0);
     if (score > 0) {
       guessRank.record({ gameType: 'genshin', e, score, isCorrect: true });
       roundRecord(guessConfig, e, score);
@@ -729,7 +742,8 @@ export async function starguessAvatar(e) {
   // 对局上报登记（异步不阻塞出图），结算时上报本局结果
   guessConfig.roundId = '';
   guessConfig.roundResults = [];
-  startRound(e, 'star').then(id => { guessConfig.roundId = id; }).catch(() => {});
+  guessConfig.difficulty = difficultyLevel(hardMode, hellMode, purgatoryMode);
+  startRound(e, 'star', difficultyName(guessConfig.difficulty)).then(id => { guessConfig.roundId = id; }).catch(() => {});
   console.group('猜角色');
   console.log('ID:', roleId);
   console.log('角色:', roleName);
@@ -798,7 +812,7 @@ export async function starguessAvatarCheck(e) {
     let guessed = e.msg.replace(/^#?我猜/, '');
     let isGuess = guessed !== e.msg; // 带"我猜"前缀=明确答题，未命中也计参与
     let answer = guessed.trim();
-    let score = judgeAnswer(starroleIdData[starroleId], answer);
+    let score = judgeAnswer(starroleIdData[starroleId], answer, guessConfig.difficulty || 0);
     if (score > 0) {
       guessRank.record({ gameType: 'star', e, score, isCorrect: true });
       roundRecord(guessConfig, e, score);
@@ -866,7 +880,8 @@ export async function starguessAvatarCheck(e) {
   // 对局上报登记（异步不阻塞出图），结算时上报本局结果
   guessConfig.roundId = '';
   guessConfig.roundResults = [];
-  startRound(e, 'zzz').then(id => { guessConfig.roundId = id; }).catch(() => {});
+  guessConfig.difficulty = difficultyLevel(hardMode, hellMode, purgatoryMode);
+  startRound(e, 'zzz', difficultyName(guessConfig.difficulty)).then(id => { guessConfig.roundId = id; }).catch(() => {});
   console.group('猜角色');
   console.log('ID:', roleId);
   console.log('角色:', roleName);
@@ -935,7 +950,7 @@ export async function zzzguessAvatarCheck(e) {
     let guessed = e.msg.replace(/^#?我猜/, '');
     let isGuess = guessed !== e.msg; // 带"我猜"前缀=明确答题，未命中也计参与
     let answer = guessed.trim();
-    let score = judgeAnswer(zzzroleIdData[zzzroleId], answer);
+    let score = judgeAnswer(zzzroleIdData[zzzroleId], answer, guessConfig.difficulty || 0);
     if (score > 0) {
       guessRank.record({ gameType: 'zzz', e, score, isCorrect: true });
       roundRecord(guessConfig, e, score);
@@ -1006,7 +1021,8 @@ export async function wwguessAvatar(e) {
   // 对局上报登记（异步不阻塞出图），结算时上报本局结果
   guessConfig.roundId = '';
   guessConfig.roundResults = [];
-  startRound(e, 'ww').then(id => { guessConfig.roundId = id; }).catch(() => {});
+  guessConfig.difficulty = difficultyLevel(hardMode, hellMode, purgatoryMode);
+  startRound(e, 'ww', difficultyName(guessConfig.difficulty)).then(id => { guessConfig.roundId = id; }).catch(() => {});
   console.group('猜角色');
   console.log('ID:', roleId);
   console.log('角色:', roleName);
@@ -1076,7 +1092,7 @@ export async function wwguessAvatarCheck(e) {
     let guessed = e.msg.replace(/^[~#]?我猜/, '');
     let isGuess = guessed !== e.msg; // 带"我猜"前缀=明确答题，未命中也计参与
     let answer = guessed.trim();
-    let score = judgeAnswer(wwroleIdData[wwroleId], answer);
+    let score = judgeAnswer(wwroleIdData[wwroleId], answer, guessConfig.difficulty || 0);
     if (score > 0) {
       guessRank.record({ gameType: 'ww', e, score, isCorrect: true });
       roundRecord(guessConfig, e, score);
@@ -1146,7 +1162,8 @@ export async function nteguessAvatar(e) {
   // 对局上报登记（异步不阻塞出图），结算时上报本局结果
   guessConfig.roundId = '';
   guessConfig.roundResults = [];
-  startRound(e, 'nte').then(id => { guessConfig.roundId = id; }).catch(() => {});
+  guessConfig.difficulty = difficultyLevel(hardMode, hellMode, purgatoryMode);
+  startRound(e, 'nte', difficultyName(guessConfig.difficulty)).then(id => { guessConfig.roundId = id; }).catch(() => {});
   console.group('猜角色');
   console.log('ID:', roleId);
   console.log('角色:', roleName);
@@ -1212,7 +1229,7 @@ export async function nteguessAvatarCheck(e) {
     let guessed = e.msg.replace(/^#?我猜/, '');
     let isGuess = guessed !== e.msg; // 带"我猜"前缀=明确答题，未命中也计参与
     let answer = guessed.trim();
-    let score = judgeAnswer(nteroleIdData[nteroleId], answer);
+    let score = judgeAnswer(nteroleIdData[nteroleId], answer, guessConfig.difficulty || 0);
     if (score > 0) {
       guessRank.record({ gameType: 'nte', e, score, isCorrect: true });
       roundRecord(guessConfig, e, score);

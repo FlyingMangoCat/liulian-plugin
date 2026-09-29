@@ -414,13 +414,14 @@ function saveRound(groupId, roundId) {
 
 // 对局上报：开局登记，返回 roundId（未绑定/业务冲突时静默返回空，不打扰用户）
 // game 为开局必传枚举（genshin/star/zzz/ww/nte），结算自动沿用无需再传
-export async function startRound(e, gameType) {
+export async function startRound(e, gameType, difficulty = 'normal') {
   const ownerQqs = getOwnerQqs();
   if (!getSecret() || !ownerQqs.length) return '';
   const groupId = String(e.group_id || '');
   if (!/^\d{4,20}$/.test(groupId)) return '';
   if (!['genshin', 'star', 'zzz', 'ww', 'nte'].includes(gameType)) return '';
-  const ret = await signedRequest('POST', ROUND_START_PATH, { groupId, game: gameType });
+  if (!['normal', 'hard', 'hell', 'purgatory'].includes(difficulty)) difficulty = 'normal';
+  const ret = await signedRequest('POST', ROUND_START_PATH, { groupId, game: gameType, difficulty });
   if (ret.ok) {
     const roundId = (ret.data && ret.data.roundId) || '';
     if (roundId) saveRound(groupId, roundId);
