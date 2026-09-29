@@ -16,8 +16,16 @@ import config from "../model/config/config.js"
 // 结构：guessConfig.roundId=对局编号，guessConfig.roundResults=[{qq,score}]
 function roundRecord(guessConfig, e, score) {
   if (!guessConfig || !guessConfig.roundId) return;
+  const qq = String(e.user_id);
+  // 同一玩家多次作答只保留最新一条：先错后对以答对为准，避免服务端按"先到先得"把胜者条目判重丢弃
+  const old = guessConfig.roundResults.find(r => r.qq === qq);
+  if (old) {
+    old.score = score;
+    old.correct = score > 0;
+    return;
+  }
   // correct=本次作答是否命中角色名（答对，供服务端核对答对数）
-  guessConfig.roundResults.push({ qq: String(e.user_id), score, correct: score > 0 });
+  guessConfig.roundResults.push({ qq, score, correct: score > 0 });
 }
 
 // 赢家结算上报：一局恰好一个赢家，fire-and-forget 不阻塞回复
@@ -374,12 +382,13 @@ export async function guessAvatarCheck(e) {
 export async function replayAnswer(e, message, cfg, isReply = false) {
   clearTimeout(cfg.timer);
   cfg.playing = false;
-  // roundId 仍在 = 超时无人获胜的弃局，上报空结果让服务端立即回收（赢家结算时已提前清空）
+  // roundId 仍在 = 超时无人获胜的弃局：上报本局答错者的参与条目（全 0 分）让服务端回收并计参与
   if (cfg.roundId) {
     const rid = cfg.roundId;
+    const results = cfg.roundResults;
     cfg.roundId = '';
     cfg.roundResults = [];
-    finishRound(rid, []).catch(() => {});
+    finishRound(rid, results).catch(() => {});
   }
   let answer = await cfg.answer;
   if (answer) {
