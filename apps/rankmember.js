@@ -490,6 +490,7 @@ export async function fetchRanking(top = 10, qq = '', game = '', period = '') {
     logger.mark(`[榴莲会员] 排名查询未通过: ${ret.errorCode}`);
     return null;
   }
+  try { logger.mark(`[榴莲会员] 排名原始返回: ${JSON.stringify(ret.data).slice(0, 500)}`); } catch {}
   return ret.data;
 }
 
@@ -504,5 +505,6 @@ export async function fetchGroupRanking(top = 10, groupId = '', game = '', perio
     logger.mark(`[榴莲会员] 群榜查询未通过: ${ret.errorCode}`);
     return null;
   }
+  try { logger.mark(`[榴莲会员] 群榜原始返回: ${JSON.stringify(ret.data).slice(0, 500)}`); } catch {}
   return ret.data;
 }

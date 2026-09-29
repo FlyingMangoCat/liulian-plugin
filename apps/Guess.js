@@ -1363,6 +1363,11 @@ async function getRankName(e, userId) {
 
 // ============ 总排名接口钩子 ============
 // 后端就绪后在此配置接口地址与密钥，请求时带密钥做验证，按返回错误码给出对应提示
+// 兼容取答对数字段（不同后端版本字段名可能不同）
+function pickWins(r) {
+  return r.wins ?? r.winCount ?? r.answerCount ?? r.correct ?? 0;
+}
+
 export async function guessRankCmd(e, { render }) {
   // 关键词可能出现在"排名"前后（如 星铁猜角色排名 / 猜角色星铁全服周排名），全量交给解析器
   // 注意不能预删"排名"二字，否则"群聊排名/总排名"这类自带"排名"的范围词会被破坏
@@ -1402,12 +1407,12 @@ export async function guessRankCmd(e, { render }) {
         rank: r.rank,
         name: getGroupName(e, r.groupId),
         avatar: `https://p.qlogo.cn/gh/${r.groupId}/${r.groupId}/100`,
-        score: r.points, wins: 0, parts: r.parts,
+        score: r.points, wins: pickWins(r), parts: r.parts,
         me: String(r.groupId) === String(e.group_id),
       }));
       // 本群名次不在榜内时页尾补"我的群排名"
       const meRow = granking.me && granking.me.rank
-        ? { rank: granking.me.rank, score: granking.me.points, wins: 0, parts: granking.me.parts, inList: rows.some(r => r.me) }
+        ? { rank: granking.me.rank, score: granking.me.points, wins: pickWins(granking.me), parts: granking.me.parts, inList: rows.some(r => r.me) }
         : null;
       if (!rows.length && !meRow) {
         const alt = period === 'year' ? '，快开始猜角色吧～'
@@ -1487,13 +1492,13 @@ export async function guessRankCmd(e, { render }) {
         rows.push({
           rank: r.rank, name: await getRankName(e, r.qq),
           avatar: `https://q1.qlogo.cn/g?b=qq&nk=${r.qq}&s=100`,
-          score: r.points, wins: 0, parts: r.parts,
+          score: r.points, wins: pickWins(r), parts: r.parts,
           me: String(r.qq) === myId,
         });
       }
       // 我的名次不在榜单内时页尾补"我的排名"
       const meRow = ranking.me && ranking.me.rank
-        ? { rank: ranking.me.rank, score: ranking.me.points, wins: 0, parts: ranking.me.parts, inList: rows.some(r => r.me) }
+        ? { rank: ranking.me.rank, score: ranking.me.points, wins: pickWins(ranking.me), parts: ranking.me.parts, inList: rows.some(r => r.me) }
         : null;
       if (!rows.length && !meRow) {
         // 当前周期没有记录时引导查更长周期，而不是裸报错
