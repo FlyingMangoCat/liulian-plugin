@@ -382,13 +382,14 @@ export async function guessAvatarCheck(e) {
 export async function replayAnswer(e, message, cfg, isReply = false) {
   clearTimeout(cfg.timer);
   cfg.playing = false;
-  // roundId 仍在 = 超时无人获胜的弃局，按现行协议上报空结果让服务端回收
-  // （弃局带参与条目需服务端支持全 0 分条目，上线前传空数组，否则 RESULT_WINNER_INVALID 拒收）
+  // roundId 仍在 = 超时无人答对的弃局落账：把作答者以 0 分参与条目上报（服务端计入 parts，参与不丢失）
+  // 纯弃局（无人作答）时 roundResults 为空数组，服务端按纯弃局销毁
   if (cfg.roundId) {
     const rid = cfg.roundId;
+    const results = cfg.roundResults;
     cfg.roundId = '';
     cfg.roundResults = [];
-    finishRound(rid, []).catch(() => {});
+    finishRound(rid, results).catch(() => {});
   }
   let answer = await cfg.answer;
   if (answer) {
