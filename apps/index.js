@@ -942,7 +942,7 @@ yl21: {
         describe: '#猜头像、#猜角色、#猜角色困难模式',
     },
         guessAvatarCheck: {
-        reg: "^#?我猜(.*)",
+        reg: "^[#*~%]?我猜(.*)",
         priority: 98,
         describe: ''
     },
@@ -952,7 +952,7 @@ yl21: {
         describe: '猜星铁角色',
     },
         starguessAvatarCheck: {
-        reg: "^#?我猜(.*)",
+        reg: "^[#*~%]?我猜(.*)",
         priority: 98,
         describe: ''
     },
@@ -962,7 +962,7 @@ yl21: {
         describe: '猜ZZZ角色',
     },
         zzzguessAvatarCheck: {
-        reg: "^#?我猜(.*)",
+        reg: "^[#*~%]?我猜(.*)",
         priority: 98,
         describe: ''
     },
@@ -977,7 +977,7 @@ yl21: {
         describe: '猜鸣潮角色（游戏名在后）',
     },
         wwguessAvatarCheck: {
-        reg: "^[~#]?我猜(.*)",
+        reg: "^[#*~%]?我猜(.*)",
         priority: 98,
         describe: ''
     },
@@ -992,7 +992,7 @@ yl21: {
         describe: '猜异环角色（游戏名在后）',
     },
         nteguessAvatarCheck: {
-        reg: "^#?我猜(.*)",
+        reg: "^[#*~%]?我猜(.*)",
         priority: 98,
         describe: ''
     },
