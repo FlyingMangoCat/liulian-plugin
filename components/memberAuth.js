@@ -85,7 +85,8 @@ async function doRequest(method, url, headers, body) {
   for (let attempt = 0; attempt < 2; attempt++) {
     let res = null;
     try {
-      res = await fetch(url, { method, headers, body });
+      // node-fetch v3 无 timeout 选项，用 AbortSignal 兜底（30 秒，防请求无限挂起）
+      res = await fetch(url, { method, headers, body, signal: AbortSignal.timeout(30000) });
       const contentType = res.headers.get('content-type') || '';
       // 图片流响应：直接取二进制，不解析 JSON
       if (contentType.startsWith('image/')) {

@@ -101,7 +101,8 @@ async function refreshMemeKeys() {
 
 // 下载素材图片（返回 Buffer；群头像/头像 URL 均可）
 async function downloadImage(url) {
-  const res = await fetch(url, { timeout: 20000 });
+  // node-fetch v3 无 timeout 选项，用 AbortSignal 兜底，防止请求无限挂起
+  const res = await fetch(url, { signal: AbortSignal.timeout(20000) });
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   const buf = Buffer.from(await res.arrayBuffer());
   if (buf.length > MAX_BYTES) throw new Error('TOO_LARGE');
@@ -204,15 +205,18 @@ export async function biaoQing(e) {
   if (!targetQq && !(e.img && e.img[0])) return false;
 
   try {
-    // 收集图片素材
+    // 收集图片素材（分步日志：沉默时可直接定位卡点）
     const images = [];
     if (e.img && e.img[0]) {
+      logger.mark(`[表情制作] 下载消息图片: ${hit.key}`);
       images.push(await downloadImage(e.img[0]));
     } else if (hit.imgs === 2) {
       // 双图模板：操作者 + 被操作者
+      logger.mark(`[表情制作] 下载双头像: ${hit.key}`);
       images.push(await downloadImage(avatarUrl(e.user_id)));
       images.push(await downloadImage(avatarUrl(targetQq)));
     } else {
+      logger.mark(`[表情制作] 下载头像: ${hit.key} <- ${targetQq}`);
       images.push(await downloadImage(avatarUrl(targetQq)));
     }
     if (images.length > MAX_IMAGES || images.reduce((s, b) => s + b.length, 0) > MAX_BYTES) {
