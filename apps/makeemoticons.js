@@ -200,7 +200,8 @@ export async function biaoQing(e) {
   let targetQq = '';
   if (atItem.length) targetQq = String(atItem[0].qq);
   else if (msg.includes('自己')) targetQq = String(e.user_id);
-  if (!targetQq && msg !== hitWord) return false;
+  // 无目标且无图片素材：不响应（裸关键词"摸"或无目标尾巴句都拦截，避免空 QQ 请求）
+  if (!targetQq && !(e.img && e.img[0])) return false;
 
   try {
     // 收集图片素材
