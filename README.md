@@ -1,5 +1,5 @@
 ![liulian-plugin](resources/common/cont/liulian-plugin.png)
-#       **榴莲插件**     中秋节快乐！
+#       **榴莲插件**
 [中文](README.md) | [English](README_EN.md)   
 
 ### **说明**
@@ -7,18 +7,14 @@
 ⚠由于本人不了解异环和鸣潮角色，如有问题（如角色名称错误/别名未收录等）请pr
 
 ### **食用方法**
-
 使用Git安装（推荐）
-请将 liulian-plugin 放置在 Yunzai-Bot 的 plugins 目录下，重启 Yunzai-Bot 后即可使用。
- 
+请将 liulian-plugin 放置在 Yunzai-Bot 的 plugins 目录下，重启 Yunzai-Bot 后即可使用。 
 请使用 git 进行安装，以方便后续升级。在 Yunzai-Bot 根目录夹打开终端，运行下述指令之一 
-
 #### 使用Gitee安装
 ```
 git clone https://gitee.com/huifeidemangguomao/liulian-plugin.git ./plugins/liulian-plugin/
 pnpm install -P
 ``` 
-
 #### 使用Github安装 
 ```
 git clone https://github.com/flyingmangocat/liulian-plugin.git ./plugins/liulian-plugin/
@@ -33,27 +29,26 @@ pnpm install -P
 |[Yi0086](https://gitee.com/yi0086) | 提供技术支持 |
 |[释羽墨](https://space.bilibili.com/637665039) | 画师 |
 |[萧枘（会飞的橘子猫）](https://gitee.com/xiaoxiaorurui) | 上传、整理仓库内容及解答问题 |
-|[星光（会飞的星光猫）]() | 宣传，配音，画师 |
-|[会飞的苹果猫]() | 宣传 |
+|[星光（会飞的星光猫）](https://gitee.com/xingguangwojiusibaozi) | 宣传，配音，画师 |
+|[会飞的苹果猫](https://gitee.com/pingguomao) | 宣传 |
 |[会飞的芒果猫](https://b23.tv/RsZvCWJ) | 宣传及发布教程、解答问题 |
 |[二坑言]() |  |
+|[白日梦工厂](https://gitee.com/mango-cats-upload-assistant) | 提供资金场地人员等支持 |
+
+### **榴莲会员**
+* 榴莲会员上线，首周优惠5折（续费同享无上限，截止到2026.10.2），原价19.9元，如需购买请联系会飞的芒果猫，目前可享榴莲论坛网站同步认证专属身份，猜角色全网大排名参与资格，[课表](https://gitee.com/mango-cats-upload-assistant/course-schedule)数据上云无缝切换等至尊待遇，欢迎大家购买~
+* ⚠️购买后10.2日正式生效，10.2日后购买即时生效
 
 #### 📩加入我们</summary>
-
 * 电子邮箱 **fmc@liulian-ai.top**
 
 ### **反馈**
-
 * [liulian-plugin问题反馈](https://pd.qq.com/s/ewii86r08)
-
 * 有建议可以去[Issues](https://gitee.com/huifeidemangguomao/liulian-plugin/issues)里提
-
 * [榴莲插件(liulian-plugin)B站问题反馈专栏](https://b23.tv/GecaEsK)
 
 #### 联系方式🌾 
-
 * liulian-plugin榴莲插件   **[806760403](http://qm.qq.com/cgi-bin/qm/qr?_wv=1027&k=sbYoEYRgwMkO66UsD1RIjyQMys1SSFsn&authKey=LWGw08%2BP0EQepYtZ19T3gRYEbTiV0YeodQTcthEmNdIHnxID%2BT9TTYnYuSGKTjqm&noverify=0&group_code=806760403)**
-
 * 电子邮箱 **fmc@liulian-ai.top**
 
 ### **安全提示**
@@ -64,25 +59,17 @@ pnpm install -P
 - 保护好个人隐私和财产安全，不轻信陌生人
 
 <details><summary>⚠️免责声明⚠️</summary>
-
 * 本插件及云崽禁止**任何形式**的商用和违法用途，仅供小范围使用和学习，如违反相关规定，后果自负
-
 * 插件内部分内容已获取相关作者授权，禁止在未授权的情况下使用，本插件内所有内容禁止以任何形式用以冒充、反串、水军、侵犯他人权益、无底线粉丝行为、诈骗等不正当用途，如违反相关规定插件作者有权追究
-
 * 已授权内容需要按照要求标明作者出处等，并禁止任何形式的商业或违法用途，如违反授权相关要求，本插件作者及内容相关作者有权追究责任
-
 * 本插件的图片与其他素材均来自于网络，仅供交流学习使用，如有侵权请联系，会立即删除
-
 * [本插件已收录至**云崽纯净插件**](https://gitee.com/huifeidemangguomao/yunzai-one-button/blob/master/include.md)
-
 </details> 
   
 ### **赞助**
-
 * 欢迎[爱发电](https://ifdian.net/a/huifeidemangguomao)投喂或点个免费的**Star**，您的支持是我们更新及维护的动力~
 
 #### **赞助列表（仅展示前十，列表定期更新，详情请见[赞助列表](https://liulian-ai.top/thanks)）**
-
 1. 夜华
 2. 林(亦)
 3. ZzzMion
@@ -95,7 +82,6 @@ pnpm install -P
 10. ......
 
 <details><summary>📝写在最后</summary>
-
 * 亲爱的用户朋友们晚上好，可能有人知道“榴莲”这个名字最初，最开始代表的意义，但，现在，榴莲，代表着坚强、独特、自带铠甲的标志，我们将一起告别过去，未来的榴莲是独属于会飞的芒果猫的榴莲，是独属于榴莲项目组的榴莲，是萧枘、星光、苹果猫的，以及每一个用户朋友们的榴莲！榴莲的未来由我们自己定义，榴莲的意义也是仅属于我们的定义！
 
                      ——会飞的芒果猫&榴莲项目组
