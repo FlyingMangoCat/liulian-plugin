@@ -65,7 +65,7 @@ import { randomQA, answerCheck } from "./Q&A.js"
 import { HitMe } from "./hitme.js"
 import { fakeMessage } from "./fakeMessage.js"
 import { fabing } from "./morbidity.js"
-import { biaoQing, biaoQingHelp } from "./makeemoticons.js"
+import { biaoQing, biaoQingHelp, BIAOQING_REG } from "./makeemoticons.js"
 import { random, chuochuo, 上传, checkRandom } from "./Random expression.js"
 import { FuckingChatterbox } from "./chatterboxStat.js"
 import { fanyi, translateText, base64jiami, base64jiemi, wyyjx, wyyauto, qrcode } from "./tools.js"
@@ -1017,7 +1017,7 @@ yl21: {
        describe : "",
     },
        biaoQing: {
-       reg: "", //不通过正则匹配
+       reg: BIAOQING_REG, //按表情关键词表生成的正则（空正则会被V3分发跳过导致功能失效）
        priority: 10, //优先级，越小优先度越高
        describe: "头像表情包", //【命令】功能说明
     },

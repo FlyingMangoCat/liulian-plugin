@@ -45,6 +45,7 @@ const MEME_MAP = {
   "像样的亲亲": { key: 'decent_kiss', imgs: 1, texts: 0 },
   "啾啾": { key: 'jiujiu', imgs: 1, texts: 0 },
   "贴贴": { key: 'hug', imgs: 2, texts: 0 },
+  "贴": { key: 'capoo_rub', imgs: 1, texts: 0 },
   "蹭": { key: 'capoo_rub', imgs: 1, texts: 0 },
   "蹭蹭": { key: 'capoo_rub', imgs: 1, texts: 0 },
   "紧贴": { key: 'capoo_rub', imgs: 1, texts: 0 },
@@ -90,6 +91,8 @@ const MEME_MAP = {
 };
 // longest-match：先匹配长关键词（"摸摸头"优先于"摸"）
 const MEME_KEYWORDS = Object.keys(MEME_MAP).sort((a, b) => b.length - a.length);
+// 供 index.js 规则注册用的匹配正则（@ 前缀形态由函数内部处理，这里放开关键词起始即可，函数内部自过滤）
+export const BIAOQING_REG = '^(\\[CQ:at[^\\]]*\\]\\s*)?#?(?:' + MEME_KEYWORDS.join('|') + ')';
 
 // 服务端表情清单缓存（进程启动后首次使用时拉取，"表情更新"可手动刷新）
 let memeKeys = null;
