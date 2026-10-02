@@ -29,6 +29,8 @@ const MEME_GEN_PATH = '/api/meme';
 // 上传素材上限（与服务端一致：单请求全部图片合计 ≤10MB）
 const MAX_IMAGES = 10;
 const MAX_BYTES = 10 * 1024 * 1024;
+// 模块加载标记：启动日志可见，用于确认部署机运行的是会员表情服务版本
+logger.mark('[表情制作] 会员表情服务模块已加载');
 
 // 关键词 → 引擎模板映射（longest-match 优先，取交集的关键词逐字对齐引擎 keywords）
 // imgs=所需图片数（1=被操作者头像，2=操作者+被操作者），texts=所需文案数，arg=可选参数识别
