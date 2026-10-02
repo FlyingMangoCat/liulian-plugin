@@ -184,10 +184,10 @@ export async function biaoQing(e) {
     return true;
   }
 
-  // longest-match 找表情关键词
+  // longest-match 找表情关键词：裸关键词必须完整一致，否则普通聊天（如"摸鱼"）会被误触
   let hit = null, hitWord = '';
   for (const word of MEME_KEYWORDS) {
-    if (msg === word || msg.startsWith(word) || (msg.includes(word) && (msg.includes('自己') || e.message.some(i => i.type === 'at')))) {
+    if (msg === word || (msg.includes(word) && (msg.includes('自己') || e.message.some(i => i.type === 'at')))) {
       hit = MEME_MAP[word];
       hitWord = word;
       break;
@@ -195,12 +195,12 @@ export async function biaoQing(e) {
   }
   if (!hit) return false;
 
-  // 确定素材目标：图片 > 自己 > @用户
+  // 确定素材目标：图片 > 自己 > @用户；带目标的命中（msg !== 关键词）必须有目标，否则不响应
   const atItem = e.message.filter((item) => item.type === "at");
   let targetQq = '';
   if (atItem.length) targetQq = String(atItem[0].qq);
   else if (msg.includes('自己')) targetQq = String(e.user_id);
-  else if (msg === hitWord) return false; // 裸关键词不带目标不响应，避免误触普通聊天
+  if (!targetQq && msg !== hitWord) return false;
 
   try {
     // 收集图片素材
