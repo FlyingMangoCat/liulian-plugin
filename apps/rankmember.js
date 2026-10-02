@@ -1,126 +1,37 @@
 import fs from 'fs';
 import path from 'path';
 import crypto from 'crypto';
-import fetch from 'node-fetch';
 import { fileURLToPath } from 'url';
-import bcommon, { botConfig } from "../components/bcommon.js";
+import bcommon from "../components/bcommon.js";
+import { DATA_DIR, getSecret, getOwnerQqs, signedJsonRequest } from "../components/memberAuth.js";
 
-// 会员密钥与排名系统对接（HMAC 签名，见接口规范）
-// secret 单独落盘存储，不随请求传输；主人 QQ 取自配置环境文件
-const DATA_DIR = path.join(process.cwd(), 'data', 'guessrank');
+// 会员密钥与排名系统对接：凭据/签名/请求统一走 components/memberAuth.js
 const MEMBER_FILE = path.join(DATA_DIR, 'member.json');
 const ROUNDS_FILE = path.join(DATA_DIR, 'rounds.json');
 
-const API_BASE = 'https://api-forum.liulian-ai.top';
 const MEMBER_VERIFY_PATH = '/api/rank/membership';
 const ROUND_START_PATH = '/api/rank/round/start';
 const ROUND_FINISH_PATH = '/api/rank/round/finish';
 const RANKING_PATH = '/api/rank/ranking';
 const GROUP_RANKING_PATH = '/api/rank/group-ranking';
 
-let memberCache = null;
 // 处于绑定等待态的主人（私信发过 榴莲会员绑定，正在等发密钥）
 const pendingBinds = new Map();
 
-function readMember() {
-  if (memberCache) return memberCache;
+function getMemberExpiry() {
+  let m = null;
   try {
-    if (fs.existsSync(MEMBER_FILE)) {
-      memberCache = JSON.parse(fs.readFileSync(MEMBER_FILE, 'utf-8'));
-    }
+    if (fs.existsSync(MEMBER_FILE)) m = JSON.parse(fs.readFileSync(MEMBER_FILE, 'utf-8'));
   } catch (err) {
     logger.warn(`[榴莲会员] 密钥文件读取失败: ${err.message}`);
   }
-  return memberCache;
-}
-
-function getSecret() {
-  const m = readMember();
-  return m && m.secret ? m.secret : '';
-}
-
-function getMemberExpiry() {
-  const m = readMember();
   return m && m.expiry ? m.expiry : 0;
-}
-
-// 主人 QQ
-function getOwnerQqs() {
-  const masters = Array.isArray(botConfig?.masterQQ) ? botConfig.masterQQ : (botConfig?.masterQQ ? [botConfig.masterQQ] : []);
-  return masters.map(String);
-}
-
-// ============ HMAC 签名 ============
-// 签名输入为原始请求体字节（序列化一次原样发送）；GET 请求 bodyHash = SHA-256('')
-function buildHeaders(method, secret, ownerQqs, bodyObj) {
-  const timestamp = String(Date.now());
-  const nonce = crypto.randomBytes(16).toString('hex');
-  const ownerQq = ownerQqs.join(',');
-  const rawBody = (method === 'GET' || bodyObj === undefined) ? '' : JSON.stringify(bodyObj);
-  const bodyHash = crypto.createHash('sha256').update(rawBody, 'utf8').digest('hex');
-  const signature = crypto.createHmac('sha256', secret)
-    .update(`${timestamp}\n${nonce}\n${ownerQq}\n${bodyHash}`, 'utf8')
-    .digest('hex');
-  return {
-    'Content-Type': 'application/json',
-    'X-Owner-Qq': ownerQq,
-    'X-Timestamp': timestamp,
-    'X-Nonce': nonce,
-    'X-Body-Hash': bodyHash,
-    'X-Signature': signature,
-  };
-}
-
-// 带签名请求：重试（RATE_LIMITED/网络错误）须重新签名；返回 { ok, data, errorCode }
-async function signedRequest(method, apiPath, bodyObj, secretOverride, e) {
-  const secret = secretOverride || getSecret();
-  const ownerQqs = getOwnerQqs();
-  if (!secret || !ownerQqs.length) return { ok: false, errorCode: 'NO_CREDENTIAL' };
-  const rawBody = (method === 'GET' || bodyObj === undefined) ? '' : JSON.stringify(bodyObj);
-
-  for (let attempt = 0; attempt < 2; attempt++) {
-    try {
-      const res = await fetch(API_BASE + apiPath, {
-        method,
-        headers: buildHeaders(method, secret, ownerQqs, bodyObj),
-        body: method === 'GET' ? undefined : rawBody,
-      });
-      let ret = null;
-      try { ret = await res.json(); } catch {}
-      if (ret && ret.success) return { ok: true, data: ret.data };
-      const errorCode = (ret && ret.errorCode) || '';
-      // 无 errorCode 的响应（网关超时/非 JSON 错误页等）：视作网络类故障，退避后重新签名重试一次
-      if (!errorCode) {
-        logger.mark(`[榴莲会员] 排名系统接口异常响应: HTTP ${res.status}`);
-        if (attempt === 0) {
-          await new Promise(r => setTimeout(r, 5 * 1000));
-          continue;
-        }
-        return { ok: false, errorCode: 'SERVICE_UNAVAILABLE' };
-      }
-      // 可重试：限流退避 ≥5 秒后重新签名重试一次；其余错误码直接返回
-      if (errorCode === 'RATE_LIMITED' && attempt === 0) {
-        await new Promise(r => setTimeout(r, 5 * 1000));
-        continue;
-      }
-      return { ok: false, errorCode };
-    } catch (err) {
-      // 网络错误：重新签名重试一次
-      if (attempt === 0) {
-        await new Promise(r => setTimeout(r, 5 * 1000));
-        continue;
-      }
-      logger.warn(`[榴莲会员] 排名系统请求失败: ${err.message}`);
-      return { ok: false, errorCode: 'NETWORK_ERROR' };
-    }
-  }
-  return { ok: false, errorCode: 'RATE_LIMITED' };
 }
 
 // ============ 会员状态 ============
 // 查询会员状态：可传候选 secret 用于绑定验证
 async function fetchMembership(secretOverride) {
-  const ret = await signedRequest('GET', MEMBER_VERIFY_PATH, undefined, secretOverride);
+  const ret = await signedJsonRequest('GET', MEMBER_VERIFY_PATH, undefined, secretOverride);
   return ret;
 }
 
@@ -421,7 +332,7 @@ export async function startRound(e, gameType, difficulty = 'normal') {
   if (!/^\d{4,20}$/.test(groupId)) return '';
   if (!['genshin', 'star', 'zzz', 'ww', 'nte'].includes(gameType)) return '';
   if (!['normal', 'hard', 'hell', 'purgatory'].includes(difficulty)) difficulty = 'normal';
-  const ret = await signedRequest('POST', ROUND_START_PATH, { groupId, game: gameType, difficulty });
+  const ret = await signedJsonRequest('POST', ROUND_START_PATH, { groupId, game: gameType, difficulty });
   if (ret.ok) {
     const roundId = (ret.data && ret.data.roundId) || '';
     if (roundId) saveRound(groupId, roundId);
@@ -440,7 +351,7 @@ export async function startRound(e, gameType, difficulty = 'normal') {
 export async function finishRound(roundId, results) {
   if (!roundId || !results) return;
   try {
-    const ret = await signedRequest('POST', ROUND_FINISH_PATH, { roundId, results });
+    const ret = await signedJsonRequest('POST', ROUND_FINISH_PATH, { roundId, results });
     if (ret.ok) {
       if (ret.data && ret.data.invalidCount > 0) {
         logger.mark(`[榴莲会员] 对局结算完成，异常条目 ${ret.data.invalidCount} 条: ${JSON.stringify(ret.data.invalidItems)}`);
@@ -486,7 +397,7 @@ export async function fetchRanking(top = 10, qq = '', game = '', period = '') {
   if (qq) qs += `&qq=${qq}`;
   if (game) qs += `&game=${game}`;
   if (period) qs += `&period=${period}&offset=${tzOffset()}`;
-  const ret = await signedRequest('GET', `${RANKING_PATH}?${qs}`);
+  const ret = await signedJsonRequest('GET', `${RANKING_PATH}?${qs}`);
   if (!ret.ok) {
     logger.mark(`[榴莲会员] 排名查询未通过: ${ret.errorCode}`);
     return null;
@@ -501,7 +412,7 @@ export async function fetchGroupRanking(top = 10, groupId = '', game = '', perio
   if (groupId) qs += `&groupId=${groupId}`;
   if (game) qs += `&game=${game}`;
   if (period) qs += `&period=${period}&offset=${tzOffset()}`;
-  const ret = await signedRequest('GET', `${GROUP_RANKING_PATH}?${qs}`);
+  const ret = await signedJsonRequest('GET', `${GROUP_RANKING_PATH}?${qs}`);
   if (!ret.ok) {
     logger.mark(`[榴莲会员] 群榜查询未通过: ${ret.errorCode}`);
     return null;

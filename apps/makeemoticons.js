@@ -1,12 +1,11 @@
 /*
 * 榴莲插件 - 表情制作模块
-* 功能：提供头像表情包制作功能
-* 支持多种表情动作，包括摸、亲、贴贴、顶、玩、拍、撕、丢等
-* 可通过@用户、自己或图片来制作表情
+* 功能：会员表情包制作（对接榴莲表情服务，meme 引擎）
+* 支持@用户、自己或图片作为素材，签名与凭据统一走 components/memberAuth.js
 * */
 
 import fetch from "node-fetch";
-import axios from 'axios';
+import { signedJsonRequest, signedRawRequest } from "../components/memberAuth.js";
 
 // 命令规则定义
 export const rule = {
@@ -23,136 +22,149 @@ export const rule = {
     describe: "表情制作帮助", //【命令】功能说明
   },
 };
-// 支持的所有表情关键词列表
-const keywordList = [
-  "表情更新",
-  "摸",
-  "摸摸",
-  "摸头",
-  "摸摸头",
-  "rua",
-  "亲",
-  "亲亲",
-  "贴贴",
-  "贴",
-  "蹭",
-  "蹭蹭",
-  "顶",
-  "玩",
-  "拍",
-  "撕",
-  "丢",
-  "扔",
-  "抛",
-  "掷",
-  "爬",
-  "精神支柱",
-  "一直",
-  "加载中",
-  "转",
-  "小天使",
-  "不要靠近",
-  "一样",
-  "滚",
-  "玩游戏",
-  "来玩游戏",
-  "膜拜",
-  "膜",
-  "吃",
-  "啃",
-  "出警",
-  "警察",
-  "问问",
-  "去问问",
-  "舔屏",
-  "舔",
-  "prpr",
-  "搓",
-  "国旗",
-  "墙纸",
-  "交个朋友",
-  "继续干活",
-  "完美",
-  "完美的",
-  "关注",
-  "我朋友说",
-  "我有个朋友说",
-  "这像画吗",
-  "震惊",
-  "兑换券",
-  "听音乐",
-  "典中典",
-  "哈哈镜",
-  "永远爱你",
-  "对称",
-  "安全感",
-  "永远喜欢",
-  "我永远喜欢",
-  "采访",
-  "打拳",
-  "群青",
-  "捣",
-  "捶",
-  "需要",
-  "你可能需要",
-  "捂脸",
-  "敲",
-  "垃圾",
-  "垃圾桶",
-  "为什么at我",
-  "像样的亲亲",
-  "啾啾",
-  "吸",
-  "嗦",
-  "紧贴",
-  "紧紧贴着",
-  "锤",
-  "可莉",
-  "仰望大佬",
-  "打",
-  "击剑",
-  "mo鱼",
-  "赞",
-  "小恐龙",
-  "吞",
-  "胡桃",
-  "快逃",
-  "色色",
-  "踢",
-  "踩",
-  "520",
-  "孤寡",
-];
 
-// 需要特殊处理的关键词列表（支持参数变体）
-const specialList = [
-  "摸",
-  "摸摸",
-  "摸头",
-  "摸摸头",
-  "rua",
-  "撕",
-  "爬",
-  "小天使",
-  "玩游戏",
-  "来玩游戏",
-  "问问",
-  "去问问",
-  "交个朋友",
-  "关注",
-  "我朋友说",
-  "我有个朋友说",
-  "兑换券",
-  "典中典",
-  "对称",
-  "安全感",
-  "采访",
-  "永远喜欢",
-  "我永远喜欢",
-  "520",
-  "孤寡",
-  "表情更新",
-];
+// 服务端接口路径
+const MEME_KEYS_PATH = '/api/meme/keys';
+const MEME_GEN_PATH = '/api/meme';
+// 上传素材上限（与服务端一致：单请求全部图片合计 ≤10MB）
+const MAX_IMAGES = 10;
+const MAX_BYTES = 10 * 1024 * 1024;
+
+// 关键词 → 引擎模板映射（longest-match 优先，取交集的关键词逐字对齐引擎 keywords）
+// imgs=所需图片数（1=被操作者头像，2=操作者+被操作者），texts=所需文案数，arg=可选参数识别
+const MEME_MAP = {
+  "摸": { key: 'petpet', imgs: 1, texts: 0, arg: 'circle' },
+  "摸摸": { key: 'petpet', imgs: 1, texts: 0, arg: 'circle' },
+  "摸头": { key: 'petpet', imgs: 1, texts: 0, arg: 'circle' },
+  "摸摸头": { key: 'petpet', imgs: 1, texts: 0, arg: 'circle' },
+  "rua": { key: 'petpet', imgs: 1, texts: 0, arg: 'circle' },
+  "亲": { key: 'kiss', imgs: 2, texts: 0 },
+  "亲亲": { key: 'kiss', imgs: 2, texts: 0 },
+  "像样的亲亲": { key: 'decent_kiss', imgs: 1, texts: 0 },
+  "啾啾": { key: 'jiujiu', imgs: 1, texts: 0 },
+  "贴贴": { key: 'hug', imgs: 2, texts: 0 },
+  "蹭": { key: 'capoo_rub', imgs: 1, texts: 0 },
+  "蹭蹭": { key: 'capoo_rub', imgs: 1, texts: 0 },
+  "紧贴": { key: 'capoo_rub', imgs: 1, texts: 0 },
+  "紧紧贴着": { key: 'capoo_rub', imgs: 1, texts: 0 },
+  "拍": { key: 'beat_head', imgs: 1, texts: 0 },
+  "撕": { key: 'capoo_rip', imgs: 1, texts: 0 },
+  "丢": { key: 'chino_throw', imgs: 1, texts: 0 },
+  "扔": { key: 'chino_throw', imgs: 1, texts: 0 },
+  "抛": { key: 'chino_throw', imgs: 1, texts: 0 },
+  "掷": { key: 'chino_throw', imgs: 1, texts: 0 },
+  "爬": { key: 'crawl', imgs: 1, texts: 0 },
+  "小天使": { key: 'little_angel', imgs: 1, texts: 0 },
+  "加载中": { key: 'loading', imgs: 1, texts: 0 },
+  "一样": { key: 'alike', imgs: 1, texts: 0 },
+  "不要靠近": { key: 'dont_go_near', imgs: 1, texts: 0 },
+  "吃": { key: 'eat', imgs: 1, texts: 0 },
+  "啃": { key: 'bite', imgs: 1, texts: 0 },
+  "问问": { key: 'ask', imgs: 1, texts: 1 },
+  "去问问": { key: 'ask', imgs: 1, texts: 1 },
+  "舔屏": { key: 'prpr', imgs: 1, texts: 0 },
+  "舔": { key: 'prpr', imgs: 1, texts: 0 },
+  "prpr": { key: 'prpr', imgs: 1, texts: 0 },
+  "国旗": { key: 'china_flag', imgs: 1, texts: 0 },
+  "墙纸": { key: 'look_flat', imgs: 1, texts: 0 },
+  "继续干活": { key: 'back_to_work', imgs: 1, texts: 0 },
+  "兑换券": { key: 'coupon', imgs: 1, texts: 1 },
+  "听音乐": { key: 'listen_music', imgs: 1, texts: 0 },
+  "典中典": { key: 'dianzhongdian', imgs: 1, texts: 0 },
+  "哈哈镜": { key: 'funny_mirror', imgs: 1, texts: 0 },
+  "永远爱你": { key: 'always_like', imgs: 1, texts: 1 },
+  "永远喜欢": { key: 'always_like', imgs: 1, texts: 1 },
+  "我永远喜欢": { key: 'always_like', imgs: 1, texts: 1 },
+  "采访": { key: 'interview', imgs: 1, texts: 0 },
+  "垃圾": { key: 'garbage', imgs: 1, texts: 0 },
+  "垃圾桶": { key: 'garbage', imgs: 1, texts: 0 },
+  "敲": { key: 'knock', imgs: 1, texts: 0 },
+  "锤": { key: 'hammer', imgs: 1, texts: 0 },
+  "击剑": { key: 'fencing', imgs: 2, texts: 0 },
+  "可莉": { key: 'klee_eat', imgs: 1, texts: 0 },
+  "小恐龙": { key: 'dinosaur', imgs: 1, texts: 0 },
+  "胡桃": { key: 'hutao_bite', imgs: 1, texts: 0 },
+  "吞": { key: 'eat', imgs: 1, texts: 0 },
+};
+// longest-match：先匹配长关键词（"摸摸头"优先于"摸"）
+const MEME_KEYWORDS = Object.keys(MEME_MAP).sort((a, b) => b.length - a.length);
+
+// 服务端表情清单缓存（进程启动后首次使用时拉取，"表情更新"可手动刷新）
+let memeKeys = null;
+async function refreshMemeKeys() {
+  const ret = await signedJsonRequest('GET', MEME_KEYS_PATH);
+  if (ret.ok && Array.isArray(ret.data && ret.data.keys)) {
+    memeKeys = ret.data.keys;
+  }
+  return memeKeys;
+}
+
+// 下载素材图片（返回 Buffer；群头像/头像 URL 均可）
+async function downloadImage(url) {
+  const res = await fetch(url, { timeout: 20000 });
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  const buf = Buffer.from(await res.arrayBuffer());
+  if (buf.length > MAX_BYTES) throw new Error('TOO_LARGE');
+  return buf;
+}
+
+// 头像地址
+function avatarUrl(qq) {
+  return `https://q1.qlogo.cn/g?b=qq&nk=${qq}&s=640`;
+}
+
+// 手工构造 multipart 原始字节（boundary 固定才能先签名后发送，与服务端签名校验对齐）
+function buildMultipart(images, texts, args) {
+  const boundary = '----liulianclient' + Date.now();
+  const part = (name, value, filename, contentType) => {
+    const head = filename
+      ? `--${boundary}\r\nContent-Disposition: form-data; name="${name}"; filename="${filename}"\r\nContent-Type: ${contentType}\r\n\r\n`
+      : `--${boundary}\r\nContent-Disposition: form-data; name="${name}"\r\n\r\n`;
+    return Buffer.concat([Buffer.from(head, 'utf8'), value, Buffer.from('\r\n', 'utf8')]);
+  };
+  const chunks = [];
+  for (const img of images) {
+    chunks.push(part('images', img, 'img.png', 'image/png'));
+  }
+  for (const text of texts) {
+    chunks.push(part('texts', Buffer.from(text, 'utf8')));
+  }
+  if (args) {
+    chunks.push(part('args', Buffer.from(JSON.stringify(args), 'utf8')));
+  }
+  chunks.push(Buffer.from(`--${boundary}--\r\n`, 'utf8'));
+  return { body: Buffer.concat(chunks), contentType: `multipart/form-data; boundary=${boundary}` };
+}
+
+// 服务错误码 → 用户提示（只认 errorCode，不解析文案）
+function memeErrorMessage(errorCode) {
+  switch (errorCode) {
+    case 'NO_CREDENTIAL':
+      return '表情制作需绑定榴莲会员，请先私信发送「榴莲会员绑定」～';
+    case 'MEMBER_REQUIRED':
+      return '表情制作是会员专属功能，开通请联系会飞的芒果猫～';
+    case 'MEMBER_EXPIRED':
+      return '榴莲会员已过期，请续费后再使用表情制作～';
+    case 'MEMBER_BANNED':
+      return '当前会员状态不可用，无法使用表情制作～';
+    case 'RATE_LIMITED':
+      return '操作太频繁啦，请稍后再试～';
+    case 'MEME_INVALID_PARAMS':
+      return '这个表情的参数不对，请检查指令格式～';
+    case 'MEME_NOT_FOUND':
+      return '该表情暂未收录，试试其他表情吧～';
+    case 'MEME_SERVICE_UNAVAILABLE':
+    case 'SERVICE_UNAVAILABLE':
+    case 'NETWORK_ERROR':
+    case 'HTTP_502':
+      return '表情服务开小差了，请稍后再试～';
+    case 'TOO_LARGE':
+      return '图片太大啦，请换一张小一点的（10MB 以内）～';
+    default:
+      return '表情制作失败，请稍后重试';
+  }
+}
+
 /**
  * 表情制作主函数
  * @param {Object} e - 事件对象
@@ -163,75 +175,86 @@ export async function biaoQing(e) {
   if (!e.isGroup || !e.msg) {
     return false;
   }
-  // 获取消息中的@信息
-  const atItem = e.message.filter((item) => item.type === "at");
+  const msg = e.msg.trim();
 
-  // 检查是否包含需要特殊处理的关键词
-  let isSpecial = specialList.filter((item) => e.msg.includes(item) && item !== e.msg).length > 0;
- 
-  // 初始化变量
-  let key = '';
-  let flag = "_";
-  let target='';
-  let master = "1280951594"; // 主人QQ号
+  // 表情更新：刷新服务端表情清单缓存
+  if (msg === '表情更新') {
+    const keys = await refreshMemeKeys();
+    await e.reply(keys ? `表情清单已更新，当前可用 ${keys.length} 个表情` : '表情清单获取失败，请稍后再试');
+    return true;
+  }
 
-  // 确定表情目标：可以是图片、自己或@的用户
-  if (e.img){target=e.img[0], key=e.msg} // 如果有图片，使用图片作为目标
-  if (e.msg.match('自己')){target=e.user_id; key=e.msg.replace('自己','');} // 如果是"自己"，使用发送者QQ
-  if (atItem.length){target=atItem[0].qq, key=e.msg} // 如果有@用户，使用被@的用户QQ
-
-  // 检查消息是否包含有效的表情关键词
-  if (!keywordList.includes(e.msg) && !isSpecial && !keywordList.includes(key))
-    return false;
-
-  // 处理特殊表情名称
-  let specialName = isSpecial
-    ? getSpecialName(
-        key.trim(),
-        specialList.filter((item) => key.includes(item) )[0]
-      )
-    : key;
-
-  // 获取基础命令
-  let cmd = specialName.split('_').shift();
-
-  // 处理表情更新命令
-  if (e.msg.match('表情更新')){cmd=e.msg.replace('表情更新', '')}
-
-  // 再次检查命令有效性
-  if (!keywordList.includes(cmd) && !keywordList.includes(e.msg))
-    return false;
-
-  // 对关键词进行URL编码
-  key = encodeURI(specialName);
-  
-  // 处理表情更新命令的特殊逻辑
-  if (e.msg.match('表情更新')){key=e.msg.replace('表情更新', 'update_'),target=e.user_id}
-
-  // 如果确定了目标，则调用API制作表情
-  if (target) {
-    let url = `https://api.dlut-cc.live/emoji/?flag=${flag}&qq=${e.user_id}&target=${target}&group=${e.group_id}&args=${key}&master=${master}`;
-    console.log(url);
-    
-    try {
-      // 调用表情制作API，设置20秒超时
-      let response = await axios.get(url, {timeout: 20000});
-      const res = await response.data;
-      
-      // 根据API返回结果发送表情或错误信息
-      if (res.success == "true") {
-        await e.reply([segment.at(e.user_id), segment.image(res.url)]);
-      } else {
-        await e.reply([segment.at(e.user_id), res.url]);
-      }
-      return true;
-    } catch (error) {
-      console.error('表情制作API调用失败:', error);
-      await e.reply([segment.at(e.user_id), '表情制作失败，请稍后重试']);
-      return true;
+  // longest-match 找表情关键词
+  let hit = null, hitWord = '';
+  for (const word of MEME_KEYWORDS) {
+    if (msg === word || msg.startsWith(word) || (msg.includes(word) && (msg.includes('自己') || e.message.some(i => i.type === 'at')))) {
+      hit = MEME_MAP[word];
+      hitWord = word;
+      break;
     }
   }
+  if (!hit) return false;
+
+  // 确定素材目标：图片 > 自己 > @用户
+  const atItem = e.message.filter((item) => item.type === "at");
+  let targetQq = '';
+  if (atItem.length) targetQq = String(atItem[0].qq);
+  else if (msg.includes('自己')) targetQq = String(e.user_id);
+  else if (msg === hitWord) return false; // 裸关键词不带目标不响应，避免误触普通聊天
+
+  try {
+    // 收集图片素材
+    const images = [];
+    if (e.img && e.img[0]) {
+      images.push(await downloadImage(e.img[0]));
+    } else if (hit.imgs === 2) {
+      // 双图模板：操作者 + 被操作者
+      images.push(await downloadImage(avatarUrl(e.user_id)));
+      images.push(await downloadImage(avatarUrl(targetQq)));
+    } else {
+      images.push(await downloadImage(avatarUrl(targetQq)));
+    }
+    if (images.length > MAX_IMAGES || images.reduce((s, b) => s + b.length, 0) > MAX_BYTES) {
+      await e.reply([segment.at(e.user_id), memeErrorMessage('TOO_LARGE')]);
+      return true;
+    }
+
+    // 可选参数（如 petpet 的圆形）
+    let args;
+    if (hit.arg === 'circle' && msg.includes('圆')) args = { circle: true };
+
+    // 文案素材（ask/兑换券等需要一段文字：取关键词之外的剩余内容，空则用默认）
+    const texts = [];
+    if (hit.texts > 0) {
+      let text = msg.replace(hitWord, '').replace(/\[QQ:[^\]]*\]/g, '').trim();
+      if (!text) text = hitWord.includes('问') ? '在吗' : ' ';
+      texts.push(text);
+    }
+
+    // 清单懒加载：首次使用时拉一次（服务端 404 时也会刷新重试）
+    if (!memeKeys) await refreshMemeKeys();
+
+    // 构造 multipart 并签名发送（签名输入=实际发送的原始字节）
+    const { body, contentType } = buildMultipart(images, texts, args);
+    const ret = await signedRawRequest('POST', `${MEME_GEN_PATH}/${hit.key}`, body, { 'Content-Type': contentType });
+
+    // MEME_NOT_FOUND 可能是清单过期：刷新后重试一次
+    if (!ret.ok && ret.errorCode === 'MEME_NOT_FOUND') {
+      await refreshMemeKeys();
+    }
+    if (ret.ok && ret.buffer) {
+      await e.reply([segment.at(e.user_id), segment.image(ret.buffer)]);
+      return true;
+    }
+    await e.reply([segment.at(e.user_id), memeErrorMessage(ret.errorCode)]);
+    return true;
+  } catch (err) {
+    logger.mark(`[表情制作] 生成失败: ${err.message}`);
+    await e.reply([segment.at(e.user_id), memeErrorMessage(err.message === 'TOO_LARGE' ? 'TOO_LARGE' : 'NETWORK_ERROR')]);
+    return true;
+  }
 }
+
 /**
  * 表情帮助函数
  * @param {Object} e - 事件对象
@@ -251,117 +274,3 @@ export async function biaoQingHelp(e) {
     return true; //返回true 阻挡消息不再往下
   }
 }
-
-/**
- * 处理特殊表情名称的函数
- * 根据不同的表情类型和参数，生成符合API要求的特殊名称格式
- * @param {string} msg - 原始消息内容
- * @param {string} chooseItem - 匹配到的特殊关键词
- * @returns {string} - 处理后的特殊名称
- */
-function getSpecialName(msg, chooseItem) {
-  let name = "";
-  switch (chooseItem) {
-    // 摸系列表情处理
-    case "摸":
-    case "摸摸":
-    case "摸头":
-    case "摸摸头":
-    case "rua":
-      if (msg.includes("圆")) name = msg.replace("圆", "_圆");
-      else name = msg.replace("摸", "摸_");
-      break;
-    
-    // 撕表情处理
-    case "撕":
-      if (msg.includes("滑稽")) name = msg.replace("滑稽", "_滑稽_");
-      else name = msg.replace("撕", "撕_");
-      break;
-    
-    // 爬表情处理
-    case "爬":
-      if (/\d+/.test(msg)) name = msg.replace(/\d+/, `_${msg.match(/\d+/)[0]}_`);
-      else name = msg.replace("摸", "摸_");
-      break;
-    
-    // 小天使表情处理
-    case "小天使":
-      if (msg.includes("自己")) name = msg.replace("小天使", "小天使_").replace("自己", "_自己");
-      else name = msg.replace("小天使", "小天使_");
-      break;
-    
-    // 游戏相关表情处理
-    case "玩游戏":
-    case "来玩游戏":
-      name = msg.replace("玩游戏", "玩游戏_");
-      break;
-    
-    // 问问表情处理
-    case "问问":
-    case "去问问":
-      name = msg.replace("问问", "问问_");
-      break;
-    
-    // 交个朋友表情处理
-    case "交个朋友":
-      name = msg.replace("交个朋友", "交个朋友_");
-      break;
-    
-    // 关注表情处理
-    case "关注":
-      name = msg.replace("关注", "关注_");
-      break;
-    
-    // 朋友说表情处理
-    case "我朋友说":
-    case "我有个朋友说":
-      name = msg.replace("朋友说", "朋友说_").replace("自己", "_自己");
-      break;
-    
-    // 兑换券表情处理
-    case "兑换券":
-      name = msg.replace("兑换券", "兑换券_");
-      break;
-    
-    // 典中典表情处理
-    case "典中典":
-      if (msg.includes("彩")) name = msg.replace("彩", "_彩_");
-      else name = msg.replace("典中典", "典中典_");
-      break;
-    
-    // 对称表情处理
-    case "对称":
-      if (/(上|下|左|右)/.test(msg))
-        name = msg.replace(/(上|下|左|右)/, `_${msg.match(/(上|下|左|右)/)[0]}`);
-      else name = "对称";
-      break;
-    
-    // 安全感表情处理
-    case "安全感":
-      name = msg.replace("安全感", "安全感_");
-      break;
-    
-    // 采访表情处理
-    case "采访":
-      name = msg.replace("采访", "采访_");
-      break;
-    
-    // 永远喜欢表情处理
-    case "永远喜欢":
-    case "我永远喜欢":
-      name = msg.replace("永远喜欢", "永远喜欢_");
-      break;
-    
-    // 520/孤寡表情处理
-    case "520":
-    case "孤寡":
-      name = msg.replace("520", "520_").replace('孤寡','520_');
-      break;
-  }
-  return name;
-}
-
-
-
-
-
