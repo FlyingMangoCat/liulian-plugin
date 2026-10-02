@@ -187,10 +187,21 @@ export async function biaoQing(e) {
     return true;
   }
 
+  // @ 目标解析：优先从 e.message 取结构化 at，兜底从 msg 的 CQ 码文本提取（协议端可能只给原始 CQ 码）
+  const atItem = e.message.filter((item) => item.type === "at");
+  let atQq = '';
+  if (atItem.length) atQq = String(atItem[0].qq);
+  else {
+    const cq = msg.match(/\[CQ:at,qq=(\d{5,11})\]/);
+    if (cq) atQq = cq[1];
+  }
+  // 剥离 CQ 码与前后空白后再做关键词匹配（@ 位置无关：#贴贴@人 / @人 贴 都成立）
+  const cleanMsg = msg.replace(/\[CQ:[^\]]+\]/g, '').trim();
+
   // longest-match 找表情关键词：裸关键词必须完整一致，否则普通聊天（如"摸鱼"）会被误触
   let hit = null, hitWord = '';
   for (const word of MEME_KEYWORDS) {
-    if (msg === word || (msg.includes(word) && (msg.includes('自己') || e.message.some(i => i.type === 'at')))) {
+    if (cleanMsg === word || (cleanMsg.includes(word) && (cleanMsg.includes('自己') || atQq))) {
       hit = MEME_MAP[word];
       hitWord = word;
       break;
@@ -198,11 +209,10 @@ export async function biaoQing(e) {
   }
   if (!hit) return false;
 
-  // 确定素材目标：图片 > 自己 > @用户；带目标的命中（msg !== 关键词）必须有目标，否则不响应
-  const atItem = e.message.filter((item) => item.type === "at");
+  // 确定素材目标：图片 > @用户 > 自己；无目标且无图片素材不响应（避免空 QQ 请求）
   let targetQq = '';
-  if (atItem.length) targetQq = String(atItem[0].qq);
-  else if (msg.includes('自己')) targetQq = String(e.user_id);
+  if (atQq) targetQq = atQq;
+  else if (cleanMsg.includes('自己')) targetQq = String(e.user_id);
   // 无目标且无图片素材：不响应（裸关键词"摸"或无目标尾巴句都拦截，避免空 QQ 请求）
   if (!targetQq && !(e.img && e.img[0])) return false;
 
