@@ -16,6 +16,7 @@ const API_BASE = 'https://api-forum.liulian-ai.top';
 
 let memberCache = null;
 
+// 读取密钥档案（绑定状态查询/展示用）
 function readMember() {
   if (memberCache) return memberCache;
   try {
@@ -26,6 +27,22 @@ function readMember() {
     logger.warn(`[榴莲会员] 密钥文件读取失败: ${err.message}`);
   }
   return memberCache;
+}
+
+// 保存密钥档案（绑定成功写入；传 null 清空缓存）——缓存与落盘都在此维护，勿在外部直写文件
+function saveMember(data) {
+  if (data === null) {
+    memberCache = null;
+    return;
+  }
+  memberCache = data;
+  try {
+    if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
+    fs.writeFileSync(MEMBER_FILE, JSON.stringify(memberCache, null, 2), 'utf-8');
+  } catch (err) {
+    memberCache = null;
+    throw err;
+  }
 }
 
 // 会员密钥（发放时落盘，不随请求传输）
@@ -131,6 +148,8 @@ export {
   DATA_DIR,
   getSecret,
   getOwnerQqs,
+  readMember,
+  saveMember,
   buildHeaders,
   signedJsonRequest,
   signedRawRequest,

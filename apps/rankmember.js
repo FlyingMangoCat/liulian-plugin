@@ -3,7 +3,7 @@ import path from 'path';
 import crypto from 'crypto';
 import { fileURLToPath } from 'url';
 import bcommon from "../components/bcommon.js";
-import { DATA_DIR, getSecret, getOwnerQqs, signedJsonRequest } from "../components/memberAuth.js";
+import { DATA_DIR, getSecret, getOwnerQqs, readMember, saveMember, signedJsonRequest } from "../components/memberAuth.js";
 
 // 会员密钥与排名系统对接：凭据/签名/请求统一走 components/memberAuth.js
 const MEMBER_FILE = path.join(DATA_DIR, 'member.json');
@@ -157,14 +157,12 @@ export async function memberBindKey(e) {
     return true;
   }
   try {
-    if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
-    memberCache = { secret, expiry: data.expiresAt || 0 };
-    fs.writeFileSync(MEMBER_FILE, JSON.stringify(memberCache, null, 2), 'utf-8');
+    saveMember({ secret, expiry: data.expiresAt || 0 });
     const days = data.remainingDays != null ? data.remainingDays : Math.ceil((data.expiresAt - Date.now()) / 86400000);
     logger.mark(`[榴莲会员] 密钥绑定成功，有效期至 ${data.expiresAt ? new Date(data.expiresAt).toLocaleString('zh-CN', { hour12: false }) : '未知'}`);
     e.reply(`绑定成功，会员剩余 ${days} 天`);
   } catch (err) {
-    memberCache = null;
+    saveMember(null);
     logger.warn(`[榴莲会员] 密钥写入失败: ${err.message}`);
     e.reply('绑定验证通过，但本地保存失败，请稍后重试');
   }
