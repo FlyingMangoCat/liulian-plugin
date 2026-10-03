@@ -112,13 +112,9 @@ async function downloadImage(url) {
   return buf;
 }
 
-// 头像地址
-function avatarUrl(qq) {
-  return `https://q1.qlogo.cn/g?b=qq&nk=${qq}&s=640`;
-}
-
 // 手工构造 multipart 原始字节（boundary 固定才能先签名后发送，与服务端签名校验对齐）
-function buildMultipart(images, texts, args) {
+// images=上传的图片字节；qqs=QQ 号（服务端代拉头像，同名重复按序追加在 images 之后）
+function buildMultipart(images, qqs, texts, args) {
   const boundary = '----liulianclient' + Date.now();
   const part = (name, value, filename, contentType) => {
     const head = filename
@@ -129,6 +125,9 @@ function buildMultipart(images, texts, args) {
   const chunks = [];
   for (const img of images) {
     chunks.push(part('images', img, 'img.png', 'image/png'));
+  }
+  for (const qq of qqs) {
+    chunks.push(part('qq', Buffer.from(String(qq), 'utf8')));
   }
   for (const text of texts) {
     chunks.push(part('texts', Buffer.from(text, 'utf8')));
@@ -155,6 +154,8 @@ function memeErrorMessage(errorCode) {
       return '操作太频繁啦，请稍后再试～';
     case 'MEME_INVALID_PARAMS':
       return '这个表情的参数不对，请检查指令格式～';
+    case 'AVATAR_FETCH_FAILED':
+      return '头像获取失败，请稍后再试或换张图片～';
     case 'MEME_NOT_FOUND':
       return '该表情暂未收录，试试其他表情吧～';
     case 'MEME_SERVICE_UNAVAILABLE':
@@ -218,19 +219,20 @@ export async function biaoQing(e) {
   if (!targetQq && !(e.img && e.img[0])) return false;
 
   try {
-    // 收集图片素材（分步日志：沉默时可直接定位卡点）
+    // 素材组装（分步日志：沉默时可直接定位卡点）
+    // 头像走 qq 字段由服务端代拉，省去本地下载再上传；图片才走 images 上传
     const images = [];
+    const qqs = [];
     if (e.img && e.img[0]) {
       logger.mark(`[表情制作] 下载消息图片: ${hit.key}`);
       images.push(await downloadImage(e.img[0]));
     } else if (hit.imgs === 2) {
-      // 双图模板：操作者 + 被操作者
-      logger.mark(`[表情制作] 下载双头像: ${hit.key}`);
-      images.push(await downloadImage(avatarUrl(e.user_id)));
-      images.push(await downloadImage(avatarUrl(targetQq)));
+      // 双图模板：操作者 + 被操作者（顺序即服务端拼接顺序）
+      logger.mark(`[表情制作] 服务端代拉双头像: ${hit.key}`);
+      qqs.push(String(e.user_id), targetQq);
     } else {
-      logger.mark(`[表情制作] 下载头像: ${hit.key} <- ${targetQq}`);
-      images.push(await downloadImage(avatarUrl(targetQq)));
+      logger.mark(`[表情制作] 服务端代拉头像: ${hit.key} <- ${targetQq}`);
+      qqs.push(targetQq);
     }
     if (images.length > MAX_IMAGES || images.reduce((s, b) => s + b.length, 0) > MAX_BYTES) {
       await e.reply([segment.at(e.user_id), memeErrorMessage('TOO_LARGE')]);
@@ -253,7 +255,7 @@ export async function biaoQing(e) {
     if (!memeKeys) await refreshMemeKeys();
 
     // 构造 multipart 并签名发送（签名输入=实际发送的原始字节）
-    const { body, contentType } = buildMultipart(images, texts, args);
+    const { body, contentType } = buildMultipart(images, qqs, texts, args);
     const ret = await signedRawRequest('POST', `${MEME_GEN_PATH}/${hit.key}`, body, { 'Content-Type': contentType });
 
     // MEME_NOT_FOUND 可能是清单过期：刷新后重试一次
