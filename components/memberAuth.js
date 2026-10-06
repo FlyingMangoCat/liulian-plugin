@@ -8,7 +8,7 @@ import fs from 'fs';
 import path from 'path';
 import crypto from 'crypto';
 import fetch from 'node-fetch';
-import { botConfig } from "./bcommon.js";
+import { botConfig, liulianSafe } from "./bcommon.js";
 
 const DATA_DIR = path.join(process.cwd(), 'data', 'guessrank');
 const MEMBER_FILE = path.join(DATA_DIR, 'member.json');
@@ -53,7 +53,8 @@ function getSecret() {
 
 // 主人 QQ（请求头 X-Owner-Qq 用，必须是管理员留档列表的子集）
 // 每次调用实时读取运行时配置：TRSS 走 Bot.cfg（网页面板/按 bot 配置改后即时生效），V3 走 BotConfig
-// 兼容 TRSS 的 "bot_id:主人QQ" 条目形态，只取冒号后的 QQ 部分
+// 只取当前机器人（按 bot 账号 uin 匹配）名下的主人；该 bot 未单独配置时回退全局 masterQQ
+// 兼容 TRSS 的 "bot_id:主人QQ" 条目形态，且只保留纯数字 QQ 号（过滤 stdin/内部 ID 等非 QQ 条目）
 function getOwnerQqs() {
   const out = [];
   const push = v => {
@@ -62,19 +63,33 @@ function getOwnerQqs() {
     // 只保留纯数字 QQ 号（5~12 位）：过滤 stdin 控制台、内部账号 ID 等非 QQ 条目
     if (/^\d{5,12}$/.test(s) && !out.includes(s)) out.push(s);
   };
+  // 当前机器人账号（TRSS 为数组，V3 为单值）
+  let uins = [];
   try {
-    // TRSS-Yunzai：Bot.cfg.master = { bot_id: [主人QQ] }，Bot.cfg.masterQQ = 全局主人列表（getter 实时读配置）
+    const u = liulianSafe?.uin;
+    if (u != null) uins = (Array.isArray(u) ? u : [u]).map(String);
+  } catch {}
+  try {
     if (typeof Bot !== 'undefined' && Bot.cfg) {
       const m = Bot.cfg.master;
       if (m && typeof m === 'object') {
-        for (const list of Object.values(m)) (Array.isArray(list) ? list : [list]).forEach(push);
+        // 优先：当前 bot 名下的主人（bot_id 匹配本机账号）
+        for (const [botId, list] of Object.entries(m)) {
+          if (uins.includes(String(botId))) (Array.isArray(list) ? list : [list]).forEach(push);
+        }
+        // 回退：本机账号未在 master 中单独配置时，用全局 masterQQ
+        if (!out.length) {
+          const g = Bot.cfg.masterQQ;
+          (Array.isArray(g) ? g : (g ? [g] : [])).forEach(push);
+        }
       }
-      (Array.isArray(Bot.cfg.masterQQ) ? Bot.cfg.masterQQ : (Bot.cfg.masterQQ ? [Bot.cfg.masterQQ] : [])).forEach(push);
     }
   } catch {}
   // V3-Yunzai：全局注入的 BotConfig（bcommon 已做兜底归一化）
-  const v3 = botConfig?.masterQQ;
-  (Array.isArray(v3) ? v3 : (v3 ? [v3] : [])).forEach(push);
+  if (!out.length) {
+    const v3 = botConfig?.masterQQ;
+    (Array.isArray(v3) ? v3 : (v3 ? [v3] : [])).forEach(push);
+  }
   return out;
 }
 

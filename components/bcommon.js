@@ -75,6 +75,7 @@ if (isV3) {
 }
 
 export const botConfig = config;
+export { liulianSafe };
 
 /**
  * 发送私聊消息，非好友以临时聊天发送
