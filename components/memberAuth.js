@@ -92,8 +92,8 @@ function getOwnerQqs() {
   // 兜底：V3 全局 BotConfig（bcommon 已做归一化）
   const v3 = botConfig?.masterQQ;
   (Array.isArray(v3) ? v3 : (v3 ? [v3] : [])).forEach(push);
-  // 兜底也为空：dump 运行时原始值定位环境差异（只打一次防刷屏）
-  if (!out.length && !ownerEmptyDumped) {
+  // 已绑定却读不到主人才属异常，此时 dump 运行时原始值定位（只打一次防刷屏）；未绑定属正常状态不打印
+  if (!out.length && getSecret() && !ownerEmptyDumped) {
     ownerEmptyDumped = true;
     try {
       const dump = {
