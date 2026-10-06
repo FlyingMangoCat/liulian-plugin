@@ -332,6 +332,12 @@ export async function startRound(e, gameType, difficulty = 'normal') {
   if (!/^\d{4,20}$/.test(groupId)) return '';
   if (!['genshin', 'star', 'zzz', 'ww', 'nte'].includes(gameType)) return '';
   if (!['normal', 'hard', 'hell', 'purgatory'].includes(difficulty)) difficulty = 'normal';
+  // 该群存在残留对局（上次未正常结算/进程重启遗留）：先补报弃局让服务端立即回收，避免 ROUND_ACTIVE 锁群
+  const prevRoundId = loadRounds()[groupId];
+  if (prevRoundId) {
+    logger.mark(`[榴莲会员] 检测到残留对局，先补报弃局回收再开局: ${groupId}`);
+    await finishRound(prevRoundId, []);
+  }
   const ret = await signedJsonRequest('POST', ROUND_START_PATH, { groupId, game: gameType, difficulty });
   if (ret.ok) {
     const roundId = (ret.data && ret.data.roundId) || '';
@@ -347,7 +353,11 @@ export async function startRound(e, gameType, difficulty = 'normal') {
   return '';
 }
 
+// roundId 已被服务端消费或回收的错误码：本地记录同步清理即可
+const DEAD_ROUND_CODES = new Set(['ROUND_FINISHED', 'ROUND_NOT_FOUND', 'ROUND_EXPIRED', 'FINISHED', 'NOT_FOUND', 'EXPIRED']);
+
 // 对局结算：一次性上报本局结果（含 0 分参与条目）
+// 网络类失败保留本地记录，待该群下次开局前补报弃局回收，避免服务端锁群 2 小时
 export async function finishRound(roundId, results) {
   if (!roundId || !results) return;
   try {
@@ -356,18 +366,21 @@ export async function finishRound(roundId, results) {
       if (ret.data && ret.data.invalidCount > 0) {
         logger.mark(`[榴莲会员] 对局结算完成，异常条目 ${ret.data.invalidCount} 条: ${JSON.stringify(ret.data.invalidItems)}`);
       }
+      cleanupRound(roundId);
       return;
     }
     if (ret.errorCode === 'MEMBER_EXPIRED') {
-      logger.mark('[榴莲会员] 会员已过期，结算未入账');
+      logger.mark('[榴莲会员] 会员已过期，结算未入账，残留对局待后续回收');
       return;
     }
-    // 重复结算/已过期/赢家校验失败等：roundId 已不可用，清理本地记录
     logger.mark(`[榴莲会员] 对局结算未通过: ${ret.errorCode}`);
+    if (DEAD_ROUND_CODES.has(ret.errorCode)) {
+      // 服务端已回收该对局：本地记录同步清理
+      cleanupRound(roundId);
+    }
   } catch (err) {
+    // 网络错误：保留本地记录，下次开局前补报弃局回收
     logger.warn(`[榴莲会员] 对局结算请求失败: ${err.message}`);
-  } finally {
-    cleanupRound(roundId);
   }
 }
 
