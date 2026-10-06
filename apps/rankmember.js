@@ -135,8 +135,8 @@ export async function memberBindKey(e) {
   if (!ret.ok) {
     recordBindFail();
     // 真实原因只记日志供排查，用户侧只给友好提示，不暴露内部细节
-    // 任何验证失败都带上本机主人 QQ 配置，方便对照服务端留档列表排查
-    logger.mark(`[榴莲会员] 绑定验证未通过: ${ret.errorCode || 'UNKNOWN'}，本机主人 QQ: ${getOwnerQqs().join(',') || '(空)'}`);
+    // 绑定验证直接以绑定人 QQ 提交，这里打印实际提交值，便于与服务端留档比对
+    logger.mark(`[榴莲会员] 绑定验证未通过: ${ret.errorCode || 'UNKNOWN'}，提交主人 QQ: ${uid}`);
     const msgMap = {
       KEY_INVALID: '密钥无效，请核对后重试',
       QQ_MISMATCH: '当前机器人与授权信息不符，请联系发放方核对',
@@ -158,8 +158,8 @@ export async function memberBindKey(e) {
     return true;
   }
   try {
-    // ownerQq 留档绑定人：之后所有签名请求优先用它作为 X-Owner-Qq
-    saveMember({ secret, expiry: data.expiresAt || 0, ownerQq: uid });
+    // 验证通过只落 secret 与有效期；主人身份不落盘，每次请求实时取运行时判定值
+    saveMember({ secret, expiry: data.expiresAt || 0 });
     const days = data.remainingDays != null ? data.remainingDays : Math.ceil((data.expiresAt - Date.now()) / 86400000);
     logger.mark(`[榴莲会员] 密钥绑定成功，有效期至 ${data.expiresAt ? new Date(data.expiresAt).toLocaleString('zh-CN', { hour12: false }) : '未知'}`);
     e.reply(`绑定成功，会员剩余 ${days} 天`);

@@ -52,9 +52,12 @@ function getSecret() {
 }
 
 // 主人 QQ（请求头 X-Owner-Qq 用，必须是管理员留档列表的子集）
-// 优先级：绑定成功时存档的绑定人 QQ（已通过 e.isMaster 验证，最可靠）
-//       → 运行时配置中本机 bot 名下的主人 → 全局 masterQQ
+// 每次调用实时读取运行时配置（与 e.isMaster 同源），任何身份不落盘：
+//   1. 本机 bot 账号名下的主人（TRSS Bot.cfg.master 按 uin 匹配）
+//   2. 全局 masterQQ（TRSS Bot.cfg.masterQQ）
+//   3. V3 全局 BotConfig
 // 只保留纯数字 QQ 号（过滤 stdin/内部 ID 等非 QQ 条目）
+let ownerEmptyDumped = false;
 function getOwnerQqs() {
   const out = [];
   const push = v => {
@@ -63,11 +66,7 @@ function getOwnerQqs() {
     // 只保留纯数字 QQ 号（5~12 位）：过滤 stdin 控制台、内部账号 ID 等非 QQ 条目
     if (/^\d{5,12}$/.test(s) && !out.includes(s)) out.push(s);
   };
-  // 第一优先：绑定验证通过时留档的绑定人 QQ
-  const bound = readMember()?.ownerQq;
-  if (bound) push(bound);
-  if (out.length) return out;
-  // 第二优先：运行时配置中本机 bot 名下的主人
+  // 当前机器人账号（TRSS 为数组，V3 为单值）
   let uins = [];
   try {
     const u = liulianSafe?.uin;
@@ -93,6 +92,23 @@ function getOwnerQqs() {
   // 兜底：V3 全局 BotConfig（bcommon 已做归一化）
   const v3 = botConfig?.masterQQ;
   (Array.isArray(v3) ? v3 : (v3 ? [v3] : [])).forEach(push);
+  // 兜底也为空：dump 运行时原始值定位环境差异（只打一次防刷屏）
+  if (!out.length && !ownerEmptyDumped) {
+    ownerEmptyDumped = true;
+    try {
+      const dump = {
+        uin: uins,
+        hasBot: typeof Bot !== 'undefined',
+        hasCfg: typeof Bot !== 'undefined' ? !!Bot.cfg : false,
+        master: typeof Bot !== 'undefined' && Bot.cfg ? Bot.cfg.master : undefined,
+        masterQQ: typeof Bot !== 'undefined' && Bot.cfg ? Bot.cfg.masterQQ : undefined,
+        botConfigQQ: v3,
+      };
+      logger.warn(`[榴莲会员] 主人列表为空，运行时原始值: ${JSON.stringify(dump)}`);
+    } catch (err) {
+      logger.warn(`[榴莲会员] 主人列表为空，诊断失败: ${err.message}`);
+    }
+  }
   return out;
 }
 
