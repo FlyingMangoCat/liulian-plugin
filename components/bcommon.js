@@ -77,6 +77,29 @@ if (isV3) {
 export const botConfig = config;
 export { liulianSafe };
 
+const featureOffState = new Map(); // key = 功能key:群号 -> { mute: 剩余静默次数, hits: [时间戳] }
+export function featureOffReply(e, featureKey) {
+  const key = `${featureKey}:${e.group_id || 'private'}`;
+  const now = Date.now();
+  let st = featureOffState.get(key);
+  if (!st) {
+    st = { mute: 0, hits: [] };
+    featureOffState.set(key, st);
+  }
+  // 高频窗口：清理 60 秒外记录
+  st.hits = st.hits.filter(t => now - t < 60 * 1000);
+  const isHighFreq = st.hits.length >= 3;
+  st.hits.push(now);
+  if (isHighFreq) return true; // 高频豁免：直接提示，不碰静默计数
+  // 慢速：走静默计数
+  if (st.mute > 0) {
+    st.mute--;
+    return false;
+  }
+  st.mute = 10 + Math.floor(Math.random() * 41); // 10~50 随机
+  return true;
+}
+
 /**
  * 发送私聊消息，非好友以临时聊天发送
  * @param user_id qq号

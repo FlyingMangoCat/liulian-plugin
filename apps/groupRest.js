@@ -1,4 +1,5 @@
 import { Cfg } from '#liulian'
+import { featureOffReply } from "../components/bcommon.js"
 
 const _path = process.cwd();
 export const rule = {
@@ -11,7 +12,7 @@ export const rule = {
 
 export async function groupRest(e) {
 if (!Cfg.get('sys.xx', false))  {
-  e.reply (`该功能已被关闭，请通过榴莲设置开启！`);
+  if (featureOffReply(e, 'sys.xx')) e.reply (`该功能已被关闭，请通过榴莲设置开启！`);
   return false
 }
     // console.log(e.msg);

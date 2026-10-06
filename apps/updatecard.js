@@ -1,6 +1,7 @@
 import os from 'os';
 import schedule from "node-schedule";
 import { Cfg, liulianSafe } from '#liulian'
+import { featureOffReply } from "../components/bcommon.js"
 
 let botname = ''//这里改成bot的名字
 
@@ -83,7 +84,7 @@ export const rule = {
 export async function qmp (e){
   try {
     if (!/榴莲/.test(e.msg) && !Cfg.get('sys.qmp', false))  {
-      e.reply (`该功能已被关闭，请通过榴莲设置开启！`)
+      if (featureOffReply(e, 'sys.qmp')) e.reply (`该功能已被关闭，请通过榴莲设置开启！`)
       return false
     }
 

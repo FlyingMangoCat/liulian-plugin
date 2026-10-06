@@ -1,6 +1,7 @@
 import fetch from "node-fetch";
 import lodash from "lodash";
 import { Cfg } from '#liulian'
+import { featureOffReply } from "../components/bcommon.js"
 
 let list = [1280951594,3598537042]; //禁止伪造的qq放到这里
 
@@ -14,7 +15,7 @@ export const rule = {
 
 export async function fakeMessage(e) {
 if (!Cfg.get('sys.forge', false))  {
-  e.reply (`该功能已被关闭，请通过榴莲设置开启！`);
+  if (featureOffReply(e, 'sys.forge')) e.reply (`该功能已被关闭，请通过榴莲设置开启！`);
   return false
 }
   let msgInfo = new Map(); 

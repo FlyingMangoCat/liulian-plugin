@@ -1,6 +1,7 @@
 import fetch from "node-fetch";
 import { Cfg } from '#liulian'
 import config from "../model/config/config.js"
+import { featureOffReply } from "../components/bcommon.js"
 
 // 安全获取segment对象
 const segment = global.segment || global.Bot?.segment || {}
@@ -21,7 +22,7 @@ export const rule = {
 
 export async function checkIn(e) {
 if (!Cfg.get('sys.dk', false)) {
-  e.reply (`该功能已被关闭，请通过榴莲设置开启！`);
+  if (featureOffReply(e, 'sys.dk')) e.reply (`该功能已被关闭，请通过榴莲设置开启！`);
   return false
   } 
     console.log("用户命令：", e.msg);

@@ -4,6 +4,7 @@ import fetch from "node-fetch";
 import path from "path"
 import fs from "fs"
 import co from '../tools/common-black.js'
+import { featureOffReply } from "../components/bcommon.js"
 
 // 安全获取segment对象
 const segment = global.segment || global.Bot?.segment || {}
@@ -125,7 +126,7 @@ export async function kt1(e) {
 }
 export async function jtm(e) {
 if (!Cfg.get('sys.jtm', false)) {
-  e.reply (`该功能已被关闭，请通过榴莲设置开启！`);
+  if (featureOffReply(e, 'sys.jtm')) e.reply (`该功能已被关闭，请通过榴莲设置开启！`);
   return false
   }
  let RandomNum=lodash.random(0, 100);

@@ -1,5 +1,6 @@
 import config from "../model/config/config.js"
 import { Cfg } from '#liulian'
+import { featureOffReply } from "../components/bcommon.js"
 const cfg = config.getconfig('liulian', 'botname', 'config');
   const botname = cfg.botname
 
@@ -23,7 +24,7 @@ export const rule = {
 
 export async function toShutUp(e) {
 if (!/榴莲/.test(e.msg) && !Cfg.get('sys.shutup', false)) {
-    e.reply (`该功能已被关闭，请通过榴莲设置开启`);
+    if (featureOffReply(e, 'sys.shutup')) e.reply (`该功能已被关闭，请通过榴莲设置开启`);
     return false
   }
 let limit=Cfg.get('sys.limit');

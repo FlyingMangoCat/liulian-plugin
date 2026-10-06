@@ -1,6 +1,7 @@
 import { segment } from "oicq";
 import fetch from "node-fetch";
 import { Cfg, logger } from '#liulian'
+import { featureOffReply } from "../components/bcommon.js"
 import config from "../model/config/config.js"
 //项目路径
 const _path = process.cwd();
@@ -15,7 +16,7 @@ export const rule = {
 };
 export async function 哪个群友是我老婆(e) {
 if (!Cfg.get('sys.qqy', false))  {
-  e.reply (`该功能已被关闭，请通过榴莲设置开启！`);
+  if (featureOffReply(e, 'sys.qqy')) e.reply (`该功能已被关闭，请通过榴莲设置开启！`);
   return false
 }
 let random = Math.round(Math.random() * 100);

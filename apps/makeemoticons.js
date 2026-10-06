@@ -139,6 +139,18 @@ function buildMultipart(images, qqs, texts, args) {
   return { body: Buffer.concat(chunks), contentType: `multipart/form-data; boundary=${boundary}` };
 }
 
+const MEMBER_MUTE_CODES = new Set(['NO_CREDENTIAL', 'MEMBER_REQUIRED', 'MEMBER_EXPIRED', 'MEMBER_BANNED']);
+const memberMuteCount = new Map(); // groupId -> 剩余静默次数
+function shouldRemindMember(groupId) {
+  const remain = memberMuteCount.get(groupId) || 0;
+  if (remain > 0) {
+    memberMuteCount.set(groupId, remain - 1);
+    return false;
+  }
+  memberMuteCount.set(groupId, 10 + Math.floor(Math.random() * 11)); // 10~20 随机
+  return true;
+}
+
 // 服务错误码 → 用户提示（只认 errorCode，不解析文案）
 function memeErrorMessage(errorCode) {
   switch (errorCode) {
@@ -264,6 +276,10 @@ export async function biaoQing(e) {
     }
     if (ret.ok && ret.buffer) {
       await e.reply([segment.at(e.user_id), segment.image(ret.buffer)]);
+      return true;
+    }
+    // 会员资格类错误按群静默：静默期内不回复直接结束
+    if (MEMBER_MUTE_CODES.has(ret.errorCode) && !shouldRemindMember(String(e.group_id))) {
       return true;
     }
     await e.reply([segment.at(e.user_id), memeErrorMessage(ret.errorCode)]);

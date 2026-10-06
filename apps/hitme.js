@@ -1,4 +1,5 @@
 import { Cfg } from '#liulian'
+import { featureOffReply } from "../components/bcommon.js"
 import config from "../model/config/config.js"
 const cfg = config.getconfig('liulian', 'botname', 'config');
   const botname = cfg.botname
@@ -17,7 +18,7 @@ export const rule = {
 
 export async function HitMe(e) {
 if (!Cfg.get('sys.dw', false))  {
-  e.reply (`该功能已被关闭，请通过榴莲设置开启！`);
+  if (featureOffReply(e, 'sys.dw')) e.reply (`该功能已被关闭，请通过榴莲设置开启！`);
   return false
 }
 	let random = Math.round(Math.random() * 9);//随机生成 0-9 
