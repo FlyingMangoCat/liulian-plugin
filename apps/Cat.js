@@ -4,6 +4,7 @@ import moment from "moment";
 import fs from "fs";
 import { promisify } from "util";
 import { pipeline } from "stream";
+import { botConfig } from "../components/bcommon.js";
 
 //如果报错请删除Yunzai/data/目录中susu文件夹，并将redis中键为Yunzai:setlinshimsg:xxxxxxxx_cat的值删除（此问题一般是因为今天已经抱过猫猫所导致的，xxxxxxxx为你的QQ号），重启机器人
 
@@ -196,7 +197,7 @@ export async function Loseacat(e) {
       };
       fs.writeFileSync(dirpath + "/" + filename, JSON.stringify(json,null,"\t"));
     }
-    if (json[e.at].Catprotection || (BotConfig.masterQQ.includes(e.at) && protectmaster)) {
+    if (json[e.at].Catprotection || ((botConfig.masterQQ || []).map(String).includes(String(e.at)) && protectmaster)) {
       e.group.muteMember(e.user_id, Forbiddentime * 600);//禁言发起者
       e.reply([`对方开启了猫猫反弹，你发射的猫猫被反弹回来了！`,segment.image(imgurl3)]);
     } else {

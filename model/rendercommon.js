@@ -13,12 +13,60 @@ if (isV3) {
   const YAML = await import('yaml');
 
   let configUrl = `${_path}/config/config`
-  let other = YAML.parse(fs.readFileSync(`${configUrl}/other.yaml`, 'utf8'));
-  let group = YAML.parse(fs.readFileSync(`${configUrl}/group.yaml`, 'utf8'));
 
-  config = { other, group, masterQQ: other.masterQQ };
+  // 运行时现读 yaml：配置改后无需重启即可生效；读失败返回兜底值
+  const readYaml = (name, fallback) => {
+    try {
+      return YAML.parse(fs.readFileSync(`${configUrl}/${name}`, 'utf8')) ?? fallback;
+    } catch (e) {
+      logger.warn(`[rendercommon] 读取 ${name} 失败: ${e.message}`);
+      return fallback;
+    }
+  };
+
+  config = {
+    get other() { return readYaml('other.yaml', {}); },
+    get group() { return readYaml('group.yaml', {}); },
+    get masterQQ() {
+      let masterQQ = this.other?.masterQQ;
+      if (masterQQ == null) return [];
+      return Array.isArray(masterQQ) ? masterQQ : [masterQQ];
+    },
+  };
 } else {
-  config = BotConfig;
+  // 非 V3：优先 TRSS 运行时 Bot.cfg（实时生效），BotConfig 作兜底
+  config = {
+    get other() {
+      if (typeof Bot !== 'undefined' && Bot.cfg) return Bot.cfg.getAllCfg?.('other') ?? BotConfig?.other ?? {};
+      return BotConfig?.other ?? {};
+    },
+    get group() {
+      if (typeof Bot !== 'undefined' && Bot.cfg) return Bot.cfg.getAllCfg?.('group') ?? BotConfig?.group ?? {};
+      return BotConfig?.group ?? {};
+    },
+    get masterQQ() {
+      try {
+        if (typeof Bot !== 'undefined' && Bot.cfg) {
+          const out = [];
+          const push = v => {
+            if (v == null) return;
+            const s = String(v).split(':').pop().trim();
+            if (s && !out.includes(s)) out.push(s);
+          };
+          const m = Bot.cfg.master;
+          if (m && typeof m === 'object') {
+            for (const list of Object.values(m)) (Array.isArray(list) ? list : [list]).forEach(push);
+          }
+          const g = Bot.cfg.masterQQ;
+          (Array.isArray(g) ? g : (g ? [g] : [])).forEach(push);
+          if (out.length) return out;
+        }
+      } catch {}
+      const mq = BotConfig?.masterQQ;
+      if (mq == null) return [];
+      return Array.isArray(mq) ? mq : [mq];
+    },
+  };
 }
 
 export const botConfig = config;

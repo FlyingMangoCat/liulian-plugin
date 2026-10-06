@@ -9,6 +9,7 @@ import fs from "fs"
 import path from "path"
 import { Cfg, logger, liulianSafe } from '#liulian'
 import co from '../tools/common-black.js'
+import { botConfig } from "../components/bcommon.js"
 
 // 安全获取segment对象
 const segment = global.segment || global.Bot?.segment || {}
@@ -186,12 +187,12 @@ if (typeof Bot !== 'undefined') {
   }
 
   // 检查用户是否在黑名单中
-  if (BotConfig.balckQQ && BotConfig.balckQQ.includes(Number(e.user_id))) {
+  if (botConfig.other?.balckQQ && botConfig.other.balckQQ.includes(Number(e.user_id))) {
     return;
   }
 
   // 检查是否是主人QQ
-  if (BotConfig.masterQQ && BotConfig.masterQQ.includes(Number(e.user_id))) {
+  if ((botConfig.masterQQ || []).map(String).includes(String(e.user_id))) {
     e.isMaster = true;
   }
 

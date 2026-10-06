@@ -2,6 +2,7 @@ import fetch from "node-fetch";
 import path from 'path';
 import fs from 'fs';
 import { liulianSafe } from '#liulian';
+import { botConfig } from "../components/bcommon.js";
 
 /**
  * 带话给主人 支持文字、图片、以及表情
@@ -72,7 +73,7 @@ var msg = e.msg.replace("带话", "");
 		return false
 	}
 	if (qq_.length == 0) {
-		liulianSafe.pickUser(BotConfig.masterQQ[0]).sendMsg(data_msg) //指定给单个人带话
+		liulianSafe.pickUser((botConfig.masterQQ || [])[0]).sendMsg(data_msg) //指定给单个人带话
 	} else {
 		for (let i of qq_) {
 			let userId = i
@@ -80,7 +81,7 @@ var msg = e.msg.replace("带话", "");
 		}
 	}
 
-	 for (let i of BotConfig.masterQQ) { //这里定义发送给所有主人
+	 for (let i of (botConfig.masterQQ || [])) { //这里定义发送给所有主人
 	 	let userId = i
 	 	liulianSafe.pickUser(userId).sendMsg(data_msg)
 	 }
