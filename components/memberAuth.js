@@ -52,9 +52,29 @@ function getSecret() {
 }
 
 // 主人 QQ（请求头 X-Owner-Qq 用，必须是管理员留档列表的子集）
+// 每次调用实时读取运行时配置：TRSS 走 Bot.cfg（网页面板/按 bot 配置改后即时生效），V3 走 BotConfig
+// 兼容 TRSS 的 "bot_id:主人QQ" 条目形态，只取冒号后的 QQ 部分
 function getOwnerQqs() {
-  const masters = Array.isArray(botConfig?.masterQQ) ? botConfig.masterQQ : (botConfig?.masterQQ ? [botConfig.masterQQ] : []);
-  return masters.map(String);
+  const out = [];
+  const push = v => {
+    if (v == null) return;
+    const s = String(v).split(':').pop().trim();
+    if (s && !out.includes(s)) out.push(s);
+  };
+  try {
+    // TRSS-Yunzai：Bot.cfg.master = { bot_id: [主人QQ] }，Bot.cfg.masterQQ = 全局主人列表（getter 实时读配置）
+    if (typeof Bot !== 'undefined' && Bot.cfg) {
+      const m = Bot.cfg.master;
+      if (m && typeof m === 'object') {
+        for (const list of Object.values(m)) (Array.isArray(list) ? list : [list]).forEach(push);
+      }
+      (Array.isArray(Bot.cfg.masterQQ) ? Bot.cfg.masterQQ : (Bot.cfg.masterQQ ? [Bot.cfg.masterQQ] : [])).forEach(push);
+    }
+  } catch {}
+  // V3-Yunzai：全局注入的 BotConfig（bcommon 已做兜底归一化）
+  const v3 = botConfig?.masterQQ;
+  (Array.isArray(v3) ? v3 : (v3 ? [v3] : [])).forEach(push);
+  return out;
 }
 
 // ============ HMAC 签名 ============
