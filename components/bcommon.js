@@ -12,24 +12,64 @@ if (isV3) {
   const YAML = await import("yaml");
 
   let configUrl = `${_path}/config/config`;
-  let other = YAML.parse(fs.readFileSync(`${configUrl}/other.yaml`, "utf8"));
-  let group = YAML.parse(fs.readFileSync(`${configUrl}/group.yaml`, "utf8"));
 
-  // masterQQ 兜底：兼容 null/未配置/单值数字/数组，避免 .includes 崩溃
-  let masterQQ = other?.masterQQ;
-  if (masterQQ == null) masterQQ = [];
-  else if (!Array.isArray(masterQQ)) masterQQ = [masterQQ];
-
-  config = { other, group, masterQQ };
-} else {
-  // 尝试获取 BotConfig，如果不存在则使用默认配置
-  config = typeof BotConfig !== 'undefined' ? BotConfig : {
-    other: {},
-    group: {},
-    masterQQ: []
+  // 运行时现读 yaml：配置改后无需重启即可生效；读失败返回兜底值，避免模块加载即崩
+  const readYaml = (name, fallback) => {
+    try {
+      return YAML.parse(fs.readFileSync(`${configUrl}/${name}`, "utf8")) ?? fallback;
+    } catch (e) {
+      console.warn(`[bcommon] 读取 ${name} 失败: ${e.message}`);
+      return fallback;
+    }
   };
-  if (typeof BotConfig === 'undefined') {
-    console.warn('[bcommon] BotConfig 未定义，使用默认配置');
+
+  config = {
+    get other() { return readYaml("other.yaml", {}); },
+    get group() { return readYaml("group.yaml", {}); },
+    // masterQQ 兜底：兼容 null/未配置/单值数字/数组，避免 .includes 崩溃
+    get masterQQ() {
+      let masterQQ = this.other?.masterQQ;
+      if (masterQQ == null) return [];
+      return Array.isArray(masterQQ) ? masterQQ : [masterQQ];
+    },
+  };
+} else {
+  // 非 V3：优先 TRSS 运行时 Bot.cfg（实时生效），BotConfig 作兜底
+  config = {
+    get other() {
+      if (typeof Bot !== 'undefined' && Bot.cfg) return Bot.cfg.getAllCfg?.("other") ?? BotConfig?.other ?? {};
+      return BotConfig?.other ?? {};
+    },
+    get group() {
+      if (typeof Bot !== 'undefined' && Bot.cfg) return Bot.cfg.getAllCfg?.("group") ?? BotConfig?.group ?? {};
+      return BotConfig?.group ?? {};
+    },
+    get masterQQ() {
+      // TRSS：Bot.cfg.master = { bot_id: [主人QQ] }，条目形如 "bot_id:主人QQ"，取冒号后的 QQ
+      try {
+        if (typeof Bot !== 'undefined' && Bot.cfg) {
+          const out = [];
+          const push = v => {
+            if (v == null) return;
+            const s = String(v).split(':').pop().trim();
+            if (s && !out.includes(s)) out.push(s);
+          };
+          const m = Bot.cfg.master;
+          if (m && typeof m === 'object') {
+            for (const list of Object.values(m)) (Array.isArray(list) ? list : [list]).forEach(push);
+          }
+          const g = Bot.cfg.masterQQ;
+          (Array.isArray(g) ? g : (g ? [g] : [])).forEach(push);
+          if (out.length) return out;
+        }
+      } catch {}
+      const mq = BotConfig?.masterQQ;
+      if (mq == null) return [];
+      return Array.isArray(mq) ? mq : [mq];
+    },
+  };
+  if (typeof BotConfig === 'undefined' && typeof Bot === 'undefined') {
+    console.warn('[bcommon] BotConfig/Bot 均未定义，主人配置将返回空列表');
   }
 }
 
