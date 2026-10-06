@@ -135,6 +135,10 @@ export async function memberBindKey(e) {
   if (!ret.ok) {
     recordBindFail();
     // 真实原因只记日志供排查，用户侧只给友好提示，不暴露内部细节
+    if (ret.errorCode === 'QQ_MISMATCH') {
+      // 主人核对失败：打出本机配置的主人 QQ，方便对照服务端留档列表排查
+      logger.mark(`[榴莲会员] 主人 QQ 核对失败，本机配置: ${getOwnerQqs().join(',') || '(空)'}`);
+    }
     logger.mark(`[榴莲会员] 绑定验证未通过: ${ret.errorCode || 'UNKNOWN'}`);
     const msgMap = {
       KEY_INVALID: '密钥无效，请核对后重试',
