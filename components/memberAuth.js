@@ -59,7 +59,8 @@ function getOwnerQqs() {
   const push = v => {
     if (v == null) return;
     const s = String(v).split(':').pop().trim();
-    if (s && !out.includes(s)) out.push(s);
+    // 只保留纯数字 QQ 号（5~12 位）：过滤 stdin 控制台、内部账号 ID 等非 QQ 条目
+    if (/^\d{5,12}$/.test(s) && !out.includes(s)) out.push(s);
   };
   try {
     // TRSS-Yunzai：Bot.cfg.master = { bot_id: [主人QQ] }，Bot.cfg.masterQQ = 全局主人列表（getter 实时读配置）

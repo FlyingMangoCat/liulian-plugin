@@ -51,7 +51,8 @@ if (isV3) {
           const push = v => {
             if (v == null) return;
             const s = String(v).split(':').pop().trim();
-            if (s && !out.includes(s)) out.push(s);
+            // 只保留纯数字 QQ 号（5~12 位）：过滤 stdin 控制台、内部账号 ID 等非 QQ 条目
+            if (/^\d{5,12}$/.test(s) && !out.includes(s)) out.push(s);
           };
           const m = Bot.cfg.master;
           if (m && typeof m === 'object') {
