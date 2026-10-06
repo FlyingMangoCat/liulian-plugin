@@ -83,12 +83,26 @@ function getOwnerQqs() {
           (Array.isArray(g) ? g : (g ? [g] : [])).forEach(push);
         }
       }
+    } else {
+      logger.warn(`[榴莲会员] 运行时配置不可用: Bot=${typeof Bot}, cfg=${Bot ? typeof Bot.cfg : '无 Bot'}`);
     }
-  } catch {}
+  } catch (err) {
+    logger.warn(`[榴莲会员] 读取运行时主人配置异常: ${err.message}`);
+  }
   // V3-Yunzai：全局注入的 BotConfig（bcommon 已做兜底归一化）
   if (!out.length) {
     const v3 = botConfig?.masterQQ;
     (Array.isArray(v3) ? v3 : (v3 ? [v3] : [])).forEach(push);
+  }
+  // 排查日志：读空时打出原始数据形态，定位是取值路径问题还是配置问题
+  if (!out.length) {
+    try {
+      const m = typeof Bot !== 'undefined' && Bot.cfg ? Bot.cfg.master : undefined;
+      const g = typeof Bot !== 'undefined' && Bot.cfg ? Bot.cfg.masterQQ : undefined;
+      logger.warn(`[榴莲会员] 主人列表读取为空：uin=${JSON.stringify(uins)}，master=${JSON.stringify(m)}，masterQQ=${JSON.stringify(g)}`);
+    } catch (err) {
+      logger.warn(`[榴莲会员] 主人列表读取为空，且诊断信息获取失败: ${err.message}`);
+    }
   }
   return out;
 }
