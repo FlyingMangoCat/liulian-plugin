@@ -135,13 +135,14 @@ function buildHeaders(method, secret, ownerQqs, bodyBytes) {
   };
 }
 
-// 统一请求执行：重试（限流/网络故障）须重新签名；返回 { ok, data, buffer, errorCode }
-async function doRequest(method, url, headers, body) {
+// 统一请求执行：每轮尝试都用新时间戳/新 nonce 重新签名后发送（重试禁止复用旧签名头，防 SIGN_NONCE_REUSED）
+// sign = { method, secret, ownerQqs, bodyBytes, extraHeaders }；返回 { ok, data, buffer, errorCode }
+async function doRequest(sign, url) {
   for (let attempt = 0; attempt < 2; attempt++) {
     let res = null;
     try {
-      // node-fetch v3 无 timeout 选项，用 AbortSignal 兜底（30 秒，防请求无限挂起）
-      res = await fetch(url, { method, headers, body, signal: AbortSignal.timeout(30000) });
+      const headers = { ...buildHeaders(sign.method, sign.secret, sign.ownerQqs, sign.bodyBytes), ...(sign.extraHeaders || {}) };
+      res = await fetch(url, { method: sign.method, headers, body: sign.method === 'GET' ? undefined : sign.bodyBytes, signal: AbortSignal.timeout(30000) });
       const contentType = res.headers.get('content-type') || '';
       // 图片流响应：直接取二进制，不解析 JSON
       if (contentType.startsWith('image/')) {
@@ -168,7 +169,7 @@ async function doRequest(method, url, headers, body) {
       }
       return { ok: false, errorCode };
     } catch (err) {
-      // 网络错误：重新签名重试一次
+      // 网络错误：退避后重新签名重试一次
       if (attempt === 0) {
         await new Promise(r => setTimeout(r, 5 * 1000));
         continue;
@@ -187,8 +188,7 @@ async function signedJsonRequest(method, apiPath, bodyObj, secretOverride, owner
   const ownerQqs = ownerQqOverride ? [String(ownerQqOverride)] : getOwnerQqs();
   if (!secret || !ownerQqs.length) return { ok: false, errorCode: 'NO_CREDENTIAL' };
   const rawBody = (method === 'GET' || bodyObj === undefined) ? '' : JSON.stringify(bodyObj);
-  const headers = buildHeaders(method, secret, ownerQqs, rawBody);
-  return doRequest(method, API_BASE + apiPath, headers, method === 'GET' ? undefined : rawBody);
+  return doRequest({ method, secret, ownerQqs, bodyBytes: rawBody }, API_BASE + apiPath);
 }
 
 // 原始字节请求（multipart 等）：调用方构造好原始字节后签名发送，签名与发送用同一份
@@ -197,8 +197,7 @@ async function signedRawRequest(method, apiPath, bodyBytes, extraHeaders = {}) {
   const secret = getSecret();
   const ownerQqs = getOwnerQqs();
   if (!secret || !ownerQqs.length) return { ok: false, errorCode: 'NO_CREDENTIAL' };
-  const headers = { ...buildHeaders(method, secret, ownerQqs, bodyBytes), ...extraHeaders };
-  return doRequest(method, API_BASE + apiPath, headers, method === 'GET' ? undefined : bodyBytes);
+  return doRequest({ method, secret, ownerQqs, bodyBytes, extraHeaders }, API_BASE + apiPath);
 }
 
 export {

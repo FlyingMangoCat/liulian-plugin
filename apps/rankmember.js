@@ -353,8 +353,9 @@ export async function startRound(e, gameType, difficulty = 'normal') {
   return '';
 }
 
-// roundId 已被服务端消费或回收的错误码：本地记录同步清理即可
-const DEAD_ROUND_CODES = new Set(['ROUND_FINISHED', 'ROUND_NOT_FOUND', 'ROUND_EXPIRED', 'FINISHED', 'NOT_FOUND', 'EXPIRED']);
+// roundId 已被服务端消耗或回收的错误码：本地记录同步清理即可
+// WINNER_INVALID：整局拒收且 roundId 已消耗（文档 3.2），当场放弃不可重交
+const DEAD_ROUND_CODES = new Set(['ROUND_FINISHED', 'ROUND_NOT_FOUND', 'ROUND_EXPIRED', 'FINISHED', 'NOT_FOUND', 'EXPIRED', 'RESULT_WINNER_INVALID', 'WINNER_INVALID']);
 
 // 对局结算：一次性上报本局结果（含 0 分参与条目）
 // 网络类失败保留本地记录，待该群下次开局前补报弃局回收，避免服务端锁群 2 小时
