@@ -30,8 +30,8 @@ function getMemberExpiry() {
 
 // ============ 会员状态 ============
 // 查询会员状态：可传候选 secret 用于绑定验证
-async function fetchMembership(secretOverride) {
-  const ret = await signedJsonRequest('GET', MEMBER_VERIFY_PATH, undefined, secretOverride);
+async function fetchMembership(secretOverride, ownerQqOverride) {
+  const ret = await signedJsonRequest('GET', MEMBER_VERIFY_PATH, undefined, secretOverride, ownerQqOverride);
   return ret;
 }
 
@@ -130,8 +130,8 @@ export async function memberBindKey(e) {
     return true;
   }
 
-  // 验证密钥：会员状态有效才落盘，避免无效密钥污染本地数据
-  const ret = await fetchMembership(secret);
+  // 验证密钥：用绑定人 QQ（已通过 isMaster 判定）直接提交，不依赖运行时配置读取
+  const ret = await fetchMembership(secret, uid);
   if (!ret.ok) {
     recordBindFail();
     // 真实原因只记日志供排查，用户侧只给友好提示，不暴露内部细节
@@ -158,7 +158,8 @@ export async function memberBindKey(e) {
     return true;
   }
   try {
-    saveMember({ secret, expiry: data.expiresAt || 0 });
+    // ownerQq 留档绑定人：之后所有签名请求优先用它作为 X-Owner-Qq
+    saveMember({ secret, expiry: data.expiresAt || 0, ownerQq: uid });
     const days = data.remainingDays != null ? data.remainingDays : Math.ceil((data.expiresAt - Date.now()) / 86400000);
     logger.mark(`[榴莲会员] 密钥绑定成功，有效期至 ${data.expiresAt ? new Date(data.expiresAt).toLocaleString('zh-CN', { hour12: false }) : '未知'}`);
     e.reply(`绑定成功，会员剩余 ${days} 天`);

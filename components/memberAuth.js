@@ -52,9 +52,9 @@ function getSecret() {
 }
 
 // 主人 QQ（请求头 X-Owner-Qq 用，必须是管理员留档列表的子集）
-// 每次调用实时读取运行时配置：TRSS 走 Bot.cfg（网页面板/按 bot 配置改后即时生效），V3 走 BotConfig
-// 只取当前机器人（按 bot 账号 uin 匹配）名下的主人；该 bot 未单独配置时回退全局 masterQQ
-// 兼容 TRSS 的 "bot_id:主人QQ" 条目形态，且只保留纯数字 QQ 号（过滤 stdin/内部 ID 等非 QQ 条目）
+// 优先级：绑定成功时存档的绑定人 QQ（已通过 e.isMaster 验证，最可靠）
+//       → 运行时配置中本机 bot 名下的主人 → 全局 masterQQ
+// 只保留纯数字 QQ 号（过滤 stdin/内部 ID 等非 QQ 条目）
 function getOwnerQqs() {
   const out = [];
   const push = v => {
@@ -63,7 +63,11 @@ function getOwnerQqs() {
     // 只保留纯数字 QQ 号（5~12 位）：过滤 stdin 控制台、内部账号 ID 等非 QQ 条目
     if (/^\d{5,12}$/.test(s) && !out.includes(s)) out.push(s);
   };
-  // 当前机器人账号（TRSS 为数组，V3 为单值）
+  // 第一优先：绑定验证通过时留档的绑定人 QQ
+  const bound = readMember()?.ownerQq;
+  if (bound) push(bound);
+  if (out.length) return out;
+  // 第二优先：运行时配置中本机 bot 名下的主人
   let uins = [];
   try {
     const u = liulianSafe?.uin;
@@ -73,37 +77,22 @@ function getOwnerQqs() {
     if (typeof Bot !== 'undefined' && Bot.cfg) {
       const m = Bot.cfg.master;
       if (m && typeof m === 'object') {
-        // 优先：当前 bot 名下的主人（bot_id 匹配本机账号）
         for (const [botId, list] of Object.entries(m)) {
           if (uins.includes(String(botId))) (Array.isArray(list) ? list : [list]).forEach(push);
         }
-        // 回退：本机账号未在 master 中单独配置时，用全局 masterQQ
         if (!out.length) {
           const g = Bot.cfg.masterQQ;
           (Array.isArray(g) ? g : (g ? [g] : [])).forEach(push);
         }
       }
-    } else {
-      logger.warn(`[榴莲会员] 运行时配置不可用: Bot=${typeof Bot}, cfg=${Bot ? typeof Bot.cfg : '无 Bot'}`);
     }
   } catch (err) {
     logger.warn(`[榴莲会员] 读取运行时主人配置异常: ${err.message}`);
   }
-  // V3-Yunzai：全局注入的 BotConfig（bcommon 已做兜底归一化）
-  if (!out.length) {
-    const v3 = botConfig?.masterQQ;
-    (Array.isArray(v3) ? v3 : (v3 ? [v3] : [])).forEach(push);
-  }
-  // 排查日志：读空时打出原始数据形态，定位是取值路径问题还是配置问题
-  if (!out.length) {
-    try {
-      const m = typeof Bot !== 'undefined' && Bot.cfg ? Bot.cfg.master : undefined;
-      const g = typeof Bot !== 'undefined' && Bot.cfg ? Bot.cfg.masterQQ : undefined;
-      logger.warn(`[榴莲会员] 主人列表读取为空：uin=${JSON.stringify(uins)}，master=${JSON.stringify(m)}，masterQQ=${JSON.stringify(g)}`);
-    } catch (err) {
-      logger.warn(`[榴莲会员] 主人列表读取为空，且诊断信息获取失败: ${err.message}`);
-    }
-  }
+  if (out.length) return out;
+  // 兜底：V3 全局 BotConfig（bcommon 已做归一化）
+  const v3 = botConfig?.masterQQ;
+  (Array.isArray(v3) ? v3 : (v3 ? [v3] : [])).forEach(push);
   return out;
 }
 
@@ -176,9 +165,10 @@ async function doRequest(method, url, headers, body) {
 
 // JSON 请求（排名系统等）：bodyObj 序列化后签名并原样发送
 // secretOverride：绑定验证等场景用候选密钥签名（缺省用已落盘密钥）
-async function signedJsonRequest(method, apiPath, bodyObj, secretOverride) {
+// ownerQqOverride：绑定验证等场景直接指定主人 QQ（如已通过 isMaster 判定的绑定人）
+async function signedJsonRequest(method, apiPath, bodyObj, secretOverride, ownerQqOverride) {
   const secret = secretOverride || getSecret();
-  const ownerQqs = getOwnerQqs();
+  const ownerQqs = ownerQqOverride ? [String(ownerQqOverride)] : getOwnerQqs();
   if (!secret || !ownerQqs.length) return { ok: false, errorCode: 'NO_CREDENTIAL' };
   const rawBody = (method === 'GET' || bodyObj === undefined) ? '' : JSON.stringify(bodyObj);
   const headers = buildHeaders(method, secret, ownerQqs, rawBody);
