@@ -342,7 +342,8 @@ export async function guessAvatar(e) {
   let base64 = null;
   let promise = guessRender('question', props);
   setTimeout(async () => {
-    const result = await promise;
+    // 渲染 promise 若 reject（模板读取等异常）也走失败分支，防止回调炸掉后 playing 卡死锁群
+    const result = await promise.catch(() => null);
     base64 = result ? result.base64 : null;
     if (base64) {
       // 题图校验后的裁切坐标写回 props，答案图高亮框与题图实际位置对齐
@@ -413,10 +414,11 @@ export async function replayAnswer(e, message, cfg, isReply = false) {
     rep.results = [];
     finishRound(rid, results).catch(() => {});
   }
-  let answer = await cfg.answer;
-  if (answer) {
+  // 答案图渲染若 reject 也不影响揭晓与状态清理（渲染失败仅少发一张图）
+  let answer = await Promise.resolve(cfg.answer).catch(() => null);
+  if (answer && answer.base64) {
     message.push('\n');
-    message.push(segment.image(`base64://${answer}`));
+    message.push(segment.image(`base64://${answer.base64}`));
   }
   await e.reply(message, isReply);
   cfg.delete();
@@ -823,7 +825,8 @@ export async function starguessAvatar(e) {
   let base64 = null;
   let promise = guessRender('question', props);
   setTimeout(async () => {
-    const result = await promise;
+    // 渲染 promise 若 reject（模板读取等异常）也走失败分支，防止回调炸掉后 playing 卡死锁群
+    const result = await promise.catch(() => null);
     base64 = result ? result.base64 : null;
     if (base64) {
       // 题图校验后的裁切坐标写回 props，答案图高亮框与题图实际位置对齐
@@ -980,7 +983,8 @@ export async function starguessAvatarCheck(e) {
   let base64 = null;
   let promise = guessRender('question', props);
   setTimeout(async () => {
-    const result = await promise;
+    // 渲染 promise 若 reject（模板读取等异常）也走失败分支，防止回调炸掉后 playing 卡死锁群
+    const result = await promise.catch(() => null);
     base64 = result ? result.base64 : null;
     if (base64) {
       // 题图校验后的裁切坐标写回 props，答案图高亮框与题图实际位置对齐
@@ -1140,7 +1144,8 @@ export async function wwguessAvatar(e) {
   let base64 = null;
   let promise = guessRender('question', props);
   setTimeout(async () => {
-    const result = await promise;
+    // 渲染 promise 若 reject（模板读取等异常）也走失败分支，防止回调炸掉后 playing 卡死锁群
+    const result = await promise.catch(() => null);
     base64 = result ? result.base64 : null;
     if (base64) {
       // 题图校验后的裁切坐标写回 props，答案图高亮框与题图实际位置对齐
@@ -1296,7 +1301,8 @@ export async function nteguessAvatar(e) {
   let base64 = null;
   let promise = guessRender('question', props);
   setTimeout(async () => {
-    const result = await promise;
+    // 渲染 promise 若 reject（模板读取等异常）也走失败分支，防止回调炸掉后 playing 卡死锁群
+    const result = await promise.catch(() => null);
     base64 = result ? result.base64 : null;
     if (base64) {
       // 题图校验后的裁切坐标写回 props，答案图高亮框与题图实际位置对齐
