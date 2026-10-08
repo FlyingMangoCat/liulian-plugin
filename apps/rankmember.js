@@ -357,9 +357,10 @@ export async function startRound(e, gameType, difficulty = 'normal') {
   return '';
 }
 
-// roundId 已被服务端消耗或回收的错误码：本地记录同步清理即可
+// roundId 已不可用、重试永不成功的错误码：本地记录同步清理即可，避免每次开局都白发一次注定失败的结算
 // WINNER_INVALID：整局拒收且 roundId 已消耗（文档 3.2），当场放弃不可重交
-const DEAD_ROUND_CODES = new Set(['ROUND_FINISHED', 'ROUND_NOT_FOUND', 'ROUND_EXPIRED', 'FINISHED', 'NOT_FOUND', 'EXPIRED', 'RESULT_WINNER_INVALID', 'WINNER_INVALID']);
+// PERMISSION_DENIED：非开局者结算（文档 3.2/错误码表），roundId 归属不符，补交同样被拒
+const DEAD_ROUND_CODES = new Set(['ROUND_FINISHED', 'ROUND_NOT_FOUND', 'ROUND_EXPIRED', 'FINISHED', 'NOT_FOUND', 'EXPIRED', 'RESULT_WINNER_INVALID', 'WINNER_INVALID', 'PERMISSION_DENIED']);
 
 // 失败时把结果挂到该群的对局记录上（按 roundId 反查群号），供下次开局带原结果补交
 // 兼容旧格式：字符串记录先升级为对象再挂结果

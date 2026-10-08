@@ -415,10 +415,11 @@ export async function replayAnswer(e, message, cfg, isReply = false) {
     finishRound(rid, results).catch(() => {});
   }
   // 答案图渲染若 reject 也不影响揭晓与状态清理（渲染失败仅少发一张图）
+  // 注意：answer 模板返回裸 base64 字符串（题图才是 {base64, coord} 对象），此处不可取 .base64
   let answer = await Promise.resolve(cfg.answer).catch(() => null);
-  if (answer && answer.base64) {
+  if (answer) {
     message.push('\n');
-    message.push(segment.image(`base64://${answer.base64}`));
+    message.push(segment.image(`base64://${answer}`));
   }
   await e.reply(message, isReply);
   cfg.delete();
