@@ -13,29 +13,30 @@ import template from "art-template";
 import { Data, Cfg, Common } from "#liulian";
 import config from "../model/config/config.js"
 // 对局上报辅助：本局结果收集（含0分参与），赢家结算时批量上报
-// 结构：guessConfig.roundId=对局编号，guessConfig.roundResults=[{qq,score}]
+// 结构：guessConfig.report={roundId,results}，每局独立对象，防快速重开时新旧局串扰
 function roundRecord(guessConfig, e, score) {
-  if (!guessConfig) return;
-  // roundId 尚未回填（开局响应竞态窗口）也照常记录：等回填后统一结算，丢弃会丢参与数和胜者
+  const rep = guessConfig && guessConfig.report;
+  if (!rep) return;
   const qq = String(e.user_id);
   // 同一玩家多次作答只保留最新一条：先错后对以答对为准，避免服务端按"先到先得"把胜者条目判重丢弃
-  const old = guessConfig.roundResults.find(r => r.qq === qq);
+  const old = rep.results.find(r => r.qq === qq);
   if (old) {
     old.score = score;
     old.correct = score > 0;
     return;
   }
   // correct=本次作答是否命中角色名（答对，供服务端核对答对数）
-  guessConfig.roundResults.push({ qq, score, correct: score > 0 });
+  rep.results.push({ qq, score, correct: score > 0 });
 }
 
 // 赢家结算上报：一局恰好一个赢家，fire-and-forget 不阻塞回复
 function roundFinish(guessConfig) {
-  if (!guessConfig || !guessConfig.roundId) return;
-  const { roundId, roundResults } = guessConfig;
-  guessConfig.roundId = '';
-  guessConfig.roundResults = [];
-  finishRound(roundId, roundResults).catch(() => {});
+  const rep = guessConfig && guessConfig.report;
+  if (!rep || !rep.roundId) return;
+  const { roundId, results } = rep;
+  rep.roundId = '';
+  rep.results = [];
+  finishRound(roundId, results).catch(() => {});
 }
 
 const GAME_TIME_OUT = 30//游戏时长(秒)
@@ -290,16 +291,17 @@ export async function guessAvatar(e) {
   guessConfig.playing = true;
   guessConfig.roleId = roleId;
   // 对局上报登记（异步不阻塞出图），结算时上报本局结果
-  guessConfig.roundId = '';
-  guessConfig.roundResults = [];
+  // 独立上报对象：对局被快速重开替换后，旧局迟到回填只回收旧局，不串扰新局
+  const report = { roundId: '', results: [] };
+  guessConfig.report = report;
   guessConfig.difficulty = difficultyLevel(hardMode, hellMode, purgatoryMode);
   startRound(e, 'genshin', difficultyName(guessConfig.difficulty)).then(id => {
-    guessConfig.roundId = id;
-    // 回填时对局已结束（竞态窗口内答对/超时/出图失败）：立即补结算或弃局，防止服务端对局悬挂
-    if (id && !guessConfig.playing) {
-      const results = guessConfig.roundResults || [];
-      guessConfig.roundId = '';
-      guessConfig.roundResults = [];
+    report.roundId = id;
+    // 回填时本局已结束（竞态窗口内答对/超时/出图失败）或已被新对局替换：立即补结算或弃局，防止悬挂与串局
+    if (id && (guessConfig.report !== report || !guessConfig.playing)) {
+      const results = report.results;
+      report.roundId = '';
+      report.results = [];
       finishRound(id, results).catch(() => {});
     }
   }).catch(() => {});
@@ -392,13 +394,14 @@ export async function guessAvatarCheck(e) {
 export async function replayAnswer(e, message, cfg, isReply = false) {
   clearTimeout(cfg.timer);
   cfg.playing = false;
-  // roundId 仍在 = 超时无人答对的弃局落账：把作答者以 0 分参与条目上报（服务端计入 parts，参与不丢失）
-  // 纯弃局（无人作答）时 roundResults 为空数组，服务端按纯弃局销毁
-  if (cfg.roundId) {
-    const rid = cfg.roundId;
-    const results = cfg.roundResults;
-    cfg.roundId = '';
-    cfg.roundResults = [];
+  // 本局上报仍在 = 超时无人答对的弃局落账：把作答者以 0 分参与条目上报（服务端计入 parts，参与不丢失）
+  // 纯弃局（无人作答）时 results 为空数组，服务端按纯弃局销毁
+  const rep = cfg.report;
+  if (rep && rep.roundId) {
+    const rid = rep.roundId;
+    const results = rep.results;
+    rep.roundId = '';
+    rep.results = [];
     finishRound(rid, results).catch(() => {});
   }
   let answer = await cfg.answer;
@@ -760,16 +763,17 @@ export async function starguessAvatar(e) {
   guessConfig.playing = true;
   guessConfig.starroleId = roleId;
   // 对局上报登记（异步不阻塞出图），结算时上报本局结果
-  guessConfig.roundId = '';
-  guessConfig.roundResults = [];
+  // 独立上报对象：对局被快速重开替换后，旧局迟到回填只回收旧局，不串扰新局
+  const report = { roundId: '', results: [] };
+  guessConfig.report = report;
   guessConfig.difficulty = difficultyLevel(hardMode, hellMode, purgatoryMode);
   startRound(e, 'star', difficultyName(guessConfig.difficulty)).then(id => {
-    guessConfig.roundId = id;
-    // 回填时对局已结束（竞态窗口内答对/超时/出图失败）：立即补结算或弃局，防止服务端对局悬挂
-    if (id && !guessConfig.playing) {
-      const results = guessConfig.roundResults || [];
-      guessConfig.roundId = '';
-      guessConfig.roundResults = [];
+    report.roundId = id;
+    // 回填时本局已结束（竞态窗口内答对/超时/出图失败）或已被新对局替换：立即补结算或弃局，防止悬挂与串局
+    if (id && (guessConfig.report !== report || !guessConfig.playing)) {
+      const results = report.results;
+      report.roundId = '';
+      report.results = [];
       finishRound(id, results).catch(() => {});
     }
   }).catch(() => {});
@@ -907,16 +911,17 @@ export async function starguessAvatarCheck(e) {
   guessConfig.gameType = 'zzz';
   guessConfig.zzzroleId = roleId;
   // 对局上报登记（异步不阻塞出图），结算时上报本局结果
-  guessConfig.roundId = '';
-  guessConfig.roundResults = [];
+  // 独立上报对象：对局被快速重开替换后，旧局迟到回填只回收旧局，不串扰新局
+  const report = { roundId: '', results: [] };
+  guessConfig.report = report;
   guessConfig.difficulty = difficultyLevel(hardMode, hellMode, purgatoryMode);
   startRound(e, 'zzz', difficultyName(guessConfig.difficulty)).then(id => {
-    guessConfig.roundId = id;
-    // 回填时对局已结束（竞态窗口内答对/超时/出图失败）：立即补结算或弃局，防止服务端对局悬挂
-    if (id && !guessConfig.playing) {
-      const results = guessConfig.roundResults || [];
-      guessConfig.roundId = '';
-      guessConfig.roundResults = [];
+    report.roundId = id;
+    // 回填时本局已结束（竞态窗口内答对/超时/出图失败）或已被新对局替换：立即补结算或弃局，防止悬挂与串局
+    if (id && (guessConfig.report !== report || !guessConfig.playing)) {
+      const results = report.results;
+      report.roundId = '';
+      report.results = [];
       finishRound(id, results).catch(() => {});
     }
   }).catch(() => {});
@@ -1057,16 +1062,17 @@ export async function wwguessAvatar(e) {
   guessConfig.gameType = 'ww';
   guessConfig.wwroleId = roleId;
   // 对局上报登记（异步不阻塞出图），结算时上报本局结果
-  guessConfig.roundId = '';
-  guessConfig.roundResults = [];
+  // 独立上报对象：对局被快速重开替换后，旧局迟到回填只回收旧局，不串扰新局
+  const report = { roundId: '', results: [] };
+  guessConfig.report = report;
   guessConfig.difficulty = difficultyLevel(hardMode, hellMode, purgatoryMode);
   startRound(e, 'ww', difficultyName(guessConfig.difficulty)).then(id => {
-    guessConfig.roundId = id;
-    // 回填时对局已结束（竞态窗口内答对/超时/出图失败）：立即补结算或弃局，防止服务端对局悬挂
-    if (id && !guessConfig.playing) {
-      const results = guessConfig.roundResults || [];
-      guessConfig.roundId = '';
-      guessConfig.roundResults = [];
+    report.roundId = id;
+    // 回填时本局已结束（竞态窗口内答对/超时/出图失败）或已被新对局替换：立即补结算或弃局，防止悬挂与串局
+    if (id && (guessConfig.report !== report || !guessConfig.playing)) {
+      const results = report.results;
+      report.roundId = '';
+      report.results = [];
       finishRound(id, results).catch(() => {});
     }
   }).catch(() => {});
@@ -1207,16 +1213,17 @@ export async function nteguessAvatar(e) {
   guessConfig.gameType = 'nte';
   guessConfig.nteroleId = roleId;
   // 对局上报登记（异步不阻塞出图），结算时上报本局结果
-  guessConfig.roundId = '';
-  guessConfig.roundResults = [];
+  // 独立上报对象：对局被快速重开替换后，旧局迟到回填只回收旧局，不串扰新局
+  const report = { roundId: '', results: [] };
+  guessConfig.report = report;
   guessConfig.difficulty = difficultyLevel(hardMode, hellMode, purgatoryMode);
   startRound(e, 'nte', difficultyName(guessConfig.difficulty)).then(id => {
-    guessConfig.roundId = id;
-    // 回填时对局已结束（竞态窗口内答对/超时/出图失败）：立即补结算或弃局，防止服务端对局悬挂
-    if (id && !guessConfig.playing) {
-      const results = guessConfig.roundResults || [];
-      guessConfig.roundId = '';
-      guessConfig.roundResults = [];
+    report.roundId = id;
+    // 回填时本局已结束（竞态窗口内答对/超时/出图失败）或已被新对局替换：立即补结算或弃局，防止悬挂与串局
+    if (id && (guessConfig.report !== report || !guessConfig.playing)) {
+      const results = report.results;
+      report.roundId = '';
+      report.results = [];
       finishRound(id, results).catch(() => {});
     }
   }).catch(() => {});
