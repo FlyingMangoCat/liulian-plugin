@@ -360,6 +360,15 @@ export async function guessAvatar(e) {
       }, GAME_TIME_OUT * 1000);
     } else {
       guessConfig.playing = false;
+      // 出图失败：立即回收本局对局，防止孤儿对局留到下次开局才补报
+      const rep = guessConfig.report;
+      if (rep && rep.roundId) {
+        const rid = rep.roundId;
+        const results = rep.results;
+        rep.roundId = '';
+        rep.results = [];
+        finishRound(rid, results).catch(() => {});
+      }
       e.reply('呜~ 图片生成失败了… 请稍后重试 〒▽〒');
     }
   }, 1500);
@@ -832,6 +841,15 @@ export async function starguessAvatar(e) {
       }, GAME_TIME_OUT * 1000);
     } else {
       guessConfig.playing = false;
+      // 出图失败：立即回收本局对局，防止孤儿对局留到下次开局才补报
+      const rep = guessConfig.report;
+      if (rep && rep.roundId) {
+        const rid = rep.roundId;
+        const results = rep.results;
+        rep.roundId = '';
+        rep.results = [];
+        finishRound(rid, results).catch(() => {});
+      }
       e.reply('呜~ 图片生成失败了… 请稍后重试 〒▽〒');
     }
   }, 1500);
@@ -980,6 +998,15 @@ export async function starguessAvatarCheck(e) {
       }, GAME_TIME_OUT * 1000);
     } else {
       guessConfig.playing = false;
+      // 出图失败：立即回收本局对局，防止孤儿对局留到下次开局才补报
+      const rep = guessConfig.report;
+      if (rep && rep.roundId) {
+        const rid = rep.roundId;
+        const results = rep.results;
+        rep.roundId = '';
+        rep.results = [];
+        finishRound(rid, results).catch(() => {});
+      }
       e.reply('呜~ 图片生成失败了… 请稍后重试 〒▽〒');
     }
   }, 1500);
@@ -1131,6 +1158,15 @@ export async function wwguessAvatar(e) {
       }, GAME_TIME_OUT * 1000);
     } else {
       guessConfig.playing = false;
+      // 出图失败：立即回收本局对局，防止孤儿对局留到下次开局才补报
+      const rep = guessConfig.report;
+      if (rep && rep.roundId) {
+        const rid = rep.roundId;
+        const results = rep.results;
+        rep.roundId = '';
+        rep.results = [];
+        finishRound(rid, results).catch(() => {});
+      }
       e.reply('呜~ 图片生成失败了… 请稍后重试 〒▽〒');
     }
   }, 1500);
@@ -1278,6 +1314,15 @@ export async function nteguessAvatar(e) {
       }, GAME_TIME_OUT * 1000);
     } else {
       guessConfig.playing = false;
+      // 出图失败：立即回收本局对局，防止孤儿对局留到下次开局才补报
+      const rep = guessConfig.report;
+      if (rep && rep.roundId) {
+        const rid = rep.roundId;
+        const results = rep.results;
+        rep.roundId = '';
+        rep.results = [];
+        finishRound(rid, results).catch(() => {});
+      }
       e.reply('呜~ 图片生成失败了… 请稍后重试 〒▽〒');
     }
   }, 1500);
