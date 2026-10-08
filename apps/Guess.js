@@ -15,7 +15,8 @@ import config from "../model/config/config.js"
 // 对局上报辅助：本局结果收集（含0分参与），赢家结算时批量上报
 // 结构：guessConfig.roundId=对局编号，guessConfig.roundResults=[{qq,score}]
 function roundRecord(guessConfig, e, score) {
-  if (!guessConfig || !guessConfig.roundId) return;
+  if (!guessConfig) return;
+  // roundId 尚未回填（开局响应竞态窗口）也照常记录：等回填后统一结算，丢弃会丢参与数和胜者
   const qq = String(e.user_id);
   // 同一玩家多次作答只保留最新一条：先错后对以答对为准，避免服务端按"先到先得"把胜者条目判重丢弃
   const old = guessConfig.roundResults.find(r => r.qq === qq);
@@ -292,7 +293,16 @@ export async function guessAvatar(e) {
   guessConfig.roundId = '';
   guessConfig.roundResults = [];
   guessConfig.difficulty = difficultyLevel(hardMode, hellMode, purgatoryMode);
-  startRound(e, 'genshin', difficultyName(guessConfig.difficulty)).then(id => { guessConfig.roundId = id; }).catch(() => {});
+  startRound(e, 'genshin', difficultyName(guessConfig.difficulty)).then(id => {
+    guessConfig.roundId = id;
+    // 回填时对局已结束（竞态窗口内答对/超时/出图失败）：立即补结算或弃局，防止服务端对局悬挂
+    if (id && !guessConfig.playing) {
+      const results = guessConfig.roundResults || [];
+      guessConfig.roundId = '';
+      guessConfig.roundResults = [];
+      finishRound(id, results).catch(() => {});
+    }
+  }).catch(() => {});
   console.group('猜角色');
   console.log('ID:', roleId);
   console.log('角色:', roleName);
@@ -753,7 +763,16 @@ export async function starguessAvatar(e) {
   guessConfig.roundId = '';
   guessConfig.roundResults = [];
   guessConfig.difficulty = difficultyLevel(hardMode, hellMode, purgatoryMode);
-  startRound(e, 'star', difficultyName(guessConfig.difficulty)).then(id => { guessConfig.roundId = id; }).catch(() => {});
+  startRound(e, 'star', difficultyName(guessConfig.difficulty)).then(id => {
+    guessConfig.roundId = id;
+    // 回填时对局已结束（竞态窗口内答对/超时/出图失败）：立即补结算或弃局，防止服务端对局悬挂
+    if (id && !guessConfig.playing) {
+      const results = guessConfig.roundResults || [];
+      guessConfig.roundId = '';
+      guessConfig.roundResults = [];
+      finishRound(id, results).catch(() => {});
+    }
+  }).catch(() => {});
   console.group('猜角色');
   console.log('ID:', roleId);
   console.log('角色:', roleName);
@@ -891,7 +910,16 @@ export async function starguessAvatarCheck(e) {
   guessConfig.roundId = '';
   guessConfig.roundResults = [];
   guessConfig.difficulty = difficultyLevel(hardMode, hellMode, purgatoryMode);
-  startRound(e, 'zzz', difficultyName(guessConfig.difficulty)).then(id => { guessConfig.roundId = id; }).catch(() => {});
+  startRound(e, 'zzz', difficultyName(guessConfig.difficulty)).then(id => {
+    guessConfig.roundId = id;
+    // 回填时对局已结束（竞态窗口内答对/超时/出图失败）：立即补结算或弃局，防止服务端对局悬挂
+    if (id && !guessConfig.playing) {
+      const results = guessConfig.roundResults || [];
+      guessConfig.roundId = '';
+      guessConfig.roundResults = [];
+      finishRound(id, results).catch(() => {});
+    }
+  }).catch(() => {});
   console.group('猜角色');
   console.log('ID:', roleId);
   console.log('角色:', roleName);
@@ -1032,7 +1060,16 @@ export async function wwguessAvatar(e) {
   guessConfig.roundId = '';
   guessConfig.roundResults = [];
   guessConfig.difficulty = difficultyLevel(hardMode, hellMode, purgatoryMode);
-  startRound(e, 'ww', difficultyName(guessConfig.difficulty)).then(id => { guessConfig.roundId = id; }).catch(() => {});
+  startRound(e, 'ww', difficultyName(guessConfig.difficulty)).then(id => {
+    guessConfig.roundId = id;
+    // 回填时对局已结束（竞态窗口内答对/超时/出图失败）：立即补结算或弃局，防止服务端对局悬挂
+    if (id && !guessConfig.playing) {
+      const results = guessConfig.roundResults || [];
+      guessConfig.roundId = '';
+      guessConfig.roundResults = [];
+      finishRound(id, results).catch(() => {});
+    }
+  }).catch(() => {});
   console.group('猜角色');
   console.log('ID:', roleId);
   console.log('角色:', roleName);
@@ -1173,7 +1210,16 @@ export async function nteguessAvatar(e) {
   guessConfig.roundId = '';
   guessConfig.roundResults = [];
   guessConfig.difficulty = difficultyLevel(hardMode, hellMode, purgatoryMode);
-  startRound(e, 'nte', difficultyName(guessConfig.difficulty)).then(id => { guessConfig.roundId = id; }).catch(() => {});
+  startRound(e, 'nte', difficultyName(guessConfig.difficulty)).then(id => {
+    guessConfig.roundId = id;
+    // 回填时对局已结束（竞态窗口内答对/超时/出图失败）：立即补结算或弃局，防止服务端对局悬挂
+    if (id && !guessConfig.playing) {
+      const results = guessConfig.roundResults || [];
+      guessConfig.roundId = '';
+      guessConfig.roundResults = [];
+      finishRound(id, results).catch(() => {});
+    }
+  }).catch(() => {});
   console.group('猜角色');
   console.log('ID:', roleId);
   console.log('角色:', roleName);
