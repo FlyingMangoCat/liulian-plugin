@@ -432,7 +432,13 @@ export async function updateLiulianPlugin (e) {
         } else if (stdout) {
           liulianSafe.logger.mark('重启成功，运行已转为后台，查看日志请用命令：' + pkgManager + ' run log')
           liulianSafe.logger.mark('停止后台运行命令：' + pkgManager + ' stop')
-          process.exit()
+          // 先关渲染器浏览器（Chromium 是独立子进程，直接 process.exit 会泄漏堆积）
+          const exitNow = () => process.exit()
+          if (global.Bot?.stopRenderers) {
+            Promise.resolve(global.Bot.stopRenderers()).then(exitNow, exitNow)
+          } else {
+            exitNow()
+          }
         }
       })
     }, 1000)
