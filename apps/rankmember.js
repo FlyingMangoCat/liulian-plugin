@@ -3,7 +3,7 @@ import path from 'path';
 import crypto from 'crypto';
 import { fileURLToPath } from 'url';
 import bcommon from "../components/bcommon.js";
-import { DATA_DIR, getSecret, getOwnerQqs, readMember, saveMember, signedJsonRequest } from "../components/memberAuth.js";
+import { DATA_DIR, getSecret, getOwnerQqs, readMember, saveMember, signedJsonRequest, signedJsonRequestTryOwners } from "../components/memberAuth.js";
 
 // 会员密钥与排名系统对接：凭据/签名/请求统一走 components/memberAuth.js
 const MEMBER_FILE = path.join(DATA_DIR, 'member.json');
@@ -344,7 +344,7 @@ export async function startRound(e, gameType, difficulty = 'normal') {
     logger.mark(`[榴莲会员] 检测到残留对局，先补报回收再开局: ${groupId}${prev.results && prev.results.length ? `（带 ${prev.results.length} 条结果补交）` : ''}`);
     await finishRound(prev.roundId, prev.results || []);
   }
-  const ret = await signedJsonRequest('POST', ROUND_START_PATH, { groupId, game: gameType, difficulty });
+  const ret = await signedJsonRequestTryOwners('POST', ROUND_START_PATH, { groupId, game: gameType, difficulty });
   if (ret.ok) {
     const roundId = (ret.data && ret.data.roundId) || '';
     if (roundId) saveRound(groupId, roundId, []);
@@ -388,7 +388,7 @@ function stashRoundResults(roundId, results) {
 export async function finishRound(roundId, results) {
   if (!roundId || !results) return;
   try {
-    const ret = await signedJsonRequest('POST', ROUND_FINISH_PATH, { roundId, results });
+    const ret = await signedJsonRequestTryOwners('POST', ROUND_FINISH_PATH, { roundId, results });
     if (ret.ok) {
       if (ret.data && ret.data.invalidCount > 0) {
         logger.mark(`[榴莲会员] 对局结算完成，异常条目 ${ret.data.invalidCount} 条: ${JSON.stringify(ret.data.invalidItems)}`);
@@ -443,7 +443,7 @@ export async function fetchRanking(top = 10, qq = '', game = '', period = '') {
   if (qq) qs += `&qq=${qq}`;
   if (game) qs += `&game=${game}`;
   if (period) qs += `&period=${period}&offset=${tzOffset()}`;
-  const ret = await signedJsonRequest('GET', `${RANKING_PATH}?${qs}`);
+  const ret = await signedJsonRequestTryOwners('GET', `${RANKING_PATH}?${qs}`);
   if (!ret.ok) {
     logger.mark(`[榴莲会员] 排名查询未通过: ${ret.errorCode}`);
     return null;
@@ -458,7 +458,7 @@ export async function fetchGroupRanking(top = 10, groupId = '', game = '', perio
   if (groupId) qs += `&groupId=${groupId}`;
   if (game) qs += `&game=${game}`;
   if (period) qs += `&period=${period}&offset=${tzOffset()}`;
-  const ret = await signedJsonRequest('GET', `${GROUP_RANKING_PATH}?${qs}`);
+  const ret = await signedJsonRequestTryOwners('GET', `${GROUP_RANKING_PATH}?${qs}`);
   if (!ret.ok) {
     logger.mark(`[榴莲会员] 群榜查询未通过: ${ret.errorCode}`);
     return null;

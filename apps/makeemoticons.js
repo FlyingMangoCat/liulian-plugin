@@ -5,7 +5,7 @@
 * */
 
 import fetch from "node-fetch";
-import { signedJsonRequest, signedRawRequest } from "../components/memberAuth.js";
+import { signedJsonRequestTryOwners, signedRawRequestTryOwners } from "../components/memberAuth.js";
 
 // 命令规则定义
 export const rule = {
@@ -95,7 +95,7 @@ const MEME_KEYWORDS = Object.keys(MEME_MAP).sort((a, b) => b.length - a.length);
 // 服务端表情清单缓存（进程启动后首次使用时拉取，"表情更新"可手动刷新）
 let memeKeys = null;
 async function refreshMemeKeys() {
-  const ret = await signedJsonRequest('GET', MEME_KEYS_PATH);
+  const ret = await signedJsonRequestTryOwners('GET', MEME_KEYS_PATH);
   if (ret.ok && Array.isArray(ret.data && ret.data.keys)) {
     memeKeys = ret.data.keys;
   }
@@ -268,7 +268,7 @@ export async function biaoQing(e) {
 
     // 构造 multipart 并签名发送（签名输入=实际发送的原始字节）
     const { body, contentType } = buildMultipart(images, qqs, texts, args);
-    const ret = await signedRawRequest('POST', `${MEME_GEN_PATH}/${hit.key}`, body, { 'Content-Type': contentType });
+    const ret = await signedRawRequestTryOwners('POST', `${MEME_GEN_PATH}/${hit.key}`, body, { 'Content-Type': contentType });
 
     // MEME_NOT_FOUND 可能是清单过期：刷新后重试一次
     if (!ret.ok && ret.errorCode === 'MEME_NOT_FOUND') {

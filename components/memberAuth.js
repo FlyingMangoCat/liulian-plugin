@@ -63,7 +63,7 @@ function getOwnerQqs() {
   const push = v => {
     if (v == null) return;
     const s = String(v).split(':').pop().trim();
-    // 只保留纯数字 QQ 号（5~12 位）：过滤 stdin 控制台、内部账号 ID 等非 QQ 条目
+    // 只保留纯数字 QQ 号（5~12 位）：过滤 stdin 控制台、TRSS 面板 ID 等非 QQ 条目
     if (/^\d{5,12}$/.test(s) && !out.includes(s)) out.push(s);
   };
   // 当前机器人账号（TRSS 为数组，V3 为单值）
@@ -72,26 +72,50 @@ function getOwnerQqs() {
     const u = liulianSafe?.uin;
     if (u != null) uins = (Array.isArray(u) ? u : [u]).map(String);
   } catch {}
-  try {
-    if (typeof Bot !== 'undefined' && Bot.cfg) {
-      const m = Bot.cfg.master;
-      if (m && typeof m === 'object') {
-        for (const [botId, list] of Object.entries(m)) {
-          if (uins.includes(String(botId))) (Array.isArray(list) ? list : [list]).forEach(push);
-        }
-        if (!out.length) {
-          const g = Bot.cfg.masterQQ;
-          (Array.isArray(g) ? g : (g ? [g] : [])).forEach(push);
-        }
+  // 条目收集："botId:主人QQ" 形式只收当前机器人名下的（其他 bot 的主人不属于本密钥
+  // 留档，混入签名头会被服务端按 QQ_MISMATCH 整单拒收）；裸 QQ 直接过位数过滤
+  const collect = v => {
+    if (v == null) return;
+    const list = Array.isArray(v) ? v : [v];
+    for (const item of list) {
+      if (item == null || typeof item === 'object') continue;
+      const s = String(item).trim();
+      const idx = s.indexOf(':');
+      if (idx > 0) {
+        if (uins.includes(s.slice(0, idx))) push(s.slice(idx + 1));
+      } else {
+        push(s);
       }
+    }
+  };
+  try {
+    if (typeof Bot !== 'undefined') {
+      // 注意：TRSS 下 Bot.cfg 可能不存在（新版 Bot 是 bots Proxy，无 cfg 属性），须判空
+      const cfgObj = Bot.cfg;
+      const m = cfgObj?.master;
+      if (m && typeof m === 'object' && !Array.isArray(m)) {
+        // 对象映射 {botId: [主人QQ]}
+        for (const [botId, list] of Object.entries(m)) {
+          if (uins.includes(String(botId))) collect(list);
+        }
+      } else {
+        // 数组/单值形式 ["botId:主人QQ", ...]
+        collect(m);
+      }
+      // other.yaml 原始配置：TRSS 主人列表的真实存放处（masterQQ 键下常只有 stdin/面板 ID）
+      const other = cfgObj?.getAllCfg?.('other');
+      collect(other?.master);
+      if (!out.length) collect(cfgObj?.masterQQ);
+      if (!out.length) collect(other?.masterQQ);
     }
   } catch (err) {
     logger.warn(`[榴莲会员] 读取运行时主人配置异常: ${err.message}`);
   }
-  if (out.length) return out;
-  // 兜底：V3 全局 BotConfig（bcommon 已做归一化）
-  const v3 = botConfig?.masterQQ;
-  (Array.isArray(v3) ? v3 : (v3 ? [v3] : [])).forEach(push);
+  if (!out.length) {
+    // 兜底：V3 全局 BotConfig（TRSS 无此全局，typeof 防引用错误）
+    const v3 = typeof BotConfig !== 'undefined' ? botConfig?.masterQQ : undefined;
+    collect(v3);
+  }
   // 已绑定却读不到主人才属异常，此时 dump 运行时原始值定位（只打一次防刷屏）；未绑定属正常状态不打印
   if (!out.length && getSecret() && !ownerEmptyDumped) {
     ownerEmptyDumped = true;
@@ -102,7 +126,7 @@ function getOwnerQqs() {
         hasCfg: typeof Bot !== 'undefined' ? !!Bot.cfg : false,
         master: typeof Bot !== 'undefined' && Bot.cfg ? Bot.cfg.master : undefined,
         masterQQ: typeof Bot !== 'undefined' && Bot.cfg ? Bot.cfg.masterQQ : undefined,
-        botConfigQQ: v3,
+        botConfigQQ: typeof BotConfig !== 'undefined' ? botConfig?.masterQQ : undefined,
       };
       logger.warn(`[榴莲会员] 主人列表为空，运行时原始值: ${JSON.stringify(dump)}`);
     } catch (err) {
@@ -110,6 +134,29 @@ function getOwnerQqs() {
     }
   }
   return out;
+}
+
+// 不带消息上下文的请求（开局/结算/榜单/表情等）：无法确定哪个主人在留档列表里，
+// 逐个候选 QQ 单独签名重试，QQ_MISMATCH 换下一个；每次请求只带一个 QQ，避免
+// 多个 QQ 混在签名头里被服务端整单拒收
+async function tryOwners(method, apiPath, send) {
+  const candidates = getOwnerQqs();
+  if (!candidates.length) return { ok: false, errorCode: 'NO_CREDENTIAL' };
+  let last = null;
+  for (const qq of candidates) {
+    last = await send(qq);
+    if (last.ok || last.errorCode !== 'QQ_MISMATCH') return last;
+    logger.mark(`[榴莲会员] 主人 QQ ${qq} 不在留档列表，换下一个候选重试`);
+  }
+  return last;
+}
+
+async function signedJsonRequestTryOwners(method, apiPath, bodyObj) {
+  return tryOwners(method, apiPath, qq => signedJsonRequest(method, apiPath, bodyObj, undefined, qq));
+}
+
+async function signedRawRequestTryOwners(method, apiPath, bodyBytes, extraHeaders = {}) {
+  return tryOwners(method, apiPath, qq => signedRawRequest(method, apiPath, bodyBytes, extraHeaders, qq));
 }
 
 // ============ HMAC 签名 ============
@@ -193,9 +240,9 @@ async function signedJsonRequest(method, apiPath, bodyObj, secretOverride, owner
 
 // 原始字节请求（multipart 等）：调用方构造好原始字节后签名发送，签名与发送用同一份
 // extraHeaders 用于覆盖 Content-Type（如 multipart 需自带 boundary）
-async function signedRawRequest(method, apiPath, bodyBytes, extraHeaders = {}) {
+async function signedRawRequest(method, apiPath, bodyBytes, extraHeaders = {}, ownerQqOverride) {
   const secret = getSecret();
-  const ownerQqs = getOwnerQqs();
+  const ownerQqs = ownerQqOverride ? [String(ownerQqOverride)] : getOwnerQqs();
   if (!secret || !ownerQqs.length) return { ok: false, errorCode: 'NO_CREDENTIAL' };
   return doRequest({ method, secret, ownerQqs, bodyBytes, extraHeaders }, API_BASE + apiPath);
 }
@@ -208,5 +255,7 @@ export {
   saveMember,
   buildHeaders,
   signedJsonRequest,
+  signedJsonRequestTryOwners,
   signedRawRequest,
+  signedRawRequestTryOwners,
 };
