@@ -37,7 +37,7 @@ async function fetchMembership(secretOverride, ownerQqOverride) {
 
 // 排名门槛：会员有效才给查（结果缓存 1 分钟）
 let memberOkCache = { ok: null, time: 0 };
-export async function checkMember() {
+export async function checkMember(ownerQq) {
   const now = Date.now();
   if (memberOkCache.ok !== null && now - memberOkCache.time < 60 * 1000) {
     return memberOkCache.ok;
@@ -47,7 +47,8 @@ export async function checkMember() {
     memberOkCache = { ok: false, time: now };
     return false;
   }
-  const ret = await fetchMembership();
+  // 与绑定同口径：调用方传入已通过 e.isMaster 判定的 QQ，不依赖运行时主人配置读取
+  const ret = await fetchMembership(undefined, ownerQq);
   memberOkCache = { ok: !!(ret.ok && ret.data && ret.data.isActive), time: now };
   return memberOkCache.ok;
 }
@@ -182,10 +183,11 @@ export async function memberStatus(e) {
     e.reply('尚未绑定榴莲会员，请私信发送 榴莲会员绑定 进行绑定~');
     return true;
   }
-  const ret = await fetchMembership();
+  // 与绑定同口径：e.isMaster 刚判定通过，直接用该 QQ 提交，不依赖运行时主人配置读取
+  const ret = await fetchMembership(undefined, String(e.user_id));
   if (!ret.ok) {
     // 真实原因只记日志供排查，用户侧只给友好提示
-    logger.mark(`[榴莲会员] 状态查询未通过: ${ret.errorCode || 'UNKNOWN'}`);
+    logger.mark(`[榴莲会员] 状态查询未通过: ${ret.errorCode || 'UNKNOWN'}，提交主人 QQ: ${e.user_id}`);
     const msgMap = {
       KEY_INVALID: '密钥已失效，请重新绑定',
       QQ_MISMATCH: '当前机器人与授权信息不符，请联系发放方核对',
