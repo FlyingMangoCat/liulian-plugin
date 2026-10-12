@@ -272,6 +272,8 @@ ${memoryContext}
             console.log('[AI模块] 处理消息，长度:', fullPrompt.length);
             
             // 注入双层上下文（远期摘要 + 近期目录 + 沉默/取阅规则），让核心模型看到会话脉络
+            // 注意：保留原始用户消息，记忆保存要用它而不是注入后的长文本
+            const userMessage = message;
             if (contextText) {
                 message = `${contextText}\n\n=========\n用户消息: ${message}`;
             }
@@ -286,8 +288,8 @@ ${memoryContext}
                 if (userId && DatabaseManager.isConnected && result.response) {
                     try {
                         await DatabaseManager.saveMemory(
-                            userId, 
-                            `用户:「${message.substring(0, 50)}${message.length > 50 ? '...' : ''}」`
+                            userId,
+                            `用户:「${userMessage.substring(0, 50)}${userMessage.length > 50 ? '...' : ''}」`
                         );
                     } catch (error) {
                         console.log('[AI模块] 保存记忆失败');
