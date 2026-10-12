@@ -150,13 +150,17 @@ export async function ai(e) {
   await new Promise(resolve => setTimeout(resolve, minDelay));
   
   console.log('[榴莲AI] 函数被调用，消息类型:', e.message ? e.message[0]?.type : 'text');
-  
+
   // 1. 基础检查
   if (e.user_id === e.self_id) {
     console.log('[榴莲AI] 忽略自身消息');
     return;
   }
-  
+
+  // 1.1 兜底收录：accept 机制若在当前框架未生效，凡到达本函数的消息补录一次
+  //     （record 内部有防重标记，accept 已收录时此处为空操作）
+  try { chatState.record(e); } catch {}
+
   // 2. 严格的命令消息检查 - 确保不抢任何指令
   const skipCommands = config.ai?.compatibility?.skip_command_messages !== false;
   if (skipCommands && isCommandMessage(e)) {

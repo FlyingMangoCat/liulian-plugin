@@ -92,8 +92,11 @@ function previewOf(rec) {
 }
 
 // 全量收录入口（由 LiulianV3.accept 的 check 规则调用，纯同步）
+// 防重：同一消息可能经 accept 和 ai() 兜底两条路进来，标记后只录一次
 export function record(e) {
   if (!e) return false;
+  if (e.__liulianRecorded) return null;
+  e.__liulianRecorded = true;
   if (String(e.user_id) === String(e.self_id)) return false; // 忽略自身
 
   const chatId = e.group_id ? `g${e.group_id}` : `p${e.user_id}`;
