@@ -74,7 +74,7 @@ function extractParts(e) {
       default: break;
     }
   }
-  return { parts, isAtMe, isAtOther, isMediaOnly: isMediaOnly && textLen === 0 && parts.some(p => p.kind === 'image' || p.kind === 'mface') };
+  return { parts, isAtMe, isAtOther, isMediaOnly: isMediaOnly && textLen === 0 && parts.some(p => p.kind === 'image' || p.kind === 'mface'), msgArr };
 }
 
 // 生成目录用预览（清洗版，截断）
@@ -112,7 +112,7 @@ export function record(e) {
   }
 
   const now = Date.now();
-  const { parts, isAtMe, isAtOther, isMediaOnly } = extractParts(e);
+  const { parts, isAtMe, isAtOther, isMediaOnly, msgArr } = extractParts(e);
   const rec = {
     id: st.nextId++,
     t: now,
@@ -243,15 +243,17 @@ function cooldownRemain(st) {
 
 // 决策结果：true=允许进入模型（强制回复或评分通过），false=跳过（零 token）
 export function shouldAutoReply(e) {
+  const isPrivate = !e.group_id;
+  // 私聊直通不依赖收录状态（收录可能因异常缺失，私聊不受门控约束）
+  if (isPrivate) return { ok: true, reason: 'private' };
+
   const chatId = e.group_id ? `g${e.group_id}` : `p${e.user_id}`;
   const st = chatStates.get(chatId);
   if (!st) return { ok: false, reason: 'no_state' };
 
-  const isPrivate = !e.group_id;
   const isAtMe = Array.isArray(e.message) && e.message.some(m => m.type === 'at' && String(m.qq) === String(e.self_id));
 
-  // 强制回复：私聊 / 被@（计入额度，防@刷屏）
-  if (isPrivate) return { ok: true, reason: 'private' };
+  // 被@强制回复（计入额度，防@刷屏）
   if (isAtMe) {
     st.forced.push(Date.now());
     return { ok: true, reason: 'at_me' };
