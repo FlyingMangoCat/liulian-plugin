@@ -167,7 +167,8 @@ export async function ai(e) {
   // 但要排除榴莲插件指令
   const message = e.msg || '';
   const trimmedMsg = message.trim();
-  if ((trimmedMsg.length <= 3 || /^[\W_]/.test(trimmedMsg)) && !/^#?(榴莲|留恋)/.test(trimmedMsg)) {
+  // 仅拦截以符号/标点开头的消息（\w 不含中文，必须显式排除中文字符）
+  if ((trimmedMsg.length <= 3 || /^[^\w\u4e00-\u9fa5]/.test(trimmedMsg)) && !/^#?(榴莲|留恋)/.test(trimmedMsg)) {
     console.log('[榴莲AI] 消息过短或包含特殊字符，跳过处理');
     return;
   }
@@ -175,21 +176,22 @@ export async function ai(e) {
   // 4. 确定消息类型和内容
   let messageType = 'text';
   let messageContent = '';
-  
+  let imageUrl = null;
+
   if (e.message && Array.isArray(e.message)) {
     // 检查消息类型
     const hasImage = e.message.some(m => m.type === 'image');
     const textMessages = e.message.filter(m => m.type === 'text');
-    
+
     if (hasImage) {
       messageType = 'image';
       console.log('[榴莲AI] 检测到图片消息');
-      
-      // 提取图片URL或描述
+
+      // 提取图片URL或描述（与文字分开保存，避免互相覆盖）
       const imageMsg = e.message.find(m => m.type === 'image');
-      messageContent = imageMsg.url || imageMsg.file || '[图片消息]';
+      imageUrl = imageMsg.url || imageMsg.file || null;
     }
-    
+
     // 提取文本内容
     if (textMessages.length > 0) {
       messageContent = textMessages.map(m => m.text).join(' ');
@@ -198,7 +200,13 @@ export async function ai(e) {
     // 普通文本消息
     messageContent = typeof e.msg === 'string' ? e.msg : String(e.msg);
   }
-  
+
+  // 图片消息必须有图片地址或文字说明之一，否则不处理
+  if (messageType === 'image' && !imageUrl && !messageContent) {
+    console.log('[榴莲AI] 图片消息缺少内容，不处理');
+    return;
+  }
+
   // 如果没有消息内容，不处理
   if (!messageContent && messageType !== 'image') {
     console.log('[榴莲AI] 消息内容为空，不处理');
@@ -215,7 +223,7 @@ export async function ai(e) {
   
   // 6. 处理消息并回复
   try {
-    const reply = await AIManager.generalChat(messageContent, messageType, e.user_id?.toString());
+    const reply = await AIManager.generalChat(messageContent, messageType, e.user_id?.toString(), imageUrl);
     if (reply) {
       console.log('[榴莲AI] 准备回复:', reply.substring(0, 50) + '...');
       // 使用分段回复

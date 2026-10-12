@@ -31,9 +31,12 @@ export default class ApiProvider {
     }
 
     async generateWithImage(model, prompt, image, options = {}) {
+        // image 兼容 http(s) URL 与 base64 两种形式
+        const isUrl = typeof image === 'string' && /^https?:\/\//.test(image);
+        const imageUrl = isUrl ? image : `data:image/png;base64,${image}`;
         const content = [
             { type: 'text', text: prompt },
-            { type: 'image_url', image_url: { url: `data:image/png;base64,${image}` } }
+            { type: 'image_url', image_url: { url: imageUrl } }
         ];
         return this.chat(model, [{ role: 'user', content }], options);
     }

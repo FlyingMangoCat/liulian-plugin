@@ -182,7 +182,7 @@ class AIManager {
     }
 
 // 统一消息处理方法
-    static async processMessage(message, messageType = 'text', userId = null) {
+    static async processMessage(message, messageType = 'text', userId = null, imageUrl = null) {
         // 检查服务可用性
         if (!this.isAIAvailable()) {
             return {
@@ -197,11 +197,12 @@ class AIManager {
                 await moodSystem.updateUserMood(userId, message);
             }
 
-            // 获取用户记忆
+            // 获取用户记忆（memories 声明提到 try 外，避免下方引用时跨作用域报错）
             let memoryContext = '';
+            let memories = [];
             if (userId && DatabaseManager.isConnected) {
                 try {
-                    const memories = await DatabaseManager.getMemories(userId);
+                    memories = await DatabaseManager.getMemories(userId);
                     if (memories.length > 0) {
                         memoryContext = `【记忆】${memories.join('; ')}\n\n`;
                     }
@@ -230,12 +231,12 @@ class AIManager {
                 }
             }
 
-            // 特殊处理图片消息
+            // 特殊处理图片消息（imageUrl 为图片地址，message 为用户文字说明）
             let imageAnalysis = '';
             if (messageType === 'image') {
                 try {
-                    imageAnalysis = await this.processImageMessage(message);
-                    message = `图片内容: ${imageAnalysis}\n用户附加说明: ${message}`;
+                    imageAnalysis = await this.processImageMessage(imageUrl, message);
+                    message = `${imageAnalysis ? `图片内容: ${imageAnalysis}\n` : ''}用户附加说明: ${message || '（无文字）'}`;
                 } catch (error) {
                     console.error('[AI模块] 图片处理失败:', error);
                 }
@@ -291,8 +292,8 @@ ${memoryContext}
     
     
     // 通用聊天方法 - 根据模式返回不同格式
-    static async generalChat(message, messageType = 'text', userId = null) {
-        const result = await this.processMessage(message, messageType, userId);
+    static async generalChat(message, messageType = 'text', userId = null, imageUrl = null) {
+        const result = await this.processMessage(message, messageType, userId, imageUrl);
         
         // 中间件模式返回原始数据
         if (isMiddlewareMode) {
@@ -307,10 +308,13 @@ ${memoryContext}
         }
     }
     
-    // 处理图片消息
-    static async processImageMessage(imageDescription) {
+    // 处理图片消息（image 为图片 URL 或 base64，description 为用户文字说明）
+    static async processImageMessage(image, description = '') {
         try {
-            const analysis = await modelRouter.processImage(imageDescription);
+            if (!image) {
+                return "";
+            }
+            const analysis = await modelRouter.processImage(description, image);
             return analysis.response || "图片分析完成";
         } catch (error) {
             console.error('[AI模块] 图片处理失败:', error);
