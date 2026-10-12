@@ -4,6 +4,7 @@
 import { AIManager } from '#liulian.ai';
 import config from '#liulian.config';
 import { Cfg } from '#liulian'
+import * as chatState from '#liulian.chatState';
 
 // 延迟初始化函数
 async function ensureInitialized() {
@@ -192,6 +193,14 @@ export async function ai(e) {
       imageUrl = imageMsg.url || imageMsg.file || null;
     }
 
+    // 表情包（mface 有图）也走视觉模型前置转文字
+    const mfaceMsg = e.message.find(m => m.type === 'mface' && (m.url || m.file));
+    if (mfaceMsg && !imageUrl) {
+      messageType = 'image';
+      imageUrl = mfaceMsg.url || mfaceMsg.file;
+      console.log('[榴莲AI] 检测到表情包消息');
+    }
+
     // 提取文本内容
     if (textMessages.length > 0) {
       messageContent = textMessages.map(m => m.text).join(' ');
@@ -213,7 +222,8 @@ export async function ai(e) {
     return;
   }
   
-  // 5. 概率检查
+  // 5. 决策检查（服务可用/黑名单/触发名由 shouldReply 处理，
+  //    群聊主动回复由评分+额度门控+空闲退避决定，替代固定概率掷骰子）
   if (!AIManager.shouldReply(e)) {
     console.log('[榴莲AI] 不满足回复条件，不处理');
     return;
@@ -221,14 +231,43 @@ export async function ai(e) {
   
   console.log('[榴莲AI] 满足回复条件，继续处理');
   
-  // 6. 处理消息并回复
+  // 6. 处理消息并回复（带上双层上下文：远期摘要 + 近期原文目录）
+  const contextText = chatState.buildContextBlock(e);
+  const chatId = e.group_id ? `g${e.group_id}` : `p${e.user_id}`;
   try {
-    const reply = await AIManager.generalChat(messageContent, messageType, e.user_id?.toString(), imageUrl);
+    let reply = await AIManager.generalChat(messageContent, messageType, e.user_id?.toString(), imageUrl, contextText);
+
+    // 取阅循环：模型要求查看某条原文时，补拉一次再给一次正式回复机会（最多一轮）
+    const lookMatch = typeof reply === 'string' ? reply.match(/^\[?查看\s*#(\d+)\]?$/) : null;
+    if (lookMatch) {
+      console.log('[榴莲AI] 模型要求查看消息 #' + lookMatch[1]);
+      const content = await chatState.fetchMsgContent(chatId, lookMatch[1]);
+      if (content) {
+        const contextText2 = `${contextText}\n\n【你要求查看的原文】\n${content}\n（已查看，现在必须给出正式回复，或回复 [沉默]）`;
+        reply = await AIManager.generalChat(messageContent, messageType, e.user_id?.toString(), imageUrl, contextText2);
+      }
+    }
+
     if (reply) {
-      console.log('[榴莲AI] 准备回复:', reply.substring(0, 50) + '...');
+      // 模型主动选择沉默：不发送，计入空闲退避
+      if (/^\[?沉默\]?$/.test(String(reply).trim())) {
+        console.log('[榴莲AI] 模型判断此刻不接话，保持沉默');
+        chatState.markSilent(e);
+        return;
+      }
+      // 清理残留的取阅标记（正常不应出现，双保险）
+      const cleanReply = String(reply).replace(/\[查看\s*#\d+\]/g, '').trim();
+      if (!cleanReply) {
+        console.log('[榴莲AI] 回复清理后为空，不发送');
+        return;
+      }
+      console.log('[榴莲AI] 准备回复:', cleanReply.substring(0, 50) + '...');
       // 使用分段回复
-      await AIManager.splitReply(e, reply);
+      await AIManager.splitReply(e, cleanReply);
       console.log('[榴莲AI] 回复发送成功');
+      // 真实回复：重置退避 + 记入额度反馈 + 触发后台摘要
+      chatState.markReplied(e);
+      chatState.maybeSummarize(e);
     } else {
       console.log('[榴莲AI] 未获得有效回复');
     }

@@ -56,6 +56,20 @@ export const config = {
       always_respond_to_mentions: true, // 被@时总是回复
       always_respond_in_private: true // 私聊总是回复
     },
+    // 决策参数（评分触发 + 额度门控 + 空闲退避，替代固定概率掷骰子）
+    decision: {
+      window_sec: 300,               // 消息滑窗长度（秒），特征统计范围
+      virtual_turn_sec: 40,          // 虚拟轮次长度（秒），额度门控的评分采样粒度
+      target_replies_per_10min: 3,   // 主动回复目标频率（次/10分钟，不含@等强制回复）
+      static_threshold: 0.35,        // 样本不足时的兜底概率阈值
+      backoff_base_sec: 60,          // 空闲退避基础冷却（秒）
+      backoff_cap_sec: 1800,         // 空闲退避冷却上限（秒）
+      backoff_start_count: 2,        // 连续沉默几次后开始退避
+      bypass_pending: 8,             // 近1分钟积压消息达到此数时绕过冷却
+      summary_min_msgs: 20,          // 积累多少条未摘要消息才触发一次后台总结
+      digest_recent: 10,             // 上下文目录收录最近多少条原文
+      preview_len: 20                // 目录里每条消息的预览截断长度
+    },
     // 回复设置
     reply: {
       max_length: 200, // 单条消息最大长度

@@ -364,11 +364,13 @@ const aiEnabled = Cfg.get('ai.enabled', false);
 // 动态导入AI模块，只有启用时才导入
 let ai = null;
 let ai_reset_memory = null;
+let chatState = null;
 if (aiEnabled) {
   try {
     const aiModule = await import('./ai.js');
     ai = aiModule.ai;
     ai_reset_memory = aiModule.ai_reset_memory;
+    chatState = await import('#liulian.chatState');
   } catch (error) {
     console.error('[AI模块] 导入失败:', error);
   }
@@ -1481,6 +1483,16 @@ yl21: {
 
 // 只有当 AI 服务启用时才注册 AI 相关规则
 if (aiEnabled) {
+  // 全量消息收录器：reg 为空 + check 字段 → 通过 accept 机制对每条消息触发，
+  // 只收录不消费（永远返回 false），不影响其他插件处理
+  rule.ai_record = {
+    reg: "",
+    check: (e) => {
+      try { chatState.record(e); } catch (err) { console.error('[榴莲AI] 收录失败:', err.message); }
+      return false;
+    },
+    describe: "AI消息收录（不可调用）"
+  };
   rule.ai = {
     reg: "(.*)", // 匹配所有消息
     priority: 99999, // 极低优先级，确保所有其他指令优先处理

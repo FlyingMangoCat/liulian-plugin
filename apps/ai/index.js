@@ -4,6 +4,7 @@ import DatabaseManager from './core/database.js';
 import moodSystem from './core/moodSystem.js';
 import config from '#liulian.config';
 import { Cfg } from '#liulian';
+import * as chatState from '#liulian.chatState';
 
 // 环境检测
 const isMiddlewareMode = process.env.LIULIAN_MODE === 'middleware';
@@ -61,6 +62,25 @@ async function initializeServices() {
           console.error('[AI模块] 情绪处理失败:', error);
         }
       }, 60000);
+
+      // 注入决策模块的处理器：远期摘要走通用模型，图片/表情包描述走视觉模型前置
+      chatState.setProcessors({
+        summarize: async (text) => {
+          try {
+            const r = await modelRouter.processMessage(
+              `请把以下群聊记录压缩成150字以内的摘要，保留话题、人物关系和未决问题，去掉寒暄，只输出摘要本身：\n${text}`,
+              'text', null
+            );
+            return r.success ? r.response : '';
+          } catch { return ''; }
+        },
+        describeImage: async (url, hint) => {
+          try {
+            const r = await modelRouter.processImage(hint || '', url);
+            return r.success ? r.response : '';
+          } catch { return ''; }
+        }
+      });
     } else {
       console.log('[AI模块] AI功能已关闭，跳过相关组件加载');
     }
@@ -161,28 +181,26 @@ class AIManager {
             }
         }
         
-        // 呼叫名字时总是回复
+        // 呼叫名字时总是回复（计入额度，防刷屏）
         if (messageContent) {
             const calledByName = safeConfig.triggers.names.some(name => 
                 messageContent.includes(name)
             );
             if (calledByName) {
                 console.log('[AI模块] 被叫到名字，总是回复');
+                try { chatState.markForced(e); } catch {}
                 return true;
             }
         }
         
-        // 其他情况按概率回复
-        const probability = e.isPrivate 
-            ? safeConfig.probability.private 
-            : safeConfig.probability.group;
-        const shouldReply = Math.random() * 100 <= probability;
-        console.log('[AI模块] 概率检查:', {isPrivate: e.isPrivate, probability, shouldReply});
-        return shouldReply;
+        // 其他情况：评分 + 额度门控 + 空闲退避（chatState，零 token 本地决策）
+        const decision = chatState.shouldAutoReply(e);
+        console.log('[AI模块] 决策结果:', JSON.stringify(decision));
+        return !!decision.ok;
     }
 
 // 统一消息处理方法
-    static async processMessage(message, messageType = 'text', userId = null, imageUrl = null) {
+    static async processMessage(message, messageType = 'text', userId = null, imageUrl = null, contextText = null) {
         // 检查服务可用性
         if (!this.isAIAvailable()) {
             return {
@@ -253,6 +271,11 @@ ${memoryContext}
 
             console.log('[AI模块] 处理消息，长度:', fullPrompt.length);
             
+            // 注入双层上下文（远期摘要 + 近期目录 + 沉默/取阅规则），让核心模型看到会话脉络
+            if (contextText) {
+                message = `${contextText}\n\n=========\n用户消息: ${message}`;
+            }
+
             // 调用模型路由器
             const result = await modelRouter.processMessage(message, messageType, {
                 memories: memoryContext ? memories : []
@@ -292,8 +315,8 @@ ${memoryContext}
     
     
     // 通用聊天方法 - 根据模式返回不同格式
-    static async generalChat(message, messageType = 'text', userId = null, imageUrl = null) {
-        const result = await this.processMessage(message, messageType, userId, imageUrl);
+    static async generalChat(message, messageType = 'text', userId = null, imageUrl = null, contextText = null) {
+        const result = await this.processMessage(message, messageType, userId, imageUrl, contextText);
         
         // 中间件模式返回原始数据
         if (isMiddlewareMode) {
