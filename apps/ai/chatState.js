@@ -2,7 +2,6 @@
 // 全量收录（accept 调用，纯同步）→ 逻辑回归评分 → 额度门控（只收紧不放宽）→ 空闲退避
 // 另含双层上下文（远期摘要 + 近期原文目录）与 [查看 #N] 取阅支持
 import config from '#liulian.config';
-import { Cfg } from '#liulian';
 
 // 每个会话（群/私聊）一份状态
 const chatStates = new Map();
@@ -94,15 +93,14 @@ function previewOf(rec) {
 
 // 全量收录入口（由 LiulianV3.accept 的 check 规则调用，纯同步）
 export function record(e) {
-  if (!CfgAiEnabled()) return false;
-  if (!e || e.user_id === e.self_id === undefined) return false;
+  if (!e) return false;
   if (String(e.user_id) === String(e.self_id)) return false; // 忽略自身
 
   const chatId = e.group_id ? `g${e.group_id}` : `p${e.user_id}`;
   let st = chatStates.get(chatId);
   if (!st) {
     st = {
-      chatId, isGroup: !!e.group_id,
+      chatId, isGroup: !!e.group_id, selfId: String(e.self_id),
       msgs: [], nextId: 1,
       lastReplyAt: 0,        // bot 上次真实发言时间
       idleCount: 0,          // 连续沉默周期数（空闲退避）
@@ -128,12 +126,6 @@ export function record(e) {
   return rec;
 }
 
-function CfgAiEnabled() {
-  try {
-    return Cfg ? Cfg.get('liulian.ai.enabled', false) : true;
-  } catch { return true; }
-}
-
 // 滑窗：清理过过期消息
 function trimWindow(st) {
   const win = getWindowSec() * 1000;
@@ -146,10 +138,10 @@ function trimWindow(st) {
 
 // ==================== 评分（逻辑回归，权重来自 MaiBot 离线拟合） ====================
 
-export function buildFeatures(st) {
+export function buildFeatures(st, msgs) {
   trimWindow(st);
   const now = Date.now();
-  const recent = st.msgs;
+  const recent = msgs || st.msgs;
   const winSec = getWindowSec();
   const silenceSec = st.lastReplyAt ? (now - st.lastReplyAt) / 1000 : winSec;
   const pending = recent.filter(m => now - m.t < 60000).length;
@@ -167,8 +159,8 @@ export function buildFeatures(st) {
 }
 
 // 逻辑回归：MaiBot reply_likelihood.py 的权重直接作先验
-export function estimateReplyProbability(st) {
-  const f = buildFeatures(st);
+export function estimateReplyProbability(st, msgs) {
+  const f = buildFeatures(st, msgs);
   const logit = -1.2005
     + 1.5852 * f.atMe
     - 1.1157 * f.atOther
