@@ -36,6 +36,10 @@ export const helpList = [{
     title: "取消B站推送+B站用户UID",
     desc: "取消订阅B站用户"
   }, {
+    icon: 97,
+    title: "B站推送列表",
+    desc: "查看当前订阅的B站用户"
+  }, {
     icon: 71,
     title: "开启B站转发推送",
     desc: "嘶，转发也要推送的嘛"
@@ -43,7 +47,7 @@ export const helpList = [{
     icon: 10,
     title: "关闭B站转发推送",
     desc: "好滴，这就关闭"
-  },{
+  }, {
       icon: 72,
       title: "刷新B站推送列表",
       desc: "同步最新的默认用户列表"
@@ -52,25 +56,13 @@ export const helpList = [{
   group: "其他指令/功能",
   list: [{
     icon: 95,
-    title: "订阅B站推送+B站用户UID",
-    desc: "订阅B站用户"
-  }, {
-    icon: 96,
-    title: "取消B站推送+B站用户UID",
-    desc: "取消订阅B站用户"
-  }, {
-    icon: 95,
     title: "B站扫码登录",
     desc: "扫码登录获取Cookie(仅主人)"
   }, {
-    icon: 97,
-    title: "B站推送列表",
-    desc: "查看当前订阅的B站用户"
-  },{
     icon: 74,
     title: "设置B站推送默认",
     desc: "默认推送文字+图片+链接"
-  },{
+  }, {
     icon: 30,
       title: "设置B站推送合并",
       desc: "合并为消息合并转发"
@@ -104,15 +96,15 @@ export const helpList = [{
     icon: 73,
     title: "B站推送时间+时间(单位分钟)",
     desc: "默认10分钟推送一次"
-  },{
+  }, {
     icon: 91,
     title: "B站推送过期时间+时间(单位小时)",
     desc: "默认1小时"
-  },{
+  }, {
     icon: 66,
     title: "开启/关闭群B站推送+群号",
     desc: "开启/关闭指定群B站推送"
-  },{
+  }, {
     icon: 29,
     title: "B站推送群列表",
     desc: "查看当前各群B站推送状态"
