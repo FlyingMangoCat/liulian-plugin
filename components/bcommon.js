@@ -35,14 +35,16 @@ if (isV3) {
   };
 } else {
   // 非 V3：优先 TRSS 运行时 Bot.cfg（实时生效），BotConfig 作兜底
+  // BotConfig 在部分环境（TRSS）不是全局变量，必须先 typeof 防引用错误
+  const safeBotConfig = () => (typeof BotConfig !== 'undefined' ? BotConfig : undefined);
   config = {
     get other() {
-      if (typeof Bot !== 'undefined' && Bot.cfg) return Bot.cfg.getAllCfg?.("other") ?? BotConfig?.other ?? {};
-      return BotConfig?.other ?? {};
+      if (typeof Bot !== 'undefined' && Bot.cfg) return Bot.cfg.getAllCfg?.("other") ?? safeBotConfig()?.other ?? {};
+      return safeBotConfig()?.other ?? {};
     },
     get group() {
-      if (typeof Bot !== 'undefined' && Bot.cfg) return Bot.cfg.getAllCfg?.("group") ?? BotConfig?.group ?? {};
-      return BotConfig?.group ?? {};
+      if (typeof Bot !== 'undefined' && Bot.cfg) return Bot.cfg.getAllCfg?.("group") ?? safeBotConfig()?.group ?? {};
+      return safeBotConfig()?.group ?? {};
     },
     get masterQQ() {
       // TRSS：Bot.cfg.master = { bot_id: [主人QQ] }，条目形如 "bot_id:主人QQ"，取冒号后的 QQ
@@ -64,7 +66,7 @@ if (isV3) {
           if (out.length) return out;
         }
       } catch {}
-      const mq = BotConfig?.masterQQ;
+      const mq = safeBotConfig()?.masterQQ;
       if (mq == null) return [];
       return Array.isArray(mq) ? mq : [mq];
     },

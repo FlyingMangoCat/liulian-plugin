@@ -94,28 +94,33 @@ function getOwnerQqs() {
       const cfgObj = Bot.cfg;
       const m = cfgObj?.master;
       if (m && typeof m === 'object' && !Array.isArray(m)) {
-        // 对象映射 {botId: [主人QQ]}
+        // TRSS 对象映射 {botId: [主人QQ]}：优先取本机 bot 名下的；
+        // uin 匹配不上时收全部而不是清零（适配 TRSS 不挤掉原有可用来源）
+        const own = [];
+        const all = [];
         for (const [botId, list] of Object.entries(m)) {
-          if (uins.includes(String(botId))) collect(list);
+          const items = (Array.isArray(list) ? list : [list])
+            .map(v => String(v).split(':').pop().trim());
+          all.push(...items);
+          if (uins.includes(String(botId))) own.push(...items);
         }
+        (own.length ? own : all).forEach(push);
       } else {
-        // 数组/单值形式 ["botId:主人QQ", ...]
+        // 数组/单值形式：TRSS 的 ["botId:主人QQ", ...] 或普通 V3 的裸 QQ 数组
         collect(m);
       }
       // other.yaml 原始配置：TRSS 主人列表的真实存放处（masterQQ 键下常只有 stdin/面板 ID）
       const other = cfgObj?.getAllCfg?.('other');
       collect(other?.master);
-      if (!out.length) collect(cfgObj?.masterQQ);
-      if (!out.length) collect(other?.masterQQ);
+      collect(cfgObj?.masterQQ);
+      collect(other?.masterQQ);
     }
   } catch (err) {
     logger.warn(`[榴莲会员] 读取运行时主人配置异常: ${err.message}`);
   }
-  if (!out.length) {
-    // 兜底：V3 全局 BotConfig（TRSS 无此全局，typeof 防引用错误）
-    const v3 = typeof BotConfig !== 'undefined' ? botConfig?.masterQQ : undefined;
-    collect(v3);
-  }
+  // 兜底：bcommon 的 botConfig（V3 直读 other.yaml 的 masterQQ；TRSS 走 Bot.cfg/BotConfig），两种环境通用。
+  // 注意是 import 的小写 botConfig，之前误写成判断全局 BotConfig 导致普通环境兜底永不生效
+  collect(botConfig?.masterQQ);
   // 已绑定却读不到主人才属异常，此时 dump 运行时原始值定位（只打一次防刷屏）；未绑定属正常状态不打印
   if (!out.length && getSecret() && !ownerEmptyDumped) {
     ownerEmptyDumped = true;
