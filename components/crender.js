@@ -126,7 +126,7 @@ async function doRender (app, type, data, imgType, renderCfg) {
     const page = await browser.newPage();
     await page.goto("file://" + savePath);
     await page.waitForSelector("#container")
-    await page.waitForTimeout(100)
+    await new Promise(resolve => setTimeout(resolve, 100))
     let body = await page.$("#container");
     let randData = {
       type: imgType,
@@ -185,6 +185,22 @@ if(imgType == "png"){
   return base64;
 }
 
+// 复用框架 renderers/puppeteer 的启动配置（chromiumPath/args），与框架渲染器保持一致；
+// 读不到配置文件时返回 null，走下方兜底 args
+async function getFrameworkLaunchCfg () {
+  try {
+    const cfgFile = `${_path}/renderers/puppeteer/config.yaml`;
+    if (!fs.existsSync(cfgFile)) {
+      return null;
+    }
+    const YAML = await import("yaml");
+    return YAML.parse(fs.readFileSync(cfgFile, "utf8")) ?? null;
+  } catch (e) {
+    logger.warn(`读取框架 puppeteer 配置失败: ${e.message}`);
+    return null;
+  }
+}
+
 async function browserInit () {
   if (browser) {
     return browser;
@@ -194,12 +210,15 @@ async function browserInit () {
   }
   lock = true;
   logger.mark("puppeteer 启动中。。");
+  const fwCfg = await getFrameworkLaunchCfg();
   //初始化puppeteer
   browser = await puppeteer
     .launch({
+      // 框架配置了 chromiumPath（如系统 chromium/edge）时优先使用
+      ...(fwCfg?.chromiumPath ? { executablePath: fwCfg.chromiumPath } : {}),
       // executablePath:'',//chromium其他路径
       headless: global.debugView === "debug" ? false : true,
-      args: [
+      args: (fwCfg?.args?.length ? fwCfg.args : [
         "--disable-gpu",
         "--disable-dev-shm-usage",
         "--disable-setuid-sandbox",
@@ -207,7 +226,7 @@ async function browserInit () {
         "--no-sandbox",
         "--no-zygote",
         "--single-process",
-      ],
+      ]),
     })
     .catch((err) => {
       logger.error(err);
