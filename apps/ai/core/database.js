@@ -17,21 +17,29 @@ class DatabaseManager {
             await this.pgPool.query('SELECT 1');
             console.log('[Database] PostgreSQL连接成功');
             
-            // 连接Redis（远程连接）
-            this.redis = new Redis({
-                host: config.ai.database.redis.host,
-                port: config.ai.database.redis.port,
-                password: config.ai.database.redis.password,
-                keyPrefix: 'liulian:cache:',
-                ttl: config.ai.database.redis.ttl || 3600,
-                enableOfflineQueue: false,
-                ssl: config.ai.database.redis.ssl || false,
-                connectTimeout: config.ai.database.redis.connectTimeout || 10000,
-                lazyConnect: true, // 延迟连接，避免阻塞启动
-                retryDelayOnFailover: 100,
-                maxRetriesPerRequest: 3
-            });
-            
+            // Redis 优先复用 Yunzai 本体的连接（global.redis，框架已初始化，自动跟随本体的 host/密码配置）；
+            // 独立运行（中间件模式 node liulian.js）时本体不存在，回退到 config.ai.database.redis 单独建连
+            if (typeof global.redis !== 'undefined' && global.redis) {
+                this.redis = global.redis;
+                this.redisShared = true;
+                console.log('[Database] 复用 Yunzai 本体 Redis 连接');
+            } else {
+                this.redis = new Redis({
+                    host: config.ai.database.redis.host,
+                    port: config.ai.database.redis.port,
+                    password: config.ai.database.redis.password,
+                    ttl: config.ai.database.redis.ttl || 3600,
+                    enableOfflineQueue: false,
+                    ssl: config.ai.database.redis.ssl || false,
+                    connectTimeout: config.ai.database.redis.connectTimeout || 10000,
+                    lazyConnect: true, // 延迟连接，避免阻塞启动
+                    retryDelayOnFailover: 100,
+                    maxRetriesPerRequest: 3
+                });
+                this.redisShared = false;
+                console.log('[Database] 使用独立配置的 Redis 连接');
+            }
+
             await this.redis.ping();
             console.log('[Database] Redis缓存连接成功');
             
@@ -76,20 +84,25 @@ class DatabaseManager {
         console.log('[Database] 表初始化完成');
     }
 
+    // 缓存键统一前缀（共享本体连接时用前缀隔离，不污染本体键空间）
+    getCacheKey(key) {
+        return `liulian:cache:${key}`;
+    }
+
     // 保存记忆
     async saveMemory(userId, memoryText, memoryType = 'interaction') {
         if (!this.pgPool) return false;
-        
+
         try {
             const query = `
                 INSERT INTO user_memories (user_id, memory_text, memory_type)
                 VALUES ($1, $2, $3)
             `;
             await this.pgPool.query(query, [userId, memoryText, memoryType]);
-            
+
             // 使Redis中的相关缓存失效
             if (this.redis) {
-                await this.redis.del(`user:${userId}:memories`);
+                await this.redis.del(this.getCacheKey(`user:${userId}:memories`));
             }
             
             return true;
@@ -107,7 +120,7 @@ class DatabaseManager {
             // 先尝试从Redis缓存获取
             if (this.redis) {
                 try {
-                    const cached = await this.redis.get(`user:${userId}:memories`);
+                    const cached = await this.redis.get(this.getCacheKey(`user:${userId}:memories`));
                     if (cached) {
                         console.log('[Database] 从Redis缓存获取记忆');
                         return JSON.parse(cached);
@@ -131,7 +144,7 @@ class DatabaseManager {
             // 存入Redis缓存
             if (this.redis && memories.length > 0) {
                 this.redis.setex(
-                    `user:${userId}:memories`,
+                    this.getCacheKey(`user:${userId}:memories`),
                     config.ai.database.redis.ttl,
                     JSON.stringify(memories)
                 ).catch(err => {
@@ -155,9 +168,9 @@ class DatabaseManager {
             await this.pgPool.query(query, [userId]);
             
             if (this.redis) {
-                await this.redis.del(`user:${userId}:memories`);
+                await this.redis.del(this.getCacheKey(`user:${userId}:memories`));
             }
-            
+
             console.log(`[Database] 已重置用户 ${userId} 的记忆`);
             return true;
         } catch (error) {
@@ -265,12 +278,12 @@ class DatabaseManager {
         }
     }
 
-    // 关闭连接
+    // 关闭连接（共享的本体 Redis 由框架管理，这里不关）
     async disconnect() {
         if (this.pgPool) {
             await this.pgPool.end();
         }
-        if (this.redis) {
+        if (this.redis && !this.redisShared) {
             await this.redis.quit();
         }
         this.isConnected = false;
