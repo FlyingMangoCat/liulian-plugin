@@ -28,26 +28,13 @@ export const config = {
         vision: "" // 视觉模型
       }
     },
-    // 数据库配置（未配置真实服务时快速失败，不阻塞对话）
-    database: {
-      postgres: {
-        host: '127.0.0.1', // 本地地址，未配置服务时快速失败
-        port: 5432,           // 端口
-        user: 'liulian_user',
-        password: 'your_secure_password_here', // 改为实际密码
-        database: 'liulian_db',
-        max: 20,
-        idleTimeoutMillis: 30000,
-        ssl: false,
-        connectionTimeoutMillis: 1500
-      },
-      redis: {
-        host: '127.0.0.1', // 本地地址，未配置服务时快速失败
-        port: 6379,           // 端口
-        password: 'your_redis_password', // 改为实际密码
-        ttl: 3600,
-        ssl: false,
-        connectTimeout: 1500
+    // 记忆服务配置（记忆/好感度的存储与计算在自建后端服务，插件端只保留调用接口）
+    memory: {
+      mode: 'off', // off: 无记忆（无状态对话，默认）| cloud: 调用自建云端记忆服务
+      cloud: {
+        base_url: '', // 自建云端记忆服务地址
+        api_key: '',  // 服务密钥
+        timeout: 5000 // 单次请求超时（毫秒）
       }
     },
     // 触发配置

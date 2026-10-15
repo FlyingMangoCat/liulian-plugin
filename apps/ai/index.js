@@ -1,7 +1,6 @@
 import { ModelRouter } from './core/modelRouter.js';
 import serviceDetector from './core/serviceDetector.js';
-import DatabaseManager from './core/database.js';
-import moodSystem from './core/moodSystem.js';
+import memoryService from './core/memoryService.js';
 import config from '#liulian.config';
 import { Cfg } from '#liulian';
 import * as chatState from '#liulian.chatState';
@@ -38,30 +37,9 @@ async function initializeServices() {
         console.error('[AI模块] AI服务检测失败:', error);
       });
       
-      // 启动数据库连接（添加错误处理）
-      console.log('[AI模块] 初始化数据库连接');
-      DatabaseManager.connect().then(() => {
-        console.log('[AI模块] 数据库连接状态:', DatabaseManager.isConnected);
-        
-        // 初始化情绪系统
-        try {
-          moodSystem.initialize();
-        } catch (error) {
-          console.error('[AI模块] 情绪系统初始化失败:', error);
-        }
-      }).catch(error => {
-        console.error('[AI模块] 数据库连接失败:', error);
-        console.log('[AI模块] AI功能将在没有数据库的情况下运行');
-      });
-      
-      // 启动情绪处理定时任务（每分钟检查一次，添加错误处理）
-      setInterval(() => {
-        try {
-          moodSystem.processMoodEffects();
-        } catch (error) {
-          console.error('[AI模块] 情绪处理失败:', error);
-        }
-      }, 60000);
+      // 记忆服务无需本地连接，按 config.ai.memory 配置决定是否启用
+      const memStatus = memoryService.getStatus();
+      console.log(`[AI模块] 记忆服务模式: ${memStatus.mode}${memStatus.available ? '（可用）' : '（未启用）'}`);
 
       // 注入决策模块的处理器：远期摘要走通用模型，图片/表情包描述走视觉模型前置
       chatState.setProcessors({
@@ -210,17 +188,12 @@ class AIManager {
         }
         
         try {
-            // 更新用户情绪
-            if (userId) {
-                await moodSystem.updateUserMood(userId, message);
-            }
-
             // 获取用户记忆（memories 声明提到 try 外，避免下方引用时跨作用域报错）
             let memoryContext = '';
             let memories = [];
-            if (userId && DatabaseManager.isConnected) {
+            if (userId && memoryService.isEnabled()) {
                 try {
-                    memories = await DatabaseManager.getMemories(userId);
+                    memories = await memoryService.getMemories(userId);
                     if (memories.length > 0) {
                         memoryContext = `【记忆】${memories.join('; ')}\n\n`;
                     }
@@ -229,18 +202,11 @@ class AIManager {
                 }
             }
 
-            // 获取用户情绪和好感度
-            let moodContext = '';
+            // 获取用户好感度
             let resonanceContext = '';
-            if (userId && DatabaseManager.isConnected) {
+            if (userId && memoryService.isEnabled()) {
                 try {
-                    const userMood = await moodSystem.getUserMood(userId);
-                    const userResonance = await DatabaseManager.getUserResonance(userId);
-                    
-                    if (userMood && userMood.mood !== 'neutral') {
-                        moodContext = `【情绪状态】当前情绪：${userMood.mood}，强度：${userMood.intensity}\n`;
-                    }
-                    
+                    const userResonance = await memoryService.getUserResonance(userId);
                     if (userResonance && userResonance.level !== 'NEUTRAL') {
                         resonanceContext = `【关系状态】好感度等级：${userResonance.level}\n`;
                     }
@@ -263,7 +229,6 @@ class AIManager {
             // 构建完整提示词
             const fullPrompt = `${config.ai.system_prompt}
 
-${moodContext}
 ${resonanceContext}
 ${memoryContext}
 
@@ -285,9 +250,9 @@ ${memoryContext}
             
             if (result.success) {
                 // 保存交互到记忆
-                if (userId && DatabaseManager.isConnected && result.response) {
+                if (userId && memoryService.isEnabled() && result.response) {
                     try {
-                        await DatabaseManager.saveMemory(
+                        await memoryService.saveMemory(
                             userId,
                             `用户:「${userMessage.substring(0, 50)}${userMessage.length > 50 ? '...' : ''}」`
                         );
@@ -351,11 +316,9 @@ ${memoryContext}
     static async initializeServices() {
         console.log('[AI模块] 初始化服务...');
         
-        // 启动数据库连接
-        console.log('[AI模块] 初始化数据库连接');
-        DatabaseManager.connect().then(() => {
-            console.log('[AI模块] 数据库连接状态:', DatabaseManager.isConnected);
-        });
+        // 记忆服务无需本地连接，按 config.ai.memory 配置决定是否启用
+        const memStatus = memoryService.getStatus();
+        console.log(`[AI模块] 记忆服务模式: ${memStatus.mode}${memStatus.available ? '（可用）' : '（未启用）'}`);
         
         // 初始化AI服务检测
         const available = await serviceDetector.checkService();
@@ -437,12 +400,12 @@ ${memoryContext}
 
     // 重置用户记忆方法（管理员功能）
     static async resetUserMemory(userId) {
-        if (!DatabaseManager.isConnected) {
-            return "数据库未连接，无法重置记忆";
+        if (!memoryService.isEnabled()) {
+            return "记忆服务未启用，无法重置记忆";
         }
         
         try {
-            const success = await DatabaseManager.resetUserMemories(userId);
+            const success = await memoryService.resetUserMemories(userId);
             return success ? 
                 `✅ 已重置用户 ${userId} 的记忆` : 
                 `❌ 重置用户 ${userId} 的记忆失败`;

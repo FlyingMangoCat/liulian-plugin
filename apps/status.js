@@ -96,8 +96,8 @@ async function checkAPIStatus(url, method = 'GET') {
 export async function getMiddlewareStatus() {
     try {
         const { AIManager } = await import('./ai/index.js');
-        const { default: DatabaseManager } = await import('./ai/core/database.js');
-        const dbStatus = await DatabaseManager.healthCheck();
+        const { default: memoryService } = await import('./ai/core/memoryService.js');
+        const memStatus = memoryService.getStatus();
         
         return {
             mode: 'middleware',
@@ -106,9 +106,9 @@ export async function getMiddlewareStatus() {
             ai: {
                 available: AIManager.isAIAvailable()
             },
-            database: {
-                postgres: dbStatus.postgres.available ? '✅' : '❌',
-                redis: dbStatus.redis.available ? '✅' : '❌'
+            memory: {
+                mode: memStatus.mode,
+                available: memStatus.available ? '✅' : '❌'
             }
         };
     } catch (error) {
@@ -134,8 +134,8 @@ export async function liulian_status(e) {
     console.log('[状态模块] 收到状态检查请求');
 
     try {
-        // 动态导入数据库模块
-        const { default: DatabaseManager } = await import('./ai/core/database.js');
+        // 动态导入记忆服务
+        const { default: memoryService } = await import('./ai/core/memoryService.js');
 
         // 发送"正在检查"提示
         await e.reply("正在检查榴莲插件状态，请稍候...", true);
@@ -154,10 +154,9 @@ export async function liulian_status(e) {
             message += `AI服务: ❌ (已关闭)\n\n`;
         }
 
-        // 数据库状态
-        const dbStatus = await DatabaseManager.healthCheck();
-        message += `PostgreSQL: ${(dbStatus && dbStatus.postgres && dbStatus.postgres.available) ? '✅' : '❌'}\n`;
-        message += `Redis缓存: ${(dbStatus && dbStatus.redis && dbStatus.redis.available) ? '✅' : '❌'}\n\n`;
+        // 记忆服务状态
+        const memStatus = memoryService.getStatus();
+        message += `记忆服务: ${memStatus.available ? '✅ 云服务' : `❌（${memStatus.mode} 模式，未启用）`}\n\n`;
 
         // 外部API状态检查
         message += `外部API状态\n`;

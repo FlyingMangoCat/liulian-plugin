@@ -33,11 +33,6 @@ class LiulianMiddleware {
         this.modules = await this.loadApps();
         console.log(`✅ 共加载 ${this.modules.length} 个模块`);
         
-        // 初始化数据库
-        const { DatabaseManager } = await import('#liulian.core');
-        await DatabaseManager.connect();
-        console.log('✅ 数据库连接完成');
-        
         // 初始化AI服务
         const { AIManager } = await import('#liulian.ai');
         await AIManager.initializeServices();
@@ -154,11 +149,11 @@ class LiulianMiddleware {
         try {
             // 导入状态管理器
             const { AIManager } = await import('#liulian.ai');
-            const { DatabaseManager } = await import('#liulian.core');
+            const { memoryService } = await import('#liulian.core');
             
             // 获取AI服务状态
             const aiStatus = AIManager.getServiceStatus();
-            const dbStatus = await DatabaseManager.healthCheck();
+            const memStatus = memoryService.getStatus();
             
             const status = {
                 mode: 'middleware',
@@ -169,9 +164,9 @@ class LiulianMiddleware {
                     service: aiStatus.service ? '✅' : '❌',
                     models: aiStatus.models
                 },
-                database: {
-                    postgres: dbStatus.postgres.available ? '✅' : '❌',
-                    redis: dbStatus.redis.available ? '✅' : '❌'
+                memory: {
+                    mode: memStatus.mode,
+                    available: memStatus.available ? '✅' : '❌'
                 },
                 endpoints: {
                     chat: 'POST /api/chat',
