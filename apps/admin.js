@@ -1,5 +1,6 @@
 import fs from 'fs'
 import { Cfg, Common, liulianSafe } from '#liulian'
+import config from '#liulian.config'
 import lodash from 'lodash'
 import { exec } from 'child_process'
 
@@ -25,16 +26,8 @@ let cfgMap = {
   排名提示:'sys.guessRankHint',
 }
 let aiCfgMap = {
-  // 榴莲AI相关配置
+  // 仅运行时开关写入 Cfg 运行时配置；其余 AI 配置以 config/ai.js 为唯一真源，直接编辑该文件
   AI服务:'liulian.ai.enabled',
-  API地址:'liulian.api.endpoint',
-  API密钥:'liulian.api.key',
-  黑名单群组:'liulian.blacklist.groups',
-  AI概率:'liulian.ai.probability',
-  回复长度:'liulian.ai.reply_length',
-  管理员:'liulian.admin.users',
-  // 记忆系统配置
-  云端记忆:'liulian.memory.cloud',
 }
 let sysCfgReg = `^#榴莲设置\\s*(${lodash.keys(cfgMap).join('|')})?\\s*(.*)$`
 let aiCfgReg = `^#?(榴莲|留恋)(ai|AI|Ai|aI|智能|人工智能)\\s*(设置)?\\s*(${lodash.keys(aiCfgMap).join('|')})?\\s*(.*)$`
@@ -154,51 +147,9 @@ export async function sysCfg (e, { render }) {
 }
 
 export async function aiCfg (e, { render }) {
-  const { EnvironmentDetector, sessionManager } = await import('./ai/core/envDetector.js');
-
   if (!e.isMaster) {
     e.reply('只有主人才能命令榴莲哦~')
     return true
-  }
-
-  // 处理Python环境配置的确认回复
-  if (sessionManager.has(e.user_id)) {
-    const session = sessionManager.get(e.user_id);
-    
-    if (session.type === 'python_setup') {
-      // 处理用户对Python环境配置的确认
-      if (e.msg === '确定' || e.msg === '是') {
-        // 用户确认，开始配置Python环境
-        e.reply('正在配置Python环境，请稍候...\n' +
-               '这可能需要几分钟时间，期间请耐心等待...\n\n' +
-               '💡 提示：配置过程会下载约50MB的数据，请确保网络连接正常');
-        
-        const detector = new EnvironmentDetector();
-        const progress = (message) => {
-          e.reply(message);
-        };
-        
-        const success = await detector.setupPythonEnv(progress);
-        
-        if (success) {
-          // 配置成功，重新开启AI功能
-          Cfg.set('liulian.ai.enabled', true);
-          e.reply('✅ Python环境配置成功！AI功能已开启。\n💡 提示：请重启机器人以便加载AI相关数据和组件');
-        } else {
-          e.reply('❌ Python环境配置失败，请手动配置后重试。\n\n' +
-                 '💡 提示：您可以手动安装Python 3.8或更高版本，然后再次尝试开启AI功能。');
-        }
-        
-        // 清除会话
-        sessionManager.clear(e.user_id);
-        return true;
-      } else if (e.msg === '取消' || e.msg === '否') {
-        // 用户取消
-        e.reply('已取消配置Python环境。\nAI功能保持关闭状态。');
-        sessionManager.clear(e.user_id);
-        return true;
-      }
-    }
   }
 
   let cfgReg = new RegExp(aiCfgReg)
@@ -209,87 +160,29 @@ export async function aiCfg (e, { render }) {
   }
 
   if (regRet[4]) {
-    // 设置模式
+    // 设置模式：仅 AI服务 开关可设置（运行时配置），其余 AI 配置编辑 config/ai.js
     let val = regRet[5] || ''
-
     let cfgKey = aiCfgMap[regRet[4]]
-    if(cfgKey === "liulian.ai.probability"){
-      val= Math.min(100,Math.max(val,0));
-    } else if(cfgKey === "liulian.ai.reply_length"){
-      val= Math.min(500,Math.max(val,50));
-    } else if(cfgKey === "liulian.blacklist.groups"){
-      // 处理黑名单群组，支持逗号分隔的多个群号
-      if (val.includes(',')) {
-        val = val.split(',').map(id => id.trim()).filter(id => id);
-      } else if (val) {
-        val = [val.trim()];
-      } else {
-        val = [];
-      }
-    } else if(cfgKey === "liulian.admin.users"){
-      // 处理管理员用户，支持逗号分隔的多个用户ID
-      if (val.includes(',')) {
-        val = val.split(',').map(id => id.trim()).filter(id => id);
-      } else if (val) {
-        val = [val.trim()];
-      } else {
-        val = [];
-      }
-    } else {
-      val = !/关闭/.test(val)
-    }
 
     if (cfgKey) {
-      const oldValue = Cfg.get(cfgKey);
-      Cfg.set(cfgKey, val);
-      
-      // 如果是AI开关设置，添加环境检测和重启提示
-      if (cfgKey === 'liulian.ai.enabled' && oldValue !== val) {
-        if (val) {
-          // 开启AI功能前检测Python环境
-          const detector = new EnvironmentDetector();
-          const hasPython = await detector.detectPython();
-          
-          if (!hasPython) {
-            // 没有Python环境，提示用户是否自动配置
-            const userId = e.user_id;
-            sessionManager.create(userId, 'python_setup', {
-              cfgKey,
-              newValue: val
-            });
-            
-            e.reply('检测到未安装Python环境，是否自动配置？\n' +
-                   '回复【确定】开始配置，回复【取消】放弃。\n' +
-                   '（30秒内有效）\n\n' +
-                   '💡 提示：配置过程可能需要几分钟，期间请耐心等待...');
-            
-            // 回滚设置，等待用户确认后再开启
-            Cfg.set(cfgKey, oldValue);
-            return true;
-          }
-          
-          // 已有Python环境，直接开启
-          e.reply('✅ AI功能已开启\n💡 提示：请重启机器人以便加载AI相关数据和组件');
-        } else {
-          e.reply('❌ AI功能已关闭\n💡 提示：AI相关组件将不再加载，节省系统资源');
-        }
+      Cfg.set(cfgKey, !/关闭/.test(val));
+      if (!/关闭/.test(val)) {
+        e.reply('✅ AI功能已开启\n💡 提示：请重启机器人以便加载AI相关组件');
+      } else {
+        e.reply('❌ AI功能已关闭\n💡 提示：AI相关组件将不再加载，节省系统资源');
       }
     }
   }
 
   let cfg = {
-    // 榴莲AI配置显示
+    // 面板展示：运行时开关读 Cfg，其余读 config/ai.js（唯一真源）
     aiEnabled: getStatus('liulian.ai.enabled', false),
-    apiEndpoint: Cfg.get('liulian.api.endpoint', 'https://api.liulian.ai/v1'),
-    apiKey: Cfg.get('liulian.api.key', '') ? '已设置' : '未设置',
-    blacklistGroups: Cfg.get('liulian.blacklist.groups', []).length > 0 ?
-      `${Cfg.get('liulian.blacklist.groups', []).length}个群组` : '无',
-    aiProbability: Cfg.get('liulian.ai.probability', 40),
-    replyLength: Cfg.get('liulian.ai.reply_length', 120),
-    adminUsers: Cfg.get('liulian.admin.users', []).length > 0 ?
-      `${Cfg.get('liulian.admin.users', []).length}个管理员` : '无',
-    // 记忆系统配置显示
-    cloudMemory: getStatus('liulian.memory.cloud', false),
+    apiEndpoint: config.ai?.api?.base_url || '未设置（编辑 plugins/liulian-plugin/config/ai.js）',
+    apiKey: config.ai?.api?.api_key ? '已设置' : '未设置',
+    blacklistGroups: (config.ai?.blacklist?.groups || []).length > 0 ?
+      `${config.ai.blacklist.groups.length}个群组` : '无',
+    aiProbability: `私聊${config.ai?.probability?.private ?? 100}% / 群聊${config.ai?.probability?.group ?? 40}%`,
+    replyLength: config.ai?.reply?.max_length || 200,
   }
 
   // 渲染图像

@@ -359,7 +359,8 @@ const cfg = config.getconfig('liulian', 'botname', 'config');
   const botname = cfg.botname
 
 // 检查 AI 服务是否启用，只有启用时才注册 AI 相关规则
-const aiEnabled = Cfg.get('ai.enabled', false);
+// 键名与设置面板/admin.js、运行时门禁 apps/ai.js 完全一致：liulian.ai.enabled（Cfg 运行时开关）
+const aiEnabled = Cfg.get('liulian.ai.enabled', false);
 
 // 动态导入AI模块，只有启用时才导入
 let ai = null;

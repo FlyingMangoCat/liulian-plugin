@@ -127,10 +127,11 @@ class AIManager {
             return false;
         }
         
-        // 检查黑名单群组（从Cfg系统读取）
-        const blacklistGroups = Cfg.get('liulian.blacklist.groups', []);
+        // 检查黑名单群组（config/ai.js 唯一真源：ai.blacklist.groups + enable 开关）
+        const blacklistCfg = config.ai?.blacklist || { groups: [], enable: false };
+        const blacklistGroups = blacklistCfg.enable ? (blacklistCfg.groups || []) : [];
         if (!e.isPrivate && e.group_id && 
-            blacklistGroups.includes(e.group_id.toString())) {
+            blacklistGroups.map(String).includes(e.group_id.toString())) {
             console.log('[AI模块] 群组在黑名单中，跳过处理');
             return false;
         }
