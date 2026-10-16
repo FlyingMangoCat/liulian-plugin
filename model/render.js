@@ -186,19 +186,20 @@ if(imgType == "png"){
   return base64;
 }
 
-// 复用框架 renderers/puppeteer 的启动配置（chromiumPath/args），与框架渲染器保持一致；
-// 读不到配置文件时返回 null，走下方兜底 args
-async function getFrameworkLaunchCfg () {
+// 环境项读取：仅从框架 renderers/puppeteer/config.yaml 取 chromiumPath（浏览器可执行文件路径）；
+// 启动参数由插件按自身需求定制，不采用框架默认配置；读不到时返回空串
+async function getFrameworkChromiumPath () {
   try {
     const cfgFile = `${_path}/renderers/puppeteer/config.yaml`;
     if (!fs.existsSync(cfgFile)) {
-      return null;
+      return "";
     }
     const YAML = await import("yaml");
-    return YAML.parse(fs.readFileSync(cfgFile, "utf8")) ?? null;
+    const cfg = YAML.parse(fs.readFileSync(cfgFile, "utf8")) ?? {};
+    return cfg?.chromiumPath || "";
   } catch (e) {
     logger.warn(`读取框架 puppeteer 配置失败: ${e.message}`);
-    return null;
+    return "";
   }
 }
 
@@ -211,27 +212,29 @@ async function browserInit () {
   }
   lock = true;
   logger.mark("puppeteer 启动中。。");
-  const fwCfg = await getFrameworkLaunchCfg();
+  const chromiumPath = await getFrameworkChromiumPath();
   //初始化puppeteer
   browser = await puppeteer
     .launch({
-      // 框架配置了 chromiumPath（如系统 chromium/edge）时优先使用
-      ...(fwCfg?.chromiumPath ? { executablePath: fwCfg.chromiumPath } : {}),
+      // 浏览器路径为环境项：框架配置了 chromiumPath（如系统 chromium/edge）时使用
+      ...(chromiumPath ? { executablePath: chromiumPath } : {}),
       // executablePath:'',//chromium其他路径
       headless: global.debugView === "debug" ? false : true,
+      // 启动参数为插件自研渲染专属配置，按实际需求定制：
+      // - 免沙箱/单进程：服务器与容器环境可启动
+      // - 关闭共享内存：容器 /dev/shm 过小时防崩溃
+      // - 关闭 GPU：无显卡服务器下渲染结果一致
+      // - 关闭同源策略 + 允许 file 互访：file:// 页面 canvas 读像素（猜角色题图裁切校验依赖），不可或缺
       args: [
-        // 框架配置了 args 时优先用框架的，否则走兜底
-        ...(fwCfg?.args?.length ? fwCfg.args : [
-          "--disable-gpu",
-          "--disable-dev-shm-usage",
-          "--disable-setuid-sandbox",
-          "--no-first-run",
-          "--no-sandbox",
-          "--no-zygote",
-          "--single-process",
-        ]),
-        // file:// 页面 canvas 读像素必需（猜角色题图裁切校验依赖），恒定追加不被配置覆盖
+        "--disable-gpu",
+        "--disable-dev-shm-usage",
+        "--disable-setuid-sandbox",
+        "--no-first-run",
+        "--no-sandbox",
+        "--no-zygote",
+        "--single-process",
         "--disable-web-security",
+        "--allow-file-access-from-files",
       ],
     })
     .catch((err) => {

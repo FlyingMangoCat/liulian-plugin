@@ -1,5 +1,4 @@
 import fetch from "node-fetch";
-import { render } from "./crender.js";
 import lodash from "lodash";
 import fs from "fs";
 
