@@ -33,7 +33,7 @@
   "imports": {
     "#liulian": "./components/index.js",
     "#liulian.models": "./model/index.js",
-    "#liulian.config": "./config/ai.js",
+    "#liulian.config": "./model/aiConfig.js",
     "#liulian.ai": "./apps/ai/index.js",
     "#liulian.core": "./apps/ai/core/index.js",
     "#liulian.chatState": "./apps/ai/chatState.js",

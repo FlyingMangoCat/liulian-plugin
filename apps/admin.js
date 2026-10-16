@@ -26,7 +26,7 @@ let cfgMap = {
   排名提示:'sys.guessRankHint',
 }
 let aiCfgMap = {
-  // 仅运行时开关写入 Cfg 运行时配置；其余 AI 配置以 config/ai.js 为唯一真源，直接编辑该文件
+  // 仅运行时开关写入 Cfg 运行时配置；其余 AI 配置以 config/default_config/liulian/ai.yaml 为唯一真源（实际生效值为 config/config/liulian/ai.yaml）
   AI服务:'liulian.ai.enabled',
 }
 let sysCfgReg = `^#榴莲设置\\s*(${lodash.keys(cfgMap).join('|')})?\\s*(.*)$`
@@ -160,7 +160,7 @@ export async function aiCfg (e, { render }) {
   }
 
   if (regRet[4]) {
-    // 设置模式：仅 AI服务 开关可设置（运行时配置），其余 AI 配置编辑 config/ai.js
+    // 设置模式：仅 AI服务 开关可设置（运行时配置），其余 AI 配置编辑 config/config/liulian/ai.yaml
     let val = regRet[5] || ''
     let cfgKey = aiCfgMap[regRet[4]]
 
@@ -175,9 +175,9 @@ export async function aiCfg (e, { render }) {
   }
 
   let cfg = {
-    // 面板展示：运行时开关读 Cfg，其余读 config/ai.js（唯一真源）
+    // 面板展示：运行时开关读 Cfg，其余读 ai.yaml（唯一真源，与运行时同源）
     aiEnabled: getStatus('liulian.ai.enabled', false),
-    apiEndpoint: config.ai?.api?.base_url || '未设置（编辑 plugins/liulian-plugin/config/ai.js）',
+    apiEndpoint: config.ai?.api?.base_url || '未设置（编辑 plugins/liulian-plugin/config/config/liulian/ai.yaml）',
     apiKey: config.ai?.api?.api_key ? '已设置' : '未设置',
     blacklistGroups: (config.ai?.blacklist?.groups || []).length > 0 ?
       `${config.ai.blacklist.groups.length}个群组` : '无',
