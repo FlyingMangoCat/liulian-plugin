@@ -219,16 +219,20 @@ async function browserInit () {
       ...(fwCfg?.chromiumPath ? { executablePath: fwCfg.chromiumPath } : {}),
       // executablePath:'',//chromium其他路径
       headless: global.debugView === "debug" ? false : true,
-      args: (fwCfg?.args?.length ? fwCfg.args : [
-        "--disable-gpu",
-        "--disable-dev-shm-usage",
-        "--disable-setuid-sandbox",
-        "--no-first-run",
-        "--no-sandbox",
-        "--no-zygote",
-        "--single-process",
+      args: [
+        // 框架配置了 args 时优先用框架的，否则走兜底
+        ...(fwCfg?.args?.length ? fwCfg.args : [
+          "--disable-gpu",
+          "--disable-dev-shm-usage",
+          "--disable-setuid-sandbox",
+          "--no-first-run",
+          "--no-sandbox",
+          "--no-zygote",
+          "--single-process",
+        ]),
+        // file:// 页面 canvas 读像素必需（猜角色题图裁切校验依赖），恒定追加不被配置覆盖
         "--disable-web-security",
-      ]),
+      ],
     })
     .catch((err) => {
       logger.error(err);
