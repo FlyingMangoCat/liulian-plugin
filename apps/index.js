@@ -358,24 +358,10 @@ export {
 const cfg = config.getconfig('liulian', 'botname', 'config');
   const botname = cfg.botname
 
-// 检查 AI 服务是否启用，只有启用时才注册 AI 相关规则
-// 键名与设置面板/admin.js、运行时门禁 apps/ai.js 完全一致：liulian.ai.enabled（Cfg 运行时开关）
-const aiEnabled = Cfg.get('liulian.ai.enabled', false);
-
-// 动态导入AI模块，只有启用时才导入
-let ai = null;
-let ai_reset_memory = null;
-let chatState = null;
-if (aiEnabled) {
-  try {
-    const aiModule = await import('./ai.js');
-    ai = aiModule.ai;
-    ai_reset_memory = aiModule.ai_reset_memory;
-    chatState = await import('#liulian.chatState');
-  } catch (error) {
-    console.error('[AI模块] 导入失败:', error);
-  }
-}
+// AI 模块静态注册（对齐最初版本的形态）：规则始终注册，开关判定收进 ai() 函数内部
+// （读 config/default_config/liulian/ai.yaml 的 ai.enabled，热生效，不经 cfg.json）
+import { ai, ai_reset_memory } from './ai.js'
+import * as chatState from '#liulian.chatState'
 
 // 排名参数允许出现的字符（可夹在"猜角色"与"排名"前后，如 猜角色星铁全服周排名）
 const rankParamChars = '原神星穹铁绝区零鸣潮异环全服本周月年日综合总榜分计前群聊zZwWnNhHsSrR\\d\\s*~%';
@@ -1482,8 +1468,8 @@ yl21: {
     },
 };
 
-// 只有当 AI 服务启用时才注册 AI 相关规则
-if (aiEnabled) {
+// AI 全量消息收录器 + 回复规则（静态注册，对齐最初版本形态；开关判定收进 ai() 内部门禁）
+{
   // 全量消息收录器：reg 为空 + check 字段 → 通过 accept 机制对每条消息触发，
   // 只收录不消费（永远返回 false），不影响其他插件处理
   rule.ai_record = {
@@ -1699,11 +1685,9 @@ const exportedFunctions = {
     zdclassic, liulian_status
 }
 
-// 如果AI模块启用，动态添加AI函数到exportedFunctions
-if (aiEnabled && ai && ai_reset_memory) {
-    exportedFunctions.ai = ai;
-    exportedFunctions.ai_reset_memory = ai_reset_memory;
-}
+// AI 处理函数静态挂载（对齐最初版本：ai/ai_reset_memory 从 './ai.js' 直接导入）
+exportedFunctions.ai = ai;
+exportedFunctions.ai_reset_memory = ai_reset_memory;
 
 for (let fnName in exportedFunctions) {
   LiulianV3.prototype[fnName] = async function(e) {

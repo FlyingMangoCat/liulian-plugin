@@ -114,5 +114,19 @@ const aiConfig = {
   }
 }
 
+/**
+ * 写入 AI 总开关（#榴莲AI设置AI服务 指令用）：改用户 yaml 的 ai.enabled
+ * 写入后手动重载一次内存值（不等 watch 触发），下一消息立即按新值门禁
+ */
+export function setAIEnabled (value) {
+  const cur = readYaml(userFile) || {}
+  const next = deepMerge(cur, { ai: { enabled: !!value } })
+  fs.mkdirSync(path.dirname(userFile), { recursive: true })
+  fs.writeFileSync(userFile, YAML.stringify(next))
+  userCfg = readYaml(userFile) || userCfg
+  merged = deepMerge(defaults, userCfg)
+  return merged.ai?.enabled
+}
+
 export const config = aiConfig
 export default aiConfig

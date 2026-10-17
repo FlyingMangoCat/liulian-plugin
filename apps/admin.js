@@ -1,6 +1,6 @@
 import fs from 'fs'
 import { Cfg, Common, liulianSafe } from '#liulian'
-import config from '#liulian.config'
+import config, { setAIEnabled } from '#liulian.config'
 import lodash from 'lodash'
 import { exec } from 'child_process'
 
@@ -26,8 +26,9 @@ let cfgMap = {
   排名提示:'sys.guessRankHint',
 }
 let aiCfgMap = {
-  // 仅运行时开关写入 Cfg 运行时配置；其余 AI 配置以 config/default_config/liulian/ai.yaml 为唯一真源（实际生效值为 config/config/liulian/ai.yaml）
-  AI服务:'liulian.ai.enabled',
+  // 仅 AI服务 开关可通过指令切换（写 ai.yaml 的 ai.enabled，热生效）；
+  // 其余 AI 配置以 config/default_config/liulian/ai.yaml 为唯一真源（实际生效值为 config/config/liulian/ai.yaml）
+  AI服务:'ai.enabled',
 }
 let sysCfgReg = `^#榴莲设置\\s*(${lodash.keys(cfgMap).join('|')})?\\s*(.*)$`
 let aiCfgReg = `^#?(榴莲|留恋)(ai|AI|Ai|aI|智能|人工智能)\\s*(设置)?\\s*(${lodash.keys(aiCfgMap).join('|')})?\\s*(.*)$`
@@ -165,18 +166,19 @@ export async function aiCfg (e, { render }) {
     let cfgKey = aiCfgMap[regRet[4]]
 
     if (cfgKey) {
-      Cfg.set(cfgKey, !/关闭/.test(val));
-      if (!/关闭/.test(val)) {
-        e.reply('✅ AI功能已开启\n💡 提示：请重启机器人以便加载AI相关组件');
+      // AI服务 开关写 ai.yaml（唯一真源），热生效无需重启
+      const now = setAIEnabled(!/关闭/.test(val));
+      if (now) {
+        e.reply('✅ AI功能已开启，立即生效');
       } else {
-        e.reply('❌ AI功能已关闭\n💡 提示：AI相关组件将不再加载，节省系统资源');
+        e.reply('❌ AI功能已关闭，立即生效');
       }
     }
   }
 
   let cfg = {
-    // 面板展示：运行时开关读 Cfg，其余读 ai.yaml（唯一真源，与运行时同源）
-    aiEnabled: getStatus('liulian.ai.enabled', false),
+    // 面板展示：开关与其余参数全部读 ai.yaml（唯一真源，显示=实际）
+    aiEnabled: config.ai?.enabled ? '已开启' : '已关闭',
     apiEndpoint: config.ai?.api?.base_url || '未设置（编辑 plugins/liulian-plugin/config/config/liulian/ai.yaml）',
     apiKey: config.ai?.api?.api_key ? '已设置' : '未设置',
     blacklistGroups: (config.ai?.blacklist?.groups || []).length > 0 ?

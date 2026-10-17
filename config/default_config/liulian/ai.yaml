@@ -4,6 +4,9 @@
 # 修改后重启生效（开关用 #榴莲AI设置AI服务 指令，无需改文件）。
 
 ai:
+  # AI 总开关（#榴莲AI设置AI服务 开启/关闭 写这里，热生效无需重启）
+  enabled: false
+
   # 触发概率
   probability:
     private: 100   # 私聊回复概率（%）
