@@ -2,7 +2,6 @@
 // 状态模块 - 支持中间件模式
 
 import { Cfg } from '#liulian';
-import config from '#liulian.config';
 import axios from 'axios';
 
 // 外部API列表
@@ -142,7 +141,7 @@ export async function liulian_status(e) {
         await e.reply("正在检查榴莲插件状态，请稍候...", true);
 
         // 检查AI功能是否开启（ai.yaml 唯一真源）
-        const isAIEnabled = config.ai?.enabled === true;
+        const isAIEnabled = Cfg.get('liulian.ai.enabled', false) === true;
 
         // 生成状态报告
         let message = "🥭 榴莲插件状态\n\n";

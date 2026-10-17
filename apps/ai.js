@@ -2,6 +2,7 @@
 // 榴莲AI模块 - 支持中间件模式
 
 import { AIManager } from '#liulian.ai';
+import { Cfg } from '#liulian';
 import config from '#liulian.config';
 import * as chatState from '#liulian.chatState';
 
@@ -130,9 +131,8 @@ export async function ai(e) {
   // 确保初始化（延迟到第一次使用）
   await ensureInitialized();
 
-  // 0. AI服务总开关检查 - 读 ai.yaml 的 ai.enabled（唯一真源，热生效）
-  // 如果AI服务关闭，直接返回，不输出任何日志
-  if (!config.ai?.enabled) {
+  // 0. AI服务总开关检查（与主设置面板同一开关，关闭时不打日志）
+  if (!Cfg.get('liulian.ai.enabled', false)) {
     return;
   }
   

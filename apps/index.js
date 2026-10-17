@@ -27,7 +27,6 @@ qiuqianFUN } from "./other.js"
 import { rule as adminRule,
 updateRes,
 sysCfg,
-aiCfg,
 updateLiulianPlugin,
 profileCfg,
 cj
@@ -359,7 +358,6 @@ const cfg = config.getconfig('liulian', 'botname', 'config');
   const botname = cfg.botname
 
 // AI 模块静态注册（对齐最初版本的形态）：规则始终注册，开关判定收进 ai() 函数内部
-// （读 config/default_config/liulian/ai.yaml 的 ai.enabled，热生效，不经 cfg.json）
 import { ai, ai_reset_memory } from './ai.js'
 import * as chatState from '#liulian.chatState'
 
@@ -412,11 +410,6 @@ let rule = {
         reg: "^#?(榴莲|留恋)设置(.*)$",
         priority: 1,
         describe: "设置",
-    },
-        aiCfg: {
-        reg: "^#?榴莲(ai|AI|Ai|aI|智能|人工智能)(设置)?.*$",
-        priority: 1,
-        describe: "AI设置",
     },
         versionInfo: {
         reg: '^#?(榴莲|留恋)版本$',
@@ -1647,7 +1640,7 @@ class LiulianV3 extends plugin {
 
 // 将所有导出的函数添加到LiulianV3类中
 const exportedFunctions = {
-    help, maphelp, pluginhelp, tangyuanhelp, sysCfg, aiCfg, 哪个群友是我老婆,
+    help, maphelp, pluginhelp, tangyuanhelp, sysCfg, 哪个群友是我老婆,
     checkIn, randomQA, answerCheck, updateLiulianPlugin,
     JsPlugins, PluginsList, WarehPluginsList, RemovePlugins,
     LoadPlugins, DeletePlugins, HelpMenu, v3JsPlugins,

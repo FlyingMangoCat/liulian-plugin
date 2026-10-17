@@ -1,6 +1,5 @@
 import fs from 'fs'
 import { Cfg, Common, liulianSafe } from '#liulian'
-import config, { setAIEnabled } from '#liulian.config'
 import lodash from 'lodash'
 import { exec } from 'child_process'
 
@@ -22,16 +21,11 @@ let cfgMap = {
   群聊闭嘴限制:'sys.limit',
   群聊闭嘴:'sys.shutup',
   购买提示:'sys.aits',
+  AI服务:'liulian.ai.enabled',
   网易云歌单:'sys.musicList',
   排名提示:'sys.guessRankHint',
 }
-let aiCfgMap = {
-  // 仅 AI服务 开关可通过指令切换（写 ai.yaml 的 ai.enabled，热生效）；
-  // 其余 AI 配置以 config/default_config/liulian/ai.yaml 为唯一真源（实际生效值为 config/config/liulian/ai.yaml）
-  AI服务:'ai.enabled',
-}
 let sysCfgReg = `^#榴莲设置\\s*(${lodash.keys(cfgMap).join('|')})?\\s*(.*)$`
-let aiCfgReg = `^#?(榴莲|留恋)(ai|AI|Ai|aI|智能|人工智能)\\s*(设置)?\\s*(${lodash.keys(aiCfgMap).join('|')})?\\s*(.*)$`
 export const rule = {
   updateRes: {
     hashMark: true,
@@ -47,11 +41,6 @@ export const rule = {
     hashMark: true,
     reg: sysCfgReg,
     describe: '【#管理】系统设置'
-  },
-  aiCfg: {
-    hashMark: true,
-    reg: aiCfgReg,
-    describe: '【#管理】AI设置'
   },
   profileCfg: {
     hashMark: true,
@@ -137,58 +126,13 @@ export async function sysCfg (e, { render }) {
     limit: Cfg.get('sys.limit', 0),
     shutup: getStatus('sys.shutup', false),
     aits: getStatus('sys.aits', true),
+    aiEnabled: getStatus('liulian.ai.enabled', false),
     guessRankHint: getStatus('sys.guessRankHint', true),
     musicList: (Cfg.get('sys.musicList') || []).join(','),
   }
 
   // 渲染图像
   return await Common.render('admin/index', {
-    ...cfg
-  }, { e, render, scale: 1.4 })
-}
-
-export async function aiCfg (e, { render }) {
-  if (!e.isMaster) {
-    e.reply('只有主人才能命令榴莲哦~')
-    return true
-  }
-
-  let cfgReg = new RegExp(aiCfgReg)
-  let regRet = cfgReg.exec(e.msg)
-
-  if (!regRet) {
-    return true
-  }
-
-  if (regRet[4]) {
-    // 设置模式：仅 AI服务 开关可设置（运行时配置），其余 AI 配置编辑 config/config/liulian/ai.yaml
-    let val = regRet[5] || ''
-    let cfgKey = aiCfgMap[regRet[4]]
-
-    if (cfgKey) {
-      // AI服务 开关写 ai.yaml（唯一真源），热生效无需重启
-      const now = setAIEnabled(!/关闭/.test(val));
-      if (now) {
-        e.reply('✅ AI功能已开启，立即生效');
-      } else {
-        e.reply('❌ AI功能已关闭，立即生效');
-      }
-    }
-  }
-
-  let cfg = {
-    // 面板展示：开关与其余参数全部读 ai.yaml（唯一真源，显示=实际）
-    aiEnabled: config.ai?.enabled ? '已开启' : '已关闭',
-    apiEndpoint: config.ai?.api?.base_url || '未设置（编辑 plugins/liulian-plugin/config/config/liulian/ai.yaml）',
-    apiKey: config.ai?.api?.api_key ? '已设置' : '未设置',
-    blacklistGroups: (config.ai?.blacklist?.groups || []).length > 0 ?
-      `${config.ai.blacklist.groups.length}个群组` : '无',
-    aiProbability: `私聊${config.ai?.probability?.private ?? 100}% / 群聊${config.ai?.probability?.group ?? 40}%`,
-    replyLength: config.ai?.reply?.max_length || 200,
-  }
-
-  // 渲染图像
-  return await Common.render('admin/ai', {
     ...cfg
   }, { e, render, scale: 1.4 })
 }

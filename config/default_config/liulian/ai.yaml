@@ -1,12 +1,7 @@
-# 榴莲AI配置（唯一真源）
-# 本文件为默认模板：首次启动自动复制到 config/config/liulian/ai.yaml，
-# 实际生效的是那份用户配置；本文件仅在用户配置缺失的键上提供默认值。
-# 修改后重启生效（开关用 #榴莲AI设置AI服务 指令，无需改文件）。
+# 榴莲AI配置
+# 本文件是默认模板，启动时自动复制到 config/config/liulian/ai.yaml，改那份生效
 
 ai:
-  # AI 总开关（#榴莲AI设置AI服务 开启/关闭 写这里，热生效无需重启）
-  enabled: false
-
   # 触发概率
   probability:
     private: 100   # 私聊回复概率（%）
