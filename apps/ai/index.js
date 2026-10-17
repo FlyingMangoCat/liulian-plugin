@@ -21,7 +21,7 @@ async function initializeServices() {
 
   try {
     // 检查AI功能是否开启（ai.yaml 唯一真源，热生效）
-    const isAIEnabled = Cfg.get('liulian.ai.enabled', false) === true;
+    const isAIEnabled = Cfg.get('sys.aiEnabled', false) === true;
 
     if (isAIEnabled) {
       console.log('[AI模块] AI功能已开启，开始初始化相关组件');

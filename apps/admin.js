@@ -21,7 +21,7 @@ let cfgMap = {
   群聊闭嘴限制:'sys.limit',
   群聊闭嘴:'sys.shutup',
   购买提示:'sys.aits',
-  AI服务:'liulian.ai.enabled',
+  AI服务:'sys.aiEnabled',
   网易云歌单:'sys.musicList',
   排名提示:'sys.guessRankHint',
 }
@@ -126,7 +126,7 @@ export async function sysCfg (e, { render }) {
     limit: Cfg.get('sys.limit', 0),
     shutup: getStatus('sys.shutup', false),
     aits: getStatus('sys.aits', true),
-    aiEnabled: getStatus('liulian.ai.enabled', false),
+    aiEnabled: getStatus('sys.aiEnabled', false),
     guessRankHint: getStatus('sys.guessRankHint', true),
     musicList: (Cfg.get('sys.musicList') || []).join(','),
   }

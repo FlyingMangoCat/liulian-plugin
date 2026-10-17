@@ -134,7 +134,7 @@ export async function ai(e) {
   // 以下所有“不接管本条消息”的出口统一 return false：
   // 框架只在显式返回 false 时把消息放行给后续规则/插件，裸 return 会被当成已处理而吞掉消息
   // 0. AI服务总开关检查（与主设置面板同一开关，关闭时不打日志）
-  if (!Cfg.get('liulian.ai.enabled', false)) {
+  if (!Cfg.get('sys.aiEnabled', false)) {
     return false;
   }
   
