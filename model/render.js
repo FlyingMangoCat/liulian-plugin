@@ -186,20 +186,19 @@ if(imgType == "png"){
   return base64;
 }
 
-// 环境项读取：仅从框架 renderers/puppeteer/config.yaml 取 chromiumPath（浏览器可执行文件路径）；
-// 启动参数由插件按自身需求定制，不采用框架默认配置；读不到时返回空串
-async function getFrameworkChromiumPath () {
+// 环境配置读取：从框架 renderers/puppeteer/config.yaml 取 chromiumPath 与 args
+// （同机框架渲染器实测可启动的环境基底）；读不到配置文件时返回 null
+async function getFrameworkLaunchCfg () {
   try {
     const cfgFile = `${_path}/renderers/puppeteer/config.yaml`;
     if (!fs.existsSync(cfgFile)) {
-      return "";
+      return null;
     }
     const YAML = await import("yaml");
-    const cfg = YAML.parse(fs.readFileSync(cfgFile, "utf8")) ?? {};
-    return cfg?.chromiumPath || "";
+    return YAML.parse(fs.readFileSync(cfgFile, "utf8")) ?? null;
   } catch (e) {
     logger.warn(`读取框架 puppeteer 配置失败: ${e.message}`);
-    return "";
+    return null;
   }
 }
 
@@ -212,27 +211,28 @@ async function browserInit () {
   }
   lock = true;
   logger.mark("puppeteer 启动中。。");
-  const chromiumPath = await getFrameworkChromiumPath();
+  const fwCfg = await getFrameworkLaunchCfg();
   //初始化puppeteer
   browser = await puppeteer
     .launch({
-      // 浏览器路径为环境项：框架配置了 chromiumPath（如系统 chromium/edge）时使用
-      ...(chromiumPath ? { executablePath: chromiumPath } : {}),
+      // 环境项：浏览器路径，与框架渲染器同源
+      ...(fwCfg?.chromiumPath ? { executablePath: fwCfg.chromiumPath } : {}),
       // executablePath:'',//chromium其他路径
       headless: global.debugView === "debug" ? false : true,
-      // 启动参数为插件自研渲染专属配置，按实际需求定制：
-      // - 免沙箱/单进程：服务器与容器环境可启动
-      // - 关闭共享内存：容器 /dev/shm 过小时防崩溃
-      // - 关闭 GPU：无显卡服务器下渲染结果一致
-      // - 关闭同源策略 + 允许 file 互访：file:// 页面 canvas 读像素（猜角色题图裁切校验依赖），不可或缺
+      // 参数分层：
+      // 1) 环境基底 = 框架 config.yaml 的 args（同机框架渲染器实测可启动）；
+      //    无框架配置时用安全兜底。严禁 --single-process：服务器新版 chromium 下进程即起即崩（Code: null）
+      // 2) 功能项 = 插件自身需求，恒定追加，环境配置挤不掉：
+      //    关闭同源策略 + 允许 file 互访 → file:// 页面 canvas 读像素（猜角色题图裁切校验依赖）
       args: [
-        "--disable-gpu",
-        "--disable-dev-shm-usage",
-        "--disable-setuid-sandbox",
-        "--no-first-run",
-        "--no-sandbox",
-        "--no-zygote",
-        "--single-process",
+        ...(fwCfg?.args?.length ? fwCfg.args : [
+          "--disable-gpu",
+          "--disable-dev-shm-usage",
+          "--disable-setuid-sandbox",
+          "--no-first-run",
+          "--no-sandbox",
+          "--no-zygote",
+        ]),
         "--disable-web-security",
         "--allow-file-access-from-files",
       ],
