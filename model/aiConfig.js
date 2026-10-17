@@ -20,6 +20,8 @@ const _pluginRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '
 const defFile = path.join(_pluginRoot, 'config/default_config/liulian/ai.yaml')
 const userFile = path.join(_pluginRoot, 'config/config/liulian/ai.yaml')
 const legacyFile = path.join(_pluginRoot, 'config/ai.js')
+const cfgJsonFile = path.join(_pluginRoot, 'components/cfg.json')
+const migrateFlagFile = path.join(_pluginRoot, 'config/config/liulian/.ai-migrated')
 
 /** 深合并：默认值打底，用户值覆盖（对象递归、数组与标量整体覆盖） */
 function deepMerge (defaults, user) {
@@ -85,9 +87,86 @@ function ensureUserFile () {
   }
 }
 
-// ---- 模块加载期完成初始化（迁移 → 生成用户配置 → 合并默认值） ----
+/**
+ * 老面板遗留键迁移：历史面板把接口配置写进 components/cfg.json 的
+ * sys.ai.*（第一代）与 liulian.ai/api/blacklist/memory.*（第二代），
+ * 运行时从未读取过这些键——用户"设置过却没生效"的值 stranded 在这里。
+ * 本函数把这些历史值并入用户 ai.yaml（只填空位，不覆盖用户已改的值），
+ * 完成后写标记文件，保证幂等（后续清空 yaml 不会被再次回填）
+ */
+function migrateLegacyCfgJson () {
+  try {
+    if (fs.existsSync(migrateFlagFile)) return
+    fs.mkdirSync(path.dirname(migrateFlagFile), { recursive: true })
+
+    let legacy = null
+    try {
+      legacy = JSON.parse(fs.readFileSync(cfgJsonFile, 'utf8'))
+    } catch {
+      legacy = null
+    }
+    const sAi = legacy?.sys?.ai || {}                       // 第一代面板键
+    const lAi = legacy?.liulian?.ai || {}                   // 第二代面板键
+    const lApi = legacy?.liulian?.api || {}
+    const lBl = legacy?.liulian?.blacklist || {}
+    const lMem = legacy?.liulian?.memory || {}
+
+    const toArr = (v) => Array.isArray(v) ? v
+      : (typeof v === 'string' && v ? v.split(',').map(s => s.trim()).filter(Boolean) : null)
+
+    const cur = readYaml(userFile) || {}
+    const ai = { ...(cur.ai || {}) }
+    const api = { ...(ai.api || {}) }
+    api.base_url = api.base_url || lApi.endpoint || sAi.endpoint || ''
+    api.api_key = api.api_key || lApi.key || sAi.key || ''
+    ai.api = api
+
+    // 黑名单：yaml 有值用 yaml，否则历史值（数组或逗号分隔字符串都兼容）
+    const bl = { ...(ai.blacklist || {}) }
+    if (!(Array.isArray(bl.groups) && bl.groups.length)) {
+      bl.groups = toArr(lBl.groups) || toArr(sAi.blacklistGroups) || bl.groups || []
+    }
+    ai.blacklist = bl
+
+    // 老面板的单值概率/回复长度：yaml 仍是模板默认值时才采纳历史设置
+    const pr = { ...(ai.probability || {}) }
+    const legacyProb = Number(lAi.probability ?? sAi.probability)
+    if (Number.isFinite(legacyProb) && legacyProb > 0 && legacyProb !== 40 && pr.group === 40) {
+      pr.group = Math.min(100, Math.max(0, legacyProb))
+    }
+    ai.probability = pr
+
+    const rp = { ...(ai.reply || {}) }
+    const legacyLen = Number(lAi.reply_length ?? sAi.replyLength)
+    if (Number.isFinite(legacyLen) && legacyLen > 0 && legacyLen !== 200 && rp.max_length === 200) {
+      rp.max_length = Math.min(500, Math.max(50, legacyLen))
+    }
+    ai.reply = rp
+
+    // 记忆服务开关（第二代面板的 cloudMemory 布尔）→ mode
+    if (ai.memory?.mode === 'off' && lMem.cloud === true) {
+      ai.memory = { ...ai.memory, mode: 'cloud' }
+    }
+
+    // 总开关：历史面板若开过 AI，保持开启（避免升级后"明明开过却关了"）
+    const legacyEnabled = lAi.enabled ?? sAi.enabled
+    if (ai.enabled === false && legacyEnabled === true) {
+      ai.enabled = true
+    }
+
+    fs.writeFileSync(userFile, YAML.stringify(deepMerge(readYaml(userFile) || {}, { ai })))
+    fs.writeFileSync(migrateFlagFile, String(Date.now()))
+    console.log('[aiConfig] 已将历史面板配置（cfg.json 的 sys.ai/liulian.ai 遗留键）并入用户 ai.yaml（仅填空位）')
+  } catch (e) {
+    console.error(`[aiConfig] 历史面板配置迁移失败: ${e.message}`)
+    // 迁移失败不写标记，下次启动重试；但不阻塞模块加载
+  }
+}
+
+// ---- 模块加载期完成初始化（生成用户配置 → 旧 js 迁移 → 老面板键迁移 → 合并默认值） ----
 ensureUserFile()
 migrateLegacyConfig()
+migrateLegacyCfgJson()
 
 let defaults = readYaml(defFile) || {}
 let userCfg = readYaml(userFile) || {}

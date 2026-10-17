@@ -17,36 +17,36 @@
       <div class="cfg-line">
         AI服务状态
         <span class="cfg-hint">#榴莲AI设置AI服务 + 开启/关闭 </span>
-        {{aiEnabled}}
+        <div class="cfg-status">{{aiEnabled}}</div>
       </div>
-      <div class="cfg-desc">开启后启用榴莲AI对话功能。注意：开启/关闭后需要重启机器人以便加载相关组件</div>
+      <div class="cfg-desc">开启后启用榴莲AI对话功能，切换立即生效无需重启</div>
     </li>
-    
+
     <li class="cfg-li">
       <div class="cfg-line">
         API端点
-        <span class="cfg-hint">#榴莲AI设置API地址 + 地址 </span>
+        <span class="cfg-hint">编辑 plugins/liulian-plugin/config/config/liulian/ai.yaml</span>
         <div class="cfg-status">{{apiEndpoint}}</div>
       </div>
       <div class="cfg-desc">AI服务的API地址配置</div>
     </li>
-    
+
     <li class="cfg-li">
       <div class="cfg-line">
         API密钥
-        <span class="cfg-hint">#榴莲AI设置API密钥 + 密钥 </span>
+        <span class="cfg-hint">编辑 plugins/liulian-plugin/config/config/liulian/ai.yaml</span>
         <div class="cfg-status">{{apiKey}}</div>
       </div>
       <div class="cfg-desc">AI服务的API密钥，用于身份验证</div>
     </li>
-    
+
     <li class="cfg-li">
       <div class="cfg-line">
         黑名单群组
-        <span class="cfg-hint">#榴莲AI设置黑名单群组 + 群号 </span>
+        <span class="cfg-hint">编辑 plugins/liulian-plugin/config/config/liulian/ai.yaml</span>
         <div class="cfg-status">{{blacklistGroups}}</div>
       </div>
-      <div class="cfg-desc">不响应AI功能的群组列表，多个群号用逗号分隔</div>
+      <div class="cfg-desc">不响应AI功能的群组列表</div>
     </li>
     
     <li class="cfg-li">
