@@ -131,29 +131,27 @@ export async function ai(e) {
   // 确保初始化（延迟到第一次使用）
   await ensureInitialized();
 
+  // 以下所有“不接管本条消息”的出口统一 return false：
+  // 框架只在显式返回 false 时把消息放行给后续规则/插件，裸 return 会被当成已处理而吞掉消息
   // 0. AI服务总开关检查（与主设置面板同一开关，关闭时不打日志）
   if (!Cfg.get('liulian.ai.enabled', false)) {
-    return;
+    return false;
   }
   
-  // 0.1 榴莲指令检查 - 如果是榴莲插件指令，直接返回，不处理
+  // 0.1 榴莲指令检查 - 榴莲插件指令放行给对应规则处理
   const msg = e.msg || '';
   const trimmedMsgCheck = msg.trim();
   if (/^#?(榴莲|留恋)/.test(trimmedMsgCheck)) {
-    console.log('[榴莲AI] 检测到榴莲插件指令，跳过处理');
-    return;
+    console.log('[榴莲AI] 检测到榴莲插件指令，放行');
+    return false;
   }
-  
-  // 增加延迟，确保其他插件优先处理
-  const minDelay = config.ai?.compatibility?.min_processing_delay || 300;
-  await new Promise(resolve => setTimeout(resolve, minDelay));
   
   console.log('[榴莲AI] 函数被调用，消息类型:', e.message ? e.message[0]?.type : 'text');
 
   // 1. 基础检查
   if (e.user_id === e.self_id) {
     console.log('[榴莲AI] 忽略自身消息');
-    return;
+    return false;
   }
 
   // 1.1 兜底收录：accept 机制若在当前框架未生效，凡到达本函数的消息补录一次
@@ -163,8 +161,8 @@ export async function ai(e) {
   // 2. 严格的命令消息检查 - 确保不抢任何指令
   const skipCommands = config.ai?.compatibility?.skip_command_messages !== false;
   if (skipCommands && isCommandMessage(e)) {
-    console.log('[榴莲AI] 检测到命令消息，跳过处理');
-    return;
+    console.log('[榴莲AI] 检测到命令消息，放行');
+    return false;
   }
   
   // 2.1 额外检查：如果消息很短或看起来像指令，也跳过
@@ -173,9 +171,13 @@ export async function ai(e) {
   const trimmedMsg = message.trim();
   // 仅拦截以符号/标点开头的消息（\w 不含中文，必须显式排除中文字符）
   if ((trimmedMsg.length <= 3 || /^[^\w\u4e00-\u9fa5]/.test(trimmedMsg)) && !/^#?(榴莲|留恋)/.test(trimmedMsg)) {
-    console.log('[榴莲AI] 消息过短或包含特殊字符，跳过处理');
-    return;
+    console.log('[榴莲AI] 消息过短或包含特殊字符，放行');
+    return false;
   }
+
+  // 决策前等待，控制回复节奏（兼容配置，仅在真正接管前等待）
+  const minDelay = config.ai?.compatibility?.min_processing_delay || 300;
+  await new Promise(resolve => setTimeout(resolve, minDelay));
   
   // 4. 确定消息类型和内容
   let messageType = 'text';
@@ -215,21 +217,21 @@ export async function ai(e) {
 
   // 图片消息必须有图片地址或文字说明之一，否则不处理
   if (messageType === 'image' && !imageUrl && !messageContent) {
-    console.log('[榴莲AI] 图片消息缺少内容，不处理');
-    return;
+    console.log('[榴莲AI] 图片消息缺少内容，放行');
+    return false;
   }
 
   // 如果没有消息内容，不处理
   if (!messageContent && messageType !== 'image') {
-    console.log('[榴莲AI] 消息内容为空，不处理');
-    return;
+    console.log('[榴莲AI] 消息内容为空，放行');
+    return false;
   }
   
   // 5. 决策检查（服务可用/黑名单/触发名由 shouldReply 处理，
   //    群聊主动回复由评分+额度门控+空闲退避决定，替代固定概率掷骰子）
   if (!AIManager.shouldReply(e)) {
-    console.log('[榴莲AI] 不满足回复条件，不处理');
-    return;
+    console.log('[榴莲AI] 不满足回复条件，放行');
+    return false;
   }
   
   console.log('[榴莲AI] 满足回复条件，继续处理');
@@ -256,13 +258,13 @@ export async function ai(e) {
       if (/^\[?沉默\]?$/.test(String(reply).trim())) {
         console.log('[榴莲AI] 模型判断此刻不接话，保持沉默');
         chatState.markSilent(e);
-        return;
+        return false;
       }
       // 清理残留的取阅标记（正常不应出现，双保险）
       const cleanReply = String(reply).replace(/\[查看\s*#\d+\]/g, '').trim();
       if (!cleanReply) {
         console.log('[榴莲AI] 回复清理后为空，不发送');
-        return;
+        return false;
       }
       console.log('[榴莲AI] 准备回复:', cleanReply.substring(0, 50) + '...');
       // 使用分段回复
@@ -271,12 +273,14 @@ export async function ai(e) {
       // 真实回复：重置退避 + 记入额度反馈 + 触发后台摘要
       chatState.markReplied(e);
       chatState.maybeSummarize(e);
+      return true;
     } else {
       console.log('[榴莲AI] 未获得有效回复');
     }
   } catch (error) {
     console.error('[榴莲AI] 处理失败:', error);
   }
+  return false;
 }
 
 // 重置记忆处理函数
