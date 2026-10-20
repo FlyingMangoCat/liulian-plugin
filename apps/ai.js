@@ -260,6 +260,7 @@ export async function ai(e) {
     const r = await cloudChat({
       chatId,
       force,
+      personaId: getBrainCfg().personaId,
       replyTo: { userId: String(e.user_id), senderName: (e.sender?.card || e.sender?.nickname || '').slice(0, 12) },
       message: { type: messageType, text: messageContent, imageUrl: imageUrl || undefined },
       context, summary

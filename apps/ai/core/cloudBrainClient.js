@@ -11,7 +11,8 @@ export function getBrainCfg () {
     mode: b.mode || 'local',
     baseUrl: String(b.base_url || '').replace(/\/+$/, ''),
     apiKey: b.api_key || '',
-    timeout: Number(b.timeout) || 60000
+    timeout: Number(b.timeout) || 60000,
+    personaId: b.persona_id || 'default'  // 后端人设 id，多角色扩展用
   }
 }
 
