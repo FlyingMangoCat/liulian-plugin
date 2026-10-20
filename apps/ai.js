@@ -5,6 +5,7 @@ import { AIManager } from '#liulian.ai';
 import { Cfg } from '#liulian';
 import config from '#liulian.config';
 import * as chatState from '#liulian.chatState';
+import { getBrainCfg, isCloudConfigured, chat as cloudChat } from './ai/core/cloudBrainClient.js';
 
 // 延迟初始化函数
 async function ensureInitialized() {
@@ -127,6 +128,9 @@ function isCommandMessage(e) {
 }
 
 // 主处理函数
+// 云大脑未配置提示：只对主人提示一次（静默原则，不打扰群/私聊）
+let cloudHintSent = false;
+
 export async function ai(e) {
   // 确保初始化（延迟到第一次使用）
   await ensureInitialized();
@@ -172,6 +176,15 @@ export async function ai(e) {
   // 仅拦截以符号/标点开头的消息（\w 不含中文，必须显式排除中文字符）
   if ((trimmedMsg.length <= 3 || /^[^\w\u4e00-\u9fa5]/.test(trimmedMsg)) && !/^#?(榴莲|留恋)/.test(trimmedMsg)) {
     console.log('[榴莲AI] 消息过短或包含特殊字符，放行');
+    return false;
+  }
+
+  // 2.5 云大脑模式检查：mode=cloud 但未配置 → 主人提示一次，其余静默放行
+  if (getBrainCfg().mode === 'cloud' && !isCloudConfigured()) {
+    if (e.isMaster && !cloudHintSent) {
+      cloudHintSent = true;
+      e.reply('榴莲AI：云大脑未配置（编辑 config/config/liulian/ai.yaml 的 brain 段填 base_url/api_key）', true).catch(() => {});
+    }
     return false;
   }
 
@@ -235,7 +248,34 @@ export async function ai(e) {
   }
   
   console.log('[榴莲AI] 满足回复条件，继续处理');
-  
+
+  // 5.5 云大脑模式：对话本体交给后端（记忆/人设/prompt/模型全在云端），插件只带结构化消息
+  if (getBrainCfg().mode === 'cloud') {
+    const chatId = e.group_id ? `g${e.group_id}` : `p${e.user_id}`;
+    const { context, summary } = chatState.buildContextPayload(e);
+    const r = await cloudChat({
+      chatId,
+      replyTo: { userId: String(e.user_id), senderName: (e.sender?.card || e.sender?.nickname || '').slice(0, 12) },
+      message: { type: messageType, text: messageContent, imageUrl: imageUrl || undefined },
+      context, summary
+    });
+    if (r.silent || !r.reply) {
+      console.log('[榴莲AI] 云大脑未接话，静默放行');
+      chatState.markSilent(e);
+      return false;
+    }
+    const cleanReply = String(r.reply).replace(/\[查看\s*#\d+\]/g, '').trim();
+    if (!cleanReply) {
+      console.log('[榴莲AI] 云大脑回复清理后为空，静默放行');
+      chatState.markSilent(e);
+      return false;
+    }
+    await AIManager.splitReply(e, cleanReply);
+    chatState.markReplied(e);
+    chatState.maybeSummarize(e);
+    return true;
+  }
+
   // 6. 处理消息并回复（带上双层上下文：远期摘要 + 近期原文目录）
   const contextText = chatState.buildContextBlock(e);
   const chatId = e.group_id ? `g${e.group_id}` : `p${e.user_id}`;

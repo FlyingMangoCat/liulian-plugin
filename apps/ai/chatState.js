@@ -91,6 +91,16 @@ function previewOf(rec) {
   return seg.length > maxLen ? seg.slice(0, maxLen) + '…' : seg;
 }
 
+// 清洗版原文（图片/表情包转占位符，云大脑 payload 用；不截断，截断由后端做）
+function cleanText(rec) {
+  return rec.parts.map(p => p.kind === 'text' ? p.text
+    : p.kind === 'at' ? '@某人'
+    : p.kind === 'image' ? '[图片]'
+    : p.kind === 'mface' ? '[表情包]'
+    : p.kind === 'face' ? `[表情:${p.id}]` : ''
+  ).join(' ').trim();
+}
+
 // 全量收录入口（由 LiulianV3.accept 的 check 规则调用，纯同步）
 // 防重：同一消息可能经 accept 和 ai() 兜底两条路进来，标记后只录一次
 export function record(e) {
@@ -320,6 +330,22 @@ export function buildContextBlock(e) {
   ].join('\n');
 
   return `${summaryPart}${block}\n${rules}`;
+}
+
+// 云大脑 payload 组装：滑窗最近消息整理成结构化数组（含他人发言，随请求带走、后端用完即弃）
+export function buildContextPayload(e) {
+  const chatId = e.group_id ? `g${e.group_id}` : `p${e.user_id}`;
+  const st = chatStates.get(chatId);
+  if (!st || !st.msgs.length) return { context: [], summary: '' };
+  trimWindow(st);
+  const n = Number(getDecisionCfg().digest_recent) || 10;
+  const context = st.msgs.slice(-n).map(m => ({
+    userId: m.senderId,
+    senderName: m.senderName || '群友',
+    text: cleanText(m),
+    ts: m.t
+  }));
+  return { context, summary: st.summary || '' };
 }
 
 // 取阅一条消息的"可用内容"：图片/表情包走视觉模型转文字，其余给原文
