@@ -38,7 +38,7 @@ ai:
   brain:
     mode: "local"      # local: 插件直连 LLM（低配版，保留但不再维护）| cloud: 调用自建云大脑
     base_url: ""       # 云大脑服务地址（durian-ai 部署地址，形如 http://x.x.x.x:8787）
-    api_key: ""        # 服务密钥
+    api_key: "123456"  # 服务密钥（后端默认 123456，正式部署两端一起改掉）
     timeout: 60000     # 单次请求超时（毫秒，含模型生成）
     persona_id: "default"  # 后端人设 id（对应后端 PERSONA_CONFIG 里的键），多角色扩展用
 
