@@ -48,14 +48,16 @@ ai:
     always_respond_in_private: true   # 私聊总是回复
 
   # 决策参数（评分触发 + 额度门控 + 空闲退避，替代固定概率掷骰子）
+  # 采集期口径：刻意放宽，多喂候选给主模型攒沉默/接话训练数据（gate_decisions），
+  # 蒸馏裁判上线后再收紧回 3/0.35/1800/2
   decision:
     window_sec: 300               # 消息滑窗长度（秒），特征统计范围
     virtual_turn_sec: 40          # 虚拟轮次长度（秒），额度门控的评分采样粒度
-    target_replies_per_10min: 3   # 主动回复目标频率（次/10分钟，不含@等强制回复）
-    static_threshold: 0.35        # 样本不足时的兜底概率阈值
+    target_replies_per_10min: 8   # 主动回复目标频率（次/10分钟，不含@等强制回复；采集期 3→8）
+    static_threshold: 0.25        # 样本不足时的兜底概率阈值（采集期 0.35→0.25）
     backoff_base_sec: 60          # 空闲退避基础冷却（秒）
-    backoff_cap_sec: 1800         # 空闲退避冷却上限（秒）
-    backoff_start_count: 2        # 连续沉默几次后开始退避
+    backoff_cap_sec: 900          # 空闲退避冷却上限（秒；采集期 1800→900）
+    backoff_start_count: 3        # 连续沉默几次后开始退避（采集期 2→3）
     bypass_pending: 8             # 近1分钟积压消息达到此数时绕过冷却
     summary_min_msgs: 20          # 积累多少条未摘要消息才触发一次后台总结
     digest_recent: 10             # 上下文目录收录最近多少条原文

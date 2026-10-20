@@ -253,8 +253,13 @@ export async function ai(e) {
   if (getBrainCfg().mode === 'cloud') {
     const chatId = e.group_id ? `g${e.group_id}` : `p${e.user_id}`;
     const { context, summary } = chatState.buildContextPayload(e);
+    // force：插件端已知的强制场景（私聊/@bot/叫触发名），后端跳过硬规则直接接话
+    const force = !e.group_id ||
+      (Array.isArray(e.message) && e.message.some(m => m.type === 'at' && String(m.qq) === String(e.self_id))) ||
+      (config.ai?.triggers?.names || []).some(n => n && messageContent.includes(n));
     const r = await cloudChat({
       chatId,
+      force,
       replyTo: { userId: String(e.user_id), senderName: (e.sender?.card || e.sender?.nickname || '').slice(0, 12) },
       message: { type: messageType, text: messageContent, imageUrl: imageUrl || undefined },
       context, summary
