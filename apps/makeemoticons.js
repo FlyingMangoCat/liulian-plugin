@@ -230,6 +230,8 @@ export async function biaoQing(e) {
   // 无目标且无图片素材：不响应（裸关键词"摸"或无目标尾巴句都拦截，避免空 QQ 请求）
   if (!targetQq && !(e.img && e.img[0])) return false;
 
+  await e.reply([segment.at(e.user_id), '制作中，请稍后……']);
+
   try {
     // 素材组装（分步日志：沉默时可直接定位卡点）
     // 头像走 qq 字段由服务端代拉，省去本地下载再上传；图片才走 images 上传
