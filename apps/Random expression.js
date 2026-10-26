@@ -160,7 +160,8 @@ if (!Cfg.get('sys.bq', false)) {
 	if (random_ < gl ) {
 	chuochuo(e);
   liulianSafe.logger.mark(`liulian-plugin -- 随机表情`);
-  return true;
+  // 已触发表情包也不拦截消息，返回 false 让框架继续传递给后续规则/插件
+	return false;
 	}
 	return false;
 }
