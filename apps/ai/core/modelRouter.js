@@ -33,23 +33,27 @@ export class ModelRouter {
         try {
             // 选择合适的模型
             const model = this.selectModel(message, messageType, context);
-            
-            // 构建提示词
-            const prompt = this.buildPrompt(message, context);
-            
-            // 调用模型
-            const response = await provider.generate(model, prompt, {
+
+            // 构建系统提示词（用户消息单独走 user 角色）
+            const system = this.buildPrompt(message, context);
+
+            // 走对话端点（/api/chat 会套模型的对话模板）。不能用 raw /api/generate：
+            // 纯文本补全会把注入的聊天目录当正文续写，之前"回复=聊天目录"就是它干的
+            const response = await provider.chat(model, [
+                { role: 'system', content: system },
+                { role: 'user', content: message }
+            ], {
                 temperature: this.getTemperature(message, context),
                 num_predict: this.getMaxTokens(message)
             });
-            
+
             return {
                 success: true,
                 response: response,
                 model: model,
                 metadata: {
                     messageType,
-                    responseLength: response.length
+                    responseLength: String(response || '').length
                 }
             };
             
@@ -119,8 +123,6 @@ export class ModelRouter {
         if (context.resonanceLevel && context.resonanceLevel !== 'NEUTRAL') {
             prompt += `\n\n【关系状态】用户与你的好感度等级：${context.resonanceLevel}`;
         }
-
-        prompt += `\n\n【用户消息】${message}`;
 
         return prompt;
     }
