@@ -125,21 +125,19 @@ export class ModelRouter {
         }
 
         prompt += `\n\n【回复要求】简短口语化，一两句话以内，别长篇大论，别铺垫。`;
+        prompt += `\n【说话风格】像真人打字：标点随意（可以整句不带标点），长短句交错，偶尔用语气词收尾，别每条都结构完整。`;
+        prompt += `\n【翻旧账】确实记得对方或群友之前说过的事、梗、恩怨时，可以自然顺嘴提一句（一条回复最多提一件）；不确定是否发生过的旧事绝不要编造。`;
 
         return prompt;
     }
 
     getTemperature(message, context) {
-        let temperature = 0.7;
-
-        // 根据消息内容调整
-        if (message.includes('开心') || message.includes('高兴')) {
-            temperature += 0.1;
-        } else if (message.includes('生气') || message.includes('讨厌')) {
-            temperature -= 0.1;
-        }
-
-        return Math.max(0.1, Math.min(1.0, temperature));
+        // 温度抖动：每条消息随机取值，回复间松紧自然波动
+        let t = 0.55 + Math.random() * 0.25;
+        // 情绪导向：消息带明显情绪词时定向偏移（开心上浮更放飞，生气下沉更收敛），夹在安全区间
+        if (message.includes('开心') || message.includes('高兴')) t += 0.08;
+        else if (message.includes('生气') || message.includes('讨厌')) t -= 0.08;
+        return +Math.max(0.45, Math.min(0.8, t)).toFixed(2);
     }
 
     getMaxTokens(message) {
