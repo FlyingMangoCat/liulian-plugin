@@ -86,41 +86,15 @@ function isCommandMessage(e) {
     return false;
   }
   
-  // 常见命令前缀 - 扩展更多符号，确保不抢指令
+  // 常见命令前缀 - 真正的指令都以符号开头（#/等）
   const commandPrefixes = config.ai?.compatibility?.command_prefixes || [
     '/', '#', '!', '！', '.', '。', '、', 
     '@', '￥', '%', '^', '&', '*', '(', ')', 
     '-', '_', '+', '=', '|', '\\', '~', '`'
   ];
   
-  // 检查消息是否以命令前缀开头 - 严格检查，任何符号开头都认为是命令
+  // 检查消息是否以命令前缀开头
   if (commandPrefixes.some(prefix => trimmedMsg.startsWith(prefix))) {
-    return true;
-  }
-  
-  // 检查是否为常见命令模式 - 扩展模式，更严格过滤
-  const commandPatternStrings = [
-    '^[\u4e00-\u9fa5]{1,4}[\\s\\b]', // 中文命令（1-4个汉字后跟空格或边界）
-    '^\\w{1,6}\\s', // 英文命令（1-6个字符后跟空格）
-    '^[a-zA-Z]+\\s*[^\\s]*$', // 纯英文命令
-    '^[\u4e00-\u9fa5]{1,6}$', // 纯中文短命令（1-6个汉字）
-    '^\\d+$', // 纯数字命令
-    '^[#！@￥%……&*（）——+=|\\[\\]{}-]' // 特殊符号开头的消息
-  ];
-  
-  // 将字符串转换为正则表达式对象
-  const commandPatterns = commandPatternStrings.map(pattern => 
-    typeof pattern === 'string' ? new RegExp(pattern) : pattern
-  );
-  
-  // 如果匹配任何命令模式，都认为是命令
-  if (commandPatterns.some(pattern => pattern.test(trimmedMsg))) {
-    return true;
-  }
-  
-  // 额外检查：如果消息很短且看起来像命令，也过滤掉
-  // 但要排除榴莲插件指令
-  if (trimmedMsg.length <= 4 && /^[\u4e00-\u9fa5a-zA-Z0-9]+$/.test(trimmedMsg) && !/^#?(榴莲|留恋)/.test(trimmedMsg)) {
     return true;
   }
   
@@ -175,7 +149,7 @@ export async function ai(e) {
   const message = e.msg || '';
   const trimmedMsg = message.trim();
   const isAtMe = Array.isArray(e.message) && e.message.some(m => m.type === 'at' && String(m.qq) === String(e.self_id));
-  if (e.group_id && !isAtMe && (trimmedMsg.length <= 3 || !/[\w\u4e00-\u9fa5]/.test(trimmedMsg)) && !/^#?(榴莲|留恋)/.test(trimmedMsg)) {
+  if (e.group_id && !isAtMe && !/[\w\u4e00-\u9fa5]/.test(trimmedMsg) && !/^#?(榴莲|留恋)/.test(trimmedMsg)) {
     console.log('[榴莲AI] 消息无有效内容，放行');
     return false;
   }
