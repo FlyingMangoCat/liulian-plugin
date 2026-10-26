@@ -170,13 +170,13 @@ export async function ai(e) {
     return false;
   }
   
-  // 2.1 额外检查：如果消息很短或看起来像指令，也跳过
-  // 但排除榴莲插件指令、私聊、@bot —— 这三类是用户明确在跟 AI 说话，再短也要接（"？"也算话）
+  // 2.1 额外检查：仅放行"无有效内容"的群消息（纯表情/纯标点，如"？？？""😂😂😂"），
+  // 含任意中文/字母数字的内容一律进决策；私聊、@bot、榴莲指令不在此列
   const message = e.msg || '';
   const trimmedMsg = message.trim();
   const isAtMe = Array.isArray(e.message) && e.message.some(m => m.type === 'at' && String(m.qq) === String(e.self_id));
-  if (e.group_id && !isAtMe && (trimmedMsg.length <= 3 || /^[^\w\u4e00-\u9fa5]/.test(trimmedMsg)) && !/^#?(榴莲|留恋)/.test(trimmedMsg)) {
-    console.log('[榴莲AI] 消息过短或包含特殊字符，放行');
+  if (e.group_id && !isAtMe && (trimmedMsg.length <= 3 || !/[\w\u4e00-\u9fa5]/.test(trimmedMsg)) && !/^#?(榴莲|留恋)/.test(trimmedMsg)) {
+    console.log('[榴莲AI] 消息无有效内容，放行');
     return false;
   }
 
