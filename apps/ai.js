@@ -132,6 +132,7 @@ function isCommandMessage(e) {
 let cloudHintSent = false;
 
 export async function ai(e) {
+  const __t0 = Date.now();
   // 确保初始化（延迟到第一次使用）
   await ensureInitialized();
 
@@ -248,6 +249,7 @@ export async function ai(e) {
   }
   
   console.log('[榴莲AI] 满足回复条件，继续处理');
+  console.log(`[榴莲AI] 计时: 门禁+决策 ${Date.now() - __t0}ms`);
 
   // 5.5 云大脑模式：对话本体交给后端（记忆/人设/prompt/模型全在云端），插件只带结构化消息
   if (getBrainCfg().mode === 'cloud') {
@@ -286,7 +288,9 @@ export async function ai(e) {
   const contextText = chatState.buildContextBlock(e);
   const chatId = e.group_id ? `g${e.group_id}` : `p${e.user_id}`;
   try {
+    const __t1 = Date.now();
     let reply = await AIManager.generalChat(messageContent, messageType, e.user_id?.toString(), imageUrl, contextText);
+    console.log(`[榴莲AI] 计时: 模型调用 ${Date.now() - __t1}ms，消息发出后累计 ${Date.now() - __t0}ms`);
 
     // 取阅循环：模型要求查看某条原文时，补拉一次再给一次正式回复机会（最多一轮）
     const lookMatch = typeof reply === 'string' ? reply.match(/^\[?查看\s*#(\d+)\]?$/) : null;
