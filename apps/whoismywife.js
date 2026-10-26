@@ -1,4 +1,4 @@
-import { segment } from "oicq";
+import { segment } from "icqq";
 import fetch from "node-fetch";
 import { Cfg, logger } from '#liulian'
 import { featureOffReply } from "../components/bcommon.js"
