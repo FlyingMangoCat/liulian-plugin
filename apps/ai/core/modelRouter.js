@@ -124,6 +124,8 @@ export class ModelRouter {
             prompt += `\n\n【关系状态】用户与你的好感度等级：${context.resonanceLevel}`;
         }
 
+        prompt += `\n\n【回复要求】简短口语化，一两句话以内，别长篇大论，别铺垫。`;
+
         return prompt;
     }
 
@@ -141,13 +143,10 @@ export class ModelRouter {
     }
 
     getMaxTokens(message) {
-        if (message.length > 200) {
-            return 2000;
-        } else if (message.length > 100) {
-            return 1000;
-        } else {
-            return 500;
-        }
+        // 回复尽量简短：按 reply_length.max_chars 换算生成上限（中文约 1.5 token/字，留余量），
+        // 不再按注入后消息长度给 2000 —— 那是模型写到一半被掐断的原因
+        const maxChars = Number(config.ai?.reply_length?.max_chars) || 120;
+        return Math.min(2000, Math.max(200, maxChars * 2 + 60));
     }
 
     async getAvailableModels() {
