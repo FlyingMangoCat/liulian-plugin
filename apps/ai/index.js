@@ -12,62 +12,55 @@ const isMiddlewareMode = process.env.LIULIAN_MODE === 'middleware';
 const modelRouter = new ModelRouter();
 
 // 服务初始化 - 延迟到第一次使用时再执行，避免导入时阻塞
-let initialized = false;
-let initializing = false;
+// 开关判定每次现读（切换无需重启）；componentsLoaded 只防组件重复注入
+// （checkService 是网络探测、startPeriodicCheck 是定时器，跑一次+周期刷新即可）
+let componentsLoaded = false;
 
 async function initializeServices() {
-  if (initialized || initializing) return;
-  initializing = true;
+  if (componentsLoaded) return;
+  // 未开启：直接返回且不标记 —— 开关注入后下一条消息自然进入加载
+  if (Cfg.get('sys.aiEnabled', false) !== true) return;
+  componentsLoaded = true;
 
   try {
-    // 检查AI功能是否开启（ai.yaml 唯一真源，热生效）
-    const isAIEnabled = Cfg.get('sys.aiEnabled', false) === true;
+    console.log('[AI模块] AI功能已开启，初始化相关组件');
 
-    if (isAIEnabled) {
-      console.log('[AI模块] AI功能已开启，开始初始化相关组件');
-      
-      // 云崽模式下才自动初始化服务
-      serviceDetector.checkService().then(available => {
-        if (available) {
-          serviceDetector.startPeriodicCheck();
-        } else {
-          console.log('[AI模块] AI服务不可用，将禁用AI功能');
-        }
-      }).catch(error => {
-        console.error('[AI模块] AI服务检测失败:', error);
-      });
-      
-      // 记忆服务无需本地连接，按 config.ai.memory 配置决定是否启用
-      const memStatus = memoryService.getStatus();
-      console.log(`[AI模块] 记忆服务模式: ${memStatus.mode}${memStatus.available ? '（可用）' : '（未启用）'}`);
+    // 云崽模式下才自动初始化服务
+    serviceDetector.checkService().then(available => {
+      if (available) {
+        serviceDetector.startPeriodicCheck();
+      } else {
+        console.log('[AI模块] AI服务探测未通过（有接口配置时实际请求仍会兜底）');
+      }
+    }).catch(error => {
+      console.error('[AI模块] AI服务检测失败:', error);
+    });
 
-      // 注入决策模块的处理器：远期摘要走通用模型，图片/表情包描述走视觉模型前置
-      chatState.setProcessors({
-        summarize: async (text) => {
-          try {
-            const r = await modelRouter.processMessage(
-              `请把以下群聊记录压缩成150字以内的摘要，保留话题、人物关系和未决问题，去掉寒暄，只输出摘要本身：\n${text}`,
-              'text', null
-            );
-            return r.success ? r.response : '';
-          } catch { return ''; }
-        },
-        describeImage: async (url, hint) => {
-          try {
-            const r = await modelRouter.processImage(hint || '', url);
-            return r.success ? r.response : '';
-          } catch { return ''; }
-        }
-      });
-    } else {
-      console.log('[AI模块] AI功能已关闭，跳过相关组件加载');
-    }
-    
-    initialized = true;
+    // 记忆服务无需本地连接，按 config.ai.memory 配置决定是否启用
+    const memStatus = memoryService.getStatus();
+    console.log(`[AI模块] 记忆服务模式: ${memStatus.mode}${memStatus.available ? '（可用）' : '（未启用）'}`);
+
+    // 注入决策模块的处理器：远期摘要走通用模型，图片/表情包描述走视觉模型前置
+    chatState.setProcessors({
+      summarize: async (text) => {
+        try {
+          const r = await modelRouter.processMessage(
+            `请把以下群聊记录压缩成150字以内的摘要，保留话题、人物关系和未决问题，去掉寒暄，只输出摘要本身：\n${text}`,
+            'text', null
+          );
+          return r.success ? r.response : '';
+        } catch { return ''; }
+      },
+      describeImage: async (url, hint) => {
+        try {
+          const r = await modelRouter.processImage(hint || '', url);
+          return r.success ? r.response : '';
+        } catch { return ''; }
+      }
+    });
   } catch (error) {
     console.error('[AI模块] 初始化失败:', error);
-  } finally {
-    initializing = false;
+    componentsLoaded = false; // 失败允许下次重试
   }
 }
 
@@ -115,11 +108,12 @@ class AIManager {
     static shouldReply(e) {
         const safeConfig = this.getConfig();
         
-        // 如果AI服务不可用，不处理任何消息
-        if (!this.isAIAvailable()) {
-            console.log('[AI模块] AI服务不可用，跳过处理');
-            return false;
-        }
+    // 如果AI服务不可用，不处理任何消息
+    // 云大脑模式例外：可用性由后端负责，本地服务探测不挡路（失败本来就是静默语义）
+    if ((config.ai?.brain?.mode || 'local') !== 'cloud' && !this.isAIAvailable()) {
+        console.log('[AI模块] AI服务不可用，跳过处理');
+        return false;
+    }
         
         // 确保消息对象存在
         if (!e) {
