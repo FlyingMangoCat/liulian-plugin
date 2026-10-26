@@ -285,11 +285,12 @@ ${memoryContext}
             return result;
         }
         
-        // 云崽模式返回格式化回复
+        // 云崽模式返回格式化回复；失败返回 null（上层按静默放行处理，绝不把错误文本发到群里）
         if (result.success) {
             return result.reply;
         } else {
-            return result.fallback || "处理请求时发生错误";
+            console.error('[AI模块] 对话失败(静默):', result.error || '模型处理失败');
+            return null;
         }
     }
     

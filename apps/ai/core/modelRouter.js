@@ -2,24 +2,28 @@ import provider from '#liulian.provider';
 import config from '#liulian.config';
 
 export class ModelRouter {
-    constructor() {
-        this.models = this.getModels();
+    // 模型表每次现读（配置即改即生效，不再有导入时快照）
+    get models() {
+        return this.getModels();
     }
 
-    // 获取当前生效的模型配置（通用接口优先，缺失项回退本地）
+    // 获取当前生效的模型配置（通用接口优先；api 模式下缺失项用 api.model 主字段兜底，
+    // 绝不回退到 ollama 的模型名 —— 之前会静默拼出 deepseek-llm:7b 之类不存在的模型）
     getModels() {
-        const apiModels = config.ai?.api?.models || {};
+        const apiCfg = config.ai?.api || {};
+        const apiModels = apiCfg.models || {};
         const localModels = config.ai?.local?.models || {
             general: 'deepseek-llm:7b',
             code: 'deepseek-coder:6.7b',
             vision: 'moondream:latest'
         };
 
-        if (config.ai?.api?.base_url && config.ai?.api?.api_key) {
+        if (apiCfg.base_url && apiCfg.api_key) {
+            const fallback = apiCfg.model || '';
             return {
-                general: apiModels.general || localModels.general,
-                code: apiModels.code || localModels.code,
-                vision: apiModels.vision || localModels.vision
+                general: apiModels.general || fallback,
+                code: apiModels.code || fallback,
+                vision: apiModels.vision || fallback
             };
         }
         return localModels;
