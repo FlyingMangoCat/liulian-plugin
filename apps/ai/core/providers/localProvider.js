@@ -1,10 +1,11 @@
 import axios from 'axios';
 
 // 本地接入
+// 注意：推理请求不带超时 —— 本机 ollama 冷启动/CPU 生成耗时不定，
+// 和最初版一致无限等待，绝不在半路掐断（掐断的表现就是"压根没反应"）
 export default class LocalProvider {
     constructor(config = {}) {
         this.apiUrl = config.api_url || 'http://localhost:11434';
-        this.timeout = config.timeout || 30000;
     }
 
     async generate(model, prompt, options = {}) {
@@ -16,11 +17,8 @@ export default class LocalProvider {
                 temperature: options.temperature || 0.7,
                 num_predict: options.num_predict || 1000,
                 top_p: options.top_p || 0.9,
-                repeat_penalty: options.repeat_penalty || 1.1,
-                ...options
+                repeat_penalty: 1.1
             }
-        }, {
-            timeout: options.timeout || this.timeout
         });
 
         return response.data.response;
@@ -35,11 +33,8 @@ export default class LocalProvider {
                 temperature: options.temperature || 0.7,
                 num_predict: options.num_predict || 1000,
                 top_p: options.top_p || 0.9,
-                repeat_penalty: options.repeat_penalty || 1.1,
-                ...options
+                repeat_penalty: 1.1
             }
-        }, {
-            timeout: options.timeout || this.timeout
         });
 
         return response.data.message.content;
@@ -53,11 +48,8 @@ export default class LocalProvider {
             stream: false,
             options: {
                 temperature: options.temperature || 0.7,
-                num_predict: options.num_predict || 1000,
-                ...options
+                num_predict: options.num_predict || 1000
             }
-        }, {
-            timeout: options.timeout || this.timeout
         });
 
         return response.data.response;
