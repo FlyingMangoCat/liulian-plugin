@@ -171,11 +171,11 @@ export async function ai(e) {
   }
   
   // 2.1 额外检查：如果消息很短或看起来像指令，也跳过
-  // 但要排除榴莲插件指令
+  // 但排除榴莲插件指令、私聊、@bot —— 这三类是用户明确在跟 AI 说话，再短也要接（"？"也算话）
   const message = e.msg || '';
   const trimmedMsg = message.trim();
-  // 仅拦截以符号/标点开头的消息（\w 不含中文，必须显式排除中文字符）
-  if ((trimmedMsg.length <= 3 || /^[^\w\u4e00-\u9fa5]/.test(trimmedMsg)) && !/^#?(榴莲|留恋)/.test(trimmedMsg)) {
+  const isAtMe = Array.isArray(e.message) && e.message.some(m => m.type === 'at' && String(m.qq) === String(e.self_id));
+  if (e.group_id && !isAtMe && (trimmedMsg.length <= 3 || /^[^\w\u4e00-\u9fa5]/.test(trimmedMsg)) && !/^#?(榴莲|留恋)/.test(trimmedMsg)) {
     console.log('[榴莲AI] 消息过短或包含特殊字符，放行');
     return false;
   }
@@ -284,12 +284,11 @@ export async function ai(e) {
     return true;
   }
 
-  // 6. 处理消息并回复（带上双层上下文：远期摘要 + 近期原文目录）
-  const contextText = chatState.buildContextBlock(e);
+  // 6. 处理消息并回复（不注入会话上下文，仅人设 + 用户消息）
   const chatId = e.group_id ? `g${e.group_id}` : `p${e.user_id}`;
   try {
     const __t1 = Date.now();
-    let reply = await AIManager.generalChat(messageContent, messageType, e.user_id?.toString(), imageUrl, contextText);
+    let reply = await AIManager.generalChat(messageContent, messageType, e.user_id?.toString(), imageUrl, null);
     console.log(`[榴莲AI] 计时: 模型调用 ${Date.now() - __t1}ms，消息发出后累计 ${Date.now() - __t0}ms`);
 
     // 取阅循环：模型要求查看某条原文时，补拉一次再给一次正式回复机会（最多一轮）
