@@ -36,8 +36,8 @@ class config {
             if (!fs.existsSync(path)) {
                 fs.mkdirSync(path)
             }
-            /** 读取模块下的yaml配置文件 */
-            const files = fs.readdirSync(defaultpath).filter(file => file.endsWith('.yaml'))
+            /** 读取模块下的yaml配置文件（plugininfo为插件元信息，不生成用户副本，保证版本号可随更新生效） */
+            const files = fs.readdirSync(defaultpath).filter(file => file.endsWith('.yaml') && file != 'plugininfo.yaml')
             for (let file of files) {
                 if (!fs.existsSync(`${this.configPath}${defCfgfile}/${file}`)) {
                     fs.copyFileSync(`${this.defCfgPath}${defCfgfile}/${file}`, `${this.configPath}${defCfgfile}/${file}`)
