@@ -1528,7 +1528,7 @@ export async function guessRankCmd(e, { render }) {
 
   // 群聊总排名：跨机器人所有群的大排名（中央接口，需 bot 会员验证）
   if (scope === 'grouptotal') {
-    if (!(await checkMember(String(e.user_id)))) {
+    if (!(await checkMember())) {
       e.reply('群聊总排名需榴莲会员资格，请先绑定或续费榴莲会员～');
       return true;
     }
@@ -1575,7 +1575,7 @@ export async function guessRankCmd(e, { render }) {
 
   // 群聊全服排名：本地数据按群汇总总分（本 bot 的群互相比），需 bot 会员验证
   if (scope === 'groupserver') {
-    if (!(await checkMember(String(e.user_id)))) {
+    if (!(await checkMember())) {
       e.reply('群聊全服排名需榴莲会员资格，请先绑定或续费榴莲会员～');
       return true;
     }
@@ -1612,7 +1612,7 @@ export async function guessRankCmd(e, { render }) {
 
   // 总排名：走中央接口，需 bot 会员验证；本地群/全服排名不设门槛
   if (scope === 'total') {
-    if (!(await checkMember(String(e.user_id)))) {
+    if (!(await checkMember())) {
       e.reply('总排名需榴莲会员资格，请先绑定或续费榴莲会员～\n可先发送 #猜角色全服排名 查看全服榜');
       return true;
     }

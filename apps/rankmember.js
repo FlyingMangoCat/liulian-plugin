@@ -36,8 +36,9 @@ async function fetchMembership(secretOverride, ownerQqOverride) {
 }
 
 // 排名门槛：会员有效才给查（结果缓存 1 分钟）
+// 会员资格绑定机器人：与发消息的人无关，主人 QQ 直接读运行时配置逐个试
 let memberOkCache = { ok: null, time: 0 };
-export async function checkMember(ownerQq) {
+export async function checkMember() {
   const now = Date.now();
   if (memberOkCache.ok !== null && now - memberOkCache.time < 60 * 1000) {
     return memberOkCache.ok;
@@ -47,8 +48,7 @@ export async function checkMember(ownerQq) {
     memberOkCache = { ok: false, time: now };
     return false;
   }
-  // 与绑定同口径：调用方传入已通过 e.isMaster 判定的 QQ，不依赖运行时主人配置读取
-  const ret = await fetchMembership(undefined, ownerQq);
+  const ret = await signedJsonRequestTryOwners('GET', MEMBER_VERIFY_PATH);
   memberOkCache = { ok: !!(ret.ok && ret.data && ret.data.isActive), time: now };
   return memberOkCache.ok;
 }
