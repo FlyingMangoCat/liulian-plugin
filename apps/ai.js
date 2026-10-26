@@ -225,6 +225,13 @@ export async function ai(e) {
   console.log('[榴莲AI] 满足回复条件，继续处理');
   console.log(`[榴莲AI] 计时: 门禁+决策 ${Date.now() - __t0}ms`);
 
+  // 多账号去重：同一条消息只由一个账号处理（TRSS 多 bot 会双触发）
+  if (e.__liulianClaimed) {
+    console.log('[榴莲AI] 本条已由其他账号接管，放行');
+    return false;
+  }
+  e.__liulianClaimed = true;
+
   // 5.5 云大脑模式：对话本体交给后端（记忆/人设/prompt/模型全在云端），插件只带结构化消息
   if (getBrainCfg().mode === 'cloud') {
     const chatId = e.group_id ? `g${e.group_id}` : `p${e.user_id}`;

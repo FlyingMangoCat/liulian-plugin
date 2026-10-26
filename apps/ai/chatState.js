@@ -212,7 +212,12 @@ function dynamicThreshold(st, prob) {
   // 强制回复（@等）占额度
   const expectedForced = st.forced.length;
   const quota = Math.max(0, Math.round(target * feedback - expectedForced));
-  if (quota === 0) return 1; // 额度用尽，本轮不主动回
+  // 额度用尽不静默，改梯度：超得越多门槛越高（像真人——话多了会收敛，
+  // 但特别想接的茬仍会破例），封顶 0.9 保证最感兴趣的时机始终有机会
+  if (quota <= 0) {
+    const over = Math.max(0, actual - target);
+    return Math.min(0.9, g.staticThreshold + 0.5 + over * 0.05);
+  }
 
   // 40 秒虚拟轮次：每轮取轮内消息的最高概率作为该轮评分样本
   const turnMs = g.virtualTurnSec * 1000;
@@ -268,7 +273,7 @@ export function shouldAutoReply(e) {
 
   // 被@强制回复（计入额度，防@刷屏）
   if (isAtMe) {
-    st.forced.push(Date.now());
+    markForced(e);
     return { ok: true, reason: 'at_me' };
   }
 
@@ -284,7 +289,11 @@ export function shouldAutoReply(e) {
 export function markForced(e) {
   const chatId = e.group_id ? `g${e.group_id}` : `p${e.user_id}`;
   const st = chatStates.get(chatId);
-  if (st) st.forced.push(Date.now());
+  if (!st) return;
+  // 同一条消息经多账号触发只记一次（TRSS 多 bot 下 @ 会双触发，双倍扣额度）
+  const last = st.forced[st.forced.length - 1];
+  if (last && Date.now() - last < 2000) return;
+  st.forced.push(Date.now());
 }
 
 // bot 真实回复后调用：重置退避 + 记入反馈
