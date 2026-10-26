@@ -328,70 +328,32 @@ ${memoryContext}
         return available;
     }
 
-    // 分段回复方法
+    // 分段回复方法：句号只当切分点不当内容（人类打字很少用句号，切完删掉），
+    // 长回复按句切分分条发送，绝不整体截断
     static async splitReply(e, reply) {
         const safeConfig = this.getConfig();
         const maxLength = safeConfig.reply.max_length;
         const delay = safeConfig.reply.delay_between_messages;
-        
-        // 首先修剪回复长度
-        const trimmedReply = this.trimReply(reply, safeConfig.reply_length.max_chars);
-        
-        if (trimmedReply.length <= maxLength) {
-            await e.reply(trimmedReply, true);
-            return;
-        }
-        
-        // 按句子分割，避免在句子中间切断
-        const sentences = trimmedReply.split(/(?<=[.!?。！？])/g);
+
+        // 按句号切成句，删掉句号；超长单句再按字数硬切兜底
+        const sentences = String(reply).split(/(?<=[。])/)
+            .map(s => s.replace(/。/g, ''))
+            .flatMap(s => s.length > maxLength ? s.match(new RegExp(`.{1,${maxLength}}`, 'g')) : [s])
+            .filter(s => s && s.trim());
+
         let currentMessage = '';
-        let sentMessages = 0;
-        
         for (const sentence of sentences) {
             if ((currentMessage + sentence).length > maxLength && currentMessage) {
-                // 发送当前积累的消息
                 await e.reply(currentMessage, true);
-                sentMessages++;
-                currentMessage = sentence;
-                
-                // 检查是否达到最大消息数
-                if (sentMessages >= safeConfig.reply_length.max_sentences) {
-                    if (safeConfig.reply_length.trim_ellipsis && currentMessage.length > 0) {
-                        await e.reply(currentMessage.substring(0, Math.min(currentMessage.length, 20)) + '...', true);
-                    }
-                    return;
-                }
-                
-                // 添加延迟，避免消息过快被限制
                 await new Promise(resolve => setTimeout(resolve, delay));
-            } else {
-                currentMessage += sentence;
+                currentMessage = '';
             }
+            currentMessage += sentence;
         }
-        
-        // 发送最后一条消息
-        if (currentMessage && sentMessages < safeConfig.reply_length.max_sentences) {
+
+        if (currentMessage.trim()) {
             await e.reply(currentMessage, true);
         }
-    }
-    
-    // 修剪回复长度
-    static trimReply(reply, maxLength = 120) {
-        if (!reply || reply.length <= maxLength) return reply;
-        
-        // 查找合适的截断点（在句子结束处）
-        const lastPeriod = reply.lastIndexOf('.', maxLength);
-        const lastExclamation = reply.lastIndexOf('!', maxLength);
-        const lastQuestion = reply.lastIndexOf('?', maxLength);
-        
-        const cutPoint = Math.max(lastPeriod, lastExclamation, lastQuestion);
-        
-        if (cutPoint > 0 && cutPoint > maxLength * 0.7) {
-            return reply.substring(0, cutPoint + 1);
-        }
-        
-        // 如果没有合适的句子结束点，直接截断并添加省略号
-        return reply.substring(0, maxLength - 3) + '...';
     }
 
     // 重置用户记忆方法（管理员功能）

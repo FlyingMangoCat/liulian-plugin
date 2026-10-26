@@ -125,7 +125,7 @@ export class ModelRouter {
         }
 
         prompt += `\n\n【回复要求】简短口语化，一两句话以内，别长篇大论，别铺垫。`;
-        prompt += `\n【说话风格】像真人打字：标点随意（可以整句不带标点），长短句交错，偶尔用语气词收尾，别每条都结构完整。`;
+        prompt += `\n【说话风格】像真人打字：基本不用句号，标点随意（可以整句不带标点），长短句交错，偶尔用语气词收尾，别每条都结构完整。`;
         prompt += `\n【翻旧账】确实记得对方或群友之前说过的事、梗、恩怨时，可以自然顺嘴提一句（一条回复最多提一件）；不确定是否发生过的旧事绝不要编造。`;
 
         return prompt;
@@ -141,10 +141,9 @@ export class ModelRouter {
     }
 
     getMaxTokens(message) {
-        // 回复尽量简短：按 reply_length.max_chars 换算生成上限（中文约 1.5 token/字，留余量），
-        // 不再按注入后消息长度给 2000 —— 那是模型写到一半被掐断的原因
-        const maxChars = Number(config.ai?.reply_length?.max_chars) || 120;
-        return Math.min(2000, Math.max(200, maxChars * 2 + 60));
+        // 生成上限只做兜底（1000 token 约 600 字），不再按消息长度算——
+        // 长回复由 splitReply 按句分条发送，绝不会写到一半被掐断
+        return 1000;
     }
 
     async getAvailableModels() {
