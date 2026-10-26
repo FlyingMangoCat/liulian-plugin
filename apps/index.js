@@ -65,7 +65,7 @@ import { HitMe } from "./hitme.js"
 import { fakeMessage } from "./fakeMessage.js"
 import { fabing } from "./morbidity.js"
 import { biaoQing, biaoQingHelp } from "./makeemoticons.js"
-import { random, chuochuo, 上传, checkRandom } from "./Random expression.js"
+import { random, chuochuo, 上传 } from "./Random expression.js"
 import { FuckingChatterbox } from "./chatterboxStat.js"
 import { fanyi, translateText, base64jiami, base64jiemi, wyyjx, wyyauto, qrcode } from "./tools.js"
 import { dailyword, sentence, dailywordCheck, sentenceCheck } from "./daily.js"
@@ -158,8 +158,7 @@ WarehPluginsList,
 RemovePlugins,
 LoadPlugins,
 DeletePlugins,
-HelpMenu,
-checkJsPlugins
+HelpMenu
 } from "./pluginManager.js"
 import { v3JsPlugins,
 v3PluginsList,
@@ -167,9 +166,7 @@ v3WarehPluginsList,
 v3RemovePlugins,
 v3LoadPlugins,
 v3DeletePlugins,
-v3HelpMenu,
-checkV3JsPlugins
-} from "./V3pluginManager.js"
+v3HelpMenu} from "./V3pluginManager.js"
 import { miku,
 kt1,
 jtm, 
@@ -469,10 +466,10 @@ let rule = {
         describe: '更新'
     },
     JsPlugins: {
-        reg: "",
+        reg: "(.*)", // 全量接住文件消息，由 JsPlugins() 内部校验主人与文件类型
         priority: 450,
-        describe: "生成js文件自动放到插件目录下面",
-        check: checkJsPlugins
+        log: false, // 全量监听规则，不打匹配日志避免刷屏
+        describe: "生成js文件自动放到插件目录下面"
     },
     PluginsList: {
         reg: "^#v2插件列表$",
@@ -505,10 +502,10 @@ let rule = {
         describe: "帮助菜单",
     },
     v3JsPlugins: {
-        reg: "",
+        reg: "(.*)", // 全量接住文件消息，由 v3JsPlugins() 内部校验主人与文件类型
         priority: 450,
-        describe: "生成js文件自动放到插件目录下面",
-        check: checkV3JsPlugins
+        log: false, // 全量监听规则，不打匹配日志避免刷屏
+        describe: "生成js文件自动放到插件目录下面"
     },
     v3PluginsList: {
         reg: "插件列表$",
@@ -898,10 +895,10 @@ yl21: {
         describe: "【#伪造信息@群成员 信息】", 
     },
         random: {
-        reg: "",
+        reg: "(.*)", // 匹配所有消息，由 random() 函数内部按概率自过滤
         priority: 114514,
+        log: false, // 全量监听规则，不打匹配日志避免刷屏
         describe: "概率随机发送表情包",  //聊天中概率回复表情包
-        check: checkRandom
     },
         chuochuo: {
         reg: "戳䔱戳",
