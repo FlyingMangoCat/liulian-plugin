@@ -231,16 +231,14 @@ ${memoryContext}
 
             console.log('[AI模块] 处理消息，长度:', fullPrompt.length);
             
-            // 注入双层上下文（远期摘要 + 近期目录 + 沉默/取阅规则），让核心模型看到会话脉络
-            // 注意：保留原始用户消息，记忆保存要用它而不是注入后的长文本
+            // 注入双层上下文（远期摘要 + 近期目录）：作为 contextBlock 交由 buildPrompt
+            // 拼进 system 背景区，user 消息保持纯净——目录混在 user 消息里会被模型当正文复述
             const userMessage = message;
-            if (contextText) {
-                message = `${contextText}\n\n=========\n用户消息: ${message}`;
-            }
 
             // 调用模型路由器
             const result = await modelRouter.processMessage(message, messageType, {
-                memories: memoryContext ? memories : []
+                memories: memoryContext ? memories : [],
+                contextBlock: contextText || ''
             });
             
             if (result.success) {

@@ -283,6 +283,16 @@ export async function ai(e) {
     let reply = await AIManager.generalChat(messageContent, messageType, e.user_id?.toString(), imageUrl, contextText);
     console.log(`[榴莲AI] 计时: 模型调用 ${Date.now() - __t1}ms，消息发出后累计 ${Date.now() - __t0}ms`);
 
+    // 目录复读检测：把目录当正文复述是基座模型的典型行为——去掉上下文重试一次，仍复读则静默
+    if (/【近期聊天目录/.test(String(reply))) {
+      console.log('[榴莲AI] 检测到目录复读，去掉上下文重试');
+      reply = await AIManager.generalChat(messageContent, messageType, e.user_id?.toString(), imageUrl, null);
+      if (/【近期聊天目录/.test(String(reply))) {
+        console.log('[榴莲AI] 重试仍复读目录，静默放行');
+        return false;
+      }
+    }
+
     // 取阅循环：模型要求查看某条原文时，补拉一次再给一次正式回复机会（最多一轮）
     const lookMatch = typeof reply === 'string' ? reply.match(/^\[?查看\s*#(\d+)\]?$/) : null;
     if (lookMatch) {

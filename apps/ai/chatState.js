@@ -329,18 +329,11 @@ export function buildContextBlock(e, maxN) {
   const recent = st.msgs.slice(-recentN);
 
   const lines = recent.map(m => `#${m.id} ${m.senderName || '群友'}: ${previewOf(m)}`);
-  const block = ['【近期聊天目录（编号索引，正文见下）】', ...lines].join('\n');
+  const summaryPart = st.summary ? `（更早聊过的事，摘要）\n${st.summary}\n` : '';
 
-  const summaryPart = st.summary ? `\n【更早聊过的事（摘要，非原文）】\n${st.summary}\n` : '';
-  const rules = [
-    '【使用说明】',
-    '- 目录只是索引；如某条消息内容对你的判断重要，先单独回复 [查看 #编号]，会补发该条原文，你再作正式回复。',
-    '- 只允许查看一次。看过后必须给出正式回复，或回复 [沉默] 表示此刻不接话。',
-    '- 如果判断此刻接话会很尴尬（没人等你说话、话题已过、接不上），宁可回复 [沉默]，不要勉强找话说。',
-    '- 目录仅供背景参考，禁止复述或续写目录里的文字，直接用你自己的话回复。'
-  ].join('\n');
-
-  return `${summaryPart}${block}\n${rules}`;
+  // 只产出干净的记录文本：标题和使用说明由 modelRouter 统一拼进 system——
+  // 目录文档混进 user 消息会被模型当正文复述
+  return `${summaryPart}${lines.join('\n')}`;
 }
 
 // 云大脑 payload 组装：滑窗最近消息整理成结构化数组（含他人发言，随请求带走、后端用完即弃）
