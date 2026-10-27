@@ -707,7 +707,7 @@ export async function musicanswerCheck(e) {
     let guessConfig = getGuessConfig(e);
     let {gameing, current } = guessConfig;
   if (gameing && e.msg == guessConfig.current) {
-      e.reply(`猜歌名结束,这也能猜中？\n蒙的吧~~可心才不信呢`, true);
+      e.reply(`猜歌名结束,这也能猜中？\n蒙的吧~~榴莲才不信呢`, true);
       guessConfig.gameing = false;
       clearTimeout(guessConfig.timer)
       return true;
