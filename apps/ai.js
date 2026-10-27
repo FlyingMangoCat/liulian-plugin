@@ -5,7 +5,8 @@ import { AIManager } from '#liulian.ai';
 import { Cfg } from '#liulian';
 import config from '#liulian.config';
 import * as chatState from '#liulian.chatState';
-import { getBrainCfg, isCloudConfigured, chat as cloudChat } from './ai/core/cloudBrainClient.js';
+import { getBrainCfg, isCloudConfigured } from './ai/core/cloudBrainClient.js';
+import { askBrain } from './ai/core/brain.js';
 
 // 延迟初始化函数
 async function ensureInitialized() {
@@ -235,41 +236,7 @@ export async function ai(e) {
   }
   e.__liulianClaimed = true;
 
-  // 5.5 云大脑模式：对话本体交给后端（记忆/人设/prompt/模型全在云端），插件只带结构化消息
-  if (getBrainCfg().mode === 'cloud') {
-    const chatId = e.group_id ? `g${e.group_id}` : `p${e.user_id}`;
-    const { context, summary } = chatState.buildContextPayload(e);
-    // force：插件端已知的强制场景（私聊/@bot/叫触发名），后端跳过硬规则直接接话
-    const force = !e.group_id ||
-      (Array.isArray(e.message) && e.message.some(m => m.type === 'at' && String(m.qq) === String(e.self_id))) ||
-      (config.ai?.triggers?.names || []).some(n => n && messageContent.includes(n));
-    const r = await cloudChat({
-      chatId,
-      force,
-      personaId: getBrainCfg().personaId,
-      replyTo: { userId: String(e.user_id), senderName: (e.sender?.card || e.sender?.nickname || '').slice(0, 12) },
-      message: { type: messageType, text: messageContent, imageUrl: imageUrl || undefined },
-      context, summary
-    });
-    if (r.silent || !r.reply) {
-      console.log('[榴莲AI] 云大脑未接话，静默放行');
-      chatState.markSilent(e);
-      return false;
-    }
-    const cleanReply = String(r.reply).replace(/\[查看\s*#\d+\]/g, '').trim();
-    if (!cleanReply) {
-      console.log('[榴莲AI] 云大脑回复清理后为空，静默放行');
-      chatState.markSilent(e);
-      return false;
-    }
-    await AIManager.splitReply(e, cleanReply);
-    chatState.markReplied(e);
-    chatState.maybeSummarize(e);
-    return true;
-  }
-
-  // 6. 处理消息并回复（上下文注入暂停：实测帮助有限且明显拖慢生成，需要时恢复下一行注释）
-  // const contextText = chatState.buildContextBlock(e, 3);
+  // 5.5 通用回复链路：单飞锁 → askBrain 取回复（cloud/local 适配器，见 brain.js）→ 统一清理 → 分条发送
   const chatId = e.group_id ? `g${e.group_id}` : `p${e.user_id}`;
   // 单飞锁：本群上一条回复还在生成时，新消息只入窗口不排队等模型
   // （真人在打字也不会同时回三条；排队只会让每条越等越久、话题越回越旧）
@@ -280,59 +247,36 @@ export async function ai(e) {
   generatingChats.add(chatId);
   try {
     const __t1 = Date.now();
-    let reply = await AIManager.generalChat(messageContent, messageType, e.user_id?.toString(), imageUrl, null);
+    const r = await askBrain(e, { messageContent, messageType, imageUrl });
     console.log(`[榴莲AI] 计时: 模型调用 ${Date.now() - __t1}ms，消息发出后累计 ${Date.now() - __t0}ms`);
 
-    // 目录复读检测：把目录当正文复述是基座模型的典型行为——去掉上下文重试一次，仍复读则静默
-    if (/【近期聊天目录/.test(String(reply))) {
-      console.log('[榴莲AI] 检测到目录复读，去掉上下文重试');
-      reply = await AIManager.generalChat(messageContent, messageType, e.user_id?.toString(), imageUrl, null);
-      if (/【近期聊天目录/.test(String(reply))) {
-        console.log('[榴莲AI] 重试仍复读目录，静默放行');
-        return false;
-      }
+    // 大脑主动不接话：不发送，计入空闲退避（本地 [沉默] / 云端 silent 同口径）
+    if (r.silent || !r.reply) {
+      console.log('[榴莲AI] 大脑未接话，静默放行');
+      chatState.markSilent(e);
+      return false;
     }
 
-    // 取阅循环：模型要求查看某条原文时，补拉一次再给一次正式回复机会（最多一轮）
-    const lookMatch = typeof reply === 'string' ? reply.match(/^\[?查看\s*#(\d+)\]?$/) : null;
-    if (lookMatch) {
-      console.log('[榴莲AI] 模型要求查看消息 #' + lookMatch[1]);
-      const content = await chatState.fetchMsgContent(chatId, lookMatch[1]);
-      if (content) {
-        const contextText2 = `${contextText}\n\n【你要求查看的原文】\n${content}\n（已查看，现在必须给出正式回复，或回复 [沉默]）`;
-        reply = await AIManager.generalChat(messageContent, messageType, e.user_id?.toString(), imageUrl, contextText2);
-      }
+    // 清理模型自造的包装标记——只动明确是包装的形态，不一刀切：
+    // 前缀必须带完整【】方括号才剥（裸"回复"开头的正文不动）；引号不碰——
+    // 回复合法引用别人说话时也以引号开头，交由提示词【输出格式】管源头
+    const cleanReply = String(r.reply)
+      .replace(/\[查看\s*#\d+\]/g, '')
+      .replace(/^【回复】\s*[:：]?\s*/, '')
+      .trim();
+    if (!cleanReply) {
+      console.log('[榴莲AI] 回复清理后为空，不发送');
+      chatState.markSilent(e);
+      return false;
     }
-
-    if (reply) {
-      // 模型主动选择沉默：不发送，计入空闲退避
-      if (/^\[?沉默\]?$/.test(String(reply).trim())) {
-        console.log('[榴莲AI] 模型判断此刻不接话，保持沉默');
-        chatState.markSilent(e);
-        return false;
-      }
-      // 清理模型自造的包装标记——只动明确是包装的形态，不一刀切：
-      // 前缀必须带完整【】方括号才剥（裸"回复"开头的正文不动）；引号不碰——
-      // 回复合法引用别人说话时也以引号开头，交由提示词【输出格式】管源头
-      const cleanReply = String(reply)
-        .replace(/\[查看\s*#\d+\]/g, '')
-        .replace(/^【回复】\s*[:：]?\s*/, '')
-        .trim();
-      if (!cleanReply) {
-        console.log('[榴莲AI] 回复清理后为空，不发送');
-        return false;
-      }
-      console.log('[榴莲AI] 准备回复:', cleanReply.substring(0, 50) + '...');
-      // 使用分段回复
-      await AIManager.splitReply(e, cleanReply);
-      console.log('[榴莲AI] 回复发送成功');
-      // 真实回复：重置退避 + 记入额度反馈 + 触发后台摘要
-      chatState.markReplied(e);
-      chatState.maybeSummarize(e);
-      return true;
-    } else {
-      console.log('[榴莲AI] 未获得有效回复');
-    }
+    console.log('[榴莲AI] 准备回复:', cleanReply.substring(0, 50) + '...');
+    // 使用分段回复
+    await AIManager.splitReply(e, cleanReply);
+    console.log('[榴莲AI] 回复发送成功');
+    // 真实回复：重置退避 + 记入额度反馈 + 触发后台摘要
+    chatState.markReplied(e);
+    chatState.maybeSummarize(e);
+    return true;
   } catch (error) {
     console.error('[榴莲AI] 处理失败:', error);
   } finally {
