@@ -12,8 +12,8 @@ const cfg = config.getconfig('liulian', 'botname', 'config');
   const botname = cfg.botname
 let godeye = true;
 let headPortrait = true;
-let url = "http://api.dlut-cc.live/imgur?num=1";
-let _url = "https://iw233.cn/api.php?sort=random";
+let url = "https://t.alcy.cc/ycy"; //随机二次元图，302 跳转到图床直链
+let _url = "https://t.alcy.cc/ycy";
 let sum = 99999; //这里记录涩图/老婆总次数 也就是每天可查询次数接口分开算
 const _path = process.cwd();
 const __dirname = path.resolve();
@@ -102,37 +102,71 @@ export async function dutang(e) {
   return true; //返回true 阻挡消息不再往下
 }
 export async function caihongpi(e) {
-  let url = "http://api.tianapi.com/caihongpi/index?key=947a91d78155a584a19c69b1ce50dd99";
-  let response = await fetch(url);
-  let res = await response.json(); //结果json字符串转项
-  let msg = [
-    segment.at(e.user_id),"\n",res.newslist[0].content,
-  ];
-  //发送消息
-  e.reply(msg);
+  try {
+    let url = "https://api.shadiao.pro/chp";
+    let response = await fetch(url);
+    let res = await response.json();
+    let text = res?.data?.text;
+    if (!text) {
+      logger.error(`[liulian-plugin][caihongpi] 接口返回异常: ${JSON.stringify(res).slice(0, 200)}`);
+      return false;
+    }
+    let msg = [
+      segment.at(e.user_id),"\n",text,
+    ];
+    //发送消息
+    e.reply(msg);
+  } catch (err) {
+    logger.error(`[liulian-plugin][caihongpi] ${err}`);
+    return false;
+  }
   return true; //返回true 阻挡消息不再往下
 }
 export async function saylove(e) {
-  let url = "http://api.tianapi.com/saylove/index?key=947a91d78155a584a19c69b1ce50dd99";
-  let response = await fetch(url);
-  let res = await response.json(); //结果json字符串转对象
-  let msg = [
-    segment.at(e.user_id),"\n",res.newslist[0].content,
-  ];
-  //发送消息
-  e.reply(msg);
+  try {
+    let url = "https://api.lovelive.tools/api/SweetNothings";
+    let response = await fetch(url);
+    let text = (await response.text()).trim();
+    if (!text) {
+      logger.error(`[liulian-plugin][saylove] 接口返回为空`);
+      return false;
+    }
+    let msg = [
+      segment.at(e.user_id),"\n",text,
+    ];
+    //发送消息
+    e.reply(msg);
+  } catch (err) {
+    logger.error(`[liulian-plugin][saylove] ${err}`);
+    return false;
+  }
   return true; //返回true 阻挡消息不再往下
 }
+async function jokeTranslateToZh(text) {
+  const turl = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=en|zh-CN`;
+  const tres = await (await fetch(turl)).json();
+  const translated = tres?.responseData?.translatedText;
+  return (tres?.responseStatus === 200 && translated) ? translated : text;
+}
 export async function joke(e) {
-  let url = "http://api.tianapi.com/joke/index?key=947a91d78155a584a19c69b1ce50dd99&num=1";
-  let response = await fetch(url);
-  let res = await response.json(); //结果json字符串转对象
-  let msg = [
-    segment.at(e.user_id),"\n",res.newslist[0].title,"\n",
-    res.newslist[0].content,
-  ];
-  //发送消息
-  e.reply(msg);
+  try {
+    let url = "https://v2.jokeapi.dev/joke/Any?type=single&blacklistFlags=nsfw,religious,racist,sexist,explicit";
+    let response = await fetch(url);
+    let res = await response.json();
+    if (res.error || !res.joke) {
+      logger.error(`[liulian-plugin][joke] 笑话接口返回异常: ${JSON.stringify(res).slice(0, 200)}`);
+      return false;
+    }
+    let jokeText = await jokeTranslateToZh(res.joke);
+    let msg = [
+      segment.at(e.user_id),"\n",jokeText,
+    ];
+    //发送消息
+    e.reply(msg);
+  } catch (err) {
+    logger.error(`[liulian-plugin][joke] ${err}`);
+    return false;
+  }
   return true; //返回true 阻挡消息不再往下
 }
 export async function dog(e) {
@@ -331,160 +365,46 @@ const cfg = config.getconfig('liulian', 'token', 'config');
   return true;
 }
 
+//十二星座中英文映射
+const xzysMap = {
+  白羊: 'aries', 金牛: 'taurus', 双子: 'gemini', 巨蟹: 'cancer',
+  狮子: 'leo', 处女: 'virgo', 天秤: 'libra', 天蝎: 'scorpio',
+  射手: 'sagittarius', 摩羯: 'capricorn', 水瓶: 'aquarius', 双鱼: 'pisces',
+};
 export async function xzys(e) {
-    
-  //e.msg 用户的命令消息
-  let keyword = e.msg.replace("#","");
-  keyword = keyword.replace("运势","");
-  console.log(keyword);
-  
-  if(keyword == `白羊` || keyword == `白羊座`){
-       let msg = [
-    //@用户
-    segment.at(e.user_id),
-    
-    segment.image(`http://xiaoapi.cn/API/xzys_pic.php?msg=%E7%99%BD%E7%BE%8A%E5%BA%A7`),
-  ];
-
-  e.reply(msg);
+  //e.msg 用户的命令消息，去掉 #、运势、座 后得到星座名
+  let keyword = e.msg.replace("#", "").replace("运势", "").replace("座", "").trim();
+  const sign = xzysMap[keyword];
+  if (!sign) {
+    e.reply(`请输入正确的星座名称！`);
+    return true;
   }
-  
- else if(keyword == `金牛` || keyword == `金牛座` ){
-       let msg = [
-    //@用户
-    segment.at(e.user_id),
-    
-    segment.image(`http://xiaoapi.cn/API/xzys_pic.php?msg=%E9%87%91%E7%89%9B%E5%BA%A7`),
-  ];
 
-  e.reply(msg);
-  
+  try {
+    let url = `https://v2.xxapi.cn/api/horoscope?type=${sign}&time=today`;
+    let response = await fetch(url);
+    let res = await response.json();
+    let data = res?.data;
+    if (res.code !== 200 || !data) {
+      logger.error(`[liulian-plugin][xzys] 接口返回异常: ${JSON.stringify(res).slice(0, 200)}`);
+      return false;
+    }
+    let msg = [
+      segment.at(e.user_id),
+      `\n【${data.title} ${data.type}】\n`,
+      `综合指数：${data.index?.all || '未知'}　速配星座：${data.luckyconstellation || '未知'}\n`,
+      `整体：${data.fortunetext?.all || '未知'}\n`,
+      `爱情：${data.fortunetext?.love || '未知'}\n`,
+      `事业：${data.fortunetext?.work || '未知'}\n`,
+      `财运：${data.fortunetext?.money || '未知'}\n`,
+      `健康：${data.fortunetext?.health || '未知'}\n`,
+      `宜：${data.todo?.yi || '无'}　忌：${data.todo?.ji || '无'}`,
+    ];
+    e.reply(msg);
+  } catch (err) {
+    logger.error(`[liulian-plugin][xzys] ${err}`);
+    return false;
   }
-  
-else  if(keyword == `双子` || keyword == `双子座` ){
-       let msg = [
-    //@用户
-    segment.at(e.user_id),
-    
-    segment.image(`http://xiaoapi.cn/API/xzys_pic.php?msg=%E5%8F%8C%E5%AD%90`),
-  ];
-
-  e.reply(msg);
-  
-  }
-  
-else  if(keyword == `巨蟹` || keyword == `巨蟹座` ){
-       let msg = [
-    //@用户
-    segment.at(e.user_id),
-    
-    segment.image(`http://xiaoapi.cn/API/xzys_pic.php?msg=%E5%B7%A8%E8%9F%B9`),
-  ];
-
-  e.reply(msg);
-  
-  }
-  
-else if(keyword == `狮子` || keyword == `狮子座` ){
-       let msg = [
-    //@用户
-    segment.at(e.user_id),
-    
-    segment.image(`http://xiaoapi.cn/API/xzys_pic.php?msg=%E7%8B%AE%E5%AD%90`),
-  ];
-
-  e.reply(msg);
-  
-  }
-  
-else   if(keyword == `处女` || keyword == `处女座` ){
-       let msg = [
-    //@用户
-    segment.at(e.user_id),
-    
-    segment.image(`http://xiaoapi.cn/API/xzys_pic.php?msg=%E5%A4%84%E5%A5%B3`),
-  ];
-
-  e.reply(msg);
-  
-  }
-  
-else  if(keyword == `天秤` || keyword == `天秤座` ){
-       let msg = [
-    //@用户
-    segment.at(e.user_id),
-    
-    segment.image(`http://xiaoapi.cn/API/xzys_pic.php?msg=%E5%A4%A9%E7%A7%A4`),
-  ];
-
-  e.reply(msg);
-  
-  }
-  
-  
-else  if(keyword == `天蝎` || keyword == `天蝎座` ){
-       let msg = [
-    //@用户
-    segment.at(e.user_id),
-    
-    segment.image(`http://xiaoapi.cn/API/xzys_pic.php?msg=%E5%A4%A9%E8%9D%8E`),
-  ];
-
-  e.reply(msg);
-  
-  }
-  
-else  if(keyword == `射手` || keyword == `射手座` ){
-       let msg = [
-    //@用户
-    segment.at(e.user_id),
-    
-    segment.image(`http://xiaoapi.cn/API/xzys_pic.php?msg=%E5%B0%84%E6%89%8B`),
-  ];
-
-  e.reply(msg);
-  
-  }
-  
- else if(keyword == `摩羯` || keyword == `摩羯座` ){
-       let msg = [
-    //@用户
-    segment.at(e.user_id),
-    
-    segment.image(`http://xiaoapi.cn/API/xzys_pic.php?msg=%E6%91%A9%E7%BE%AF`),
-  ];
-
-  e.reply(msg);
-  
-  }
-  
- else if(keyword == `水瓶` || keyword == `水瓶座` ){
-       let msg = [
-    //@用户
-    segment.at(e.user_id),
-    
-    segment.image(`http://xiaoapi.cn/API/xzys_pic.php?msg=%E6%B0%B4%E7%93%B6`),
-  ];
-
-  e.reply(msg);
-  
-  }
-  
-  
- else if(keyword == `双鱼` || keyword == `双鱼座` ){
-       let msg = [
-    //@用户
-    segment.at(e.user_id),
-    
-    segment.image(`http://xiaoapi.cn/API/xzys_pic.php?msg=%E5%8F%8C%E9%B1%BC`),
-  ];
-
-  e.reply(msg);
-  
-  }else
-   {
-       e.reply(`请输入正确的星座名称！`);
-   }
 
   return true; //返回true 阻挡消息不再往下
 }
@@ -585,10 +505,14 @@ export async function setu(e) {
 		}
 		new_sum += JSON.parse(data)[0].num; //次数累加
 	}
-	let response = await fetch(url);
-	let res = await response.json();
-	console.log(res.urls[0])
-	
+	let response = await fetch(url, { redirect: 'follow' });
+	if (!response.ok) {
+		logger.error(`[liulian-plugin][setu] 图源请求失败: HTTP ${response.status}`);
+		e.reply(`图源抽风了，稍后再试吧~`);
+		return true;
+	}
+	const picUrl = response.url; //302 跳转后的图床直链
+
 	let msg = [
 		segment.at(e.user_id), "今日份色图:",
 	];
@@ -596,7 +520,7 @@ export async function setu(e) {
 	var new_date = (new Date(time).getTime() - new Date().getTime()) / 1000 / 60 //获取隔天凌晨四点的时间差
 	let redis_data = [{
 		num: new_sum, //次数
-		// url:res.urls[0], 抽出的色图
+		// url:picUrl, 抽出的色图
 	}]
 	console.log(redis_data)
 	redis.set(`Yunzai:setlinshimsg:${e.user_id}`, JSON.stringify(redis_data), { //把色图链接写入缓存防止一直色色
@@ -604,7 +528,7 @@ export async function setu(e) {
 	});
 	//发送消息
 	e.reply(msg);
-	e.reply(segment.flash(res.urls[0])) //太色了改成闪照方式发送
+	e.reply(segment.flash(picUrl)) //太色了改成闪照方式发送
 	return true; //返回true 阻挡消息不再往下
 }
 
