@@ -290,8 +290,13 @@ export async function ai(e) {
         chatState.markSilent(e);
         return false;
       }
-      // 清理残留的取阅标记（正常不应出现，双保险）
-      const cleanReply = String(reply).replace(/\[查看\s*#\d+\]/g, '').trim();
+      // 清理模型自造的包装标记——只动明确是包装的形态，不一刀切：
+      // 前缀必须带完整【】方括号才剥（裸"回复"开头的正文不动）；引号不碰——
+      // 回复合法引用别人说话时也以引号开头，交由提示词【输出格式】管源头
+      const cleanReply = String(reply)
+        .replace(/\[查看\s*#\d+\]/g, '')
+        .replace(/^【回复】\s*[:：]?\s*/, '')
+        .trim();
       if (!cleanReply) {
         console.log('[榴莲AI] 回复清理后为空，不发送');
         return false;
