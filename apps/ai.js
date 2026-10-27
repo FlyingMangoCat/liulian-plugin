@@ -265,11 +265,12 @@ export async function ai(e) {
     return true;
   }
 
-  // 6. 处理消息并回复（不注入会话上下文，仅人设 + 用户消息）
+  // 6. 处理消息并回复（上下文：远期摘要 + 最近 3 条原文，试运行期从少往多调）
   const chatId = e.group_id ? `g${e.group_id}` : `p${e.user_id}`;
+  const contextText = chatState.buildContextBlock(e, 3);
   try {
     const __t1 = Date.now();
-    let reply = await AIManager.generalChat(messageContent, messageType, e.user_id?.toString(), imageUrl, null);
+    let reply = await AIManager.generalChat(messageContent, messageType, e.user_id?.toString(), imageUrl, contextText);
     console.log(`[榴莲AI] 计时: 模型调用 ${Date.now() - __t1}ms，消息发出后累计 ${Date.now() - __t0}ms`);
 
     // 取阅循环：模型要求查看某条原文时，补拉一次再给一次正式回复机会（最多一轮）

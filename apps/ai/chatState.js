@@ -317,13 +317,14 @@ export function markSilent(e) {
 
 // ==================== 双层上下文（远期摘要 + 近期目录） ====================
 
-export function buildContextBlock(e) {
+export function buildContextBlock(e, maxN) {
   const chatId = e.group_id ? `g${e.group_id}` : `p${e.user_id}`;
   const st = chatStates.get(chatId);
   if (!st || !st.msgs.length) return '';
 
   const d = getDecisionCfg();
-  const recentN = Number(d.digest_recent) || 10;
+  // 调用方可显式指定条数（试运行期从少往多调），不传则用配置值
+  const recentN = Number(maxN) || Number(d.digest_recent) || 10;
   trimWindow(st);
   const recent = st.msgs.slice(-recentN);
 
@@ -335,7 +336,8 @@ export function buildContextBlock(e) {
     '【使用说明】',
     '- 目录只是索引；如某条消息内容对你的判断重要，先单独回复 [查看 #编号]，会补发该条原文，你再作正式回复。',
     '- 只允许查看一次。看过后必须给出正式回复，或回复 [沉默] 表示此刻不接话。',
-    '- 如果判断此刻接话会很尴尬（没人等你说话、话题已过、接不上），宁可回复 [沉默]，不要勉强找话说。'
+    '- 如果判断此刻接话会很尴尬（没人等你说话、话题已过、接不上），宁可回复 [沉默]，不要勉强找话说。',
+    '- 目录仅供背景参考，禁止复述或续写目录里的文字，直接用你自己的话回复。'
   ].join('\n');
 
   return `${summaryPart}${block}\n${rules}`;
