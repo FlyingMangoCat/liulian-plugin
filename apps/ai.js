@@ -105,6 +105,9 @@ function isCommandMessage(e) {
 // 云大脑未配置提示：只对主人提示一次（静默原则，不打扰群/私聊）
 let cloudHintSent = false;
 
+// 单飞锁：记录正在生成回复的会话（chatId），同一群同时只跑一次模型调用
+const generatingChats = new Set();
+
 export async function ai(e) {
   const __t0 = Date.now();
   // 确保初始化（延迟到第一次使用）
@@ -268,6 +271,13 @@ export async function ai(e) {
   // 6. 处理消息并回复（上下文：远期摘要 + 最近 3 条原文，试运行期从少往多调）
   const chatId = e.group_id ? `g${e.group_id}` : `p${e.user_id}`;
   const contextText = chatState.buildContextBlock(e, 3);
+  // 单飞锁：本群上一条回复还在生成时，新消息只入窗口不排队等模型
+  // （真人在打字也不会同时回三条；排队只会让每条越等越久、话题越回越旧）
+  if (generatingChats.has(chatId)) {
+    console.log('[榴莲AI] 本群回复生成中，本条只入窗口不排队');
+    return false;
+  }
+  generatingChats.add(chatId);
   try {
     const __t1 = Date.now();
     let reply = await AIManager.generalChat(messageContent, messageType, e.user_id?.toString(), imageUrl, contextText);
@@ -315,6 +325,8 @@ export async function ai(e) {
     }
   } catch (error) {
     console.error('[榴莲AI] 处理失败:', error);
+  } finally {
+    generatingChats.delete(chatId);
   }
   return false;
 }
