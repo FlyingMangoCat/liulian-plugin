@@ -37,7 +37,12 @@ export default class LocalProvider {
             }
         });
 
-        return response.data.message.content;
+        // ollama 响应自带 token 统计：prompt_eval_count=读题消耗，eval_count=生成消耗
+        const d = response.data || {};
+        if (d.eval_count || d.prompt_eval_count) {
+            console.log(`[榴莲AI] token: 读题 ${d.prompt_eval_count || 0} + 生成 ${d.eval_count || 0}`);
+        }
+        return d.message.content;
     }
 
     async generateWithImage(model, prompt, image, options = {}) {
