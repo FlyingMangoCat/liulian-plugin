@@ -268,9 +268,9 @@ export async function ai(e) {
     return true;
   }
 
-  // 6. 处理消息并回复（上下文：远期摘要 + 最近 3 条原文，试运行期从少往多调）
+  // 6. 处理消息并回复（上下文注入暂停：实测帮助有限且明显拖慢生成，需要时恢复下一行注释）
+  // const contextText = chatState.buildContextBlock(e, 3);
   const chatId = e.group_id ? `g${e.group_id}` : `p${e.user_id}`;
-  const contextText = chatState.buildContextBlock(e, 3);
   // 单飞锁：本群上一条回复还在生成时，新消息只入窗口不排队等模型
   // （真人在打字也不会同时回三条；排队只会让每条越等越久、话题越回越旧）
   if (generatingChats.has(chatId)) {
@@ -280,7 +280,7 @@ export async function ai(e) {
   generatingChats.add(chatId);
   try {
     const __t1 = Date.now();
-    let reply = await AIManager.generalChat(messageContent, messageType, e.user_id?.toString(), imageUrl, contextText);
+    let reply = await AIManager.generalChat(messageContent, messageType, e.user_id?.toString(), imageUrl, null);
     console.log(`[榴莲AI] 计时: 模型调用 ${Date.now() - __t1}ms，消息发出后累计 ${Date.now() - __t0}ms`);
 
     // 目录复读检测：把目录当正文复述是基座模型的典型行为——去掉上下文重试一次，仍复读则静默
