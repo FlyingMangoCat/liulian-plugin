@@ -40,10 +40,10 @@ const settings2 = {
     path: path.join(__dirname, "/plugins/liulian-plugin/resources/自定义表情"),
   }
 
-// 触发概率：自己发出的消息（分片回灌）按原概率一半参与抽奖
+// 触发概率：自己发出的消息（分片回灌）按原概率的 25% 参与抽奖
 function getGl(e) {
   const base = Cfg.get('sys.gl');
-  return String(e.user_id) === String(e.self_id) ? Number(base) / 2 : base;
+  return String(e.user_id) === String(e.self_id) ? Number(base) / 4 : base;
 }
 
 // 命令规则定义
