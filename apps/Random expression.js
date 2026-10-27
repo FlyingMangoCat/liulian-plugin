@@ -40,6 +40,12 @@ const settings2 = {
     path: path.join(__dirname, "/plugins/liulian-plugin/resources/自定义表情"),
   }
 
+// 触发概率：自己发出的消息（分片回灌）按原概率一半参与抽奖
+function getGl(e) {
+  const base = Cfg.get('sys.gl');
+  return String(e.user_id) === String(e.self_id) ? Number(base) / 2 : base;
+}
+
 // 命令规则定义
 // check 函数：判断是否应该随机发送表情包
 export function checkRandom(e) {
@@ -51,10 +57,7 @@ export function checkRandom(e) {
   if (hmd_userqq.includes(e.user_id)) return false;
   // 生成0-100的随机数作为触发概率
   let random_ = lodash.random(0, 100);
-  // 获取配置的触发概率
-  let gl = Cfg.get('sys.gl');
-  // 如果随机数小于配置概率，返回 true
-  return random_ < gl;
+  return random_ < getGl(e);
 }
 
 export const rule = {
@@ -154,10 +157,8 @@ if (!Cfg.get('sys.bq', false)) {
   }
 	// 生成0-100的随机数作为触发概率
 	let random_ = lodash.random(0, 100);
-  // 获取配置的触发概率
-  let gl= Cfg.get('sys.gl')
-	// 如果随机数小于配置概率，则触发表情包
-	if (random_ < gl ) {
+	// 如果随机数小于配置概率，则触发表情包（自发消息按原概率一半）
+	if (random_ < getGl(e) ) {
 	chuochuo(e);
   liulianSafe.logger.mark(`liulian-plugin -- 随机表情`);
   // 已触发表情包也不拦截消息，返回 false 让框架继续传递给后续规则/插件
