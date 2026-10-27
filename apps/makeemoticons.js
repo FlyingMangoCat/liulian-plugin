@@ -185,7 +185,7 @@ function memeErrorMessage(errorCode) {
 /**
  * 表情制作主函数
  * @param {Object} e - 事件对象
- * @returns {boolean|void} - 返回false表示不处理，void表示已处理
+ * @returns {boolean} - noCheck 强规则：处理与否一律 return false 放行，不抢后续插件/指令的消息
  */
 export async function biaoQing(e) {
   // 只在群聊中处理，且必须有消息内容
@@ -198,7 +198,7 @@ export async function biaoQing(e) {
   if (msg === '表情更新') {
     const keys = await refreshMemeKeys();
     await e.reply(keys ? `表情清单已更新，当前可用 ${keys.length} 个表情` : '表情清单获取失败，请稍后再试');
-    return true;
+    return false;
   }
 
   // @ 目标解析：优先从 e.message 取结构化 at，兜底从 msg 的 CQ 码文本提取（协议端可能只给原始 CQ 码）
@@ -250,7 +250,7 @@ export async function biaoQing(e) {
     }
     if (images.length > MAX_IMAGES || images.reduce((s, b) => s + b.length, 0) > MAX_BYTES) {
       await e.reply([segment.at(e.user_id), memeErrorMessage('TOO_LARGE')]);
-      return true;
+      return false;
     }
 
     // 可选参数（如 petpet 的圆形）
@@ -278,18 +278,18 @@ export async function biaoQing(e) {
     }
     if (ret.ok && ret.buffer) {
       await e.reply([segment.at(e.user_id), segment.image(ret.buffer)]);
-      return true;
+      return false;
     }
     // 会员资格类错误按群静默：静默期内不回复直接结束
     if (MEMBER_MUTE_CODES.has(ret.errorCode) && !shouldRemindMember(String(e.group_id))) {
-      return true;
+      return false;
     }
     await e.reply([segment.at(e.user_id), memeErrorMessage(ret.errorCode)]);
-    return true;
+    return false;
   } catch (err) {
     logger.mark(`[表情制作] 生成失败: ${err.message}`);
     await e.reply([segment.at(e.user_id), memeErrorMessage(err.message === 'TOO_LARGE' ? 'TOO_LARGE' : 'NETWORK_ERROR')]);
-    return true;
+    return false;
   }
 }
 
