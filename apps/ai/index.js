@@ -136,8 +136,10 @@ class AIManager {
             return true;
         }
         
-        // 被@时总是回复
-        if (e.at && safeConfig.triggers.always_respond_to_mentions) {
+        // 被@时总是回复（仅限@机器人自己）：e.at 只要有@段就为真，
+        // @别人的消息也会命中，此前导致"@谁都解析成被@模型"
+        const atSelf = Array.isArray(e.message) && e.message.some(m => m.type === 'at' && String(m.qq) === String(e.self_id));
+        if (atSelf && safeConfig.triggers.always_respond_to_mentions) {
             console.log('[AI模块] 被@提及，总是回复');
             return true;
         }
