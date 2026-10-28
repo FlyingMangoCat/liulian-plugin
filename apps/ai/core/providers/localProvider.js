@@ -32,6 +32,9 @@ export default class LocalProvider {
             options: {
                 temperature: options.temperature || 0.7,
                 num_predict: options.num_predict || 1000,
+                // 上下文窗口：ollama 默认只有 2048，人设+目录一超就从开头截断，
+                // 模型拿到残缺提示词输出崩坏（此前"一开上下文就没反应"的根因）
+                num_ctx: Number(options.num_ctx) || 8192,
                 top_p: options.top_p || 0.9,
                 repeat_penalty: 1.1
             }
