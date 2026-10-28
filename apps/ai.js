@@ -305,6 +305,9 @@ export async function ai(e) {
     const cleanReply = replyText
       .replace(/\[查看\s*#\d+\]/g, '')
       .replace(/^【回复】\s*[:：]?\s*/, '')
+      // 模型学着目录造假引用标签（[reply]xx[/reply]）：剥壳保内容，按普通文本发
+      .replace(/\[reply\]([\s\S]*?)\[\/reply\]/gi, '$1')
+      .replace(/\[\/?reply\]/gi, '')
       // 复读收敛：弱模型看了目录会把群里原话连写几遍（"有人斗虫吗？/有人斗虫吗？/…"），
       // 同一短语用斜杠分隔重复≥2次收敛成一遍，尾部斜杠剥掉——只动这种复读形态，不碰正常文本
       .replace(/([^\s/]{2,30}[?？!！。～~]?)(?:\s*\/+\s*\1)+/g, '$1')

@@ -67,7 +67,15 @@ function extractParts(e) {
         isMediaOnly = false;
         break;
       }
-      case 'reply': case 'forward': case 'xml': case 'json': {
+      case 'reply': {
+        // 引用段：目录里不能露 "[reply]" 这种可被模型模仿的标签形态（有样学样造假引用），
+        // 改喂引用原话摘要（无 source 时只标"引用消息"）
+        const q = String(e.source?.raw_message || '').trim().substring(0, 40);
+        parts.push({ kind: 'text', text: q ? `[引用消息]${q}` : '[引用消息]' });
+        isMediaOnly = false;
+        break;
+      }
+      case 'forward': case 'xml': case 'json': {
         parts.push({ kind: 'other', type: m.type });
         break;
       }
