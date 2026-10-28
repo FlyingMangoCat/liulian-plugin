@@ -254,8 +254,9 @@ export async function ai(e) {
     console.log(`[榴莲AI] 计时: 模型调用 ${Date.now() - __t1}ms，消息发出后累计 ${Date.now() - __t0}ms`);
 
     // 大脑主动不接话：不发送，计入空闲退避（本地 [沉默] / 云端 silent 同口径）
+    // 静默时打原始回复前 60 字：基座模型不出结束符/乱吐标记时，日志能直接看见它说了什么
     if (r.silent || !r.reply) {
-      console.log('[榴莲AI] 大脑未接话，静默放行');
+      console.log('[榴莲AI] 大脑未接话，静默放行 | 原始回复:', String(r.reply ?? r).substring(0, 60));
       chatState.markSilent(e);
       return false;
     }

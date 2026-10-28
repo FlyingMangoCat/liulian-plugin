@@ -31,7 +31,8 @@ export default class LocalProvider {
             stream: false,
             options: {
                 temperature: options.temperature || 0.7,
-                num_predict: options.num_predict || 1000,
+                // 输出上限：格式要求两句话以内，1000 只会让不出结束符的基座模型呓语 5 分钟
+                num_predict: options.num_predict || 200,
                 // 上下文窗口：ollama 默认只有 2048，人设+目录一超就从开头截断，
                 // 模型拿到残缺提示词输出崩坏（此前"一开上下文就没反应"的根因）
                 num_ctx: Number(options.num_ctx) || 8192,
