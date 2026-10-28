@@ -280,14 +280,28 @@ export async function ai(e) {
       .replace(/\[查看\s*#\d+\]/g, '')
       .replace(/^【回复】\s*[:：]?\s*/, '')
       .trim();
-    if (!cleanReply) {
+
+    // 截断收尾：命中 num_predict 上限被掐断的回复没有句尾标点——退到最后一个句读再发，
+    // 不留半句话（正常短回复自带句尾标点，不会进这个分支；根治要换带对话模板的 instruct 模型）
+    let finalReply = cleanReply;
+    if (finalReply.length > 120 && !/[。！？!?~\n…"）)】]$/.test(finalReply)) {
+      const cut = Math.max(
+        finalReply.lastIndexOf('。'), finalReply.lastIndexOf('！'), finalReply.lastIndexOf('？'),
+        finalReply.lastIndexOf('~'), finalReply.lastIndexOf('\n'), finalReply.lastIndexOf('”')
+      );
+      if (cut > 20) {
+        console.log('[榴莲AI] 回复被生成上限截断，退回最近句读');
+        finalReply = finalReply.substring(0, cut + 1).trim();
+      }
+    }
+    if (!finalReply) {
       console.log('[榴莲AI] 回复清理后为空，不发送');
       chatState.markSilent(e);
       return false;
     }
-    console.log('[榴莲AI] 准备回复:', cleanReply.substring(0, 50) + '...');
+    console.log('[榴莲AI] 准备回复:', finalReply.substring(0, 50) + '...');
     // 使用分段回复
-    await AIManager.splitReply(e, cleanReply);
+    await AIManager.splitReply(e, finalReply);
     console.log('[榴莲AI] 回复发送成功');
     // 真实回复：重置退避 + 记入额度反馈 + 触发后台摘要
     chatState.markReplied(e);
