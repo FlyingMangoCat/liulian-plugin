@@ -333,24 +333,28 @@ ${memoryContext}
         const maxLength = safeConfig.reply.max_length;
         const delay = safeConfig.reply.delay_between_messages;
 
-        // 按句号切成句，删掉句号；超长单句再按字数硬切兜底
-        const sentences = String(reply).split(/(?<=[。])/)
-            .map(s => s.replace(/。/g, ''))
-            .flatMap(s => s.length > maxLength ? s.match(new RegExp(`.{1,${maxLength}}`, 'g')) : [s])
-            .filter(s => s && s.trim());
+        // 换行 = 模型想连发几条的表达方式：先按换行拆成独立 burst，
+        // 每条 burst 内部再按句号切成句（删句号）分批发；超长单句按字数硬切兜底
+        const bursts = String(reply).split(/\n+/).map(s => s.trim()).filter(Boolean);
+        for (const burst of bursts) {
+            const sentences = burst.split(/(?<=[。])/)
+                .map(s => s.replace(/。/g, ''))
+                .flatMap(s => s.length > maxLength ? s.match(new RegExp(`.{1,${maxLength}}`, 'g')) : [s])
+                .filter(s => s && s.trim());
 
-        let currentMessage = '';
-        for (const sentence of sentences) {
-            if ((currentMessage + sentence).length > maxLength && currentMessage) {
-                await e.reply(currentMessage, true);
-                await new Promise(resolve => setTimeout(resolve, delay));
-                currentMessage = '';
+            let currentMessage = '';
+            for (const sentence of sentences) {
+                if ((currentMessage + sentence).length > maxLength && currentMessage) {
+                    await e.reply(currentMessage, true);
+                    await new Promise(resolve => setTimeout(resolve, delay));
+                    currentMessage = '';
+                }
+                currentMessage += sentence;
             }
-            currentMessage += sentence;
-        }
 
-        if (currentMessage.trim()) {
-            await e.reply(currentMessage, true);
+            if (currentMessage.trim()) {
+                await e.reply(currentMessage, true);
+            }
         }
     }
 
