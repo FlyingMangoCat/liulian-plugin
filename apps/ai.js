@@ -266,7 +266,7 @@ export async function ai(e) {
 
   // 5.5 通用回复链路：单飞锁 → askBrain 取回复（cloud/local 适配器，见 brain.js）→ 统一清理 → 分条发送
   // 上下文剂量：最近 N 条原文，0 = 取消注入（取消/恢复只改这个数字，不动代码）
-  const CONTEXT_RECENT_N = 3;
+  const CONTEXT_RECENT_N = 5;
   const contextText = chatState.buildContextBlock(e, CONTEXT_RECENT_N);
   const chatId = e.group_id ? `g${e.group_id}` : `p${e.user_id}`;
   // 单飞锁：本群上一条回复还在生成时，新消息只入窗口不排队等模型
