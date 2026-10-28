@@ -44,15 +44,18 @@ async function askLocal (e, { messageContent, messageType, imageUrl, contextText
   let reply = await AIManager.generalChat(messageContent, messageType, e.user_id?.toString(), imageUrl, contextText || null)
   if (!reply) return silentExit('generalChat空', reply)
 
-  // 目录复读检测：把记录当正文复述是弱模型的典型行为——去掉上下文重试一次，仍复读则静默
-  if (/【近期群聊记录/.test(String(reply))) {
+  // 目录复读检测：整标题复述或单行复述（"#6 名字: 原话"）都是把记录当正文——
+  // 去掉上下文重试一次，仍复读则静默
+  const isEcho = (s) => /【近期群聊记录/.test(s) || /^\s*#\d+\s+\S+[:：]/m.test(s)
+  if (isEcho(String(reply))) {
     console.log('[榴莲AI] 检测到目录复读，去掉上下文重试')
     reply = await AIManager.generalChat(messageContent, messageType, e.user_id?.toString(), imageUrl, null)
-    if (!reply || /【近期群聊记录/.test(String(reply))) return silentExit('复读重试', reply)
+    if (!reply || isEcho(String(reply))) return silentExit('复读重试', reply)
   }
 
   // 取阅：模型要求查看某条原文时，补拉一次再给一次正式回复机会（最多一轮）
-  const lookMatch = String(reply).match(/^\[?查看\s*#(\d+)\]?$/)
+  // [查看 #3] 和 [查看 3]（漏写#）都认——弱模型格式记不全，认内容不认写法
+  const lookMatch = String(reply).match(/^\[?查看\s*#?(\d+)\]?$/)
   if (lookMatch) {
     console.log('[榴莲AI] 模型要求查看消息 #' + lookMatch[1])
     const content = await chatState.fetchMsgContent(chatIdOf(e), lookMatch[1])
