@@ -235,9 +235,11 @@ export async function biaoQing(e) {
   // 无目标且无图片素材：不响应（裸关键词"摸"或无目标尾巴句都拦截，避免空 QQ 请求）
   if (!targetQq && !(e.img && e.img[0])) return false;
 
-  await e.reply([segment.at(e.user_id), '制作中，请稍后……']);
-
-  try {
+  // 延迟提示：请求先发出去，3 秒还没出图才补"制作中"；快速返回直接发图零提示，避免每次都喊一句很突兀
+  const remindTimer = setTimeout(() => {
+    e.reply([segment.at(e.user_id), '制作中，请稍后……']).catch(() => {});
+  }, 3000);
+  const work = (async () => { try {
     // 素材组装（分步日志：沉默时可直接定位卡点）
     // 头像走 qq 字段由服务端代拉，省去本地下载再上传；图片才走 images 上传
     const images = [];
@@ -296,6 +298,10 @@ export async function biaoQing(e) {
     await e.reply([segment.at(e.user_id), memeErrorMessage(err.message === 'TOO_LARGE' ? 'TOO_LARGE' : 'NETWORK_ERROR')]);
     return false;
   }
+  })();
+  // 无论成败：工作结束即停表，3 秒内完成就不会出现"制作中"
+  clearTimeout(remindTimer);
+  return false;
 }
 
 /**
