@@ -32,12 +32,18 @@ async function askCloud (e, { messageContent, messageType, imageUrl }) {
   return { reply: String(r.reply) }
 }
 
-// local 适配器：本地 ollama 模型，含取阅重试等本地特有行为
-// 上下文目录当前未注入（实测拖慢生成，见 ai.js 注释），取阅时只补原文
-async function askLocal (e, { messageContent, messageType, imageUrl }) {
+// local 适配器：本地 ollama 模型，含目录复读兜底与取阅重试等本地特有行为
+async function askLocal (e, { messageContent, messageType, imageUrl, contextText }) {
   const { AIManager } = await import('#liulian.ai')
-  let reply = await AIManager.generalChat(messageContent, messageType, e.user_id?.toString(), imageUrl, null)
+  let reply = await AIManager.generalChat(messageContent, messageType, e.user_id?.toString(), imageUrl, contextText || null)
   if (!reply) return { silent: true }
+
+  // 目录复读检测：把记录当正文复述是弱模型的典型行为——去掉上下文重试一次，仍复读则静默
+  if (/【近期群聊记录/.test(String(reply))) {
+    console.log('[榴莲AI] 检测到目录复读，去掉上下文重试')
+    reply = await AIManager.generalChat(messageContent, messageType, e.user_id?.toString(), imageUrl, null)
+    if (!reply || /【近期群聊记录/.test(String(reply))) return { silent: true }
+  }
 
   // 取阅：模型要求查看某条原文时，补拉一次再给一次正式回复机会（最多一轮）
   const lookMatch = String(reply).match(/^\[?查看\s*#(\d+)\]?$/)
@@ -46,7 +52,7 @@ async function askLocal (e, { messageContent, messageType, imageUrl }) {
     const content = await chatState.fetchMsgContent(chatIdOf(e), lookMatch[1])
     if (content) {
       reply = await AIManager.generalChat(messageContent, messageType, e.user_id?.toString(), imageUrl,
-        `【你要求查看的原文】\n${content}\n（已查看，现在必须给出正式回复，或回复 [沉默]）`)
+        `${contextText ? contextText + '\n\n' : ''}【你要求查看的原文】\n${content}\n（已查看，现在必须给出正式回复，或回复 [沉默]）`)
     }
   }
   if (!reply) return { silent: true }

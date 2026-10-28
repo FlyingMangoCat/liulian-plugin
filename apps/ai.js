@@ -237,6 +237,8 @@ export async function ai(e) {
   e.__liulianClaimed = true;
 
   // 5.5 通用回复链路：单飞锁 → askBrain 取回复（cloud/local 适配器，见 brain.js）→ 统一清理 → 分条发送
+  // 上下文恢复试水：远期摘要 + 最近 3 条原文，加条数只改这个数字
+  const contextText = chatState.buildContextBlock(e, 3);
   const chatId = e.group_id ? `g${e.group_id}` : `p${e.user_id}`;
   // 单飞锁：本群上一条回复还在生成时，新消息只入窗口不排队等模型
   // （真人在打字也不会同时回三条；排队只会让每条越等越久、话题越回越旧）
@@ -247,7 +249,7 @@ export async function ai(e) {
   generatingChats.add(chatId);
   try {
     const __t1 = Date.now();
-    const r = await askBrain(e, { messageContent, messageType, imageUrl });
+    const r = await askBrain(e, { messageContent, messageType, imageUrl, contextText });
     console.log(`[榴莲AI] 计时: 模型调用 ${Date.now() - __t1}ms，消息发出后累计 ${Date.now() - __t0}ms`);
 
     // 大脑主动不接话：不发送，计入空闲退避（本地 [沉默] / 云端 silent 同口径）
@@ -257,10 +259,22 @@ export async function ai(e) {
       return false;
     }
 
+    // 协议垃圾兜底：模型把 [沉默] 和正文混着输出、或带（#18）目录编号尾巴——剥掉，
+    // 剩下为空按未接话处理（只剥协议形态，不碰正常文本）
+    let replyText = String(r.reply)
+      .replace(/^\s*\[?沉默\]?\s*/, '')
+      .replace(/[（(]#\d+[）)]/g, '')
+      .trim();
+    if (!replyText) {
+      console.log('[榴莲AI] 回复剥掉协议标记后为空，按沉默处理');
+      chatState.markSilent(e);
+      return false;
+    }
+
     // 清理模型自造的包装标记——只动明确是包装的形态，不一刀切：
     // 前缀必须带完整【】方括号才剥（裸"回复"开头的正文不动）；引号不碰——
     // 回复合法引用别人说话时也以引号开头，交由提示词【输出格式】管源头
-    const cleanReply = String(r.reply)
+    const cleanReply = replyText
       .replace(/\[查看\s*#\d+\]/g, '')
       .replace(/^【回复】\s*[:：]?\s*/, '')
       .trim();
