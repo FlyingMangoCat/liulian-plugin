@@ -11,7 +11,12 @@ import { signedJsonRequestTryOwners, signedRawRequestTryOwners } from "../compon
 export const rule = {
   // 表情制作命令
   biaoQing: {
-    reg: "noCheck", // 不检查正则，匹配所有消息
+    // 关键词强正则（收敛匹配面）：只匹配"关键词(+自己/@目标)"形态，普通聊天根本不进本模块
+    // 惰性求值：MEME_MAP 定义在本文件下方，reg 由框架调度时读取
+    get reg () {
+      const kw = Object.keys(MEME_MAP).sort((a, b) => b.length - a.length).join('|');
+      return `^(?:\\[CQ:at[^\\]]*\\]\\s*)?(?:${kw})(?:\\s*(?:自己|\\[CQ:at[^\\]]*\\]|\\[CQ:image[^\\]]*\\]))*\\s*$`;
+    },
     priority: 10, //优先级，越小优先度越高
     describe: "头像表情包制作", //【命令】功能说明
   },
