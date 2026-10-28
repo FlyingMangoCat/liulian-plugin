@@ -323,7 +323,8 @@ export function buildContextBlock(e, maxN) {
   if (!st || !st.msgs.length) return '';
 
   const d = getDecisionCfg();
-  // 调用方可显式指定条数（试运行期从少往多调），不传则用配置值
+  // 调用方可显式指定条数（0 = 不注入），不传则用配置值
+  if (maxN !== undefined && Number(maxN) <= 0) return '';
   const recentN = Number(maxN) || Number(d.digest_recent) || 10;
   trimWindow(st);
   const recent = st.msgs.slice(-recentN);
