@@ -33,16 +33,22 @@ async function askCloud (e, { messageContent, messageType, imageUrl }) {
 }
 
 // local 适配器：本地 ollama 模型，含目录复读兜底与取阅重试等本地特有行为
+// 静默出口统一走 silentExit：日志带上当时的 reply 状态，未接话死因不再无据可查
+function silentExit (where, reply) {
+  console.log(`[榴莲AI] local 适配器静默[${where}] reply:`, JSON.stringify(reply ?? null).substring(0, 80))
+  return { silent: true }
+}
+
 async function askLocal (e, { messageContent, messageType, imageUrl, contextText }) {
   const { AIManager } = await import('#liulian.ai')
   let reply = await AIManager.generalChat(messageContent, messageType, e.user_id?.toString(), imageUrl, contextText || null)
-  if (!reply) return { silent: true }
+  if (!reply) return silentExit('generalChat空', reply)
 
   // 目录复读检测：把记录当正文复述是弱模型的典型行为——去掉上下文重试一次，仍复读则静默
   if (/【近期群聊记录/.test(String(reply))) {
     console.log('[榴莲AI] 检测到目录复读，去掉上下文重试')
     reply = await AIManager.generalChat(messageContent, messageType, e.user_id?.toString(), imageUrl, null)
-    if (!reply || /【近期群聊记录/.test(String(reply))) return { silent: true }
+    if (!reply || /【近期群聊记录/.test(String(reply))) return silentExit('复读重试', reply)
   }
 
   // 取阅：模型要求查看某条原文时，补拉一次再给一次正式回复机会（最多一轮）
@@ -55,7 +61,7 @@ async function askLocal (e, { messageContent, messageType, imageUrl, contextText
         `${contextText ? contextText + '\n\n' : ''}【你要求查看的原文】\n${content}\n（已查看，现在必须给出正式回复，或回复 [沉默]）`)
     }
   }
-  if (!reply) return { silent: true }
+  if (!reply) return silentExit('取阅后空', reply)
   return { reply: String(reply) }
 }
 

@@ -154,9 +154,10 @@ export class ModelRouter {
     }
 
     getMaxTokens(message) {
-        // 生成上限只做兜底（1000 token 约 600 字），不再按消息长度算——
-        // 长回复由 splitReply 按句分条发送，绝不会写到一半被掐断
-        return 1000;
+        // 生成上限只做兜底（200 token 约 130 字），不再按消息长度算——
+        // 长回复由 splitReply 按句分条发送，绝不会写到一半被掐断；
+        // 此前写死 1000：不出结束符的模型呓语到上限要 5 分钟，且显式传参会顶掉 provider 默认
+        return 200;
     }
 
     async getAvailableModels() {
