@@ -198,8 +198,34 @@ export async function ai(e) {
       console.log('[榴莲AI] 检测到表情包消息');
     }
 
-    // 提取文本内容
-    if (textMessages.length > 0) {
+    // 提取文本内容（@ 与引用喂可读形态，不能丢上下文让模型猜）：
+    // @段→@名字（@自己→@我）；引用段→[引用 说话人：「原话摘要」]；
+    // 昵称取群成员表（getMemberMap 成熟用法），取不到退回 QQ 号
+    const hasStructured = e.message.some(m => m.type === 'at' || m.type === 'reply');
+    if (hasStructured) {
+      const memberMap = e.group ? await e.group.getMemberMap().catch(() => null) : null;
+      const nameOf = (qq) => {
+        const info = memberMap ? (memberMap.get?.(Number(qq)) || memberMap.get?.(String(qq))) : null;
+        return (info && (info.card || info.nickname)) || String(qq);
+      };
+      let quoted = '';
+      if (e.source) {
+        const quotedText = String(
+          e.source.raw_message ||
+          (Array.isArray(e.source.message)
+            ? e.source.message.filter(m => m.type === 'text').map(m => m.text).join(' ')
+            : e.source.message) || ''
+        ).trim().substring(0, 60);
+        quoted = `[引用 ${nameOf(e.source.user_id)}说：「${quotedText}」]`;
+      }
+      const parts = [];
+      for (const m of e.message) {
+        if (m.type === 'text') parts.push(m.text);
+        else if (m.type === 'at') parts.push(String(m.qq) === String(e.self_id) ? '@我' : `@${nameOf(m.qq)}`);
+        // reply 段的原文已在 quoted 前缀里，跳过占位
+      }
+      messageContent = `${quoted}${quoted ? ' ' : ''}${parts.join(' ').trim()}`.trim();
+    } else if (textMessages.length > 0) {
       messageContent = textMessages.map(m => m.text).join(' ');
     }
   } else if (e.msg) {
