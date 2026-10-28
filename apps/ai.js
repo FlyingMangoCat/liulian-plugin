@@ -225,6 +225,8 @@ export async function ai(e) {
         // reply 段的原文已在 quoted 前缀里，跳过占位
       }
       messageContent = `${quoted}${quoted ? ' ' : ''}${parts.join(' ').trim()}`.trim();
+      // 引用/@场景实证日志：模型实际收到什么一目了然（适配器不给 e.source 时 quoted 为空立刻现形）
+      console.log('[榴莲AI] 结构化消息内容:', messageContent.substring(0, 80));
     } else if (textMessages.length > 0) {
       messageContent = textMessages.map(m => m.text).join(' ');
     }
