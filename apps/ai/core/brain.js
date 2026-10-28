@@ -58,7 +58,7 @@ async function askLocal (e, { messageContent, messageType, imageUrl, contextText
     const content = await chatState.fetchMsgContent(chatIdOf(e), lookMatch[1])
     if (content) {
       reply = await AIManager.generalChat(messageContent, messageType, e.user_id?.toString(), imageUrl,
-        `${contextText ? contextText + '\n\n' : ''}【你要求查看的原文】\n${content}\n（已查看，现在必须给出正式回复，或回复 [沉默]）`)
+        `${contextText ? contextText + '\n\n' : ''}【你要求查看的原文】\n${content}\n（已查看，现在必须给出正式回复）`)
     }
   }
   if (!reply) return silentExit('取阅后空', reply)
