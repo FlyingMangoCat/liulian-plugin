@@ -29,6 +29,9 @@ export default class LocalProvider {
             model: model,
             messages: messages,
             stream: false,
+            // 思考型模型（qwen3 等）默认先输出思考段，200 token 全烧在推理里正文为空；
+            // 显式关思考直接出正文（注：换非思考模型时此行可删，ollama 对不支持的模型会 400）
+            think: false,
             options: {
                 temperature: options.temperature || 0.7,
                 // 输出上限：格式要求两句话以内，1000 只会让不出结束符的基座模型呓语 5 分钟
@@ -45,6 +48,11 @@ export default class LocalProvider {
         const d = response.data || {};
         if (d.eval_count || d.prompt_eval_count) {
             console.log(`[榴莲AI] token: 读题 ${d.prompt_eval_count || 0} + 生成 ${d.eval_count || 0}`);
+        }
+        // 思考型模型（qwen3 等）：推理过程在 message.thinking 单独字段，content 只有正文；
+        // content 为空说明生成额度全烧在思考里，一行没写正文
+        if (d.message?.thinking && !d.message?.content) {
+            console.log('[榴莲AI] 输出全是思考过程无正文（思考头30字）:', String(d.message.thinking).substring(0, 30));
         }
         return d.message.content;
     }
