@@ -1,6 +1,9 @@
 import provider from '#liulian.provider';
 import config from '#liulian.config';
 
+// 识图总开关：false 时 processImage 不调视觉模型，直接返回占位描述
+const VISION_ENABLED = false;
+
 export class ModelRouter {
     // 模型表每次现读（配置即改即生效，不再有导入时快照）
     get models() {
@@ -68,6 +71,11 @@ export class ModelRouter {
 
     async processImage(imageDescription, image) {
         try {
+            // 识图总闸：暂时掐掉——视觉调用收益低且拖慢本地响应，消息/目录里图片仍以占位符出现；
+            // 恢复识别把这里改回 true 即可
+            if (!VISION_ENABLED) {
+                return { success: true, response: '（一张图片，未识别内容）', model: 'vision-disabled' };
+            }
             const model = this.models.vision;
             
             const prompt = `请描述这张图片的内容。${imageDescription ? '用户说明：' + imageDescription : ''}`;

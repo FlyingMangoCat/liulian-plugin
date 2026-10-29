@@ -373,3 +373,36 @@ export async function ai_reset_memory(e) {
   const result = await AIManager.resetUserMemory(targetUserId);
   await e.reply(result, true);
 }
+
+// ==================== 拍一拍互动接入 ====================
+// 群友拍机器人 → 合成一条"@我 拍了拍我"的互动消息，复用完整链路（收录/门禁/决策/清理/分条），
+// 让模型知道有人拍了它；拍别人的通知直接忽略，不归它管
+// （事件名沿用项目内已验证的 notice.group.poke 写法；Bot 全局缺失的环境下静默跳过）
+if (typeof Bot !== 'undefined' && Bot?.on) {
+  Bot.on('notice.group.poke', async (e) => {
+    try {
+      if (!e || !e.group_id) return;
+      if (String(e.target_id) !== String(e.self_id)) return;
+      if (!Cfg.get('sys.aiEnabled', false)) return;
+      await ensureInitialized();
+
+      const operator = e.operator_id || e.user_id;
+      // 拍人者昵称：群成员表取不到就退回 QQ 号
+      let opName = String(operator || '');
+      try {
+        const memberMap = e.group ? await e.group.getMemberMap() : null;
+        const info = memberMap ? (memberMap.get?.(Number(operator)) || memberMap.get?.(String(operator))) : null;
+        if (info && (info.card || info.nickname)) opName = info.card || info.nickname;
+      } catch { /* 成员表失败不影响主流程 */ }
+
+      await ai({
+        ...e,
+        user_id: operator,
+        sender: { nickname: opName, card: opName },
+        message: [{ type: 'at', qq: e.self_id }, { type: 'text', text: '拍了拍我' }]
+      });
+    } catch (err) {
+      console.error('[榴莲AI] 拍一拍处理失败:', err.message);
+    }
+  });
+}
