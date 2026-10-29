@@ -343,6 +343,8 @@ export async function ai(e) {
     // 真实回复：重置退避 + 记入额度反馈 + 触发后台摘要
     chatState.markReplied(e);
     chatState.maybeSummarize(e);
+    // 自己的回复也进窗口：模型下一轮才能"知道我刚才说了什么"
+    chatState.recordSelf(e, finalReply);
     return true;
   } catch (error) {
     console.error('[榴莲AI] 处理失败:', error);

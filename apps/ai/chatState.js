@@ -323,6 +323,27 @@ export function markSilent(e) {
   st.lastIdleAt = Date.now();
 }
 
+// 收录机器人自己的回复进窗口：/api/chat 无状态，目录是模型唯一的记忆，
+// 不记自己的话它就永远不知道上一句自己说了什么
+export function recordSelf(e, text) {
+  const chatId = e.group_id ? `g${e.group_id}` : `p${e.user_id}`;
+  const st = chatStates.get(chatId);
+  if (!st || !text) return;
+  st.msgs.push({
+    id: st.nextId++,
+    t: Date.now(),
+    senderId: String(e.self_id),
+    senderName: '我',
+    parts: [{ kind: 'text', text: String(text) }],
+    raw: [{ type: 'text', text: String(text) }],
+    isAtMe: false,
+    isAtOther: false,
+    isMediaOnly: false,
+    hasQuestion: /[?？]/.test(String(text))
+  });
+  trimWindow(st);
+}
+
 // ==================== 双层上下文（远期摘要 + 近期目录） ====================
 
 export function buildContextBlock(e, maxN) {
