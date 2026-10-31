@@ -15,7 +15,7 @@
 git clone https://gitee.com/huifeidemangguomao/liulian-plugin.git ./plugins/liulian-plugin/
 pnpm install -P
 ``` 
-#### 使用Github安装 
+#### 使用Github安装  
 ```
 git clone https://github.com/flyingmangocat/liulian-plugin.git ./plugins/liulian-plugin/
 pnpm install -P
