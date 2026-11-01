@@ -46,6 +46,9 @@ function getGl(e) {
   return String(e.user_id) === String(e.self_id) ? Number(base) / 4 : base;
 }
 
+// 同条消息骰子去重：多账号/多路径触达时只掷一次
+const rolledMsgKeys = new Set()
+
 // 命令规则定义
 // check 函数：判断是否应该随机发送表情包
 export function checkRandom(e) {
@@ -155,6 +158,15 @@ if (!Cfg.get('sys.bq', false)) {
   if (hmd_userqq.includes(e.user_id)) {
 		return false;
   }
+  // @机器人的消息不参与随机表情，交给AI等定向回复链路处理
+  if (Array.isArray(e.message) && e.message.some(m => m.type === 'at' && String(m.qq) === String(e.self_id))) {
+    return false;
+  }
+  // 同一条消息只掷一次骰子（多账号下每个账号都会跑一遍本插件）
+  const rollKey = e.message_id || e.rand || `${e.group_id || e.user_id}_${e.time || Date.now()}`;
+  if (rolledMsgKeys.has(rollKey)) return false;
+  rolledMsgKeys.add(rollKey);
+  if (rolledMsgKeys.size > 500) rolledMsgKeys.clear();
 	// 生成0-100的随机数作为触发概率
 	let random_ = lodash.random(0, 100);
 	// 如果随机数小于配置概率，则触发表情包（自发消息按原概率一半）
