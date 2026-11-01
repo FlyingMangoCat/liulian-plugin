@@ -158,10 +158,6 @@ if (!Cfg.get('sys.bq', false)) {
   if (hmd_userqq.includes(e.user_id)) {
 		return false;
   }
-  // @机器人的消息不参与随机表情，交给AI等定向回复链路处理
-  if (Array.isArray(e.message) && e.message.some(m => m.type === 'at' && String(m.qq) === String(e.self_id))) {
-    return false;
-  }
   // 同一条消息只掷一次骰子（多账号下每个账号都会跑一遍本插件）
   const rollKey = e.message_id || e.rand || `${e.group_id || e.user_id}_${e.time || Date.now()}`;
   if (rolledMsgKeys.has(rollKey)) return false;
