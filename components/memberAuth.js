@@ -203,8 +203,9 @@ async function doRequest(sign, url) {
       }
       let ret = null;
       try { ret = await res.json(); } catch {}
-      if (ret && ret.success) return { ok: true, data: ret.data };
-      const errorCode = (ret && ret.errorCode) || '';
+      // v2 信封：s=成败（1/0），d=业务数据，c=机读错误码，m=人读文案（双发过渡期，旧字段即将移除，直接读新信封）
+      if (ret && ret.s === 1) return { ok: true, data: ret.d };
+      const errorCode = (ret && ret.c) || '';
       // 无 errorCode 的响应（网关超时/非 JSON 错误页等）：视作网络类故障，退避后重新签名重试一次
       if (!errorCode) {
         logger.mark(`[榴莲会员] 服务接口异常响应: HTTP ${res.status}`);
