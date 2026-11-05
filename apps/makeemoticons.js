@@ -161,6 +161,17 @@ function memeErrorMessage(errorCode) {
   switch (errorCode) {
     case 'NO_CREDENTIAL':
       return '表情制作需绑定榴莲会员，请先私信发送「榴莲会员绑定」～';
+    case 'KEY_INVALID':
+      return '会员密钥无效，请重新绑定榴莲会员～';
+    case 'QQ_MISMATCH':
+      return '机器人与会员授权信息不符，请联系发放方核对～';
+    case 'SIGN_INVALID':
+    case 'SIGN_BODY_MISMATCH':
+      return '身份校验失败，请重新绑定榴莲会员～';
+    case 'SIGN_TIMESTAMP_EXPIRED':
+      return '本机时钟偏差过大，请校准时间后重试～';
+    case 'SIGN_NONCE_REUSED':
+      return '请求校验失败，请稍后重试～';
     case 'MEMBER_REQUIRED':
       return '表情制作是会员专属功能，开通请联系会飞的芒果猫～';
     case 'MEMBER_EXPIRED':
@@ -180,6 +191,13 @@ function memeErrorMessage(errorCode) {
     case 'NETWORK_ERROR':
     case 'HTTP_502':
       return '表情服务开小差了，请稍后再试～';
+    // 图片流错误响应没有 JSON errorCode，只有 HTTP 状态伪码（memberAuth.js 生成）
+    case 'HTTP_401':
+      return '身份校验失败，请重新绑定榴莲会员～';
+    case 'HTTP_403':
+      return '榴莲会员状态不可用，无法使用表情制作～';
+    case 'HTTP_429':
+      return '操作太频繁啦，请稍后再试～';
     case 'TOO_LARGE':
       return '图片太大啦，请换一张小一点的（10MB 以内）～';
     default:

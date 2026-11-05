@@ -141,6 +141,11 @@ export async function memberBindKey(e) {
     const msgMap = {
       KEY_INVALID: '密钥无效，请核对后重试',
       QQ_MISMATCH: '当前机器人与授权信息不符，请联系发放方核对',
+      SIGN_INVALID: '身份校验失败，请重新绑定',
+      SIGN_TIMESTAMP_EXPIRED: '本机时钟偏差过大，请校准时间后重试',
+      SIGN_NONCE_REUSED: '请求校验失败，请稍后重试',
+      SIGN_BODY_MISMATCH: '请求校验失败，请稍后重试',
+      AUTH_REQUIRED: '未提供有效身份，请先绑定榴莲会员',
       MEMBER_REQUIRED: '该密钥尚未开通会员',
       MEMBER_EXPIRED: '会员已到期，请续费后重新绑定',
       MEMBER_BANNED: '会员已被限制使用',
@@ -191,6 +196,11 @@ export async function memberStatus(e) {
     const msgMap = {
       KEY_INVALID: '密钥已失效，请重新绑定',
       QQ_MISMATCH: '当前机器人与授权信息不符，请联系发放方核对',
+      SIGN_INVALID: '身份校验失败，请重新绑定',
+      SIGN_TIMESTAMP_EXPIRED: '本机时钟偏差过大，请校准时间后重试',
+      SIGN_NONCE_REUSED: '请求校验失败，请稍后重试',
+      SIGN_BODY_MISMATCH: '请求校验失败，请稍后重试',
+      AUTH_REQUIRED: '未提供有效身份，请先绑定榴莲会员',
       MEMBER_EXPIRED: '榴莲会员已过期，请续费',
       MEMBER_BANNED: '榴莲会员已被限制使用',
       NETWORK_ERROR: '查询失败，请稍后再试',
