@@ -9,7 +9,10 @@ const scheduleCronstyle = ()=>{
     schedule.scheduleJob('0 0 0 * * *',()=>{
 	//console.log("重置问答次数");  
         var fs = require('fs');
- 	fs.rmdirSync('plugins/liulian-plugin/apps/randomQA/',{recursive:true});
+	// 目录不存在时 rmdirSync 会抛 ENOENT（新环境/空目录不入库），先判存在再删；rmSync 递归删除并兼容新版 Node
+	if (fs.existsSync('plugins/liulian-plugin/apps/randomQA/')) {
+	  fs.rmSync('plugins/liulian-plugin/apps/randomQA/',{recursive:true,force:true});
+	}
 	fs.mkdirSync('plugins/liulian-plugin/apps/randomQA/',{recursive:true});
     });
   }
