@@ -623,8 +623,15 @@ if (flag) {
     controlEl.style.transformOrigin = (imgWidth / 2 - imgLeft) + "px " + (imgHeight / 2 - imgTop) + "px";
     controlEl.style.transform = 'rotate(' + (-rotate) + 'deg)';
   }
-  // 答案图不需要校验，直接标记完成
-  document.getElementById('guess-ready').style.display = 'block';
+  // 答案图不校验裁切坐标，但必须等底图 decode 完再标记完成：
+  // 大图未解码完就截图，未绘制部分会露出容器背景色（偶发底部空白条）
+  const answerReadyEl = document.getElementById('guess-ready');
+  answerImg.decode().then(() => {
+    answerReadyEl.style.display = 'block';
+  }).catch(() => {
+    // decode 失败兜底直接标记完成，避免 puppeteer 死等 15 秒
+    answerReadyEl.style.display = 'block';
+  });
 }
 </script>
 </body>
