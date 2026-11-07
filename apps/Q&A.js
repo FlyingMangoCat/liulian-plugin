@@ -61,7 +61,9 @@ if (QAtype ==0 && !e.isGroup){
 
 
 var fs = require('fs');
-fs.access(QAurl.toString(), fs.constants.R_OK, (err) => { 
+// 零点定时任务才会建目录，当天首玩可能目录尚未创建，写文件前先确保目录存在
+fs.mkdirSync('plugins/liulian-plugin/apps/randomQA/',{recursive:true});
+fs.access(QAurl.toString(), fs.constants.R_OK, (err) => {
   if (err) 
   fs.writeFileSync(QAurl.toString(), dayNumQA, 'utf-8');
 
