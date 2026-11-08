@@ -35,9 +35,13 @@ pnpm install -P
 |[二坑言]() |  |
 |[白日梦工厂](https://gitee.com/mango-cats-upload-assistant) | 提供资金场地人员等支持 |
 
+### **贡献说明**
+* 如有项目目录不包含的图片资源等体积较大的资源请贡献到[榴莲资源仓库](https://gitee.com/huifeidemangguomao/liulian-res-plus)下指定目录，如不确定如何贡献请联系我们（可通过下文**联系方式**任意渠道联系）
+* 如想参与本项目但不知道如何贡献也可以联系我们，我们欢迎各种形式的贡献，哪怕[Issues](https://gitee.com/huifeidemangguomao/liulian-plugin/issues)也是很好的贡献，欢迎迈出走向贡献的第一步
+* 欢迎提出猜角色功能覆盖外的游戏（也不一定是游戏），请准备好相关角色的图片（立绘，抽卡图等，类型越多趣味越多），和角色官方名称（别名可选，但如有别名体验更好）
+
 ### **榴莲会员**
-* 榴莲会员上线，首周优惠5折（续费同享无上限，截止到2026.10.2），原价19.9元，如需购买请联系会飞的芒果猫，目前可享榴莲论坛网站同步认证专属身份，猜角色全网大排名参与资格，[课表](https://gitee.com/mango-cats-upload-assistant/course-schedule)数据上云无缝切换等至尊待遇，欢迎大家购买~
-* ⚠️购买后10.2日正式生效，10.2日后购买即时生效
+* 榴莲会员上线，目前可享表情制作，榴莲论坛网站同步认证专属身份，猜角色全网大排名参与资格，[课表](https://gitee.com/mango-cats-upload-assistant/course-schedule)数据上云无缝切换等至尊待遇，欢迎大家购买~
 
 #### 📩加入我们</summary>
 * 电子邮箱 **fmc@liulian-ai.top**
