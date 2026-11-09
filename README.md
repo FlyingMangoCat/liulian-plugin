@@ -42,7 +42,7 @@ pnpm install -P
 
 ### **贡献说明**
 * 如有项目目录不包含的图片资源等体积较大的资源请贡献到[榴莲资源仓库](https://gitee.com/huifeidemangguomao/liulian-res-plus)下指定目录，如不确定如何贡献请联系我们（可通过下文**联系方式**任意渠道联系）
-* 如想参与本项目但不知道如何贡献也可以联系我们，我们欢迎各种形式的贡献，哪怕[Issues](https://gitee.com/huifeidemangguomao/liulian-plugin/issues)也是很好的贡献，欢迎迈出走向贡献的第一步
+* 如想参与本项目但不知道如何贡献也可以联系我们，我们欢迎各种形式的贡献，哪怕 [（Github）Issues](https://github.com/FlyingMangoCat/liulian-plugin/issues)/[（Gitee）Issues](https://gitee.com/huifeidemangguomao/liulian-plugin/issues)/[（Gitcode）Issues](https://gitcode.com/huifeidemangguomao/liulian-plugin/issues)也是很好的贡献，欢迎迈出走向贡献的第一步
 * 欢迎提出猜角色功能覆盖外的游戏（也不一定是游戏），请准备好相关角色的图片（立绘，抽卡图等，类型越多趣味越多），和角色官方名称（别名可选，但如有别名体验更好）
 
 ### **榴莲会员**
@@ -53,7 +53,7 @@ pnpm install -P
 
 ### **反馈**
 * [liulian-plugin问题反馈](https://pd.qq.com/s/ewii86r08)
-* 有建议可以去[Issues](https://gitee.com/huifeidemangguomao/liulian-plugin/issues)里提
+* 有建议可以去 [（Github）Issues](https://github.com/FlyingMangoCat/liulian-plugin/issues)/[（Gitee）Issues](https://gitee.com/huifeidemangguomao/liulian-plugin/issues)/[（Gitcode）Issues](https://gitcode.com/huifeidemangguomao/liulian-plugin/issues)里提
 * [榴莲插件(liulian-plugin)B站问题反馈专栏](https://b23.tv/GecaEsK)
 
 #### 联系方式🌾 
