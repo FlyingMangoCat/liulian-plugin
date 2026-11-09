@@ -277,7 +277,7 @@ async function sendMemberNotice() {
       try {
         // 只走好友通道：非好友跳过，不发临时会话
         const Bot = global.Bot;
-        const isFriend = (Bot?.uin ? Bot.uin.map(u => Bot[u]) : Object.values(Bot || {}))
+        const isFriend = (Bot?.uins?.length ? Bot.uins.map(u => Bot[u]) : Object.values(Bot || {}))
           .some(bot => bot && bot.fl && bot.fl.get(Number(qq)));
         if (!isFriend) {
           failList.push(qq);
@@ -306,7 +306,7 @@ async function sendMemberNotice() {
 // 每 10 分钟检查一次公告变动（未上线不发送；unref 不占用退出）
 const _noticeTimer = setInterval(() => {
   const Bot = global.Bot;
-  const bots = Bot?.uin ? Bot.uin.map(u => Bot[u]).filter(b => b && b.fl) : [];
+  const bots = Bot?.uins?.length ? Bot.uins.map(u => Bot[u]).filter(b => b && b.fl) : [];
   if (!bots.length) return;
   sendMemberNotice();
 }, 10 * 60 * 1000);

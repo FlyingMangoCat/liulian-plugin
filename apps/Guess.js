@@ -1457,7 +1457,7 @@ function getGroupName(e, groupId) {
   const gid = String(groupId);
   try {
     const Bot = global.Bot;
-    const bots = (Bot?.uin ? Bot.uin.map(u => Bot[u]) : Object.values(Bot || {})).filter(b => b && (b.gl || b.fl));
+    const bots = (Bot?.uins?.length ? Bot.uins.map(u => Bot[u]) : Object.values(Bot || {})).filter(b => b && (b.gl || b.fl));
     for (const bot of bots) {
       const g = bot.gl?.get?.(gid);
       if (g && (g.group_name || g.groupName)) return g.group_name || g.groupName;
@@ -1485,7 +1485,7 @@ async function getRankName(e, userId) {
   } catch {}
   try {
     const Bot = global.Bot;
-    const bots = (Bot?.uin ? Bot.uin.map(u => Bot[u]) : Object.values(Bot || {})).filter(b => b && (b.fl || b.gml));
+    const bots = (Bot?.uins?.length ? Bot.uins.map(u => Bot[u]) : Object.values(Bot || {})).filter(b => b && (b.fl || b.gml));
     for (const bot of bots) {
       const f = bot.fl?.get?.(uid);
       if (f?.nickname) return f.nickname;
