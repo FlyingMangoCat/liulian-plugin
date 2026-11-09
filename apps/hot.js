@@ -987,6 +987,10 @@ export async function getHotPushList(e) {
 function saveHotPushJson() {
   const _path = process.cwd();
   let path = _path + "/data/PushNews/HotPushConfig.json";
+  // 目录由本模块自建，不依赖 bilibiliPush 的模块初始化顺序
+  if (!fs.existsSync(_path + "/data/PushNews/")) {
+    fs.mkdirSync(_path + "/data/PushNews/", { recursive: true });
+  }
   fs.writeFileSync(path, JSON.stringify(HotPushConfig, "", "\t"));
 }
 

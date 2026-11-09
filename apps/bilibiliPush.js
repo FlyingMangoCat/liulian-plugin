@@ -7,6 +7,7 @@ import { botConfig } from "../components/bcommon.js"
 import config from "../model/config/config.js"
 import { getBLsid, getUuid } from "#liulian"
 import Cfg from '../components/Cfg.js'
+import { liulianSafe } from "../components/liulianSafe.js";
 
 // 创建cookie jar
 const cookieJar = new tough.CookieJar();
@@ -27,9 +28,13 @@ const _path = process.cwd();
 const cfg = config.getconfig('liulian', 'botname', 'config');
 const botname = cfg.botname
 
-if (!fs.existsSync(`${_path}/data/PushNews/`)) {
-  fs.mkdirSync(`${_path}/data/PushNews/`);
+// 推送配置目录：本模块自建自维护，不依赖其它模块的初始化顺序
+function ensurePushDir() {
+  if (!fs.existsSync(`${_path}/data/PushNews/`)) {
+    fs.mkdirSync(`${_path}/data/PushNews/`, { recursive: true });
+  }
 }
+ensurePushDir();
 
 let dynamicPushHistory = []; // 历史推送，记录推送的动态详细信息，包含ID和发布时间
 let nowDynamicPushList = new Map(); // 本次新增的需要推送的列表信息
@@ -642,7 +647,7 @@ export async function changeGroupBilibiliPush(e) {
     return true;
   }
 
-  let group = Bot.gl.get(Number(groupID));
+  let group = liulianSafe.gl.get(Number(groupID));
   if (!group) {
     e.reply(`${botname}不在这个群哦`);
     return true;
@@ -742,7 +747,7 @@ export async function bilibiliPushPermission(e) {
     return true;
   }
 
-  let group = Bot.gl.get(Number(groupID));
+  let group = liulianSafe.gl.get(Number(groupID));
   if (!group) {
     e.reply(`${botname}不在这个群哦`);
     return true;
@@ -929,7 +934,7 @@ export async function getBilibiliPushUserList(e) {
       return false;
     }
 
-    let groupMap = Bot.gl;
+    let groupMap = liulianSafe.gl;
     let groupList = [];
     for (let [groupID, groupObj] of groupMap) {
       groupID = "" + groupID;
@@ -1795,12 +1800,14 @@ function contentFilter(inContent) {
 
 // 存储B站推送信息
 async function savePushJson() {
+  ensurePushDir();
   let path = _path + "/data/PushNews/PushBilibiliDynamic.json";
   fs.writeFileSync(path, JSON.stringify(PushBilibiliDynamic, "", "\t"));
 }
 
 // 存储B站推送配置信息
 async function saveConfigJson() {
+  ensurePushDir();
   let path = _path + "/data/PushNews/BilibiliPushConfig.json";
   fs.writeFileSync(path, JSON.stringify(BilibiliPushConfig, "", "\t"));
 }
