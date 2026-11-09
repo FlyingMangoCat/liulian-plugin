@@ -1,19 +1,25 @@
 import fetch from "node-fetch";                  
+import fs from "fs";
+import path from "path";
 import { createRequire } from "module";
 const require = createRequire(import.meta.url);
 //项目路径
 const _path = process.cwd();
 const schedule = require('node-schedule');
+
+// 每日答题次数文件目录：落在 Yunzai 根 data 下，与猜角色排行等数据同位置
+const QA_DIR = path.join(_path, 'data', 'randomQA');
+// 目录只在这里和零点重置时创建，其余读写前一律先调本函数
+const ensureQaDir = () => fs.mkdirSync(QA_DIR, { recursive: true });
+ensureQaDir();
+
 const scheduleCronstyle = ()=>{
   //每天重置可答题次数:
     schedule.scheduleJob('0 0 0 * * *',()=>{
-	//console.log("重置问答次数");  
-        var fs = require('fs');
-	// 目录不存在时 rmdirSync 会抛 ENOENT（新环境/空目录不入库），先判存在再删；rmSync 递归删除并兼容新版 Node
-	if (fs.existsSync('plugins/liulian-plugin/apps/randomQA/')) {
-	  fs.rmSync('plugins/liulian-plugin/apps/randomQA/',{recursive:true,force:true});
-	}
-	fs.mkdirSync('plugins/liulian-plugin/apps/randomQA/',{recursive:true});
+	//console.log("重置问答次数");
+	// rmSync 带 force 时不存在的目录不会抛错，无需先判存在
+	fs.rmSync(QA_DIR, { recursive: true, force: true });
+	ensureQaDir();
     });
   }
 scheduleCronstyle();
@@ -52,7 +58,7 @@ export async function randomQA(e) {
 
 var dayNumQA = "999";                              //每日问答次数设置，设置后请重启Yunzai-bot
 var QAtype = 0;                                  //设置是否开启私聊使用，1-开启 0-关闭，默认关闭
-var QAurl="plugins/liulian-plugin/apps/randomQA/"+e.user_id+".txt";
+const qaFile = path.join(QA_DIR, `${e.user_id}.txt`);
 
 if (QAtype ==0 && !e.isGroup){
 	e.reply('#芒果/留恋问答 只能的群里进行，去群里和小伙伴们一起玩耍吧!');
@@ -60,17 +66,13 @@ if (QAtype ==0 && !e.isGroup){
 }
 
 
-var fs = require('fs');
-// 零点定时任务才会建目录，当天首玩可能目录尚未创建，写文件前先确保目录存在
-fs.mkdirSync('plugins/liulian-plugin/apps/randomQA/',{recursive:true});
-fs.access(QAurl.toString(), fs.constants.R_OK, (err) => {
-  if (err) 
-  fs.writeFileSync(QAurl.toString(), dayNumQA, 'utf-8');
-
-  else
-    console.log(e.user_id.toString()+'的答题日志文件已存在，跳过创建'); 
-
-}); 
+// 当天首次答题时文件尚未建立，同步判定后再写，避免读到尚未落盘的状态
+ensureQaDir();
+if (fs.existsSync(qaFile)) {
+  console.log(e.user_id.toString() + '的答题日志文件已存在，跳过创建');
+} else {
+  fs.writeFileSync(qaFile, dayNumQA, 'utf-8');
+}
 
 
     
@@ -112,17 +114,13 @@ fs.access(QAurl.toString(), fs.constants.R_OK, (err) => {
   console.log(randomA);
 
 
-  var maxnum = fs.readFileSync(QAurl.toString(),'utf-8');//读取日志文件
+  var maxnum = fs.readFileSync(qaFile,'utf-8');//读取日志文件
   if (maxnum.toString() == "0") {
       e.reply(`每天只能进行${dayNumQA}次知识竞猜哦，请明天再来！`);
       return true;
     }
   maxnum = maxnum - 1;
-  fs.writeFile(QAurl.toString(), maxnum.toString() , function(err) {
-    	if(err) {
-        		return console.log(err);
-    		}
-  });
+  fs.writeFileSync(qaFile, maxnum.toString());
 
 
 
