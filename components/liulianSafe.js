@@ -33,21 +33,29 @@ const liulianSafe = {
     return global.Bot || {}
   },
 
-  // 全部已登录实例：TRSS 用 Bot.uins 取值，普通 V3 的 Bot 自身即客户端，另有 uin→client 的键值映射
-  // 三种形状累加取并，避免只认一种形状导致另一种环境下静默取空
-  get bots() {
-    const Bot = global.Bot
-    if (!Bot || typeof Bot !== 'object') return []
+  /** 全部机器账号：兼容 Bot.uins（数组）/ Bot.uin 为数组（上游形态）/ Bot.uin 为单值（Miao 系） */
+  get uins() {
+    const bot = this.Bot
+    if (Array.isArray(bot.uins)) return bot.uins.map(String)
+    if (Array.isArray(bot.uin)) return bot.uin.map(String)
+    return bot.uin ? [String(bot.uin)] : []
+  },
+
+  /** 各账号客户端对象：按账号逐个取；取不到时按"Bot 自身即客户端"兜底，另兼容 uin→client 键值映射 */
+  get clients() {
+    const bot = this.Bot
+    if (!bot || typeof bot !== 'object') return []
     const list = []
+    // 只认带连接缓存的客户端对象，避免把空容器、Map 等结构算成账号
     const push = (b) => {
-      if (b && typeof b === 'object' && !list.includes(b)) list.push(b)
+      if (!b || typeof b !== 'object' || !(b.gl || b.fl || b.gml)) return
+      if (!list.includes(b)) list.push(b)
     }
+    for (const u of this.uins) push(bot[u])
+    if (list.length) return list
+    push(bot)
     try {
-      if (Array.isArray(Bot.uins) && Bot.uins.length) {
-        for (const u of Bot.uins) push(Bot[u])
-      }
-      push(Bot)
-      for (const b of Object.values(Bot)) push(b)
+      for (const v of Object.values(bot)) push(v)
     } catch {}
     return list
   },
@@ -62,9 +70,9 @@ const liulianSafe = {
     return this.Bot.fl || new Map()
   },
 
-  // 安全访问Bot.uin
+  /** 单账号标识：setCard、redis 键名、发送参数等需要"一个号"的调用点统一取首个 */
   get uin() {
-    return this.Bot.uin || 0
+    return this.uins[0] || 0
   },
 
   // 安全访问Bot.nickname

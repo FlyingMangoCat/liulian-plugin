@@ -1457,7 +1457,7 @@ const RANK_PERIOD_NAMES = { day: '日榜', week: '周榜', month: '月榜', year
 function getGroupName(e, groupId) {
   const gid = String(groupId);
   try {
-    const bots = liulianSafe.bots.filter(b => b && (b.gl || b.fl));
+    const bots = liulianSafe.clients.filter(b => b && (b.gl || b.fl));
     for (const bot of bots) {
       const g = bot.gl?.get?.(gid);
       if (g && (g.group_name || g.groupName)) return g.group_name || g.groupName;
@@ -1484,7 +1484,7 @@ async function getRankName(e, userId) {
     }
   } catch {}
   try {
-    const bots = liulianSafe.bots.filter(b => b && (b.fl || b.gml));
+    const bots = liulianSafe.clients.filter(b => b && (b.fl || b.gml));
     for (const bot of bots) {
       const f = bot.fl?.get?.(uid);
       if (f?.nickname) return f.nickname;

@@ -66,11 +66,10 @@ function getOwnerQqs() {
     // 只保留纯数字 QQ 号（5~12 位）：过滤 stdin 控制台、TRSS 面板 ID 等非 QQ 条目
     if (/^\d{5,12}$/.test(s) && !out.includes(s)) out.push(s);
   };
-  // 当前机器人账号（TRSS 为数组，V3 为单值）
+  // 当前机器人账号（多号全收，账号形态差异由 liulianSafe.uins 统一）
   let uins = [];
   try {
-    const u = liulianSafe?.uin;
-    if (u != null) uins = (Array.isArray(u) ? u : [u]).map(String);
+    uins = liulianSafe?.uins ?? [];
   } catch {}
   // 条目收集："botId:主人QQ" 形式只收当前机器人名下的（其他 bot 的主人不属于本密钥
   // 留档，混入签名头会被服务端按 QQ_MISMATCH 整单拒收）；裸 QQ 直接过位数过滤
