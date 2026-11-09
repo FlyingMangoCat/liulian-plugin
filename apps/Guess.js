@@ -5,6 +5,7 @@ import lodash from 'lodash';
 import fetch from "node-fetch";
 import sizeOf from 'image-size';
 import { roleIdToName, starroleIdToName, zzzroleIdToName, nteroleIdToName, wwroleIdToName } from "../components/mysInfo.js";
+import { liulianSafe } from "../components/liulianSafe.js";
 import { roleId as roleIdData, starroleId as starroleIdData, zzzroleId as zzzroleIdData, nteroleId as nteroleIdData, wwroleId as wwroleIdData } from "../config/roleId.js";
 import { guessRank, parseRankArgs } from "./guessrank.js";
 import { startRound, finishRound, checkMember, fetchRanking, fetchGroupRanking } from "./rankmember.js";
@@ -1456,8 +1457,7 @@ const RANK_PERIOD_NAMES = { day: '日榜', week: '周榜', month: '月榜', year
 function getGroupName(e, groupId) {
   const gid = String(groupId);
   try {
-    const Bot = global.Bot;
-    const bots = (Bot?.uins?.length ? Bot.uins.map(u => Bot[u]) : Object.values(Bot || {})).filter(b => b && (b.gl || b.fl));
+    const bots = liulianSafe.bots.filter(b => b && (b.gl || b.fl));
     for (const bot of bots) {
       const g = bot.gl?.get?.(gid);
       if (g && (g.group_name || g.groupName)) return g.group_name || g.groupName;
@@ -1484,8 +1484,7 @@ async function getRankName(e, userId) {
     }
   } catch {}
   try {
-    const Bot = global.Bot;
-    const bots = (Bot?.uins?.length ? Bot.uins.map(u => Bot[u]) : Object.values(Bot || {})).filter(b => b && (b.fl || b.gml));
+    const bots = liulianSafe.bots.filter(b => b && (b.fl || b.gml));
     for (const bot of bots) {
       const f = bot.fl?.get?.(uid);
       if (f?.nickname) return f.nickname;

@@ -3,6 +3,7 @@ import path from 'path';
 import crypto from 'crypto';
 import { fileURLToPath } from 'url';
 import bcommon from "../components/bcommon.js";
+import { liulianSafe } from "../components/liulianSafe.js";
 import { DATA_DIR, getSecret, getOwnerQqs, readMember, saveMember, signedJsonRequest, signedJsonRequestTryOwners } from "../components/memberAuth.js";
 
 // 会员密钥与排名系统对接：凭据/签名/请求统一走 components/memberAuth.js
@@ -276,8 +277,7 @@ async function sendMemberNotice() {
     for (const qq of pending) {
       try {
         // 只走好友通道：非好友跳过，不发临时会话
-        const Bot = global.Bot;
-        const isFriend = (Bot?.uins?.length ? Bot.uins.map(u => Bot[u]) : Object.values(Bot || {}))
+        const isFriend = liulianSafe.bots
           .some(bot => bot && bot.fl && bot.fl.get(Number(qq)));
         if (!isFriend) {
           failList.push(qq);
@@ -305,8 +305,7 @@ async function sendMemberNotice() {
 
 // 每 10 分钟检查一次公告变动（未上线不发送；unref 不占用退出）
 const _noticeTimer = setInterval(() => {
-  const Bot = global.Bot;
-  const bots = Bot?.uins?.length ? Bot.uins.map(u => Bot[u]).filter(b => b && b.fl) : [];
+  const bots = liulianSafe.bots.filter(b => b && b.fl);
   if (!bots.length) return;
   sendMemberNotice();
 }, 10 * 60 * 1000);

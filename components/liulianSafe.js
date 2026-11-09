@@ -33,6 +33,25 @@ const liulianSafe = {
     return global.Bot || {}
   },
 
+  // 全部已登录实例：TRSS 用 Bot.uins 取值，普通 V3 的 Bot 自身即客户端，另有 uin→client 的键值映射
+  // 三种形状累加取并，避免只认一种形状导致另一种环境下静默取空
+  get bots() {
+    const Bot = global.Bot
+    if (!Bot || typeof Bot !== 'object') return []
+    const list = []
+    const push = (b) => {
+      if (b && typeof b === 'object' && !list.includes(b)) list.push(b)
+    }
+    try {
+      if (Array.isArray(Bot.uins) && Bot.uins.length) {
+        for (const u of Bot.uins) push(Bot[u])
+      }
+      push(Bot)
+      for (const b of Object.values(Bot)) push(b)
+    } catch {}
+    return list
+  },
+
   // Logger对象 - 每次都获取新的安全logger
   get logger() {
     return getSafeLogger()
