@@ -307,6 +307,23 @@ export async function ai(e) {
         replyBody = citeMatch[2];
         console.log('[榴莲AI] 引用回复: 编号不在窗口，按普通回复 #' + citeMatch[1]);
       }
+    } else {
+      // 无编号变体：模型模仿数据标记写 [引用消息] 描述——按描述内容在窗口里认领目标消息
+      const noId = replyBody.match(/^\s*\[?引用消息\]?\s*([\s\S]*)$/);
+      if (noId && noId[1].trim()) {
+        const rec = chatState.resolveRecordByDigest(chatId, noId[1]);
+        if (rec && rec.mid) {
+          quote = { mid: rec.mid };
+          // 从描述里抠掉已认领记录的原话与称呼，剩下的才是模型自己的正文
+          let body = noId[1].split(rec.parts.map(p => (p.kind === 'text' ? p.text : '')).join('')).join(' ');
+          if (rec.senderName) body = body.split(rec.senderName).join(' ');
+          body = body.replace(/^[\s：:，,。]*[问答说]?[：:]?/, '').trim();
+          replyBody = body || noId[1];
+          console.log('[榴莲AI] 引用回复: 无编号描述认领 #' + rec.id + '，真引用发送');
+        } else {
+          console.log('[榴莲AI] 引用回复: 无编号描述未认领到记录，剥标记按普通回复');
+        }
+      }
     }
 
     // 协议垃圾兜底：模型把 [沉默] 和正文混着输出、或带（#18）目录编号尾巴——剥掉，
@@ -340,6 +357,8 @@ export async function ai(e) {
       .replace(/\[\/?reply\]/gi, '')
       // [回复] 半角标签：与 [reply]/【回复】同族的自造包装马甲，剥壳保内容（裸"回复"二字不碰）
       .replace(/\[\/?回复\]/g, '')
+      // [引用消息] 数据标记漏进正文（无编号变体未认领时）：剥标记保内容
+      .replace(/\[\/?引用消息\]/g, '')
       // 目录行复读（"#6 名字: 原话"）：整行剥掉，保住混在里面的正文
       .replace(/^\s*#\d+\s+\S+[:：].*$/gm, '')
       // 复读收敛：弱模型看了目录会把群里原话连写几遍（"有人斗虫吗？/有人斗虫吗？/…"），

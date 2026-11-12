@@ -393,6 +393,30 @@ export function findRecord(chatId, id) {
   return st.msgs.find(m => m.id === Number(id)) || null;
 }
 
+// [引用消息] 无编号变体：模型模仿数据标记，只给了"豆子侠问：你怎么不说话了？"式描述没给编号——
+// 按"说话人名命中 + 原话片段滑窗重叠"在最近 20 条里认领最像的记录；认领不到返回 null
+export function resolveRecordByDigest(chatId, digest) {
+  const st = chatStates.get(chatId);
+  if (!st || !digest) return null;
+  let best = null, bestScore = 0;
+  for (const m of st.msgs.slice(-20)) {
+    if (!m.mid) continue; // 没平台 id，引用不出去
+    const text = m.parts.map(p => (p.kind === 'text' ? p.text : '')).join('');
+    if (!text) continue;
+    let score = 0;
+    if (m.senderName && digest.includes(m.senderName)) score += 2;
+    for (let L = Math.min(10, text.length); L >= 6; L--) {
+      let hit = false;
+      for (let s = 0; s + L <= text.length; s++) {
+        if (digest.includes(text.slice(s, s + L))) { hit = true; break; }
+      }
+      if (hit) { score += L; break; }
+    }
+    if (score > bestScore) { bestScore = score; best = m; }
+  }
+  return bestScore >= 4 ? best : null;
+}
+
 export async function fetchMsgContent(chatId, id) {
   const st = chatStates.get(chatId);
   if (!st) return null;
