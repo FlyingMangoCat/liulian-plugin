@@ -330,10 +330,27 @@ ${memoryContext}
 
     // 分段回复方法：句号只当切分点不当内容（人类打字很少用句号，切完删掉），
     // 长回复按句切分分条发送，绝不整体截断
-    static async splitReply(e, reply) {
+    static async splitReply(e, reply, quote = null) {
         const safeConfig = this.getConfig();
         const maxLength = safeConfig.reply.max_length;
         const delay = safeConfig.reply.delay_between_messages;
+        const segment = global.segment || global.Bot?.segment || {};
+
+        // 引用发送策略：模型指定了目录编号且平台消息 id 在手 → 真引用（segment.reply 元素，
+        // 引用目标不再是触发消息而是模型点名的那条）；能力/数据缺失 → 维持引用触发消息的老行为
+        const canRealQuote = !!(quote?.mid && typeof segment.reply === 'function');
+        let firstMid = null;
+        const send = async (content) => {
+            let res;
+            if (canRealQuote) {
+                const seg = Array.isArray(content) ? [segment.reply(quote.mid), ...content] : [segment.reply(quote.mid), content];
+                res = await e.reply(seg);
+            } else {
+                res = await e.reply(content, true);
+            }
+            if (!firstMid && res?.message_id) firstMid = res.message_id;
+            return res;
+        };
 
         // 换行 = 模型想连发几条的表达方式：先按换行拆成独立 burst，
         // 每条 burst 内部再按句号切成句（删句号）分批发；超长单句按字数硬切兜底
@@ -347,7 +364,7 @@ ${memoryContext}
             let currentMessage = '';
             for (const sentence of sentences) {
                 if ((currentMessage + sentence).length > maxLength && currentMessage) {
-                    await e.reply(currentMessage, true);
+                    await send(currentMessage);
                     await new Promise(resolve => setTimeout(resolve, delay));
                     currentMessage = '';
                 }
@@ -355,9 +372,10 @@ ${memoryContext}
             }
 
             if (currentMessage.trim()) {
-                await e.reply(currentMessage, true);
+                await send(currentMessage);
             }
         }
+        return firstMid;
     }
 
     // 重置用户记忆方法（管理员功能）

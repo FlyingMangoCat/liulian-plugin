@@ -289,9 +289,29 @@ export async function ai(e) {
       return false;
     }
 
+    // 引用回复协议：[引用 #N] 正文 —— 模型想专门回应目录里某条消息时的合法动词
+    // 真引用（平台 id 在手）> 降级 @说话人 > 编号不在窗口按普通回复，三分支都有日志
+    let quote = null;
+    let replyBody = String(r.reply);
+    const citeMatch = replyBody.match(/^\s*\[?引用\s*#?(\d+)\]?\s*([\s\S]*)$/);
+    if (citeMatch) {
+      const rec = chatState.findRecord(chatId, citeMatch[1]);
+      if (rec && rec.mid) {
+        quote = { mid: rec.mid };
+        replyBody = citeMatch[2];
+        console.log('[榴莲AI] 引用回复: 真引用 #' + citeMatch[1]);
+      } else if (rec) {
+        replyBody = `@${rec.senderName || '群友'} ${citeMatch[2]}`;
+        console.log('[榴莲AI] 引用回复: 无平台id，降级@说话人 #' + citeMatch[1]);
+      } else {
+        replyBody = citeMatch[2];
+        console.log('[榴莲AI] 引用回复: 编号不在窗口，按普通回复 #' + citeMatch[1]);
+      }
+    }
+
     // 协议垃圾兜底：模型把 [沉默] 和正文混着输出、或带（#18）目录编号尾巴——剥掉，
     // 剩下为空按未接话处理（只剥协议形态，不碰正常文本）
-    let replyText = String(r.reply)
+    let replyText = replyBody
       .replace(/^\s*\[?沉默\]?\s*/, '')
       .replace(/[（(]#\d+[）)]/g, '')
       .trim();
@@ -347,14 +367,14 @@ export async function ai(e) {
       return false;
     }
     console.log('[榴莲AI] 准备回复:', finalReply.substring(0, 50) + '...');
-    // 使用分段回复
-    await AIManager.splitReply(e, finalReply);
+    // 使用分段回复（quote 携带 [引用 #N] 解析出的平台消息 id）
+    const selfMid = await AIManager.splitReply(e, finalReply, quote);
     console.log('[榴莲AI] 回复发送成功');
     // 真实回复：重置退避 + 记入额度反馈 + 触发后台摘要
     chatState.markReplied(e);
     chatState.maybeSummarize(e);
     // 自己的回复也进窗口：模型下一轮才能"知道我刚才说了什么"
-    chatState.recordSelf(e, finalReply);
+    chatState.recordSelf(e, finalReply, selfMid);
     return true;
   } catch (error) {
     console.error('[榴莲AI] 处理失败:', error);

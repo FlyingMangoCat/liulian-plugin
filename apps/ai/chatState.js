@@ -139,6 +139,8 @@ export function record(e) {
     t: now,
     senderId: String(e.user_id),
     senderName: (e.sender?.card || e.sender?.nickname || '').slice(0, 12),
+    // 平台消息 id：[引用 #N] 协议真引用发送的凭据（各适配器字段不一，取到啥存啥）
+    mid: e.message_id || e.msg_id || e.messageId || null,
     parts, raw: msgArr, // 原始 message 数组，取阅时用（保持原样不清洗）
     isAtMe, isAtOther, isMediaOnly,
     hasQuestion: parts.some(p => p.kind === 'text' && /[?？]/.test(p.text))
@@ -324,8 +326,8 @@ export function markSilent(e) {
 }
 
 // 收录机器人自己的回复进窗口：/api/chat 无状态，目录是模型唯一的记忆，
-// 不记自己的话它就永远不知道上一句自己说了什么
-export function recordSelf(e, text) {
+// 不记自己的话它就永远不知道上一句自己说了什么；mid 供 [引用 #N] 真引用发送
+export function recordSelf(e, text, mid) {
   const chatId = e.group_id ? `g${e.group_id}` : `p${e.user_id}`;
   const st = chatStates.get(chatId);
   if (!st || !text) return;
@@ -334,6 +336,7 @@ export function recordSelf(e, text) {
     t: Date.now(),
     senderId: String(e.self_id),
     senderName: '我',
+    mid: mid || null,
     parts: [{ kind: 'text', text: String(text) }],
     raw: [{ type: 'text', text: String(text) }],
     isAtMe: false,
@@ -383,6 +386,13 @@ export function buildContextPayload(e) {
 }
 
 // 取阅一条消息的"可用内容"：图片/表情包走视觉模型转文字，其余给原文
+// [引用 #N] 协议用：按窗口编号取整条记录（含平台消息 id / 说话人），取不到返回 null
+export function findRecord(chatId, id) {
+  const st = chatStates.get(chatId);
+  if (!st) return null;
+  return st.msgs.find(m => m.id === Number(id)) || null;
+}
+
 export async function fetchMsgContent(chatId, id) {
   const st = chatStates.get(chatId);
   if (!st) return null;
