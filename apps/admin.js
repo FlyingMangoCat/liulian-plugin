@@ -24,6 +24,7 @@ let cfgMap = {
   AI服务:'sys.aiEnabled',
   网易云歌单:'sys.musicList',
   排名提示:'sys.guessRankHint',
+  遥测:'sys.telemetry',
 }
 let sysCfgReg = `^#榴莲设置\\s*(${lodash.keys(cfgMap).join('|')})?\\s*(.*)$`
 export const rule = {
@@ -129,6 +130,7 @@ export async function sysCfg (e, { render }) {
     aiEnabled: getStatus('sys.aiEnabled', false),
     guessRankHint: getStatus('sys.guessRankHint', true),
     musicList: (Cfg.get('sys.musicList') || []).join(','),
+    telemetry: getStatus('sys.telemetry', true),
   }
 
   // 渲染图像
