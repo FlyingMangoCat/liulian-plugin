@@ -16,6 +16,7 @@ guangboHelp
  } from "./transmit.js"
 import { 运势 } from "./lucktendency.js"
 import { maphelp, mapnumber } from "./maphelp.js"
+import "./telemetry.js"
 import {	currentVersion } from "../components/Changelog.js";
 import { pluginhelp } from "./pluginhelp.js"
 import { tangyuanhelp } from "./tangyuanhelp.js"
