@@ -96,8 +96,8 @@ async function register () {
   return true
 }
 
-// ct 是否随心跳上报：后端 v1.4（ct 嵌套白名单 + JSONB 列）部署后置 true，否则整包会被服务端丢弃
-const CT_ON = false
+// ct 是否随心跳上报：后端 v1.4（ct 嵌套白名单 + JSONB 列）已部署，置 true
+const CT_ON = true
 
 async function heartbeat () {
   const payload = {
