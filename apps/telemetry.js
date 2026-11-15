@@ -13,8 +13,19 @@ const fwPkgPath = path.resolve(process.cwd(), 'package.json')
 const pluginPkgPath = path.resolve(process.cwd(), 'plugins/liulian-plugin/package.json')
 const resPlusPath = path.resolve(process.cwd(), 'plugins/liulian-plugin/resources/liulian-res-plus/')
 
-let state = null          // { token, offset, lastSent }
+let state = null          // { token, offset, lastSent, ct }
 let nextRegisterAt = 0    // register 失败后的重试门槛（429 → 次日，其余 → 1 小时）
+
+// 功能分布计数：两级 { 族: { 指令: 次数 } }，当日增量口径，心跳发送完成后清零
+// 各模块埋点调用 count('族', '指令')；sys.telemetry 关闭时只累计不发送
+export function count (family, command) {
+  loadState()
+  if (!state) state = { token: '', offset: 0, lastSent: '', ct: {} }
+  if (!state.ct) state.ct = {}
+  if (!state.ct[family]) state.ct[family] = {}
+  state.ct[family][command] = (state.ct[family][command] || 0) + 1
+  saveState()
+}
 
 function enabled () {
   return !!Cfg.get('sys.telemetry', true)
@@ -79,11 +90,14 @@ async function register () {
     nextRegisterAt = Date.now() + 3600 * 1000
     return false
   }
-  state = { token: d.token, offset: Number(d.offset) || 0, lastSent: state?.lastSent || '' }
+  state = { token: d.token, offset: Number(d.offset) || 0, lastSent: state?.lastSent || '', ct: state?.ct || {} }
   saveState()
   console.log('[榴莲遥测] 已注册，每日上报偏移', state.offset, '秒')
   return true
 }
+
+// ct 是否随心跳上报：后端 v1.4（ct 嵌套白名单 + JSONB 列）部署后置 true，否则整包会被服务端丢弃
+const CT_ON = false
 
 async function heartbeat () {
   const payload = {
@@ -96,6 +110,8 @@ async function heartbeat () {
     mn: detectModel(),
     ts: Date.now()
   }
+  const ct = (state.ct && Object.keys(state.ct).length) ? JSON.parse(JSON.stringify(state.ct)) : null
+  if (CT_ON && ct) payload.ct = ct
   await fetch(`${BASE}/hb`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -103,6 +119,8 @@ async function heartbeat () {
   }).catch(() => {})
   // 恒成功口径：无论响应如何都视为已上报（服务端静默丢弃非法包），缺一天对趋势无影响
   state.lastSent = new Date().toISOString().slice(0, 10)
+  // ct 已随包发出后清零本地计数（未发出去的失败并入下周期重发）
+  if (CT_ON && ct) state.ct = {}
   saveState()
 }
 

@@ -16,7 +16,7 @@ guangboHelp
  } from "./transmit.js"
 import { 运势 } from "./lucktendency.js"
 import { maphelp, mapnumber } from "./maphelp.js"
-import "./telemetry.js"
+import { count } from "./telemetry.js"
 import {	currentVersion } from "../components/Changelog.js";
 import { pluginhelp } from "./pluginhelp.js"
 import { tangyuanhelp } from "./tangyuanhelp.js"
@@ -1670,8 +1670,75 @@ const exportedFunctions = {
 exportedFunctions.ai = ai;
 exportedFunctions.ai_reset_memory = ai_reset_memory;
 
+// 功能分布计数映射：handler 函数名 → 功能族（ct 外层键）；内层键即函数名本身，与代码零漂移
+// 未映射的 handler 不计数；Check 类内部校验函数（answerCheck/guessAvatarCheck 等）无触发面，不映射
+// qmp/biaoQing/lp/randomQA 归属待确认，暂不映射
+const CT_MAP = {
+  help: '帮助查询', maphelp: '地下地图', pluginhelp: '帮助查询', tangyuanhelp: '帮助查询',
+  sysCfg: '插件管理', 哪个群友是我老婆: '娶群友', checkIn: '打卡',
+  updateLiulianPlugin: '插件管理', updateRes: '插件管理', update: '插件管理', cj: '插件管理',
+  JsPlugins: '插件管理', PluginsList: '插件管理', WarehPluginsList: '插件管理',
+  RemovePlugins: '插件管理', LoadPlugins: '插件管理', DeletePlugins: '插件管理',
+  HelpMenu: '插件管理', v3JsPlugins: '插件管理', v3PluginsList: '插件管理',
+  v3WarehPluginsList: '插件管理', v3RemovePlugins: '插件管理', v3LoadPlugins: '插件管理',
+  v3DeletePlugins: '插件管理', v3HelpMenu: '插件管理', replace: '插件管理',
+  liulian_status: '插件管理', ai_reset_memory: '插件管理', fakeMessage: '插件管理',
+  miku: '小黑子', kt1: '小黑子', kt2: '小黑子', jtm: '小黑子', mr: '小黑子',
+  ys: '小黑子', bh3: '小黑子', blhx: '小黑子', wl: '小黑子', fgo: '小黑子',
+  y7d: '小黑子', sn: '小黑子', gz: '小黑子', se: '小黑子', 小黑子: '小黑子',
+  yl总: '地下地图', yl1: '地下地图', yl2: '地下地图', yl3: '地下地图', yl4: '地下地图',
+  yl5: '地下地图', yl6: '地下地图', yl7: '地下地图', yl8: '地下地图', yl9: '地下地图',
+  yl10: '地下地图', yl11: '地下地图', yl12: '地下地图', yl13: '地下地图', yl14: '地下地图',
+  yl15: '地下地图', yl16: '地下地图', yl17: '地下地图', yl18: '地下地图', yl19: '地下地图',
+  yl20: '地下地图', sm总: '地下地图', sm1: '地下地图', sm2: '地下地图', sm3: '地下地图',
+  sm4: '地下地图', sm5: '地下地图', sm6: '地下地图', sm7: '地下地图', sm8: '地下地图',
+  sm9: '地下地图', sm10: '地下地图', sm11: '地下地图', sm12: '地下地图', sm13: '地下地图',
+  sm14: '地下地图', sm15: '地下地图', sm16: '地下地图', sm17: '地下地图', sm18: '地下地图',
+  sm19: '地下地图', sm20: '地下地图', sm21: '地下地图', sm22: '地下地图', sm23: '地下地图',
+  mapnumber: '地下地图',
+  random: '随机表情', chuochuo: '随机表情',
+  上传: '随机表情', biaoQingHelp: '随机表情',
+  FuckingChatterbox: '寻找大水逼',
+  guessAvatar: '猜角色', starguessAvatar: '猜角色', zzzguessAvatar: '猜角色',
+  wwguessAvatar: '猜角色', nteguessAvatar: '猜角色', guessRankCmd: '猜角色排名',
+  guessmusic: '猜歌名', miyu: '猜谜语',
+  memberBind: '会员', memberBindKey: '会员', memberStatus: '会员',
+  groupRest: '群聊闭嘴', toShutUp: '群聊闭嘴', openYourMouth: '群聊闭嘴', determineIfYouShutUp: '群聊闭嘴',
+  godEyesFUN: '神之眼', headPortraitFUN: '头像',
+  HitMe: '打我', CeShi: '进退群通知',
+  dutang: '毒鸡汤', caihongpi: '彩虹屁', saylove: '土味情话', joke: '笑话',
+  早报: '早报', xzys: '星座运势', weather: '天气', holiday: '节假日', eventHistory: '历史上的今天',
+  setu: 'setu',
+  dailyword: '每日单词', sentence: '每日句子',
+  ercyFUN: '二次元的我', chengfenFUN: '二次元的我', daanFUN: '答案之书', qiuqianFUN: '运势',
+  运势: '运势',
+  changeBilibiliPush: 'B站推送', changeGroupBilibiliPush: 'B站推送',
+  changeBiliPushPrivatePermission: 'B站推送', bilibiliPushPermission: 'B站推送',
+  updateBilibiliPush: 'B站推送', getBilibiliPushUserList: 'B站推送',
+  setBiliPushTimeInterval: 'B站推送', setBiliPushFaultTime: 'B站推送',
+  changeBiliPushTransmit: 'B站推送', setBiliPushSendType: 'B站推送',
+  biliLogin: 'B站推送', refreshBiliPushList: 'B站推送', refreshAllBiliPushList: 'B站推送',
+  checkBiliCookie: 'B站推送', bilibiliPush: 'B站推送',
+  subscribeKeyword: '词云热搜', unsubscribeKeyword: '词云热搜', viewSubscriptions: '词云热搜',
+  addGlobalBlockedKeyword: '词云热搜', removeGlobalBlockedKeyword: '词云热搜',
+  viewGlobalBlockedKeywords: '词云热搜', addGroupBlockedKeyword: '词云热搜',
+  removeGroupBlockedKeyword: '词云热搜', viewGroupBlockedKeywords: '词云热搜',
+  viewApplications: '词云热搜', approveApplication: '词云热搜', rejectApplication: '词云热搜',
+  hotWordCloud: '词云热搜', hotTrendChart: '词云热搜', hotUpdate: '词云热搜',
+  enableHotPush: '词云热搜', disableHotPush: '词云热搜', setHotPushTime: '词云热搜',
+  setHotPushPlatform: '词云热搜', getHotPushList: '词云热搜', hotPushScheduleJob: '词云热搜',
+  bilibilihelp: '帮助查询', hothelp: '帮助查询', YZversionInfo: '帮助查询',
+  Robacat: '猫猫互动', Loseacat: '猫猫互动', Resetcat: '猫猫互动', Bouncecat: '猫猫互动',
+  daihua: '广播带话', guangbo: '广播带话', guangboHelp: '广播带话',
+  fanyi: '翻译', base64jiami: 'base64', base64jiemi: 'base64',
+  wyyjx: '网易云解析', wyyauto: '网易云解析', qrcode: '二维码',
+  ai: 'AI回复'
+}
+
 for (let fnName in exportedFunctions) {
+  const family = CT_MAP[fnName]
   LiulianV3.prototype[fnName] = async function(e) {
+    if (family) count(family, fnName)
     return await exportedFunctions[fnName](e, { render })
   }
 }
