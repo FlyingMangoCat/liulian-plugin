@@ -24,7 +24,14 @@ import { count } from "./telemetry.js"
 try {
   const pluginDir = path.join(path.dirname(fileURLToPath(import.meta.url)), "..")
   if (!fs.existsSync(path.join(pluginDir, ".git"))) {
-    console.log("[榴莲插件] 当前为复制安装，无法自动获取更新修复。推荐使用 git 安装：git clone https://gitee.com/huifeidemangguomao/liulian-plugin.git plugins/liulian-plugin")
+    console.log([
+      "[榴莲插件] 检测到当前为复制安装，无法自动获取更新修复。请按以下步骤转为 git 安装：",
+      "[榴莲插件] 1. 停止机器人",
+      "[榴莲插件] 2. 控制台进入云崽根目录（Yunzai 目录），依次执行：",
+      "[榴莲插件]    mv plugins/liulian-plugin plugins/liulian-plugin.bak",
+      "[榴莲插件]    git clone https://gitee.com/huifeidemangguomao/liulian-plugin.git plugins/liulian-plugin",
+      "[榴莲插件] 3. 重启机器人，确认正常后可删除 plugins/liulian-plugin.bak"
+    ].join("\n"))
   }
 } catch (err) {}
 import {	currentVersion } from "../components/Changelog.js";
