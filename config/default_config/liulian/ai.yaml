@@ -69,10 +69,7 @@ ai:
     max_length: 200               # 单条消息最大长度
     delay_between_messages: 500   # 消息间延迟（毫秒）
 
-  # 黑名单配置
-  blacklist:
-    groups: ["123456789", "1023688845"]  # 群号黑名单，替换为实际群号
-    enable: true                          # 是否启用黑名单功能
+  # 黑名单配置已迁移至 bwlist.yaml（黑白名单统一配置）
 
   # 性能配置
   performance:

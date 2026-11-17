@@ -5,12 +5,12 @@ import path from "path"
 import fs from "fs"
 import co from '../tools/common-black.js'
 import { featureOffReply } from "../components/bcommon.js"
+import { isGroupWhite, isUserBlack } from "../model/bwConfig.js"
 
 // 安全获取segment对象
 const segment = global.segment || global.Bot?.segment || {}
 const __dirname = path.resolve();
-const hmd_userqq = []; //对于某用户黑名单 ,隔开
-const bmd_GroupQQ = [790621765,363475402,849341971,231381173,278546012]; //需要使用的群的白名单 ,隔开
+// 名单：config/config/liulian/bwlist.yaml（white.groups.kun / black.users.kun），经 bwConfig 中间件查询
 let timeout = 99999; //0表示不撤回，单位毫秒，默认30s。
 const 小黑子_path ='plugins/liulian-plugin/resources/小黑子/小黑子/小黑子'
 let source={}
@@ -234,10 +234,10 @@ export async function hx(e) {
     return true; //返回true 阻挡消息不再往下
 }
 export async function ys(e) {   
-  if (!bmd_GroupQQ.includes(e.group_id)) {
+  if (!isGroupWhite('kun', e.group_id)) {
 		return;
   }
-  if (hmd_userqq.includes(e.user_id)) {
+  if (isUserBlack('kun', e.user_id)) {
 		return;
   }
 let url = `http://25252.xyz/ys/index.php`;

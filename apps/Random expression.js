@@ -9,6 +9,7 @@ import fs from "fs"
 import path from "path"
 import { Cfg, logger, liulianSafe } from '#liulian'
 import co from '../tools/common-black.js'
+import { isGroupBlack, isUserBlack } from "../model/bwConfig.js"
 import { botConfig } from "../components/bcommon.js"
 
 // 安全获取segment对象
@@ -16,11 +17,7 @@ const segment = global.segment || global.Bot?.segment || {}
 
 const __dirname = path.resolve();
 
-// 用户黑名单列表，用逗号分隔
-const hmd_userqq = []; 
-
-// 群黑名单列表，用逗号分隔
-const bmd_GroupQQ = [931286774]; 
+// 黑名单：config/config/liulian/bwlist.yaml（black.groups.bq / black.users.bq），经 bwConfig 中间件查询
 
 // 自定义表情包存储路径
 const 随机表情_path ='plugins/liulian-plugin/resources/自定义表情/expression/自定义表情'
@@ -55,9 +52,9 @@ export function checkRandom(e) {
   // 检查表情包功能是否开启
   if (!Cfg.get('sys.bq', false)) return false;
   // 检查群是否在黑名单中
-  if (bmd_GroupQQ.includes(e.group_id)) return false;
+  if (isGroupBlack('bq', e.group_id)) return false;
   // 检查用户是否在黑名单中
-  if (hmd_userqq.includes(e.user_id)) return false;
+  if (isUserBlack('bq', e.user_id)) return false;
   // 生成0-100的随机数作为触发概率
   let random_ = lodash.random(0, 100);
   return random_ < getGl(e);
@@ -151,11 +148,11 @@ if (!Cfg.get('sys.bq', false)) {
     return false
   }
   // 检查群是否在黑名单中
-  if (bmd_GroupQQ.includes(e.group_id)) {
+  if (isGroupBlack('bq', e.group_id)) {
 		return false;
   }
   // 检查用户是否在黑名单中
-  if (hmd_userqq.includes(e.user_id)) {
+  if (isUserBlack('bq', e.user_id)) {
 		return false;
   }
   // 同一条消息只掷一次骰子（多账号下每个账号都会跑一遍本插件）

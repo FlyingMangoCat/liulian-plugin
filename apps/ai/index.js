@@ -4,6 +4,7 @@ import memoryService from './core/memoryService.js';
 import config from '#liulian.config';
 import { Cfg } from '#liulian';
 import * as chatState from '#liulian.chatState';
+import { isGroupBlack } from '../../model/bwConfig.js';
 
 // 环境检测
 const isMiddlewareMode = process.env.LIULIAN_MODE === 'middleware';
@@ -92,10 +93,6 @@ class AIManager {
                 max_length: 200,
                 delay_between_messages: 500
             },
-            blacklist: config.ai?.blacklist || {
-                groups: [],
-                enable: false
-            },
             reply_length: config.ai?.reply_length || {
                 max_chars: 120,
                 max_sentences: 2,
@@ -121,11 +118,9 @@ class AIManager {
             return false;
         }
         
-        // 检查黑名单群组（config/ai.js 唯一真源：ai.blacklist.groups + enable 开关）
-        const blacklistCfg = config.ai?.blacklist || { groups: [], enable: false };
-        const blacklistGroups = blacklistCfg.enable ? (blacklistCfg.groups || []) : [];
-        if (!e.isPrivate && e.group_id && 
-            blacklistGroups.map(String).includes(e.group_id.toString())) {
+        // 检查黑名单群组（bwlist.yaml 统一名单，bwConfig 中间件查询）
+        if (!e.isPrivate && e.group_id &&
+            isGroupBlack('ai', e.group_id)) {
             console.log('[AI模块] 群组在黑名单中，跳过处理');
             return false;
         }

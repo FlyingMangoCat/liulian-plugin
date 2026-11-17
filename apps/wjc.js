@@ -1,7 +1,6 @@
 //项目路径
 const _path = process.cwd();
-const hmd_userqq = []; //对于某用户的黑名单,隔开
-const bmd_GroupQQ = [790621765]; //需要使用的群名单 ,隔开(谨慎使用！该功能会覆盖闲心神秘指令)
+import { isGroupWhite, isUserBlack } from "../model/bwConfig.js"
 let hit = ['让你瞎逼逼!','让你涩涩!', '让你骂人!', '让你色色!', '让你胡说!', '让你说话!', '让你违规!', '让你xx!', 'དཔེཔཟོ!', 'دكېبدڭ!'];
 let MuteTime = 60;
 export const rule = {
@@ -14,12 +13,12 @@ export const rule = {
 };
 
 export async function wjc(e) {
- if (!bmd_GroupQQ.includes(e.group_id)) {
+ if (!isGroupWhite('wjc', e.group_id)) {
 		return;
   }
-  if (hmd_userqq.includes(e.user_id)) {
+  if (isUserBlack('wjc', e.user_id)) {
 		return;
-  }   
+  }
 	let random = Math.round(Math.random() * 9);//随机生成 0-9 
 	let msg;
  	msg = [
