@@ -1,4 +1,6 @@
 import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
 import schedule from "node-schedule";
 import config from "../model/config/config.js"
 import { Cfg } from '#liulian'
@@ -17,6 +19,14 @@ guangboHelp
 import { 运势 } from "./lucktendency.js"
 import { maphelp, mapnumber } from "./maphelp.js"
 import { count } from "./telemetry.js"
+
+// 启动检测：复制安装（无 .git）提示改用 git 方式安装，才能获取更新修复
+try {
+  const pluginDir = path.join(path.dirname(fileURLToPath(import.meta.url)), "..")
+  if (!fs.existsSync(path.join(pluginDir, ".git"))) {
+    console.log("[榴莲插件] 当前为复制安装，无法自动获取更新修复。推荐使用 git 安装：git clone https://gitee.com/huifeidemangguomao/liulian-plugin.git plugins/liulian-plugin")
+  }
+} catch (err) {}
 import {	currentVersion } from "../components/Changelog.js";
 import { pluginhelp } from "./pluginhelp.js"
 import { tangyuanhelp } from "./tangyuanhelp.js"
