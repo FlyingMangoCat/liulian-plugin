@@ -24,9 +24,10 @@ export function isUserBlack (feature, userId) {
   return list.map(toStr).includes(toStr(userId))
 }
 
-// 群白名单：仅名单内的群会启用该功能；名单缺失/为空 = 未启用任何群
+// 群白名单：仅名单内的群会启用该功能；名单填 0 = 白名单作废，全部群响应
 export function isGroupWhite (feature, groupId) {
   const list = cfg()?.white?.groups?.[feature] || []
+  if (list.length > 0 && list.map(toStr).includes('0')) return true
   return list.length > 0 && list.map(toStr).includes(toStr(groupId))
 }
 
