@@ -31,6 +31,9 @@ const settings = {
     path: path.join(__dirname, "/plugins/liulian-plugin/resources/随机表情"),
   }
 
+// 资源包默认表情包路径（#榴莲更新图像 安装后存在）
+const resPlusPath = path.join(__dirname, "/plugins/liulian-plugin/resources/liulian-res-plus/expression");
+
 // 自定义表情包配置
 const settings2 = {
     // 自定义表情包文件存放路径
@@ -92,17 +95,21 @@ export async function chuochuo(e) {
   let RandomNum=Cfg.get('sys.expression'); 
   
   // 使用默认表情包
-  if(RandomNum == 1){ 
-  let faceFiles = []; 
-  let fileName= []; 
-  let name = "expression"; 
+  if(RandomNum == 1){
+  let faceFiles = [];
+  let fileName= [];
+  let name = "expression";
+  // 资源包已安装时与本体图库各50%概率出图；未安装或为空则只走本体图库
+  let resPlusPath = path.join(__dirname, "/plugins/liulian-plugin/resources/liulian-res-plus/expression");
+  let hasResPlus = fs.existsSync(resPlusPath) && fs.readdirSync(resPlusPath).length > 0;
+  let facePath = hasResPlus && lodash.random(0, 1) === 1 ? resPlusPath : path.join(settings.path, name);
   // 获取默认表情包路径并读取所有文件
-  let facePath = path.join(settings.path, name); fs.readdirSync(facePath).forEach(fileName => faceFiles.push(fileName)); 
+  fs.readdirSync(facePath).forEach(fileName => faceFiles.push(fileName));
   // 随机选择一个表情文件
-  let randomFile = faceFiles[Math.round(Math.random() * (faceFiles.length - 1))] 
-  console.log(randomFile) 
+  let randomFile = faceFiles[Math.round(Math.random() * (faceFiles.length - 1))]
+  console.log(randomFile)
   // 构建文件完整路径
-  let finalPath = path.join(settings.path, name, randomFile); 
+  let finalPath = path.join(facePath, randomFile);
   // 读取文件并转换为base64
   let bitMap = fs.readFileSync(finalPath); 
   let base64 = Buffer.from(bitMap, 'binary').toString('base64'); 
