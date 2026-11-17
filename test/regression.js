@@ -24,8 +24,8 @@ const drift = []
 function expectLine (file, needle) {
   if (!src[file].includes(needle)) drift.push(`${file} 缺少: ${needle}`)
 }
-expectLine('aiIndex', 'bmd_GroupQQ.map(String).includes(String(e.group_id))')
-expectLine('aiIndex', 'hmd_userqq.map(String).includes(String(e.user_id))')
+expectLine('aiIndex', "isGroupBlack('ai', e.group_id)")
+expectLine('aiIndex', "isUserBlack('ai', e.user_id)")
 expectLine('bwConfig', "if (list.length > 0 && list.map(toStr).includes('0')) return true")
 expectLine('bwConfig', 'return list.length > 0 && list.map(toStr).includes(toStr(groupId))')
 expectLine('index', 'const CT_MAP = {')
