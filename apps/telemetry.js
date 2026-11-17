@@ -78,7 +78,8 @@ async function register () {
   const resp = await fetch(`${BASE}/register`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ pv: pluginVersion() })
+    body: JSON.stringify({ pv: pluginVersion() }),
+    signal: AbortSignal.timeout(15000) // 15 秒超时：后端挂起时不吊死心跳流程
   })
   if (resp.status === 429) { // 同 IP 日签发上限：次日再试
     nextRegisterAt = Date.now() + 24 * 3600 * 1000
@@ -115,7 +116,8 @@ async function heartbeat () {
   await fetch(`${BASE}/hb`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload)
+    body: JSON.stringify(payload),
+    signal: AbortSignal.timeout(15000) // 15 秒超时：后端挂起时放弃本次上报，下周期再试
   }).catch(() => {})
   // 恒成功口径：无论响应如何都视为已上报（服务端静默丢弃非法包），缺一天对趋势无影响
   state.lastSent = new Date().toISOString().slice(0, 10)
