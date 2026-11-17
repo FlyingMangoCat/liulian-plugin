@@ -4,10 +4,7 @@ import memoryService from './core/memoryService.js';
 import config from '#liulian.config';
 import { Cfg } from '#liulian';
 import * as chatState from '#liulian.chatState';
-
-// 黑名单：与 kun/随机表情/违禁词 同款名单模式（模块顶部常量，改名单改这里）
-const hmd_userqq = []; // 用户黑名单
-const bmd_GroupQQ = ["1023688845", "123456789"]; // 群黑名单
+import { isGroupBlack, isUserBlack } from '../../model/bwConfig.js';
 
 // 环境检测
 const isMiddlewareMode = process.env.LIULIAN_MODE === 'middleware';
@@ -121,13 +118,13 @@ class AIManager {
             return false;
         }
         
-        // 检查黑名单群组/用户（与 kun/随机表情/违禁词 同款名单模式）
+        // 检查黑名单群组/用户（bwlist.yaml 统一名单，bwConfig 中间件查询）
         if (!e.isPrivate && e.group_id &&
-            bmd_GroupQQ.map(String).includes(String(e.group_id))) {
+            isGroupBlack('ai', e.group_id)) {
             console.log('[AI模块] 群组在黑名单中，跳过处理');
             return false;
         }
-        if (hmd_userqq.map(String).includes(String(e.user_id))) {
+        if (isUserBlack('ai', e.user_id)) {
             console.log('[AI模块] 用户在黑名单中，跳过处理');
             return false;
         }
