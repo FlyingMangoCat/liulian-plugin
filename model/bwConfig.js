@@ -1,3 +1,5 @@
+import fs from 'fs'
+import YAML from 'yaml'
 import configStore from './config/config.js'
 
 // 黑白名单中间件：apps 不直接读名单配置文件，统一经此查询
@@ -5,6 +7,40 @@ import configStore from './config/config.js'
 // 热生效：chokidar 监听用户文件，改动后下一次查询即读新值
 const APP = 'liulian'
 const NAME = 'bwlist'
+
+// 启动补键（与 aiConfig.js 同款 fillMissing）：模板新增的名单键自动补进用户副本，
+// 只补缺失项不动用户已设值；重写文件会丢注释，键值不受影响
+function fillMissing (tpl, user) {
+  let changed = false
+  for (const k of Object.keys(tpl || {})) {
+    const u = user[k]
+    if (u === undefined) {
+      user[k] = tpl[k]
+      changed = true
+    } else if (
+      tpl[k] && typeof tpl[k] === 'object' && !Array.isArray(tpl[k]) &&
+      u && typeof u === 'object' && !Array.isArray(u)
+    ) {
+      if (fillMissing(tpl[k], u)) changed = true
+    }
+  }
+  return changed
+}
+
+// 启动时跑一次（幂等：没缺键就不写文件）
+try {
+  const tpl = configStore.getdefault_config(APP, NAME)
+  const userFile = configStore.getFilePath(APP, NAME, 'config')
+  if (tpl && fs.existsSync(userFile)) {
+    const user = YAML.parse(fs.readFileSync(userFile, 'utf8')) || {}
+    if (fillMissing(tpl, user)) {
+      fs.writeFileSync(userFile, YAML.stringify(user))
+      console.log('[bwConfig] 模板新增键已自动补进用户 bwlist.yaml')
+    }
+  }
+} catch (e) {
+  console.error('[bwConfig] 模板补齐失败(不影响运行):', e.message)
+}
 
 function cfg () {
   return configStore.getconfig(APP, NAME) || {}
