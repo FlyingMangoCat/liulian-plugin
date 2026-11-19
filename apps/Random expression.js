@@ -10,6 +10,7 @@ import path from "path"
 import { Cfg, logger, liulianSafe } from '#liulian'
 import co from '../tools/common-black.js'
 import { isGroupBlack, isUserBlack } from "../model/bwConfig.js"
+import { count } from "./telemetry.js"
 import { botConfig } from "../components/bcommon.js"
 
 // 安全获取segment对象
@@ -172,6 +173,7 @@ if (!Cfg.get('sys.bq', false)) {
 	// 如果随机数小于配置概率，则触发表情包（自发消息按原概率一半）
 	if (random_ < getGl(e) ) {
 	chuochuo(e);
+  count('随机表情', 'random'); // 遥测口径：掷骰命中的真实触发（非消息经过量）
   liulianSafe.logger.mark(`liulian-plugin -- 随机表情`);
   // 已触发表情包也不拦截消息，返回 false 让框架继续传递给后续规则/插件
 	return false;

@@ -1698,7 +1698,7 @@ const CT_MAP = {
   RemovePlugins: '插件管理', LoadPlugins: '插件管理', DeletePlugins: '插件管理',
   HelpMenu: '插件管理', v3JsPlugins: '插件管理', v3PluginsList: '插件管理',
   v3WarehPluginsList: '插件管理', v3RemovePlugins: '插件管理', v3LoadPlugins: '插件管理',
-  v3DeletePlugins: '插件管理', v3HelpMenu: '插件管理', replace: '插件管理',
+  v3DeletePlugins: '插件管理', v3HelpMenu: '插件管理',
   liulian_status: '插件管理', ai_reset_memory: '插件管理', fakeMessage: '插件管理',
   miku: '小黑子', kt1: '小黑子', kt2: '小黑子', jtm: '小黑子', mr: '小黑子',
   ys: '小黑子', bh3: '小黑子', blhx: '小黑子', wl: '小黑子', fgo: '小黑子',
