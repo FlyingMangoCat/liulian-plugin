@@ -7,6 +7,7 @@ import config from '#liulian.config';
 import * as chatState from '#liulian.chatState';
 import { getBrainCfg, isCloudConfigured } from './ai/core/cloudBrainClient.js';
 import { askBrain } from './ai/core/brain.js';
+import { count } from './telemetry.js';
 
 // 延迟初始化函数
 async function ensureInitialized() {
@@ -258,6 +259,7 @@ export async function ai(e) {
   }
   
   console.log('[榴莲AI] 满足回复条件，继续处理');
+  count('AI回复', 'ai'); // 遥测口径：过完决策门闸的真实触发（非消息经过量）
   console.log(`[榴莲AI] 计时: 门禁+决策 ${Date.now() - __t0}ms`);
 
   // 多账号去重：同一条消息只由一个账号处理（TRSS 多 bot 会双触发）

@@ -1713,7 +1713,7 @@ const CT_MAP = {
   sm14: '地下地图', sm15: '地下地图', sm16: '地下地图', sm17: '地下地图', sm18: '地下地图',
   sm19: '地下地图', sm20: '地下地图', sm21: '地下地图', sm22: '地下地图', sm23: '地下地图',
   mapnumber: '地下地图',
-  random: '随机表情', chuochuo: '随机表情',
+  chuochuo: '随机表情',
   上传: '随机表情', biaoQingHelp: '表情制作', biaoQing: '表情制作', qmp: '群名片',
   FuckingChatterbox: '寻找大水逼',
   guessAvatar: '猜角色', starguessAvatar: '猜角色', zzzguessAvatar: '猜角色',
@@ -1751,8 +1751,7 @@ const CT_MAP = {
   daihua: '广播带话', guangbo: '广播带话', guangboHelp: '广播带话',
   sjclassic: '经典发言', zdclassic: '经典发言',
   fanyi: '翻译', base64jiami: 'base64', base64jiemi: 'base64',
-  wyyjx: '网易云解析', wyyauto: '网易云解析', qrcode: '二维码',
-  ai: 'AI回复'
+  wyyjx: '网易云解析', wyyauto: '网易云解析', qrcode: '二维码'
 }
 
 for (let fnName in exportedFunctions) {
