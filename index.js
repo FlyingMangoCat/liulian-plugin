@@ -1,18 +1,9 @@
-import { isV3 } from './components/Changelog.js'
 import { Data, logger } from '#liulian'
 import config from './model/config/config.js'
 import chalk from 'chalk'
-import crypto from 'crypto'
 
 // 先导出所有apps模块，确保插件功能可用
 export * from './apps/index.js'
-
-let index = { liulian: {} }
-if (isV3) {
-  index = await Data.importModule('/plugins/liulian-plugin/adapter', 'index.js')
-}
-
-export const liulian = index.liulian || {}
 
 const plugininfo_default = config.getdefault_config('liulian', 'plugininfo')
 
