@@ -54,14 +54,18 @@ async function askLocal (e, { messageContent, messageType, imageUrl, contextText
   }
 
   // 取阅：模型要求查看某条原文时，补拉一次再给一次正式回复机会（最多一轮）
-  // [查看 #3] 和 [查看 3]（漏写#）都认——弱模型格式记不全，认内容不认写法
-  const lookMatch = String(reply).match(/^\[?查看\s*#?(\d+)\]?$/)
+  // 宽进严出：[查看 #3]、[查看 3]、查看#3、裸 #3 都认——弱模型格式记不全，认意图不认写法；
+  // 命中意图但原文拉不到时直接沉默，绝不把残缺标记当正文发出去
+  const lookMatch = String(reply).match(/^\s*\[?\s*查看\s*#?\s*(\d+)\s*\]?\s*$|^\s*#\s*(\d+)\s*$/)
   if (lookMatch) {
-    console.log('[榴莲AI] 模型要求查看消息 #' + lookMatch[1])
-    const content = await chatState.fetchMsgContent(chatIdOf(e), lookMatch[1])
+    const msgId = lookMatch[1] || lookMatch[2]
+    console.log('[榴莲AI] 模型要求查看消息 #' + msgId)
+    const content = await chatState.fetchMsgContent(chatIdOf(e), msgId)
     if (content) {
       reply = await AIManager.generalChat(messageContent, messageType, e.user_id?.toString(), imageUrl,
         `${contextText ? contextText + '\n\n' : ''}【你要求查看的原文】\n${content}\n（已查看，现在必须给出正式回复）`)
+    } else {
+      return silentExit('取阅编号无原文', reply)
     }
   }
   if (!reply) return silentExit('取阅后空', reply)
