@@ -21,13 +21,8 @@
     "node-schedule": "^2.1.1",
     "puppeteer": "^24.34.0",
     "qrcode": "^1.5.3",
-    "request": "^2.88.2",
     "tough-cookie": "^6.0.0",
     "yaml": "^2.8.2"
-  },
-  "devDependencies": {
-    "cheerio": "1.0.0-rc.12",
-    "request": "^2.88.2"
   },
   "imports": {
     "#liulian": "./components/index.js",
