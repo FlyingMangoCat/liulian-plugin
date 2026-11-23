@@ -4,11 +4,10 @@ import common from "../components/bcommon.js";
 import hotDatabase from "./hot/database.js";
 import fs from "fs";
 import { Common } from '#liulian';
-import Segment from 'segment';
+import { Jieba } from '@node-rs/jieba';
 
 // 初始化分词器
-const segmenter = new Segment();
-segmenter.useDefault();
+const segmenter = new Jieba();
 
 // 安全获取segment对象
 const segment = global.segment || global.Bot?.segment || {}
@@ -238,7 +237,7 @@ export async function hotSearch(e) {
       await hotDatabase.saveHotSearchHistory(type, item.title, item.hot);
       
       // 分词并保存关键词
-      const words = segmenter.doSegment(item.title, { simple: true });
+      const words = segmenter.cut(item.title, true);
       for (let word of words) {
         // 过滤掉单字和常见无意义词
         if (word.length >= 2 && !/^[的了在是和与及吗呢吧啊呀哦]+$/.test(word)) {
@@ -770,7 +769,7 @@ export async function hotUpdate(e) {
           await hotDatabase.saveHotSearchHistory(platform, item.title, item.hot);
           
           // 分词并保存关键词
-          const words = segmenter.doSegment(item.title, { simple: true });
+          const words = segmenter.cut(item.title, true);
           for (let word of words) {
             // 过滤掉单字和常见无意义词
             if (word.length >= 2 && !/^[的了在是和与及吗呢吧啊呀哦]+$/.test(word)) {
