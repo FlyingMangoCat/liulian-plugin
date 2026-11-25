@@ -74,6 +74,14 @@ async function askLocal (e, { messageContent, messageType, imageUrl, contextText
     }
   }
   if (!reply) return silentExit('取阅后空', reply)
+  // 兜底：模型没学会约定时会自己发明括号标记（如 [回应]、[引用]），剥掉再发；
+  // 剥完剩不下正经内容就沉默，宁可少说一句不发出 CraP 标记
+  const stripped = String(reply).replace(/^\s*[\[【][^\]】]{1,8}[\]】]\s*/, '').trim()
+  if (stripped) {
+    reply = stripped
+  } else {
+    return silentExit('仅剩括号标记', reply)
+  }
   return { reply: String(reply) }
 }
 
