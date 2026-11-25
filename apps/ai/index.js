@@ -4,6 +4,7 @@ import memoryService from './core/memoryService.js';
 import config from '#liulian.config';
 import { Cfg } from '#liulian';
 import * as chatState from '#liulian.chatState';
+import { faceIdByName } from './faceMap.js';
 import { isGroupBlack, isUserBlack } from '../../model/bwConfig.js';
 
 // 环境检测
@@ -339,13 +340,26 @@ ${memoryContext}
         // 引用目标不再是触发消息而是模型点名的那条）；能力/数据缺失 → 维持引用触发消息的老行为
         const canRealQuote = !!(quote?.mid && typeof segment.reply === 'function');
         let firstMid = null;
+        // 模型自发输出的 [呲牙][加油] 这类 QQ 表情名转成真实表情段，未知名原样保留
+        const toSegments = (content) => {
+            if (typeof content !== 'string' || !content.includes('[')) return content;
+            const parts = content.split(/(\[[^\[\]]{1,6}\])/).filter(Boolean);
+            const segs = [];
+            for (const p of parts) {
+                const m = p.match(/^\[([^\[\]]{1,6})\]$/);
+                const id = m && faceIdByName(m[1]);
+                if (id) segs.push(segment.face ? segment.face(id) : p);
+                else segs.push(p);
+            }
+            return segs.length === 1 ? content : segs;
+        };
         const send = async (content) => {
             let res;
             if (canRealQuote) {
                 const seg = Array.isArray(content) ? [segment.reply(quote.mid), ...content] : [segment.reply(quote.mid), content];
                 res = await e.reply(seg);
             } else {
-                res = await e.reply(content, true);
+                res = await e.reply(toSegments(content), true);
             }
             if (!firstMid && res?.message_id) firstMid = res.message_id;
             return res;
